@@ -38,7 +38,7 @@ case class Repository(login: String, id: Int, name: String, fork: Boolean, langu
 object GitHubApiHelper extends Logging {
 
   implicit val format = DefaultFormats
-  val client = new HttpClient()
+  private val client = new HttpClient()
 
   /**
    * Access Github's
@@ -105,11 +105,8 @@ object GitHubApiHelper extends Logging {
 object GitHubApiHelperTest {
   def main(args: Array[String]): Unit = {
     import com.betterdocs.crawler.GitHubApiHelper._
-    for (i <- Range(10000, 20000, 350)) {
-      getAllGitHubRepos(i).filter(x => x("fork") == "false")
+    for (i <- Range(23000, 300000, 350)) yield getAllGitHubRepos(i).filter(x => x("fork") == "false").distinct
         .map(fetchDetails).flatten.distinct.filter(x => x.language == "Java" && !x.fork)
-        .map(x => downloadRepository(x, "<output>"))
-    }
-
+        .map(x => downloadRepository(x, "~/github"))
   }
 }
