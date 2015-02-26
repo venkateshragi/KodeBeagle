@@ -17,16 +17,17 @@
 
 package com.betterdocs.crawler
 
-import java.io.BufferedInputStream
+import java.io.{File, BufferedInputStream}
 import java.util.regex.Pattern
 
+import com.betterdocs.indexer.JavaFileIndexer
 import org.apache.commons.compress.archivers.zip.{ZipArchiveEntry, ZipFile}
 import org.apache.commons.lang3.StringUtils
 
 import scala.collection.JavaConversions._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 
 /**
@@ -34,52 +35,42 @@ import scala.util.Try
  */
 object ZipBasicParser {
 
-  private val importPattern: Pattern = Pattern.compile("import (.*)\\.(\\w+);")
-  // Determines the lines of context.
-  private val linesOfContext: Int = 3
-
   private val bufferSize = 102400
 
-  def readJavaFiles(zip: ZipFile) = {
+  def readFilesAndPackages(zip: ZipFile) = {
     val list = mutable.ArrayBuffer[(String, String)]()
     val zipArchiveEntries = zip.getEntries.toList
     val allJavaFiles = zipArchiveEntries.filter(x => x.getName.endsWith("java") && !x.isDirectory)
-    val allPackages =
-      zipArchiveEntries.filter(x => !x.getName.endsWith("java") && x.isDirectory).map(_.getName.split("\\/").last).
-        filter(x => x != "org" || x != "com" || x != "edu" || x != "apache")
-    println(allPackages.mkString("\n"))
+    val allPackages = zipArchiveEntries.filter(x => x.isDirectory).map(_.getName.split("\\/").last)
     val files = allJavaFiles.map(x => x.getName -> new BufferedInputStream(zip.getInputStream(x)))
     for ((name, f) <- files) {
       val b = new Array[Byte](bufferSize)
       f.read(b)
       list += (name -> new String(b).trim)
     }
-    (list, List())
+    (list, allPackages)
   }
 
-  def extractImports(java: String, packages: List[String]) = java.split("\n")
-    .filter(x => x.startsWith("import") && !packages.exists(x.contains(_)))
-    .map(x => importPattern.matcher(x)).filter(_.find)
-    .map(x => Try(x.group(1) -> x.group(2).trim).toOption).flatten
+  def listAllFiles(dir: String) =
+    new File(dir).listFiles()
 
-  def generateTokensWRTImports(imports: Seq[(String, String)], java: String) = {
-    val lines = java.split("\n")
-    (lines.sliding(linesOfContext) zip (0 to lines.size).toIterator).map { x =>
-      imports.map(y => (StringUtils.countMatches(x._1.mkString("\n"), y._2), x._2, y))
-    }.map(_.filter(_._1 > 0)).filter(_.nonEmpty)
-  }
-
-  def listAllFiles(dir: String) = {
-    
-  }
 }
 
 object ZipBasicParserTester {
 
   def main(args: Array[String]): Unit = {
-    val f = "~/Downloads/hadoop-trunk.zip"
     import com.betterdocs.crawler.ZipBasicParser._
-    val files: (ArrayBuffer[(String, String)], List[String]) = readJavaFiles(new ZipFile(f))
-    files._1.map(x => generateTokensWRTImports(extractImports(x._2, files._2), x._2)).foreach(x => println(x.mkString("\n")))
+    val indexer: JavaFileIndexer = new JavaFileIndexer
+    import indexer._
+    for (f <- listAllFiles("/home/prashant/github/")) {
+      val zipFile = Try(new ZipFile(f))
+      zipFile match {
+        case Success(zf) =>
+          val files: (ArrayBuffer[(String, String)], List[String]) = readFilesAndPackages(zf)
+          generateTokens(files._1.toMap, files._2).foreach(println)
+        case Failure(e) => println(s"$f failed because ${e.getMessage}")
+      }
+
+    }
   }
 }

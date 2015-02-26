@@ -30,7 +30,7 @@ import org.json4s.jackson.JsonMethods._
 import scala.util.Try
 
 case class Repository(login: String, id: Int, name: String, fork: Boolean, language: String,
-                      stargazersCount: Int)
+                      defaultBranch: String, stargazersCount: Int)
 
 /**
  * This class relies on Github's {https://developer.github.com/v3/} Api.
@@ -67,7 +67,8 @@ object GitHubApiHelper extends Logging {
       repo <- httpGetJson("https://api.github.com/repos/" + repoMap("full_name"))
     } yield Repository((repo \ "owner" \ "login").extract[String],
       (repo \ "id").extract[Int], (repo \ "name").extract[String], (repo \ "fork").extract[Boolean],
-      (repo \ "language").extract[String], (repo \ "stargazers_count").extract[Int])
+      (repo \ "language").extract[String], (repo \ "default_branch").extract[String],
+      (repo \ "stargazers_count").extract[Int])
   }
 
   /*
@@ -80,9 +81,11 @@ object GitHubApiHelper extends Logging {
     method.addRequestHeader("Authorization", "token <token>")
     val status = client.executeMethod(method)
     if (status == 200) {
-      Try(parse(method.getResponseBodyAsString)).toOption // ignored parsing errors if any, because we can not do anything about them anyway.
+      // ignored parsing errors if any, because we can not do anything about them anyway.
+      Try(parse(method.getResponseBodyAsString)).toOption
     } else {
-      logError("Request failed with status:" + status + "Response:" + method.getResponseHeaders.mkString("\n") +
+      logError("Request failed with status:" + status + "Response:"
+        + method.getResponseHeaders.mkString("\n") +
         "\nResponseBody " + method.getResponseBodyAsString)
       None
     }
@@ -90,10 +93,12 @@ object GitHubApiHelper extends Logging {
 
   def downloadRepository(r: Repository, targetDir: String): File = {
     try {
-      val repoFile = new File(s"$targetDir/repo~${r.login}~${r.name}~${r.id}~${r.fork}~${r.language}~${r.stargazersCount}.zip")
+      val repoFile = new File(
+        targetDir +
+          s"/repo~${r.login}~${r.name}~${r.id}~${r.fork}~${r.language}~${r.stargazersCount}.zip")
       logInfo(s"Downloading $repoFile")
-      // FIXME: master is not always present - or is default branch but then there is an extra service call to find out.
-      FileUtils.copyURLToFile(new URL(s"https://github.com/${r.login}/${r.name}/archive/master.zip"), repoFile)
+      FileUtils.copyURLToFile(new URL(
+        s"https://github.com/${r.login}/${r.name}/archive/${r.defaultBranch}.zip"), repoFile)
       repoFile
     } catch {
       case x: Throwable => logError(s"Failed to download $r", x)
@@ -105,8 +110,8 @@ object GitHubApiHelper extends Logging {
 object GitHubApiHelperTest {
   def main(args: Array[String]): Unit = {
     import com.betterdocs.crawler.GitHubApiHelper._
-    for (i <- Range(23000, 300000, 350)) yield getAllGitHubRepos(i).filter(x => x("fork") == "false").distinct
-        .map(fetchDetails).flatten.distinct.filter(x => x.language == "Java" && !x.fork)
-        .map(x => downloadRepository(x, "~/github"))
+    for (i <- Range(46000, 300000, 350)) yield getAllGitHubRepos(i).filter(x => x("fork") == "false").distinct
+      .map(fetchDetails).flatten.distinct.filter(x => x.language == "Java" && !x.fork)
+      .map(x => downloadRepository(x, "/home/prashant/github"))
   }
 }
