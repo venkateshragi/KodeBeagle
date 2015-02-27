@@ -56,21 +56,3 @@ object ZipBasicParser {
 
 }
 
-object ZipBasicParserTester {
-
-  def main(args: Array[String]): Unit = {
-    import com.betterdocs.crawler.ZipBasicParser._
-    val indexer: JavaFileIndexer = new JavaFileIndexer
-    import indexer._
-    for (f <- listAllFiles("/home/prashant/github/")) {
-      val zipFile = Try(new ZipFile(f))
-      zipFile match {
-        case Success(zf) =>
-          val files: (ArrayBuffer[(String, String)], List[String]) = readFilesAndPackages(zf)
-          generateTokens(files._1.toMap, files._2).foreach(println)
-        case Failure(e) => println(s"$f failed because ${e.getMessage}")
-      }
-
-    }
-  }
-}

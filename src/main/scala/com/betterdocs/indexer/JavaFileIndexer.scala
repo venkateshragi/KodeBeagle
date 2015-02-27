@@ -21,36 +21,46 @@ import java.util.regex.Pattern
 
 import org.apache.commons.lang3.StringUtils
 
-import scala.collection.mutable
 import scala.util.Try
 
-case class Token(file: String, string: String, occurs: List[Int])
+
+/** This is the smallest and the only entity that we store as index. (Read about: Reverse Index.) */
+case class Token(file: String, strings: Seq[String], lineNumber: Int, score: Int)
 
 trait BasicIndexer extends Serializable {
 
-  val linesOfContext: Int = 3
-  // Import pattern of some languages is similar.
+  /** Adjusting the lines of context is crucial to the kinds of token generated. (Tune this.) */
+  val linesOfContext: Int
+
+  /** Import pattern of some languages is similar. */
   val importPattern: Pattern = Pattern.compile("import (.*)\\.(\\w+);")
 
-  def generateTokens(files: Map[String, String], excludePackages: List[String]): List[Token]
+  def generateTokens(files: Map[String, String],
+    excludePackages: List[String], score: Int): List[Token]
 
 }
 
 class JavaFileIndexer extends BasicIndexer {
 
+  /** For Java code based on trial and error 10 to 20 seems good. */
+  override val linesOfContext: Int = 10
+
   override def generateTokens(files: Map[String, String],
-      excludePackages: List[String]): List[Token] = {
+      excludePackages: List[String], score: Int): List[Token] = {
     var tokens = List[Token]()
     for (file <- files) {
-      val tokenMap = new mutable.HashMap[String, List[Int]]
-      val imports = extractImports(file._2, excludePackages)
-      generateTokensWRTImports(imports, file._2).map { x =>
-        x.map { y =>
-          val oldValue: List[Int] = tokenMap.getOrElse(y._3._1 + "." + y._3._2, List())
-          tokenMap += ((y._3._1 + "." + y._3._2, oldValue ++ List(y._2)))
-        }
+      val (fileName, fileContent) = file
+      // val tokenMap = new mutable.HashMap[String, List[Int]]
+      val imports = extractImports(fileContent, excludePackages)
+      generateTokensWRTImports(imports, fileContent).map { x =>
+       // x.map { y =>
+         //  val oldValue: List[Int] = tokenMap.getOrElse(y._3._1 + "." + y._3._2, List())
+          // This map can be used to create one to N index if required.
+          // tokenMap += ((y._3._1 + "." + y._3._2, oldValue ++ List(y._2)))
+        // }
+        tokens = tokens ++ List(Token(fileName, x.map(z => z._3._1 + "." + z._3._2), x.head._2,
+          score))
       }
-      tokens = tokens ++ tokenMap.map(x => Token(file._1, x._1, x._2)).toList
     }
     tokens
   }
@@ -58,13 +68,13 @@ class JavaFileIndexer extends BasicIndexer {
   private def extractImports(java: String, packages: List[String]) = java.split("\n")
     .filter(x => x.startsWith("import") && !packages.exists(x.contains(_)))
     .map(x => importPattern.matcher(x)).filter(_.find)
-    .map(x => Try(x.group(1) -> x.group(2).trim).toOption).flatten
+    .flatMap(x => Try(x.group(1) -> x.group(2).trim).toOption)
 
   private def generateTokensWRTImports(imports: Seq[(String, String)],
       java: String): List[Seq[(Int, Int, (String, String))]] = {
     val lines = java.split("\n")
-    (lines.sliding(linesOfContext).toList zip (0 to lines.size).toList).map { x =>
-      imports.map(y => (StringUtils.countMatches(x._1.mkString("\n"), y._2), x._2, y))
+    (lines.sliding(linesOfContext) zip (0 to lines.size).sliding(linesOfContext)).toList.map {
+      x => imports.map(y => (StringUtils.countMatches(x._1.mkString("\n"), y._2), x._2.head, y))
     }.map(_.filter(_._1 > 0)).filter(_.nonEmpty)
   }
 }

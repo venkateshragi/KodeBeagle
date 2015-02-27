@@ -30,7 +30,7 @@ import org.json4s.jackson.JsonMethods._
 import scala.util.Try
 
 case class Repository(login: String, id: Int, name: String, fork: Boolean, language: String,
-                      defaultBranch: String, stargazersCount: Int)
+    defaultBranch: String, stargazersCount: Int)
 
 /**
  * This class relies on Github's {https://developer.github.com/v3/} Api.
@@ -95,7 +95,8 @@ object GitHubApiHelper extends Logging {
     try {
       val repoFile = new File(
         targetDir +
-          s"/repo~${r.login}~${r.name}~${r.id}~${r.fork}~${r.language}~${r.stargazersCount}.zip")
+          s"/repo~${r.login}~${r.name}~${r.id}~${r.fork}~${r.language}~${r.defaultBranch}" +
+          s"~${r.stargazersCount}.zip")
       logInfo(s"Downloading $repoFile")
       FileUtils.copyURLToFile(new URL(
         s"https://github.com/${r.login}/${r.name}/archive/${r.defaultBranch}.zip"), repoFile)
