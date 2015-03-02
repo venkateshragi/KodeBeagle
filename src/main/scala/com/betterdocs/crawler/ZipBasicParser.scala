@@ -17,17 +17,12 @@
 
 package com.betterdocs.crawler
 
-import java.io.{File, BufferedInputStream}
-import java.util.regex.Pattern
+import java.io.{BufferedInputStream, File}
 
-import com.betterdocs.indexer.JavaFileIndexer
-import org.apache.commons.compress.archivers.zip.{ZipArchiveEntry, ZipFile}
-import org.apache.commons.lang3.StringUtils
+import org.apache.commons.compress.archivers.zip.ZipFile
 
 import scala.collection.JavaConversions._
 import scala.collection.mutable
-import scala.collection.mutable.ArrayBuffer
-import scala.util.{Failure, Success, Try}
 
 
 /**
