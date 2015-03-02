@@ -35,8 +35,8 @@ trait BasicIndexer extends Serializable {
   /** Import pattern of some languages is similar. */
   val importPattern: Pattern = Pattern.compile("import (.*)\\.(\\w+);")
 
-  def generateTokens(files: Map[String, String],
-    excludePackages: List[String], score: Int): List[Token]
+  def generateTokens(files: Map[String, String], excludePackages: List[String], score: Int,
+      orgsName: String): List[Token]
 
 }
 
@@ -45,8 +45,8 @@ class JavaFileIndexer extends BasicIndexer {
   /** For Java code based on trial and error 10 to 20 seems good. */
   override val linesOfContext: Int = 10
 
-  override def generateTokens(files: Map[String, String],
-      excludePackages: List[String], score: Int): List[Token] = {
+  override def generateTokens(files: Map[String, String], excludePackages: List[String],
+      score: Int, orgsName: String): List[Token] = {
     var tokens = List[Token]()
     for (file <- files) {
       val (fileName, fileContent) = file
@@ -58,8 +58,12 @@ class JavaFileIndexer extends BasicIndexer {
           // This map can be used to create one to N index if required.
           // tokenMap += ((y._3._1 + "." + y._3._2, oldValue ++ List(y._2)))
         // }
-        tokens = tokens ++ List(Token(fileName, x.map(z => z._3._1 + "." + z._3._2), x.head._2,
-          score))
+        val (repoName, actualFileName) = fileName.splitAt(fileName.indexOf('/'))
+        val (actualRepoName, branchName) = repoName.splitAt(fileName.indexOf('-'))
+          val fullGithubURL = s"""http://github.com/$orgsName/$actualRepoName/blob/${branchName
+          .stripPrefix("-")}$actualFileName"""
+        tokens = tokens ++ List(Token(fullGithubURL, x.map(z => z._3._1 + "." + z._3
+          ._2), x.head._2, score))
       }
     }
     tokens

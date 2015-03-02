@@ -30,12 +30,16 @@ object CreateIndexJob {
   def main(args: Array[String]): Unit = {
     val conf = new SparkConf().setMaster("local[6]").setAppName("CreateIndexJob")
     val sc = new SparkContext(conf)
-    // TODO: It is possible to write following more optimally.
-    sc.binaryFiles("/home/prashant/github").map(x =>
+    // TODO: It is possible to write following more optimally and readable.
+    sc.binaryFiles("/home/prashant/github").map{ x =>
+      val zipFileName = x._1.stripPrefix("file:")
       // Ignoring exclude packages.
-      (ZipBasicParser.readFilesAndPackages(new ZipFile(x._1.stripPrefix("file:")))._1,
-        getGitScore(x._1))).flatMap { f => val (files, score) = f
-      new JavaFileIndexer().generateTokens(files.toMap, List(), score.getOrElse(0))
+      (ZipBasicParser.readFilesAndPackages(new ZipFile(zipFileName))._1,
+        getGitScore(zipFileName), getOrgsName(zipFileName))
+    }.flatMap { f =>
+      val (files, score, orgsName) = f
+      new JavaFileIndexer().generateTokens(files.toMap, List(), score.getOrElse(0), orgsName
+        .getOrElse("ErrorRecord"))
     }.map(x => toJson(x, addESHeader = true)).saveAsTextFile("tokens")
   }
 
@@ -43,8 +47,11 @@ object CreateIndexJob {
    * This currently uses star counts for a repo as a score.
    */
   def getGitScore(f: String): Option[Int] = {
-    val score = Try(f.stripSuffix(".zip").split("~").last.toInt).toOption
-    score
+    Try(f.stripSuffix(".zip").split("~").last.toInt).toOption
+  }
+
+  def getOrgsName(f: String): Option[String] = {
+    Try(f.stripSuffix(".zip").split("~").tail.head).toOption
   }
 
   def toJson(t: Token, addESHeader: Boolean = false): String = {
@@ -72,8 +79,9 @@ object CreateIndex {
       zipFile match {
         case Success(zf) =>
           val files: (ArrayBuffer[(String, String)], List[String]) = readFilesAndPackages(zf)
-          val score: Option[Int] = CreateIndexJob.getGitScore(f.getName)
-          generateTokens(files._1.toMap, files._2, score.getOrElse(0))
+          val score: Int = CreateIndexJob.getGitScore(f.getName).getOrElse(0)
+          val orgsName: String = CreateIndexJob.getOrgsName(f.getName).getOrElse("ErrorRecord")
+          generateTokens(files._1.toMap, files._2, score, orgsName)
             .map(CreateIndexJob.toJson(_)).foreach(println)
         case Failure(e) => println(s"$f failed because ${e.getMessage}")
       }
