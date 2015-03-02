@@ -30,14 +30,13 @@ object CreateIndexJob {
   def main(args: Array[String]): Unit = {
     val conf = new SparkConf().setMaster("local[6]").setAppName("CreateIndexJob")
     val sc = new SparkContext(conf)
-    // TODO: It is possible to write following very optimally.
+    // TODO: It is possible to write following more optimally.
     sc.binaryFiles("/home/prashant/github").map(x =>
       // Ignoring exclude packages.
       (ZipBasicParser.readFilesAndPackages(new ZipFile(x._1.stripPrefix("file:")))._1,
         getGitScore(x._1))).flatMap { f => val (files, score) = f
       new JavaFileIndexer().generateTokens(files.toMap, List(), score.getOrElse(0))
-    }.map(toJson).saveAsTextFile("tokens") // This job take about 10 min+ to finish on 1Gb of zips.
-
+    }.map(x => toJson(x, addESHeader = true)).saveAsTextFile("tokens")
   }
 
   /**
@@ -48,12 +47,16 @@ object CreateIndexJob {
     score
   }
 
-  def toJson(t: Token): String = {
+  def toJson(t: Token, addESHeader: Boolean = false): String = {
     import org.json4s._
     import org.json4s.jackson.Serialization
     import org.json4s.jackson.Serialization.write
     implicit val formats = Serialization.formats(NoTypeHints)
-    write(t)
+
+    if(addESHeader)
+      """|{ "index" : { "_index" : "betterdocs", "_type" : "type1" } }
+         |""".stripMargin + write(t)
+    else "" + write(t)
   }
 
 }
@@ -70,8 +73,8 @@ object CreateIndex {
         case Success(zf) =>
           val files: (ArrayBuffer[(String, String)], List[String]) = readFilesAndPackages(zf)
           val score: Option[Int] = CreateIndexJob.getGitScore(f.getName)
-          generateTokens(files._1.toMap, files._2, score.getOrElse(0)).map(CreateIndexJob.toJson)
-            .foreach(println)
+          generateTokens(files._1.toMap, files._2, score.getOrElse(0))
+            .map(CreateIndexJob.toJson(_)).foreach(println)
         case Failure(e) => println(s"$f failed because ${e.getMessage}")
       }
     }

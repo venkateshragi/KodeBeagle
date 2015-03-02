@@ -74,7 +74,6 @@ class JavaFileIndexer extends BasicIndexer {
       java: String): List[Seq[(Int, Int, (String, String))]] = {
     val lines = java.split("\n")
     (lines.sliding(linesOfContext) zip (0 to lines.size).sliding(linesOfContext)).toList.flatMap {
-      //TODO: take actual line number instead of window offset.
       x => (x._1 zip (0 to x._1.length)).map { z =>
         imports.map(y => (StringUtils.countMatches(z._1, y._2), x._2.head + z._2, y))
       }
