@@ -2,3 +2,4 @@
 target/
 tokens/
 TAGS
+lib_managed/
