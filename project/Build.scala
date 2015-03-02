@@ -20,7 +20,14 @@ import sbt.Keys._
 
 object BetterDocsBuild extends Build {
 
-  lazy val betterDocs = Project("betterDocs", file("core"), settings = betterDocsSettings)
+  lazy val root = Project(
+    id = "betterdocs",
+    base = file("."),
+    settings = betterDocsSettings,
+    aggregate = Seq(core)
+  )
+
+  lazy val core = Project("core", file("core"), settings = coreSettings)
 
   def betterDocsSettings = Defaults.defaultSettings ++ Seq (
       name                                   :=  "BetterDocs",
@@ -29,10 +36,12 @@ object BetterDocsBuild extends Build {
       scalaVersion                           :=  "2.11.5",
       scalacOptions                          :=  Seq("-encoding", "UTF-8", "-unchecked", "-optimize", "-deprecation", "-feature"),
       retrieveManaged                        :=  true,
-      libraryDependencies                    += Dependencies.spark,
       crossPaths                             :=  false,
       fork                                   :=  true
-    )
+  )
+
+  def coreSettings = betterDocsSettings ++ Seq(libraryDependencies +=  Dependencies.spark)
+
 }
 
 object Dependencies {
