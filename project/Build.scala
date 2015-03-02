@@ -29,18 +29,22 @@ object BetterDocsBuild extends Build {
 
   lazy val core = Project("core", file("core"), settings = coreSettings)
 
-  def betterDocsSettings = Defaults.defaultSettings ++ Seq (
-      name                                   :=  "BetterDocs",
-      organization                           :=  "io.betterdocs",
-      version                                :=  "0.0.1-SNAPSHOT",
-      scalaVersion                           :=  "2.11.5",
-      scalacOptions                          :=  Seq("-encoding", "UTF-8", "-unchecked", "-optimize", "-deprecation", "-feature"),
-      retrieveManaged                        :=  true,
-      crossPaths                             :=  false,
-      fork                                   :=  true
-  )
+  val scalacOptionsList = Seq("-encoding", "UTF-8", "-unchecked", "-optimize", "-deprecation",
+    "-feature")
 
-  def coreSettings = betterDocsSettings ++ Seq(libraryDependencies +=  Dependencies.spark)
+  def coreSettings = betterDocsSettings ++ Seq(libraryDependencies += Dependencies.spark)
+
+  def betterDocsSettings =
+    Defaults.coreDefaultSettings ++ Seq(
+      name := "BetterDocs",
+      organization := "com.betterdocs",
+      version := "0.0.1-SNAPSHOT",
+      scalaVersion := "2.11.5",
+      scalacOptions := scalacOptionsList,
+      retrieveManaged := true,
+      crossPaths := false,
+      fork := true
+    )
 
 }
 
@@ -48,11 +52,11 @@ object Dependencies {
 
   val spark = "org.apache.spark" %% "spark-core" % "1.2.1"
 
-// transitively uses commons-lang3-3.3.2
-// commons-httpclient-3.1
-// commons-io-2.4
-// json4s-jackson_2.11-3.2.10
-// json4s-ast_2.11-3.2.10.jar
-// commons-compress-1.4.1
+  // transitively uses commons-lang3-3.3.2
+  // commons-httpclient-3.1
+  // commons-io-2.4
+  // json4s-jackson_2.11-3.2.10
+  // json4s-ast_2.11-3.2.10.jar
+  // commons-compress-1.4.1
 
 }
