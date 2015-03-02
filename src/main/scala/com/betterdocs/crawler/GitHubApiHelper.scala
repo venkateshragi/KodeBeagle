@@ -60,20 +60,34 @@ object GitHubApiHelper extends Logging {
   }
 
   /**
+   * Get repository details for an organization.
+   * Access Github's
+   * [[https://developer.github.com/v3/repos/#list-organization-repositories]]
+   */
+  def getAllGitHubReposForOrg(orgs: String): List[Repository] = {
+    val json = httpGetJson(s"https://api.github.com/orgs/$orgs/repos").toList
+    for (j <- json) yield extractRepoInfo(j)
+  }
+
+    /**
    * Parallel fetch is not worth trying since github limits per user limit of 5000 Req/hr.
    */
   def fetchDetails(repoMap: Map[String, String]): Option[Repository] = {
     for {
       repo <- httpGetJson("https://api.github.com/repos/" + repoMap("full_name"))
-    } yield Repository((repo \ "owner" \ "login").extract[String],
+    } yield extractRepoInfo(repo)
+  }
+
+  def extractRepoInfo(repo: JValue): Repository = {
+    Repository((repo \ "owner" \ "login").extract[String],
       (repo \ "id").extract[Int], (repo \ "name").extract[String], (repo \ "fork").extract[Boolean],
       (repo \ "language").extract[String], (repo \ "default_branch").extract[String],
       (repo \ "stargazers_count").extract[Int])
   }
 
   /*
-   * Helper for accessing Java - Apache Http client. (It it important to stick with the current version and all.)
-   */
+     * Helper for accessing Java - Apache Http client. (It it important to stick with the current version and all.)
+     */
   def httpGetJson(url: String) = {
     val method = new GetMethod(url)
     method.setDoAuthentication(true)
@@ -110,6 +124,16 @@ object GitHubApiHelper extends Logging {
 
 object GitHubApiHelperTest {
   def main(args: Array[String]): Unit = {
+    downloadFromOrganization("apache")
+  }
+
+  def downloadFromOrganization(organizationName: String): Unit = {
+    import com.betterdocs.crawler.GitHubApiHelper._
+    getAllGitHubReposForOrg(organizationName).filter(x => !x.fork && x.language == "Java")
+    .map(x => downloadRepository(x, "/home/prashant/github_orgs"))
+  }
+
+  def downloadFromRepoIdRange: Unit = {
     import com.betterdocs.crawler.GitHubApiHelper._
     for (i <- Range(46000, 300000, 350)) yield getAllGitHubRepos(i).filter(x => x("fork") == "false").distinct
       .map(fetchDetails).flatten.distinct.filter(x => x.language == "Java" && !x.fork)
