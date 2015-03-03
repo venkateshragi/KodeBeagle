@@ -133,7 +133,7 @@ object GitHubApiHelperTest {
     .map(x => downloadRepository(x, "/home/prashant/github_orgs"))
   }
 
-  def downloadFromRepoIdRange: Unit = {
+  def downloadFromRepoIdRange(): Unit = {
     import com.betterdocs.crawler.GitHubApiHelper._
     for (i <- Range(46000, 300000, 350)) yield getAllGitHubRepos(i).filter(x => x("fork") == "false").distinct
       .map(fetchDetails).flatten.distinct.filter(x => x.language == "Java" && !x.fork)

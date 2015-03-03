@@ -24,7 +24,6 @@ import org.apache.commons.compress.archivers.zip.ZipFile
 import scala.collection.JavaConversions._
 import scala.collection.mutable
 
-
 /**
  * Parses java files from the given zip file.
  */

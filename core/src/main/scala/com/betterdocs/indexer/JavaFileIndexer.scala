@@ -78,8 +78,9 @@ class JavaFileIndexer extends BasicIndexer {
       java: String): List[Seq[(Int, Int, (String, String))]] = {
     val lines = java.split("\n")
     (lines.sliding(linesOfContext) zip (0 to lines.size).sliding(linesOfContext)).toList.flatMap {
-      x => (x._1 zip (0 to x._1.length)).map { z =>
-        imports.map(y => (StringUtils.countMatches(z._1, y._2), x._2.head + z._2, y))
+      x => (x._1 zip x._2).map { z =>
+        val (line, lineNumber) = z
+        imports.map(y => (StringUtils.countMatches(line, y._2), lineNumber, y))
       }
     }.distinct.map(_.filter(_._1 > 0)).filter(_.nonEmpty)
   }
