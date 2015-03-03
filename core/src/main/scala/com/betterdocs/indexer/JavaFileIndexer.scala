@@ -80,7 +80,7 @@ class JavaFileIndexer extends BasicIndexer {
     (lines.sliding(linesOfContext) zip (0 to lines.size).sliding(linesOfContext)).toList.flatMap {
       x => (x._1 zip x._2).map { z =>
         val (line, lineNumber) = z
-        imports.map(y => (StringUtils.countMatches(line, y._2), lineNumber, y))
+        imports.map(y => (StringUtils.countMatches(line, y._2), lineNumber + 1, y))
       }
     }.distinct.map(_.filter(_._1 > 0)).filter(_.nonEmpty)
   }
