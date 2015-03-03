@@ -19,8 +19,6 @@ package com.betterdocs.indexer
 
 import java.util.regex.Pattern
 
-import org.apache.commons.lang3.StringUtils
-
 import scala.util.Try
 
 
@@ -62,8 +60,8 @@ class JavaFileIndexer extends BasicIndexer {
         val (actualRepoName, branchName) = repoName.splitAt(fileName.indexOf('-'))
           val fullGithubURL = s"""http://github.com/$orgsName/$actualRepoName/blob/${branchName
           .stripPrefix("-")}$actualFileName"""
-        tokens = tokens ++ List(Token(fullGithubURL, x.map(z => z._3._1 + "." + z._3
-          ._2), x.head._2, score))
+        tokens = tokens ++ List(Token(fullGithubURL, x.map(z => z._2._1 + "." + z._2
+          ._2), x.head._1, score))
       }
     }
     tokens
@@ -74,14 +72,22 @@ class JavaFileIndexer extends BasicIndexer {
     .map(x => importPattern.matcher(x)).filter(_.find)
     .flatMap(x => Try(x.group(1) -> x.group(2).trim).toOption)
 
+  /**
+   * Takes a line of code and cleans it for further indexing.
+   */
+  private def cleanUpCode(line: String): String = {
+    " " + line.replaceFirst("//.*", "").replaceAll("\\W+", " ")
+  }
+
   private def generateTokensWRTImports(imports: Seq[(String, String)],
-      java: String): List[Seq[(Int, Int, (String, String))]] = {
+      java: String): List[Seq[(Int, (String, String))]] = {
     val lines = java.split("\n")
-    (lines.sliding(linesOfContext) zip (0 to lines.size).sliding(linesOfContext)).toList.flatMap {
+    (lines.sliding(linesOfContext) zip (1 to lines.size).sliding(linesOfContext)).toList.flatMap {
       x => (x._1 zip x._2).map { z =>
         val (line, lineNumber) = z
-        imports.map(y => (StringUtils.countMatches(line, y._2), lineNumber + 1, y))
+        imports.map(y => (cleanUpCode(line).contains(" " + y._2 + " "), lineNumber, y))
+          .filter(_._1).map(x => (x._2, x._3))
       }
-    }.distinct.map(_.filter(_._1 > 0)).filter(_.nonEmpty)
+    }.distinct.filter(_.nonEmpty)
   }
 }
