@@ -3,3 +3,5 @@ target/
 tokens/
 TAGS
 lib_managed/
+application.properties
+application.conf
