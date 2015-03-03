@@ -20,6 +20,7 @@ package com.betterdocs.crawler
 import java.io.File
 import java.net.URL
 
+import com.betterdocs.configuration.BetterDocsConfig
 import org.apache.commons.httpclient.HttpClient
 import org.apache.commons.httpclient.methods.GetMethod
 import org.apache.commons.io.FileUtils
@@ -66,7 +67,7 @@ object GitHubApiHelper extends Logging {
    */
   def getAllGitHubReposForOrg(orgs: String): List[Repository] = {
     val json = httpGetJson(s"https://api.github.com/orgs/$orgs/repos").toList
-    for (j <- json) yield extractRepoInfo(j)
+    for (j <- json; c <- j.children) yield extractRepoInfo(c)
   }
 
     /**
@@ -92,7 +93,7 @@ object GitHubApiHelper extends Logging {
     val method = new GetMethod(url)
     method.setDoAuthentication(true)
     // Please add the oauth token instead of <token> here. Or github may give 403/401 as response.
-    method.addRequestHeader("Authorization", "token <token>")
+    method.addRequestHeader("Authorization", s"token ${BetterDocsConfig.githubToken}")
     val status = client.executeMethod(method)
     if (status == 200) {
       // ignored parsing errors if any, because we can not do anything about them anyway.
@@ -123,6 +124,7 @@ object GitHubApiHelper extends Logging {
 }
 
 object GitHubApiHelperTest {
+
   def main(args: Array[String]): Unit = {
     downloadFromOrganization("apache")
   }
@@ -130,13 +132,13 @@ object GitHubApiHelperTest {
   def downloadFromOrganization(organizationName: String): Unit = {
     import com.betterdocs.crawler.GitHubApiHelper._
     getAllGitHubReposForOrg(organizationName).filter(x => !x.fork && x.language == "Java")
-    .map(x => downloadRepository(x, "/home/prashant/github_orgs"))
+    .map(x => downloadRepository(x, BetterDocsConfig.githubDir))
   }
 
   def downloadFromRepoIdRange(): Unit = {
     import com.betterdocs.crawler.GitHubApiHelper._
     for (i <- Range(46000, 300000, 350)) yield getAllGitHubRepos(i).filter(x => x("fork") == "false").distinct
       .map(fetchDetails).flatten.distinct.filter(x => x.language == "Java" && !x.fork)
-      .map(x => downloadRepository(x, "/home/prashant/github"))
+      .map(x => downloadRepository(x, BetterDocsConfig.githubDir))
   }
 }

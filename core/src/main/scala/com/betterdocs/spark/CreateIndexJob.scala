@@ -17,6 +17,7 @@
 
 package com.betterdocs.spark
 
+import com.betterdocs.configuration.BetterDocsConfig
 import com.betterdocs.crawler.ZipBasicParser
 import com.betterdocs.indexer.{JavaFileIndexer, Token}
 import org.apache.commons.compress.archivers.zip.ZipFile
@@ -28,19 +29,20 @@ import scala.util.{Failure, Success, Try}
 object CreateIndexJob {
 
   def main(args: Array[String]): Unit = {
-    val conf = new SparkConf().setMaster("local[6]").setAppName("CreateIndexJob")
+    val conf = new SparkConf()
+      .setMaster(BetterDocsConfig.sparkMaster)
+      .setAppName("CreateIndexJob")
     val sc = new SparkContext(conf)
-    // TODO: It is possible to write following more optimally and readable.
-    sc.binaryFiles("/home/prashant/github").map{ x =>
+    sc.binaryFiles(BetterDocsConfig.githubDir).map { x =>
       val zipFileName = x._1.stripPrefix("file:")
       // Ignoring exclude packages.
       (ZipBasicParser.readFilesAndPackages(new ZipFile(zipFileName))._1,
         getGitScore(zipFileName), getOrgsName(zipFileName))
     }.flatMap { f =>
       val (files, score, orgsName) = f
-      new JavaFileIndexer().generateTokens(files.toMap, List(), score.getOrElse(0), orgsName
-        .getOrElse("ErrorRecord"))
-    }.map(x => toJson(x, addESHeader = true)).saveAsTextFile("tokens")
+      new JavaFileIndexer()
+        .generateTokens(files.toMap, List(), score.getOrElse(0), orgsName.getOrElse("ErrorRecord"))
+    }.map(x => toJson(x, addESHeader = true)).saveAsTextFile(BetterDocsConfig.sparkOutput)
   }
 
   /**
@@ -60,7 +62,7 @@ object CreateIndexJob {
     import org.json4s.jackson.Serialization.write
     implicit val formats = Serialization.formats(NoTypeHints)
 
-    if(addESHeader)
+    if (addESHeader)
       """|{ "index" : { "_index" : "betterdocs", "_type" : "type1" } }
          |""".stripMargin + write(t)
     else "" + write(t)
@@ -74,7 +76,7 @@ object CreateIndex {
     import com.betterdocs.crawler.ZipBasicParser._
     val indexer: JavaFileIndexer = new JavaFileIndexer
     import indexer._
-    for (f <- listAllFiles("/home/prashant/github/")) {
+    for (f <- listAllFiles(BetterDocsConfig.githubDir)) {
       val zipFile = Try(new ZipFile(f))
       zipFile match {
         case Success(zf) =>

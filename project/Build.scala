@@ -58,5 +58,6 @@ object Dependencies {
   // json4s-jackson_2.11-3.2.10
   // json4s-ast_2.11-3.2.10.jar
   // commons-compress-1.4.1
+  // "com.typesafe" % "config" % "1.2.1"
 
 }
