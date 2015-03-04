@@ -32,7 +32,7 @@ object BetterDocsBuild extends Build {
   val scalacOptionsList = Seq("-encoding", "UTF-8", "-unchecked", "-optimize", "-deprecation",
     "-feature")
 
-  def coreSettings = betterDocsSettings ++ Seq(libraryDependencies += Dependencies.spark)
+  def coreSettings = betterDocsSettings ++ Seq(libraryDependencies ++= Dependencies.betterDocs)
 
   def betterDocsSettings =
     Defaults.coreDefaultSettings ++ Seq(
@@ -43,7 +43,8 @@ object BetterDocsBuild extends Build {
       scalacOptions := scalacOptionsList,
       retrieveManaged := true,
       crossPaths := false,
-      fork := true
+      fork := true,
+      javaOptions += "-Xmx2048m" // For running spark job.
     )
 
 }
@@ -51,7 +52,8 @@ object BetterDocsBuild extends Build {
 object Dependencies {
 
   val spark = "org.apache.spark" %% "spark-core" % "1.2.1"
-
+  val scalaTest = "org.scalatest" %% "scalatest" % "2.2.4" % "test"
+  val betterDocs = Seq(spark, scalaTest)
   // transitively uses commons-lang3-3.3.2
   // commons-httpclient-3.1
   // commons-io-2.4
