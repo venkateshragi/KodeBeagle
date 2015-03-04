@@ -19,11 +19,12 @@ package com.betterdocs.indexer
 
 import java.util.regex.Pattern
 
+import scala.collection.mutable
 import scala.util.Try
 
 
 /** This is the smallest and the only entity that we store as index. (Read about: Reverse Index.) */
-case class Token(file: String, strings: Seq[String], lineNumber: Int, score: Int)
+case class Token(file: String, strings: Seq[String], lineNumbers: Seq[Int], score: Int)
 
 trait BasicIndexer extends Serializable {
 
@@ -48,23 +49,27 @@ class JavaFileIndexer extends BasicIndexer {
     var tokens = List[Token]()
     for (file <- files) {
       val (fileName, fileContent) = file
-      // val tokenMap = new mutable.HashMap[String, List[Int]]
+      val tokenMap = new mutable.HashMap[String, List[Int]]
       val imports = extractImports(fileContent, excludePackages)
       generateTokensWRTImports(imports, fileContent).map { x =>
-       // x.map { y =>
-         //  val oldValue: List[Int] = tokenMap.getOrElse(y._3._1 + "." + y._3._2, List())
+       x.map { y =>
+          val FQCN = y._2._1 + "." + y._2._2
+          val oldValue: List[Int] = tokenMap.getOrElse(FQCN, List())
           // This map can be used to create one to N index if required.
-          // tokenMap += ((y._3._1 + "." + y._3._2, oldValue ++ List(y._2)))
-        // }
+          tokenMap += ((FQCN, oldValue ++ List(y._1)))
+        }
         val (repoName, actualFileName) = fileName.splitAt(fileName.indexOf('/'))
         val (actualRepoName, branchName) = repoName.splitAt(fileName.indexOf('-'))
           val fullGithubURL = s"""http://github.com/$orgsName/$actualRepoName/blob/${branchName
           .stripPrefix("-")}$actualFileName"""
-        tokens = tokens ++ List(Token(fullGithubURL, x.map(z => z._2._1 + "." + z._2
-          ._2), x.head._1, score))
+        tokens = tokens ++ List(Token(fullGithubURL, tokenMap.keySet.toSeq,
+          tokenMap.values.toSeq.flatten.distinct, score))
+        //  tokens = tokens ++ List(Token(fullGithubURL, x.map(z => z._2._1 + "." + z._2
+        //  ._2), x.head._1, score))
+        tokenMap.clear()
       }
     }
-    tokens
+    tokens.distinct
   }
 
   private def extractImports(java: String, packages: List[String]) = java.split("\n")
@@ -76,15 +81,15 @@ class JavaFileIndexer extends BasicIndexer {
    * Takes a line of code and cleans it for further indexing.
    */
   private def cleanUpCode(line: String): String = {
-    " " + line.replaceFirst("//.*", "").replaceAll("\\W+", " ")
+    " " + line.replaceFirst("//.*", " ").replaceFirst("import.*", " ")
+      .replaceAll("\\W+", " ")
   }
 
   private def generateTokensWRTImports(imports: Seq[(String, String)],
-      java: String): List[Seq[(Int, (String, String))]] = {
+      java: String): List[Array[(Int, (String, String))]] = {
     val lines = java.split("\n")
-    (lines.sliding(linesOfContext) zip (1 to lines.size).sliding(linesOfContext)).toList.flatMap {
-      x => (x._1 zip x._2).map { z =>
-        val (line, lineNumber) = z
+    (lines.sliding(linesOfContext) zip (1 to lines.size).sliding(linesOfContext)).toList.map {
+      x => (x._1 zip x._2).flatMap { z => val (line, lineNumber) = z
         imports.map(y => (cleanUpCode(line).contains(" " + y._2 + " "), lineNumber, y))
           .filter(_._1).map(x => (x._2, x._3))
       }
