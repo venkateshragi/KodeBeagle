@@ -53,7 +53,8 @@ object Dependencies {
 
   val spark = "org.apache.spark" %% "spark-core" % "1.2.1"
   val scalaTest = "org.scalatest" %% "scalatest" % "2.2.4" % "test"
-  val betterDocs = Seq(spark, scalaTest)
+  val sl4j = "org.slf4j" % "slf4j-log4j12" % "1.7.10"
+  val betterDocs = Seq(spark, scalaTest, sl4j)
   // transitively uses commons-lang3-3.3.2
   // commons-httpclient-3.1
   // commons-io-2.4

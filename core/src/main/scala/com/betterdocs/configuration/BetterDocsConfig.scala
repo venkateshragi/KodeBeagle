@@ -29,7 +29,7 @@ object BetterDocsConfig {
   private val settings = new ConcurrentHashMap[String, String]()
 
   for (c <- config.entrySet())
-  yield settings.put(c.getKey, c.getValue.unwrapped.toString)
+    yield settings.put(c.getKey, c.getValue.unwrapped.toString)
   // Output dir for spark job.
   private[betterdocs] val sparkOutput = get("betterdocs.spark.outputDir").get
   // This is required to use GithubAPIHelper
@@ -39,7 +39,9 @@ object BetterDocsConfig {
   def get(key: String): Option[String] = Option(settings.get(key))
 
   def set(key: String, value: String) {
-    if (key == null || value == null) throw new NullPointerException("key or value can't be null")
+    if (Option(key) == None || Option(value) == None) {
+      throw new NullPointerException("key or value can't be null")
+    }
     settings.put(key, value)
   }
 

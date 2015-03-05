@@ -24,19 +24,19 @@ import com.betterdocs.configuration.BetterDocsConfig
 import org.apache.commons.httpclient.HttpClient
 import org.apache.commons.httpclient.methods.GetMethod
 import org.apache.commons.io.FileUtils
-import org.apache.spark.Logging
+import com.betterdocs.logging.Logger
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 
 import scala.util.Try
 
-case class Repository(login: String, id: Int, name: String, fork: Boolean, language: String,
+case class Repository(login: String, id: Int, name: String, fork: Boolean, language: String, 
     defaultBranch: String, stargazersCount: Int)
 
 /**
  * This class relies on Github's {https://developer.github.com/v3/} Api.
  */
-object GitHubApiHelper extends Logging {
+object GitHubApiHelper extends Logger {
 
   implicit val format = DefaultFormats
   private val client = new HttpClient()
@@ -50,13 +50,14 @@ object GitHubApiHelper extends Logging {
     val json = httpGetJson(s"https://api.github.com/repositories?since=$since").toList
     // Here we can specify all the fields we need from repo query.
     val interestingFields = List("full_name", "fork")
-    for {j <- json
-         c <- j.children
-         map = (for {
-           JObject(child) <- c
-           JField(name, value) <- child
-           if interestingFields.contains(name)
-         } yield name -> value.values.toString).toMap
+    for {
+      j <- json
+      c <- j.children
+      map = (for {
+        JObject(child) <- c
+        JField(name, value) <- child
+        if interestingFields.contains(name)
+      } yield name -> value.values.toString).toMap
     } yield map
   }
 
@@ -70,7 +71,7 @@ object GitHubApiHelper extends Logging {
     for (j <- json; c <- j.children) yield extractRepoInfo(c)
   }
 
-    /**
+  /**
    * Parallel fetch is not worth trying since github limits per user limit of 5000 Req/hr.
    */
   def fetchDetails(repoMap: Map[String, String]): Option[Repository] = {
@@ -87,9 +88,10 @@ object GitHubApiHelper extends Logging {
   }
 
   /*
-     * Helper for accessing Java - Apache Http client. (It it important to stick with the current version and all.)
+     * Helper for accessing Java - Apache Http client. 
+     * (It it important to stick with the current version and all.)
      */
-  def httpGetJson(url: String) = {
+  def httpGetJson(url: String): Option[JValue] = {
     val method = new GetMethod(url)
     method.setDoAuthentication(true)
     // Please add the oauth token instead of <token> here. Or github may give 403/401 as response.
@@ -99,26 +101,27 @@ object GitHubApiHelper extends Logging {
       // ignored parsing errors if any, because we can not do anything about them anyway.
       Try(parse(method.getResponseBodyAsString)).toOption
     } else {
-      logError("Request failed with status:" + status + "Response:"
+      log.error("Request failed with status:" + status + "Response:"
         + method.getResponseHeaders.mkString("\n") +
         "\nResponseBody " + method.getResponseBodyAsString)
       None
     }
   }
 
-  def downloadRepository(r: Repository, targetDir: String): File = {
+  def downloadRepository(r: Repository, targetDir: String): Option[File] = {
     try {
       val repoFile = new File(
         targetDir +
           s"/repo~${r.login}~${r.name}~${r.id}~${r.fork}~${r.language}~${r.defaultBranch}" +
           s"~${r.stargazersCount}.zip")
-      logInfo(s"Downloading $repoFile")
+      log.info(s"Downloading $repoFile")
       FileUtils.copyURLToFile(new URL(
         s"https://github.com/${r.login}/${r.name}/archive/${r.defaultBranch}.zip"), repoFile)
-      repoFile
+      Some(repoFile)
     } catch {
-      case x: Throwable => logError(s"Failed to download $r", x)
-        null
+      case x: Throwable =>
+        log.error(s"Failed to download $r", x)
+        None
     }
   }
 }
@@ -132,12 +135,13 @@ object GitHubApiHelperTest {
   def downloadFromOrganization(organizationName: String): Unit = {
     import com.betterdocs.crawler.GitHubApiHelper._
     getAllGitHubReposForOrg(organizationName).filter(x => !x.fork && x.language == "Java")
-    .map(x => downloadRepository(x, BetterDocsConfig.githubDir))
+      .map(x => downloadRepository(x, BetterDocsConfig.githubDir))
   }
 
   def downloadFromRepoIdRange(): Unit = {
     import com.betterdocs.crawler.GitHubApiHelper._
-    for (i <- Range(46000, 300000, 350)) yield getAllGitHubRepos(i).filter(x => x("fork") == "false").distinct
+    for (i <- Range(46000, 300000, 350)) 
+      yield getAllGitHubRepos(i).filter(x => x("fork") == "false").distinct
       .map(fetchDetails).flatten.distinct.filter(x => x.language == "Java" && !x.fork)
       .map(x => downloadRepository(x, BetterDocsConfig.githubDir))
   }

@@ -3,5 +3,9 @@ target/
 tokens/
 TAGS
 lib_managed/
+.cache
+.classpath
+.project
+.settings/
 application.properties
 application.conf

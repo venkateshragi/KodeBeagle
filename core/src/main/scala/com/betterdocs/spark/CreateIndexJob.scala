@@ -19,12 +19,12 @@ package com.betterdocs.spark
 
 import com.betterdocs.configuration.BetterDocsConfig
 import com.betterdocs.crawler.ZipBasicParser
-import com.betterdocs.indexer.{JavaFileIndexer, Token}
+import com.betterdocs.indexer.{ JavaFileIndexer, Token }
 import org.apache.commons.compress.archivers.zip.ZipFile
-import org.apache.spark.{SparkConf, SparkContext}
-
+import org.apache.spark.{ SparkConf, SparkContext }
 import scala.collection.mutable.ArrayBuffer
-import scala.util.{Failure, Success, Try}
+import scala.util.{ Failure, Success, Try }
+import com.betterdocs.logging.Logger
 
 object CreateIndexJob {
 
@@ -62,15 +62,15 @@ object CreateIndexJob {
     import org.json4s.jackson.Serialization.write
     implicit val formats = Serialization.formats(NoTypeHints)
 
-    if (addESHeader)
+    if (addESHeader) {
       """|{ "index" : { "_index" : "betterdocs", "_type" : "type1" } }
          |""".stripMargin + write(t)
-    else "" + write(t)
+    } else { "" + write(t) }
   }
 
 }
 
-object CreateIndex {
+object CreateIndex extends Logger {
 
   def main(args: Array[String]): Unit = {
     import com.betterdocs.crawler.ZipBasicParser._
@@ -84,8 +84,8 @@ object CreateIndex {
           val score: Int = CreateIndexJob.getGitScore(f.getName).getOrElse(0)
           val orgsName: String = CreateIndexJob.getOrgsName(f.getName).getOrElse("ErrorRecord")
           generateTokens(files._1.toMap, files._2, score, orgsName)
-            .map(CreateIndexJob.toJson(_)).foreach(println)
-        case Failure(e) => println(s"$f failed because ${e.getMessage}")
+            .map(CreateIndexJob.toJson(_)).foreach(log.info)
+        case Failure(e) => log.info(s"$f failed because ${e.getMessage}")
       }
     }
   }

@@ -17,12 +17,11 @@
 
 package com.betterdocs.crawler
 
-import java.io.{BufferedInputStream, File}
-
+import java.io.{ BufferedInputStream, File }
 import org.apache.commons.compress.archivers.zip.ZipFile
-
 import scala.collection.JavaConversions._
 import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * Parses java files from the given zip file.
@@ -31,7 +30,7 @@ object ZipBasicParser {
 
   private val bufferSize = 102400
 
-  def readFilesAndPackages(zip: ZipFile) = {
+  def readFilesAndPackages(zip: ZipFile): (ArrayBuffer[(String, String)], List[String]) = {
     val list = mutable.ArrayBuffer[(String, String)]()
     val zipArchiveEntries = zip.getEntries.toList
     val allJavaFiles = zipArchiveEntries.filter(x => x.getName.endsWith("java") && !x.isDirectory)
@@ -45,8 +44,6 @@ object ZipBasicParser {
     (list, allPackages)
   }
 
-  def listAllFiles(dir: String) =
-    new File(dir).listFiles()
-
+  def listAllFiles(dir: String): Array[File] = new File(dir).listFiles
 }
 
