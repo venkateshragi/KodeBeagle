@@ -24,7 +24,7 @@ import scala.util.Try
 
 
 /** This is the smallest and the only entity that we store as index. (Read about: Reverse Index.) */
-case class Token(file: String, strings: Seq[String], lineNumbers: Seq[Int], score: Int)
+case class Token(file: String, strings: Set[String], lineNumbers: Seq[Int], score: Int)
 
 trait BasicIndexer extends Serializable {
 
@@ -62,8 +62,8 @@ class JavaFileIndexer extends BasicIndexer {
         val (actualRepoName, branchName) = repoName.splitAt(fileName.indexOf('-'))
           val fullGithubURL = s"""http://github.com/$orgsName/$actualRepoName/blob/${branchName
           .stripPrefix("-")}$actualFileName"""
-        tokens = tokens ++ List(Token(fullGithubURL, tokenMap.keySet.toSeq,
-          tokenMap.values.toSeq.flatten.distinct, score))
+        tokens = tokens ++ List(Token(fullGithubURL, tokenMap.keySet.toSet,
+          tokenMap.values.flatten.toSeq.sorted.distinct, score))
         //  tokens = tokens ++ List(Token(fullGithubURL, x.map(z => z._2._1 + "." + z._2
         //  ._2), x.head._1, score))
         tokenMap.clear()
@@ -73,9 +73,10 @@ class JavaFileIndexer extends BasicIndexer {
   }
 
   private def extractImports(java: String, packages: List[String]) = java.split("\n")
-    .filter(x => x.startsWith("import") && !packages.exists(x.contains(_)))
+    .filter(x => x.startsWith("import"))
     .map(x => importPattern.matcher(x)).filter(_.find)
     .flatMap(x => Try(x.group(1) -> x.group(2).trim).toOption)
+    .filterNot { case (left, right) => packages.contains(left + "." + right) }
 
   /**
    * Takes a line of code and cleans it for further indexing.
@@ -88,10 +89,11 @@ class JavaFileIndexer extends BasicIndexer {
   private def generateTokensWRTImports(imports: Seq[(String, String)],
       java: String): List[Array[(Int, (String, String))]] = {
     val lines = java.split("\n")
-    (lines.sliding(linesOfContext) zip (1 to lines.size).sliding(linesOfContext)).toList.map {
-      x => (x._1 zip x._2).flatMap { z => val (line, lineNumber) = z
+    (lines.sliding(linesOfContext) zip (1 to lines.size).sliding(linesOfContext)).toList
+      .map { case (linesWindow, lineNumbersWindow) =>
+      (linesWindow zip lineNumbersWindow).flatMap { case (line, lineNumber) =>
         imports.map(y => (cleanUpCode(line).contains(" " + y._2 + " "), lineNumber, y))
-          .filter(_._1).map(x => (x._2, x._3))
+          .filter(_._1).map(a => (a._2, a._3))
       }
     }.distinct.filter(_.nonEmpty)
   }
