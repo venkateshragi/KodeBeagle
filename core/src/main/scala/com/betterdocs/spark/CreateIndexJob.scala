@@ -33,8 +33,8 @@ object CreateIndexJob {
       .setMaster(BetterDocsConfig.sparkMaster)
       .setAppName("CreateIndexJob")
     val sc = new SparkContext(conf)
-    sc.binaryFiles(BetterDocsConfig.githubDir).map { x =>
-      val zipFileName = x._1.stripPrefix("file:")
+    sc.binaryFiles(BetterDocsConfig.githubDir).map { case (zipFile, _) =>
+      val zipFileName = zipFile.stripPrefix("file:")
       // Ignoring exclude packages.
       (ZipBasicParser.readFilesAndPackages(new ZipFile(zipFileName))._1,
         getGitScore(zipFileName), getOrgsName(zipFileName))
@@ -83,9 +83,31 @@ object CreateIndex extends Logger {
           val files: (ArrayBuffer[(String, String)], List[String]) = readFilesAndPackages(zf)
           val score: Int = CreateIndexJob.getGitScore(f.getName).getOrElse(0)
           val orgsName: String = CreateIndexJob.getOrgsName(f.getName).getOrElse("ErrorRecord")
-          generateTokens(files._1.toMap, files._2, score, orgsName)
+          generateTokens(files._1.toMap, List(), score, orgsName)
             .map(CreateIndexJob.toJson(_)).foreach(log.info)
         case Failure(e) => log.info(s"$f failed because ${e.getMessage}")
+      }
+    }
+  }
+}
+
+object CreateIndexPar {
+
+  def main(args: Array[String]): Unit = {
+    import com.betterdocs.crawler.ZipBasicParser._
+    val indexer: JavaFileIndexer = new JavaFileIndexer
+    import indexer._
+    listAllFiles(BetterDocsConfig.githubDir).par.foreach { f =>
+      val zipFile = Try(new ZipFile(f))
+      zipFile match {
+        case Success(zf) =>
+          val files: (ArrayBuffer[(String, String)], List[String]) = readFilesAndPackages(zf)
+          val score: Int = CreateIndexJob.getGitScore(f.getName).getOrElse(0)
+          val orgsName: String = CreateIndexJob.getOrgsName(f.getName).getOrElse("ErrorRecord")
+          val tokens = generateTokens(files._1.toMap, List(), score, orgsName)
+            .map(CreateIndexJob.toJson(_, true)).mkString("\n")
+          scala.tools.nsc.io.File(BetterDocsConfig.sparkOutput + s"/$f.tokens").writeAll(tokens)
+        case Failure(e) => println(s"$f failed because ${e.getMessage}")
       }
     }
   }
