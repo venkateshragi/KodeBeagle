@@ -24,17 +24,24 @@ import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
 /**
- * Parses java files from the given zip file.
+ * Extracts java files and packages from the given zip file.
  */
 object ZipBasicParser {
 
   private val bufferSize = 102400
 
+  private def fileNameToPackageName(s: String) = {
+    val (_, packageN) = s.splitAt(s.indexOf("/src/"))
+    packageN.stripPrefix("/").stripSuffix("/").replace('/', '.').stripPrefix("src.main.java.")
+  }
+
   def readFilesAndPackages(zip: ZipFile): (ArrayBuffer[(String, String)], List[String]) = {
     val list = mutable.ArrayBuffer[(String, String)]()
     val zipArchiveEntries = zip.getEntries.toList
     val allJavaFiles = zipArchiveEntries.filter(x => x.getName.endsWith("java") && !x.isDirectory)
-    val allPackages = zipArchiveEntries.filter(x => x.isDirectory).map(_.getName.split("\\/").last)
+    val allPackages = zipArchiveEntries
+      .filter(x => x.isDirectory && x.getName.toLowerCase.matches(".*src/main/java.*"))
+      .map(f => fileNameToPackageName(f.getName))
     val files = allJavaFiles.map(x => x.getName -> new BufferedInputStream(zip.getInputStream(x)))
     for ((name, f) <- files) {
       val b = new Array[Byte](bufferSize)

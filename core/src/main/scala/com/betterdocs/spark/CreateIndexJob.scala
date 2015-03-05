@@ -36,12 +36,13 @@ object CreateIndexJob {
     sc.binaryFiles(BetterDocsConfig.githubDir).map { case (zipFile, _) =>
       val zipFileName = zipFile.stripPrefix("file:")
       // Ignoring exclude packages.
-      (ZipBasicParser.readFilesAndPackages(new ZipFile(zipFileName))._1,
-        getGitScore(zipFileName), getOrgsName(zipFileName))
+      val (filesMap, packages) = ZipBasicParser.readFilesAndPackages(new ZipFile(zipFileName))
+      (filesMap, getGitScore(zipFileName), getOrgsName(zipFileName), packages)
     }.flatMap { f =>
-      val (files, score, orgsName) = f
+      val (files, score, orgsName, packages) = f
       new JavaFileIndexer()
-        .generateTokens(files.toMap, List(), score.getOrElse(0), orgsName.getOrElse("ErrorRecord"))
+        .generateTokens(files.toMap, packages, score.getOrElse(0),
+          orgsName.getOrElse("ErrorRecord"))
     }.map(x => toJson(x, addESHeader = true)).saveAsTextFile(BetterDocsConfig.sparkOutput)
   }
 
