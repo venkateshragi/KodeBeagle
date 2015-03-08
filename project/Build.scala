@@ -35,7 +35,7 @@ object BetterDocsBuild extends Build {
   def coreSettings = betterDocsSettings ++ Seq(libraryDependencies ++= Dependencies.betterDocs)
 
   def betterDocsSettings =
-    Defaults.coreDefaultSettings ++ Seq(
+    Defaults.coreDefaultSettings ++ Seq (
       name := "BetterDocs",
       organization := "com.betterdocs",
       version := "0.0.1-SNAPSHOT",
@@ -55,7 +55,8 @@ object Dependencies {
   val scalaTest = "org.scalatest" %% "scalatest" % "2.2.4" % "test"
   val sl4j = "org.slf4j" % "slf4j-log4j12" % "1.7.10"
   val betterDocs = Seq(spark, scalaTest, sl4j)
-  // transitively uses commons-lang3-3.3.2
+
+  // transitively uses
   // commons-httpclient-3.1
   // commons-io-2.4
   // json4s-jackson_2.11-3.2.10

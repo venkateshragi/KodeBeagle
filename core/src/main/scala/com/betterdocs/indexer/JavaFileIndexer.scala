@@ -20,6 +20,7 @@ package com.betterdocs.indexer
 import java.util.regex.Pattern
 
 import scala.collection.mutable
+import scala.collection.immutable
 import scala.util.Try
 
 
@@ -35,7 +36,7 @@ trait BasicIndexer extends Serializable {
   val importPattern: Pattern = Pattern.compile("import (.*)\\.(\\w+);")
 
   def generateTokens(files: Map[String, String], excludePackages: List[String], score: Int,
-      orgsName: String): List[Token]
+      orgsName: String): Set[Token]
 
 }
 
@@ -43,10 +44,9 @@ class JavaFileIndexer extends BasicIndexer {
 
   /** For Java code based on trial and error 10 to 20 seems good. */
   override val linesOfContext: Int = 10
-
   override def generateTokens(files: Map[String, String], excludePackages: List[String],
-      score: Int, orgsName: String): List[Token] = {
-    var tokens = List[Token]()
+      score: Int, orgsName: String): Set[Token] = {
+    var tokens = immutable.HashSet[Token]()
     for (file <- files) {
       val (fileName, fileContent) = file
       val tokenMap = new mutable.HashMap[String, List[Int]]
@@ -62,21 +62,21 @@ class JavaFileIndexer extends BasicIndexer {
         val (actualRepoName, branchName) = repoName.splitAt(fileName.indexOf('-'))
           val fullGithubURL = s"""http://github.com/$orgsName/$actualRepoName/blob/${branchName
           .stripPrefix("-")}$actualFileName"""
-        tokens = tokens ++ List(Token(fullGithubURL, tokenMap.keySet.toSet,
-          tokenMap.values.flatten.toSeq.sorted.distinct, score))
+        tokens = tokens + Token(fullGithubURL, tokenMap.keySet.toSet,
+          tokenMap.values.flatten.toSeq.sorted.distinct, score)
         //  tokens = tokens ++ List(Token(fullGithubURL, x.map(z => z._2._1 + "." + z._2
         //  ._2), x.head._1, score))
         tokenMap.clear()
       }
     }
-    tokens.distinct
+    tokens
   }
 
   private def extractImports(java: String, packages: List[String]) = java.split("\n")
     .filter(x => x.startsWith("import"))
     .map(x => importPattern.matcher(x)).filter(_.find)
     .flatMap(x => Try(x.group(1) -> x.group(2).trim).toOption)
-    .filterNot { case (left, right) => packages.contains(left + "." + right) }
+    .filterNot { case (left, right) => packages.contains(left) }
 
   /**
    * Takes a line of code and cleans it for further indexing.
