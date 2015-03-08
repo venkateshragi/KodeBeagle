@@ -49,17 +49,17 @@ class JavaFileIndexerSuite extends FunSuite with BeforeAndAfter {
     val javaFileIndexer = new JavaFileIndexer {
       override val linesOfContext = 20
     }
-    val excludes = Set("com.google.common.util.concurrent.SettableFuture", "org.slf4j.Logger",
-      "org.apache.spark.network.protocol.ChunkFetchRequest",
-      "io.netty.channel.ChannelFutureListener", "org.slf4j.LoggerFactory",
-      "java.util.concurrent.TimeUnit", "org.apache.spark.network.protocol.StreamChunkId",
-      "org.apache.spark.network.protocol.RpcRequest")
-    val result = javaFileIndexer.generateTokens(Map("sample-master/Sample.java" -> TestData
+    val excludes = Set("org.apache.spark", "org.apache", "org",
+      "org.apache.spark.network.protocol")
+    val resultWOExcludes = javaFileIndexer.generateTokens(Map("sample-master/Sample.java" ->
+      TestData
+      .javaFile), List(), 0, "Sample")
+    val resultWExcludes = javaFileIndexer.generateTokens(Map("sample-master/Sample.java" -> TestData
       .javaFile), excludes.toList, 0, "Sample")
-    result.foreach { x =>
-      val setDiff = excludes -- x.strings
-      assert(excludes === setDiff)
-    }
+    val expected = resultWOExcludes.flatMap(x => x.strings)
+      .filterNot(_.startsWith("org.apache.spark.network.protocol"))
+    val result = resultWExcludes.flatMap(x => x.strings)
+    assert (expected === result)
   }
 
 }
