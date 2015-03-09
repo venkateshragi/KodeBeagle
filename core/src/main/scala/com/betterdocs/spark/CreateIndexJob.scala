@@ -64,7 +64,7 @@ object CreateIndexJob {
     implicit val formats = Serialization.formats(NoTypeHints)
 
     if (addESHeader) {
-      """|{ "index" : { "_index" : "betterdocs", "_type" : "type1" } }
+      """|{ "index" : { "_index" : "betterdocs", "_type" : "custom" } }
          |""".stripMargin + write(t)
     } else { "" + write(t) }
   }

@@ -27,3 +27,17 @@ do
     echo "uploading $f to elasticsearch."
     curl -s -XPOST 'localhost:9200/_bulk' --data-binary '@'$f >/dev/null
 done
+
+# Updating mappings and types.
+
+curl -XPUT 'http://localhost:9200/betterdocs/custom/_mapping' -d '
+{
+    "custom" : {
+        "properties" : {
+                "file" : { "type" : "string", "index" : "no" },
+                "strings" : { "type" : "string", "index" : "not_analyzed" },
+                "score" : { "type" : "long", "index" : "no" },
+                "lineNumbers" : { "type" : "long", "index" : "no" }
+        }
+    }
+}'
