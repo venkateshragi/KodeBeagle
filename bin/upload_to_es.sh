@@ -22,15 +22,12 @@
 echo "Clearing all indexes from elasticsearch at once."
 curl -XDELETE 'http://localhost:9200/_all/'
 
-for f in `find $1 -name 'part*'`
-do
-    echo "uploading $f to elasticsearch."
-    curl -s -XPOST 'localhost:9200/_bulk' --data-binary '@'$f >/dev/null
-done
+# create a betterdocs index
+curl -XPUT 'http://localhost:9200/betterdocs/'
 
-# Updating mappings and types.
+# Updating mappings and types for betterdocs index.
 
-curl -XPUT 'http://localhost:9200/betterdocs/custom/_mapping' -d '
+curl -XPUT 'localhost:9200/betterdocs/custom/_mapping' -d '
 {
     "custom" : {
         "properties" : {
@@ -41,3 +38,9 @@ curl -XPUT 'http://localhost:9200/betterdocs/custom/_mapping' -d '
         }
     }
 }'
+
+for f in `find $1 -name 'part*'`
+do
+    echo "uploading $f to elasticsearch."
+    curl -s -XPOST 'localhost:9200/_bulk' --data-binary '@'$f >/dev/null
+done
