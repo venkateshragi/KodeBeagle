@@ -39,9 +39,9 @@ object BetterDocsBuild extends Build {
       name := "BetterDocs",
       organization := "com.betterdocs",
       version := "0.0.1-SNAPSHOT",
-      scalaVersion := "2.11.5",
+      scalaVersion := "2.11.6",
       scalacOptions := scalacOptionsList,
-      retrieveManaged := true,
+     // retrieveManaged := true, // enable this if we need jars of dependencies.
       crossPaths := false,
       fork := true,
       javaOptions += "-Xmx2048m" // For running spark job.

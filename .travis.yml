@@ -1,6 +1,6 @@
 language: scala
 scala:
-- 2.11.5
+- 2.11.6
 jdk:
 - openjdk7
 - oraclejdk7
@@ -11,7 +11,7 @@ env:
  
 before_script:
 script:
--  sbt compile
+-  sbt test
  
 notifications:
 email: false
