@@ -90,7 +90,7 @@ var app = function () {
                     {"score": {"order": "desc"}}]
             }
         }).then(function (resp) {
-            console.log(resp.hits.hits);
+            //console.log(resp.hits.hits);
             updateView(resp.hits.hits);
         }, function (err) {
             console.log(err.message);
