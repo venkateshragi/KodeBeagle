@@ -33,7 +33,7 @@ curl -XPUT 'localhost:9200/betterdocs/custom/_mapping' -d '
         "properties" : {
                 "file" : { "type" : "string", "index" : "no" },
                 "strings" : { "type" : "string", "index" : "not_analyzed" },
-                "score" : { "type" : "long", "index" : "no" },
+                "score" : { "type" : "long", "index" : "not_analyzed" },
                 "lineNumbers" : { "type" : "long", "index" : "no" }
         }
     }
