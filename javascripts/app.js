@@ -29,7 +29,7 @@ var app = function () {
         markers.forEach(function (m) {
             editor.getSession().addMarker(m, "ace_active-line", "background");
         });
-        editor.gotoLine(lineNumbers[lineNumbers.length-1], 0, true);
+        editor.gotoLine(lineNumbers[lineNumbers.length - 1], 0, true);
     }
 
     function getFileName(filePath) {
@@ -45,18 +45,22 @@ var app = function () {
                 return entry._source.file
             });
 
-        _.keys(groupedData).slice(0,4).forEach(function (fileName, index) {
-           var sameFile  = groupedData[fileName],
-               filePath = fileName.replace("http://github.com", "http://github-raw-cors-proxy.herokuapp.com"),
-               occurences =(_.unique(_.flatten(sameFile.map(function(src){
-               return src._source.lineNumbers;
-           })))).sort();
+        _.keys(groupedData).slice(0, 4).forEach(function (fileName, index) {
+            var sameFile = groupedData[fileName],
+                filePath = fileName.replace("http://github.com", "http://github-raw-cors-proxy.herokuapp.com"),
+                occurences = (_.unique(_.flatten(sameFile.map(function (src) {
+                    return src._source.lineNumbers;
+                })))).sort();
 
             files.push({path: fileName, name: getFileName(fileName), lines: occurences});
 
             $.get(filePath, function (result) {
                 var id = "result" + index;
-                enableAceEditor(id, result, occurences);
+                if (result !== "Not Found") {
+                    enableAceEditor(id + "-editor", result, occurences);
+                } else {
+                    $("#" + id).hide();
+                }
             });
         });
 

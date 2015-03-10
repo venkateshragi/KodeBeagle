@@ -23,11 +23,10 @@
     {% raw %}
     <script id="result-template" type="text/x-handlebars-template">
         {{#each files}}
-        <div class="result">
+        <div class="result" id="result{{@index}}">
             <div><a href="{{path}}">{{name}}</a></div>
             <br/>
-
-            <div id="result{{@index}}" class="editor">{{content}}</div>
+            <div id="result{{@index}}-editor" class="editor">{{content}}</div>
         </div>
         {{/each}}
     </script>
