@@ -69,7 +69,7 @@ var app = function () {
 
     function search(queryString) {
         var mustTerms = queryString.split(",").map(function (queryTerm) {
-            return {"term": {"custom.strings": queryTerm}};
+            return {"term": {"custom.strings": queryTerm.trim()}};
         });
 
         $.es.Client({
