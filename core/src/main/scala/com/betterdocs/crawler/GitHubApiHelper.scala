@@ -21,10 +21,10 @@ import java.io.File
 import java.net.URL
 
 import com.betterdocs.configuration.BetterDocsConfig
+import com.betterdocs.logging.Logger
 import org.apache.commons.httpclient.HttpClient
 import org.apache.commons.httpclient.methods.GetMethod
 import org.apache.commons.io.FileUtils
-import com.betterdocs.logging.Logger
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 
@@ -66,8 +66,8 @@ object GitHubApiHelper extends Logger {
    * Access Github's
    * [[https://developer.github.com/v3/repos/#list-organization-repositories]]
    */
-  def getAllGitHubReposForOrg(orgs: String): List[Repository] = {
-    val json = httpGetJson(s"https://api.github.com/orgs/$orgs/repos").toList
+  def getAllGitHubReposForOrg(orgs: String, page: Int): List[Repository] = {
+    val json = httpGetJson(s"https://api.github.com/orgs/$orgs/repos?page=$page").toList
     for (j <- json; c <- j.children) yield extractRepoInfo(c)
   }
 
@@ -88,15 +88,18 @@ object GitHubApiHelper extends Logger {
   }
 
   /*
+   * Find the number of repo pages in an organisation.
+   */
+  def repoPagesCount(url: String) = executeMethod(url).getResponseHeader("Link").
+    getElements.toList(1).getValue.substring(0, 2).toInt
+
+  /*
      * Helper for accessing Java - Apache Http client. 
      * (It it important to stick with the current version and all.)
      */
   def httpGetJson(url: String): Option[JValue] = {
-    val method = new GetMethod(url)
-    method.setDoAuthentication(true)
-    // Please add the oauth token instead of <token> here. Or github may give 403/401 as response.
-    method.addRequestHeader("Authorization", s"token ${BetterDocsConfig.githubToken}")
-    val status = client.executeMethod(method)
+    val method = executeMethod(url)
+    val status = method.getStatusCode
     if (status == 200) {
       // ignored parsing errors if any, because we can not do anything about them anyway.
       Try(parse(method.getResponseBodyAsString)).toOption
@@ -106,6 +109,15 @@ object GitHubApiHelper extends Logger {
         "\nResponseBody " + method.getResponseBodyAsString)
       None
     }
+  }
+
+  def executeMethod(url: String): GetMethod = {
+    val method = new GetMethod(url)
+    method.setDoAuthentication(true)
+    // Please add the oauth token instead of <token> here. Or github may give 403/401 as response.
+    method.addRequestHeader("Authorization", s"token ${BetterDocsConfig.githubToken}")
+    client.executeMethod(method)
+    method
   }
 
   def downloadRepository(r: Repository, targetDir: String): Option[File] = {
@@ -134,15 +146,20 @@ object GitHubApiHelperTest {
 
   def downloadFromOrganization(organizationName: String): Unit = {
     import com.betterdocs.crawler.GitHubApiHelper._
-    getAllGitHubReposForOrg(organizationName).filter(x => !x.fork && x.language == "Java")
-      .map(x => downloadRepository(x, BetterDocsConfig.githubDir))
+    val pageCount = repoPagesCount(s"https://api.github.com/orgs/$organizationName/repos")
+    log.info("page count :" + pageCount)
+    (1 to pageCount) foreach { page =>
+      getAllGitHubReposForOrg(organizationName, page).filter(x => !x.fork && x.language == "Java")
+        .map(x => downloadRepository(x, BetterDocsConfig.githubDir))
+    }
+
   }
 
   def downloadFromRepoIdRange(): Unit = {
     import com.betterdocs.crawler.GitHubApiHelper._
-    for (i <- Range(46000, 300000, 350)) 
+    for (i <- Range(46000, 300000, 350))
       yield getAllGitHubRepos(i).filter(x => x("fork") == "false").distinct
-      .map(fetchDetails).flatten.distinct.filter(x => x.language == "Java" && !x.fork)
+      .flatMap(fetchDetails).distinct.filter(x => x.language == "Java" && !x.fork)
       .map(x => downloadRepository(x, BetterDocsConfig.githubDir))
   }
 }
