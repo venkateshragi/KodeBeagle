@@ -20,7 +20,7 @@ package com.betterdocs.spark
 import java.io.File
 
 import com.betterdocs.configuration.BetterDocsConfig
-import com.betterdocs.crawler.ZipBasicParser
+import com.betterdocs.crawler.{Repository, ZipBasicParser}
 import com.betterdocs.indexer.{JavaFileIndexer, Token}
 import com.betterdocs.logging.Logger
 import org.apache.commons.compress.archivers.zip.ZipFile
@@ -46,6 +46,14 @@ object CreateIndexJob {
       new JavaFileIndexer()
         .generateTokens(files.toMap, packages, repo)
     }.map(x => toJson(x, addESHeader = true)).saveAsTextFile(BetterDocsConfig.sparkOutput)
+
+    sc.binaryFiles(BetterDocsConfig.githubDir).map { case (zipFile, _) =>
+      val zipFileName = zipFile.stripPrefix("file:")
+      // Ignoring exclude packages.
+      RepoFileNameParser(zipFileName)
+    }.flatMap { f =>
+      f
+    }.map(x => toRepoJson(x)).saveAsTextFile(BetterDocsConfig.sparkOutput +"/repo")
   }
 
   /**
@@ -71,6 +79,13 @@ object CreateIndexJob {
     } else { "" + write(t) }
   }
 
+  def toRepoJson(r: Repository): String = {
+    import org.json4s._
+    import org.json4s.jackson.Serialization
+    import org.json4s.jackson.Serialization.write
+    implicit val formats = Serialization.formats(NoTypeHints)
+    write(r)
+  }
 }
 
 object CreateIndex extends Logger {
