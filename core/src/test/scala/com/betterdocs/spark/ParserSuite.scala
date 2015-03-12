@@ -33,7 +33,6 @@ class ParserSuite extends FunSuite with BeforeAndAfterAll {
       789)))
   }
 
-
   test("Branch name with version number only") {
     val r = RepoFileNameParser("repo~apache~zookeeper~160999~false~Java~2.1~789.zip")
     assert(r == Some(Repository("apache", 160999, "zookeeper", false, "Java", "2.1", 789)))
