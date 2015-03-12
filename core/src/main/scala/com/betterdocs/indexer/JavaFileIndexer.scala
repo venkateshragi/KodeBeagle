@@ -19,6 +19,8 @@ package com.betterdocs.indexer
 
 import java.util.regex.Pattern
 
+import com.betterdocs.crawler.Repository
+
 import scala.collection.mutable
 import scala.collection.immutable
 import scala.util.Try
@@ -35,8 +37,8 @@ trait BasicIndexer extends Serializable {
   /** Import pattern of some languages is similar. */
   val importPattern: Pattern = Pattern.compile("import (.*)\\.(\\w+);")
 
-  def generateTokens(files: Map[String, String], excludePackages: List[String], score: Int,
-      orgsName: String): Set[Token]
+  def generateTokens(files: Map[String, String], excludePackages: List[String],
+      repo: Option[Repository]): Set[Token]
 
 }
 
@@ -45,8 +47,9 @@ class JavaFileIndexer extends BasicIndexer {
   /** For Java code based on trial and error 10 to 20 seems good. */
   override val linesOfContext: Int = 10
   override def generateTokens(files: Map[String, String], excludePackages: List[String],
-      score: Int, orgsName: String): Set[Token] = {
+    repo: Option[Repository]): Set[Token] = {
     var tokens = immutable.HashSet[Token]()
+    val r = repo.getOrElse(Repository.empty)
     for (file <- files) {
       val (fileName, fileContent) = file
       val tokenMap = new mutable.HashMap[String, List[Int]]
@@ -58,12 +61,11 @@ class JavaFileIndexer extends BasicIndexer {
           // This map can be used to create one to N index if required.
           tokenMap += ((FQCN, oldValue ++ List(y._1)))
         }
-        val (repoName, actualFileName) = fileName.splitAt(fileName.indexOf('/'))
-        val (actualRepoName, branchName) = repoName.splitAt(fileName.indexOf('-'))
-          val fullGithubURL = s"""http://github.com/$orgsName/$actualRepoName/blob/${branchName
-          .stripPrefix("-")}$actualFileName"""
+        val (_, actualFileName) = fileName.splitAt(fileName.indexOf('/'))
+          val fullGithubURL =
+            s"""http://github.com/${r.login}/${r.name}/blob/${r.defaultBranch}$actualFileName"""
         tokens = tokens + Token(fullGithubURL, tokenMap.keySet.toSet,
-          tokenMap.values.flatten.toSeq.sorted.distinct, score)
+          tokenMap.values.flatten.toSeq.sorted.distinct, r.stargazersCount)
         //  tokens = tokens ++ List(Token(fullGithubURL, x.map(z => z._2._1 + "." + z._2
         //  ._2), x.head._1, score))
         tokenMap.clear()

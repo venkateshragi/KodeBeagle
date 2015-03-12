@@ -17,19 +17,29 @@
 
 package com.betterdocs.indexer
 
-import org.scalatest.{FunSuite, BeforeAndAfter}
+import java.io.StringWriter
 
-class JavaFileIndexerSuite extends FunSuite with BeforeAndAfter {
+import com.betterdocs.crawler.Repository
+import org.apache.commons.io.IOUtils
+import org.scalatest.{BeforeAndAfterAll, FunSuite}
 
+class JavaFileIndexerSuite extends FunSuite with BeforeAndAfterAll {
+  val stream =
+    Thread.currentThread().getContextClassLoader.getResourceAsStream("TransportClient.java")
+  val writer = new StringWriter()
   val allOccurrences = List(67, 68, 70, 73, 74, 75, 101, 105, 108, 109, 111, 123,
     137, 141, 144, 145, 147, 158, 172, 187, 188, 189, 191, 198, 203)
+  val sampleRepo = Repository("sample", 0, "sample", false, "Java", "master", 0)
+  override def beforeAll() {
+    IOUtils.copy(stream, writer)
+  }
 
   test("Parse a file and verify tokens when lines of context is more than file size") {
     val javaFileIndexer = new JavaFileIndexer {
       override val linesOfContext = 2000
     }
-    val result = javaFileIndexer.generateTokens(Map("sample-master/Sample.java" -> TestData
-      .javaFile), List(), 0, "Sample")
+    val result = javaFileIndexer.generateTokens(Map("sample-master/Sample.java" -> writer.toString),
+      List(), Some(Repository.empty))
     assert(result.size === 1)
     assert(result.head.lineNumbers === allOccurrences)
   }
@@ -38,8 +48,8 @@ class JavaFileIndexerSuite extends FunSuite with BeforeAndAfter {
     val javaFileIndexer = new JavaFileIndexer {
       override val linesOfContext = 10
     }
-    val result = javaFileIndexer.generateTokens(Map("sample-master/Sample.java" -> TestData
-      .javaFile), List(), 0, "Sample")
+    val result = javaFileIndexer.generateTokens(
+      Map("sample-master/Sample.java" -> writer.toString), List(), Some(Repository.empty))
     val occurrences = result.map(x => x.lineNumbers).reduce(_ ++ _).sorted.distinct
     assert(occurrences === allOccurrences)
     assert(result.size == 40)
@@ -52,14 +62,13 @@ class JavaFileIndexerSuite extends FunSuite with BeforeAndAfter {
     val excludes = Set("org.apache.spark", "org.apache", "org",
       "org.apache.spark.network.protocol")
     val resultWOExcludes = javaFileIndexer.generateTokens(Map("sample-master/Sample.java" ->
-      TestData
-      .javaFile), List(), 0, "Sample")
-    val resultWExcludes = javaFileIndexer.generateTokens(Map("sample-master/Sample.java" -> TestData
-      .javaFile), excludes.toList, 0, "Sample")
+      writer.toString), List(), Some(Repository.empty))
+    val resultWExcludes = javaFileIndexer.generateTokens(Map("sample-master/Sample.java" ->
+      writer.toString), excludes.toList, Some(Repository.empty))
     val expected = resultWOExcludes.flatMap(x => x.strings)
       .filterNot(_.startsWith("org.apache.spark.network.protocol"))
     val result = resultWExcludes.flatMap(x => x.strings)
-    assert (expected === result)
+    assert(expected === result)
   }
 
 }

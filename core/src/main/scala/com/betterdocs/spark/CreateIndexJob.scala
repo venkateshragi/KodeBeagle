@@ -17,14 +17,17 @@
 
 package com.betterdocs.spark
 
+import java.io.File
+
 import com.betterdocs.configuration.BetterDocsConfig
 import com.betterdocs.crawler.ZipBasicParser
-import com.betterdocs.indexer.{ JavaFileIndexer, Token }
-import org.apache.commons.compress.archivers.zip.ZipFile
-import org.apache.spark.{ SparkConf, SparkContext }
-import scala.collection.mutable.ArrayBuffer
-import scala.util.{ Failure, Success, Try }
+import com.betterdocs.indexer.{JavaFileIndexer, Token}
 import com.betterdocs.logging.Logger
+import org.apache.commons.compress.archivers.zip.ZipFile
+import org.apache.spark.{SparkConf, SparkContext}
+
+import scala.collection.mutable.ArrayBuffer
+import scala.util.{Failure, Success, Try}
 
 object CreateIndexJob {
 
@@ -37,12 +40,11 @@ object CreateIndexJob {
       val zipFileName = zipFile.stripPrefix("file:")
       // Ignoring exclude packages.
       val (filesMap, packages) = ZipBasicParser.readFilesAndPackages(new ZipFile(zipFileName))
-      (filesMap, getGitScore(zipFileName), getOrgsName(zipFileName), packages)
+      (filesMap, RepoFileNameParser(zipFileName), packages)
     }.flatMap { f =>
-      val (files, score, orgsName, packages) = f
+      val (files, repo, packages) = f
       new JavaFileIndexer()
-        .generateTokens(files.toMap, packages, score.getOrElse(0),
-          orgsName.getOrElse("ErrorRecord"))
+        .generateTokens(files.toMap, packages, repo)
     }.map(x => toJson(x, addESHeader = true)).saveAsTextFile(BetterDocsConfig.sparkOutput)
   }
 
@@ -75,41 +77,40 @@ object CreateIndex extends Logger {
 
   def main(args: Array[String]): Unit = {
     import com.betterdocs.crawler.ZipBasicParser._
-    val indexer: JavaFileIndexer = new JavaFileIndexer
-    import indexer._
     for (f <- listAllFiles(BetterDocsConfig.githubDir)) {
       val zipFile = Try(new ZipFile(f))
       zipFile match {
         case Success(zf) =>
-          val files: (ArrayBuffer[(String, String)], List[String]) = readFilesAndPackages(zf)
-          val score: Int = CreateIndexJob.getGitScore(f.getName).getOrElse(0)
-          val orgsName: String = CreateIndexJob.getOrgsName(f.getName).getOrElse("ErrorRecord")
-          val tokens = generateTokens(files._1.toMap, List(), score, orgsName)
-            .map(CreateIndexJob.toJson(_, addESHeader = true)).mkString("\n")
+          val tokens: String = getTokens(f, zf)
           scala.tools.nsc.io.File(BetterDocsConfig.sparkOutput + s"/$f.tokens").writeAll(tokens)
-        case Failure(e) => log.info(s"$f failed because ${e.getMessage}")
+        case Failure(e) => log.warn(s"$f failed because ${e.getMessage}")
       }
     }
   }
+
+  def getTokens(f: File, zf: ZipFile): String = {
+    val indexer: JavaFileIndexer = new JavaFileIndexer
+    import com.betterdocs.crawler.ZipBasicParser._
+    import indexer._
+    val files: (ArrayBuffer[(String, String)], List[String]) = readFilesAndPackages(zf)
+    val repo = RepoFileNameParser(f.getName)
+    val tokens = generateTokens(files._1.toMap, files._2, repo)
+      .map(CreateIndexJob.toJson(_, addESHeader = true)).mkString("\n")
+    tokens
+  }
 }
 
-object CreateIndexPar {
+object CreateIndexPar extends Logger {
 
   def main(args: Array[String]): Unit = {
     import com.betterdocs.crawler.ZipBasicParser._
-    val indexer: JavaFileIndexer = new JavaFileIndexer
-    import indexer._
     listAllFiles(BetterDocsConfig.githubDir).par.foreach { f =>
       val zipFile = Try(new ZipFile(f))
       zipFile match {
         case Success(zf) =>
-          val files: (ArrayBuffer[(String, String)], List[String]) = readFilesAndPackages(zf)
-          val score: Int = CreateIndexJob.getGitScore(f.getName).getOrElse(0)
-          val orgsName: String = CreateIndexJob.getOrgsName(f.getName).getOrElse("ErrorRecord")
-          val tokens = generateTokens(files._1.toMap, List(), score, orgsName)
-            .map(CreateIndexJob.toJson(_, addESHeader = true)).mkString("\n")
+          val tokens: String = CreateIndex.getTokens(f, zf)
           scala.tools.nsc.io.File(BetterDocsConfig.sparkOutput + s"/$f.tokens").writeAll(tokens)
-        case Failure(e) => println(s"$f failed because ${e.getMessage}")
+        case Failure(e) => log.warn(s"$f failed because ${e.getMessage}")
       }
     }
   }

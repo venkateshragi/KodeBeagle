@@ -30,8 +30,13 @@ import org.json4s.jackson.JsonMethods._
 
 import scala.util.Try
 
-case class Repository(login: String, id: Int, name: String, fork: Boolean, language: String, 
+case class Repository(login: String, id: Int, name: String, fork: Boolean, language: String,
     defaultBranch: String, stargazersCount: Int)
+
+/** For testing */
+object Repository {
+  def empty = Repository("n-a", -1, "n-a", fork = false, "Java", "n-a", 0)
+}
 
 /**
  * This class relies on Github's {https://developer.github.com/v3/} Api.
