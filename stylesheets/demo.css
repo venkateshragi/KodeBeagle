@@ -15,7 +15,7 @@ header {
 }
 
 header h2 {
-    line-height: 48px;
+    line-height: 60px;
 }
 
 header > h2 > span.left {
@@ -25,21 +25,21 @@ header > h2 > span.left {
 header > h2 > span.right {
     float: right;
     padding-right: 10px;
-    padding-top: 10px;
+    padding-top: 20px;
 }
 
 .container {
     padding: 10px;
-    min-height: 80%;
+    min-height: 85.5%;
 }
 
 .editor {
-    min-height: 200px;
+    height: 100%;
 }
 
 .result {
-    height: 50%;
-    width: 49%;
+    height: 85%;
+    width: 100%;
     display: inline-block;
 }
 
@@ -131,7 +131,7 @@ footer {
     background-clip: padding-box;
 }
 
-.remodal-confirm,.remodal-confirm:hover,
+.remodal-confirm, .remodal-confirm:hover,
 .remodal-confirm:active {
     color: #FDFCFA;
     background: #EC583A;
@@ -169,6 +169,32 @@ div.modalContent form input {
     margin-bottom: 20px;
 }
 
-div.modalFooter{
-    padding-top:5px;
+div.modalFooter {
+    padding-top: 5px;
+}
+
+div.searchResults {
+    overflow: hidden;
+}
+
+div.repoInfo {
+    margin-top: 5px;
+    float: left;
+    border: 1px solid #F5F5F5;
+    width: 35%;
+    padding: 5px;
+    min-height: 80%;
+}
+
+div.repoInfo select {
+    width: 100%;
+}
+
+div.resultContainer {
+    margin-top: 5px;
+    float: right;
+    width: 60%;
+    border: 1px solid #F5F5F5;
+    padding: 5px;
+    height: 80%;
 }

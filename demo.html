@@ -27,10 +27,18 @@
             </div>
             <span class="settingsIcon"><a href="#modal"><i class="fa fa-cog"></i></a></span>
         </div>
-        <div>
-            <h3>Analyzed Projects</h3>
-            Some content here
-            <div id="results"></div>
+
+        <div class="searchResults">
+            <div class="repoInfo">
+                <h3>Analyzed Projects</h3>
+                <select id="repoList"></select>
+            </div>
+
+            <div class="resultContainer">
+                <h3>Code Reference</h3>
+                <div id="results"></div>
+            </div>
+
         </div>
         {% raw %}
         <script id="result-template" type="text/x-handlebars-template">
@@ -80,6 +88,8 @@
 <script src="javascripts/app.js"></script>
 
 <script>
+    var ht = Math.floor($(".repoInfo").height()/14);
+    $("#repoList").attr("size",ht-12);
     $("#searchByFQN").submit(function (evt) {
         evt.preventDefault();
         app.search($("#searchString").val());
