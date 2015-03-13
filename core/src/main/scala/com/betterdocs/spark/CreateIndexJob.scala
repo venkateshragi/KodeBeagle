@@ -53,7 +53,7 @@ object CreateIndexJob {
       RepoFileNameParser(zipFileName)
     }.flatMap { f =>
       f
-    }.map(x => toRepoJson(x)).saveAsTextFile(BetterDocsConfig.sparkOutput +"/repo")
+    }.map(x => toRepoJson(x)).saveAsTextFile(BetterDocsConfig.sparkOutput + "/repo")
   }
 
   /**

@@ -19,6 +19,7 @@ package com.betterdocs.indexer
 
 import java.util.regex.Pattern
 
+import com.betterdocs.configuration.BetterDocsConfig
 import com.betterdocs.crawler.Repository
 
 import scala.collection.mutable
@@ -32,7 +33,7 @@ case class Token(file: String, strings: Set[String], lineNumbers: Seq[Int], scor
 trait BasicIndexer extends Serializable {
 
   /** Adjusting the lines of context is crucial to the kinds of token generated. (Tune this.) */
-  val linesOfContext: Int
+  def linesOfContext: Int
 
   /** Import pattern of some languages is similar. */
   val importPattern: Pattern = Pattern.compile("import (.*)\\.(\\w+);")
@@ -45,7 +46,8 @@ trait BasicIndexer extends Serializable {
 class JavaFileIndexer extends BasicIndexer {
 
   /** For Java code based on trial and error 10 to 20 seems good. */
-  override val linesOfContext: Int = 10
+  override def linesOfContext: Int = BetterDocsConfig.linesOfContext.toInt
+
   override def generateTokens(files: Map[String, String], excludePackages: List[String],
     repo: Option[Repository]): Set[Token] = {
     var tokens = immutable.HashSet[Token]()

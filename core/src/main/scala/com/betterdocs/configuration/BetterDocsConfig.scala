@@ -32,6 +32,7 @@ object BetterDocsConfig {
     yield settings.put(c.getKey, c.getValue.unwrapped.toString)
   // Output dir for spark job.
   private[betterdocs] val sparkOutput = get("betterdocs.spark.outputDir").get
+  private[betterdocs] val linesOfContext = get("betterdocs.indexing.linesOfContext").get
   // This is required to use GithubAPIHelper
   private[betterdocs] val githubToken = get("betterdocs.spark.githubToken").get
   private[betterdocs] val githubDir: String = get("betterdocs.github.crawlDir").get

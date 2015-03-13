@@ -28,7 +28,8 @@ class ParserSuite extends FunSuite with BeforeAndAfterAll {
   }
 
   test("Names with special character") {
-    val r = RepoFileNameParser("repo~apache~zookeeper-lost~160999~false~Java~=+-trunk/2.1~789.zip")
+    val r = RepoFileNameParser("/home/dir~temp/repo~apache~zookeeper-lost~160999~false~Java" +
+      "~=+-trunk/2.1~789.zip")
     assert(r == Some(Repository("apache", 160999, "zookeeper-lost", false, "Java", "=+-trunk/2.1",
       789)))
   }
