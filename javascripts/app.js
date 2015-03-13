@@ -2,7 +2,9 @@
 var app = function () {
 
     "use strict";
-    var source = $("#result-template").html(),
+    var esURL = "172.16.12.162:9200",
+        resultSize = 50,
+        source = $("#result-template").html(),
         template = Handlebars.compile(source),
         Range = ace.require('ace/range').Range;
 
@@ -45,7 +47,7 @@ var app = function () {
                 return entry._source.file
             });
 
-        _.keys(groupedData).slice(0, 4).forEach(function (fileName, index) {
+        _.keys(groupedData).slice(0, 1).forEach(function (fileName, index) {
             var sameFile = groupedData[fileName],
                 filePath = fileName.replace("http://github.com", "http://github-raw-cors-proxy.herokuapp.com"),
                 occurences = (_.unique(_.flatten(sameFile.map(function (src) {
@@ -73,11 +75,11 @@ var app = function () {
         });
 
         $.es.Client({
-            host: $("#esURL").val(),
+            host: esURL,
             log: 'trace'
         }).search({
             index: 'betterdocs',
-            size: 50,
+            size: resultSize,
             body: {
                 "query": {
                     "bool": {
@@ -97,7 +99,13 @@ var app = function () {
         });
     }
 
+    function updateConfig(url, size) {
+        esURL = url.trim();
+        resultSize = size;
+    }
+
     return {
-        search: search
+        search: search,
+        saveConfig: updateConfig
     };
 }();

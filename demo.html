@@ -84,6 +84,13 @@
         evt.preventDefault();
         app.search($("#searchString").val());
     });
+
+    $(document).on('close', '.remodal', function (e) {
+        if (e.reason === "confirmation") {
+            app.saveConfig($("#elasticSearchURL").val(), $("#resultSize").val());
+        }
+    });
+
 </script>
 </body>
 </html>
