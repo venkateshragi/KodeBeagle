@@ -33,8 +33,7 @@
                 <h3>Analyzed Projects</h3>
                 <select id="repoList">
                     {% for repo in site.data.repos %}
-                    <option value="{{repo.login}}/{{repo.name}}"
-                            label="{{repo.login}}/{{repo.name}}">
+                    <option value="{{repo.login}}/{{repo.name}}">{{repo.login}}/{{repo.name}}
                     </option>
                     {% endfor %}
                 </select>
@@ -42,6 +41,7 @@
 
             <div class="resultContainer">
                 <h3>Code Reference</h3>
+
                 <div id="results"></div>
             </div>
 
@@ -91,8 +91,8 @@
 <script src="javascripts/app.js"></script>
 
 <script>
-    var ht = Math.floor($(".repoInfo").height()/14);
-    $("#repoList").attr("size",ht-12);
+    var ht = Math.floor($(".repoInfo").height() / 14);
+    $("#repoList").attr("size", ht - 12);
     $("#searchByFQN").submit(function (evt) {
         evt.preventDefault();
         app.search($("#searchString").val());
