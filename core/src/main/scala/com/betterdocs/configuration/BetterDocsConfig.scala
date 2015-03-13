@@ -25,6 +25,7 @@ import scala.collection.JavaConversions._
 
 object BetterDocsConfig {
   val config = ConfigFactory.load()
+  var lastIndex=0
 
   private val settings = new ConcurrentHashMap[String, String]()
 
@@ -34,9 +35,22 @@ object BetterDocsConfig {
   private[betterdocs] val sparkOutput = get("betterdocs.spark.outputDir").get
   private[betterdocs] val linesOfContext = get("betterdocs.indexing.linesOfContext").get
   // This is required to use GithubAPIHelper
-  private[betterdocs] val githubToken = get("betterdocs.spark.githubToken").get
+  private[betterdocs] val githubTokens: Array[String] = 
+    get("betterdocs.spark.githubTokens").get.split(",")
+  // This is required to use GithubAPIHelper
   private[betterdocs] val githubDir: String = get("betterdocs.github.crawlDir").get
   private[betterdocs] val sparkMaster: String = get("betterdocs.spark.master").get
+
+  def nextToken(arr: Array[String] = githubTokens) = {
+    if (lastIndex == arr.length - 1) {
+      lastIndex = 0
+      arr(lastIndex)
+    } else {
+      lastIndex = lastIndex + 1
+      arr(lastIndex)
+    }
+  }
+
   def get(key: String): Option[String] = Option(settings.get(key))
 
   def set(key: String, value: String) {

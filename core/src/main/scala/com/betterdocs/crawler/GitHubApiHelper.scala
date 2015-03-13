@@ -21,6 +21,7 @@ import java.io.File
 import java.net.URL
 
 import com.betterdocs.configuration.BetterDocsConfig
+import com.betterdocs.crawler.GitHubRepoDownloaderActor._
 import com.betterdocs.logging.Logger
 import org.apache.commons.httpclient.HttpClient
 import org.apache.commons.httpclient.methods.GetMethod
@@ -28,7 +29,7 @@ import org.apache.commons.io.FileUtils
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 case class Repository(login: String, id: Int, name: String, fork: Boolean, language: String,
     defaultBranch: String, stargazersCount: Int)
@@ -45,17 +46,21 @@ object GitHubApiHelper extends Logger {
 
   implicit val format = DefaultFormats
   private val client = new HttpClient()
+  var token: String = BetterDocsConfig.githubTokens(0)
 
   /**
    * Access Github's
    * [[https://developer.github.com/v3/repos/#list-all-public-repositories List all repositories]]
    * @param since Specify id of repo to start the listing from. (Pagination)
    */
-  def getAllGitHubRepos(since: Int): List[Map[String, String]] = {
-    val json = httpGetJson(s"https://api.github.com/repositories?since=$since").toList
+  def getAllGitHubRepos(since: Int): (List[Map[String, String]], Int) = {
+    val method = executeMethod(s"https://api.github.com/repositories?since=$since", token)
+    val nextSinceValueRaw = Option(method.getResponseHeader("Link").getElements.toList(0).getValue)
+    val nextSince = nextSinceValueRaw.get.substring(0, nextSinceValueRaw.get.length - 1).toInt
+    val json = httpGetJson(method).toList
     // Here we can specify all the fields we need from repo query.
     val interestingFields = List("full_name", "fork")
-    for {
+    val allGitHubRepos = for {
       j <- json
       c <- j.children
       map = (for {
@@ -63,7 +68,8 @@ object GitHubApiHelper extends Logger {
         JField(name, value) <- child
         if interestingFields.contains(name)
       } yield name -> value.values.toString).toMap
-    } yield map
+    } yield (map)
+    (allGitHubRepos, nextSince)
   }
 
   /**
@@ -72,7 +78,8 @@ object GitHubApiHelper extends Logger {
    * [[https://developer.github.com/v3/repos/#list-organization-repositories]]
    */
   def getAllGitHubReposForOrg(orgs: String, page: Int): List[Repository] = {
-    val json = httpGetJson(s"https://api.github.com/orgs/$orgs/repos?page=$page").toList
+    val method = executeMethod(s"https://api.github.com/orgs/$orgs/repos?page=$page", token)
+    val json = httpGetJson(method).toList
     for (j <- json; c <- j.children) yield extractRepoInfo(c)
   }
 
@@ -81,7 +88,8 @@ object GitHubApiHelper extends Logger {
    */
   def fetchDetails(repoMap: Map[String, String]): Option[Repository] = {
     for {
-      repo <- httpGetJson("https://api.github.com/repos/" + repoMap("full_name"))
+      repo <-
+      httpGetJson(executeMethod("https://api.github.com/repos/" + repoMap("full_name"), token))
     } yield extractRepoInfo(repo)
   }
 
@@ -95,15 +103,14 @@ object GitHubApiHelper extends Logger {
   /*
    * Find the number of repo pages in an organisation.
    */
-  def repoPagesCount(url: String) = executeMethod(url).getResponseHeader("Link").
+  def repoPagesCount(url: String) = executeMethod(url, token).getResponseHeader("Link").
     getElements.toList(1).getValue.substring(0, 2).toInt
 
   /*
      * Helper for accessing Java - Apache Http client. 
      * (It it important to stick with the current version and all.)
      */
-  def httpGetJson(url: String): Option[JValue] = {
-    val method = executeMethod(url)
+  def httpGetJson(method: GetMethod): Option[JValue] = {
     val status = method.getStatusCode
     if (status == 200) {
       // ignored parsing errors if any, because we can not do anything about them anyway.
@@ -116,12 +123,15 @@ object GitHubApiHelper extends Logger {
     }
   }
 
-  def executeMethod(url: String): GetMethod = {
+  def executeMethod(url: String, token: String): GetMethod = {
     val method = new GetMethod(url)
     method.setDoAuthentication(true)
     // Please add the oauth token instead of <token> here. Or github may give 403/401 as response.
-    method.addRequestHeader("Authorization", s"token ${BetterDocsConfig.githubToken}")
+    method.addRequestHeader("Authorization", s"token ${token}")
+    log.debug(s"using token $token")
     client.executeMethod(method)
+    val requestLimitRemaining = method.getResponseHeader("X-RateLimit-Remaining").getValue
+    repoDownloader ! RateLimit(requestLimitRemaining)
     method
   }
 
@@ -143,14 +153,26 @@ object GitHubApiHelper extends Logger {
   }
 }
 
-object GitHubApiHelperTest {
+object GitHubRepoCrawlerApp {
+
+  import com.betterdocs.crawler.GitHubApiHelper._
 
   def main(args: Array[String]): Unit = {
-    downloadFromOrganization("apache")
+
+    Try(args(0).toInt) match {
+
+      case Success(since) =>
+        log.info(s"Downloading repo since : $since")
+        repoDownloader ! DownloadPublicRepos(since)
+
+      case Failure(ex: NumberFormatException) if (!args(0).isEmpty) =>
+        log.info(s"Downloading repo for organisation:" + args(0))
+        repoDownloader ! DownloadOrganisationRepos(args(0))
+
+    }
   }
 
   def downloadFromOrganization(organizationName: String): Unit = {
-    import com.betterdocs.crawler.GitHubApiHelper._
     val pageCount = repoPagesCount(s"https://api.github.com/orgs/$organizationName/repos")
     log.info("page count :" + pageCount)
     (1 to pageCount) foreach { page =>
@@ -160,11 +182,11 @@ object GitHubApiHelperTest {
 
   }
 
-  def downloadFromRepoIdRange(): Unit = {
-    import com.betterdocs.crawler.GitHubApiHelper._
-    for (i <- Range(46000, 300000, 350))
-      yield getAllGitHubRepos(i).filter(x => x("fork") == "false").distinct
+  def downloadFromRepoIdRange(since: Int): Int = {
+    val (allGithubRepos, next) = getAllGitHubRepos(since)
+    allGithubRepos.filter(x => x("fork") == "false").distinct
       .flatMap(fetchDetails).distinct.filter(x => x.language == "Java" && !x.fork)
       .map(x => downloadRepository(x, BetterDocsConfig.githubDir))
+    next
   }
 }
