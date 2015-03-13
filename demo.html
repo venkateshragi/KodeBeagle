@@ -4,44 +4,64 @@
 <head>
     <title>BetterDocs</title>
     <link href='http://fonts.googleapis.com/css?family=Open+Sans:600,400' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <link type="text/css" rel="stylesheet" href="stylesheets/jquery.remodal.css"/>
     <link type="text/css" rel="stylesheet" href="stylesheets/demo.css"/>
 </head>
 <body>
-<header>
-    <h2>
-        <span class="left">BetterDocs</span>
-        <span class="right"><i class="fa fa-github"></i></span>
-    </h2>
-</header>
-<div class="container">
-    <div class="topPanel">
-        <div class="searchForm">
-            <form id="searchByFQN">
-                <span class="searchIcon"><i class="fa fa-search fa-flip-horizontal"></i></span>
-                <input type="text" id="searchString" required
-                       placeholder="java.nio.channels.FileChannel,java.nio.MappedByteBuffer">
-            </form>
+<div class="remodal-bg">
+    <header>
+        <h2>
+            <span class="left">BetterDocs</span>
+            <span class="right"><i class="fa fa-github"></i></span>
+        </h2>
+    </header>
+    <div class="container">
+        <div class="topPanel">
+            <div class="searchForm">
+                <form id="searchByFQN">
+                    <span class="searchIcon"><i class="fa fa-search fa-flip-horizontal"></i></span>
+                    <input type="text" id="searchString" required
+                           placeholder="java.nio.channels.FileChannel,java.nio.MappedByteBuffer">
+                </form>
+            </div>
+            <span class="settingsIcon"><a href="#modal"><i class="fa fa-cog"></i></a></span>
         </div>
-        <span class="settingsIcon"><i class="fa fa-cog"></i></span>
-    </div>
-    <div>
-        <h3>Analyzed Projects</h3>
-        Some content here
-        <div id="results"></div>
-    </div>
-    {% raw %}
-    <script id="result-template" type="text/x-handlebars-template">
-        {{#each files}}
-        <div class="result" id="result{{@index}}">
-            <div><a href="{{path}}">{{name}}</a></div>
-            <br/>
+        <div>
+            <h3>Analyzed Projects</h3>
+            Some content here
+            <div id="results"></div>
+        </div>
+        {% raw %}
+        <script id="result-template" type="text/x-handlebars-template">
+            {{#each files}}
+            <div class="result" id="result{{@index}}">
+                <div><a href="{{path}}">{{name}}</a></div>
+                <br/>
 
-            <div id="result{{@index}}-editor" class="editor">{{content}}</div>
+                <div id="result{{@index}}-editor" class="editor">{{content}}</div>
+            </div>
+            {{/each}}
+        </script>
+        {% endraw %}
+    </div>
+</div>
+<div class="remodal" data-remodal-id="modal">
+    <div class="heading">
+        Configuration
+    </div>
+    <div class="modalContent">
+        <form>
+            <input type="text" id="elasticSearchURL"
+                   placeholder="BetterDocs URL" value="172.16.12.162:9200"><br/>
+            <input type="number" id="resultSize" value="50" placeholder="Result size">
+        </form>
+    </div>
+    <footer>
+        <div class="modalFooter">
+            <a class="remodal-confirm" href="#">Save</a>
         </div>
-        {{/each}}
-    </script>
-    {% endraw %}
+    </footer>
 </div>
 <footer>
 
@@ -55,7 +75,7 @@
         charset="utf-8"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.4.0/lodash.min.js" type="text/javascript"
         charset="utf-8"></script>
-
+<script src="javascripts/jquery.remodal.js"></script>
 
 <script src="javascripts/app.js"></script>
 
