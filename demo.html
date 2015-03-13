@@ -31,7 +31,13 @@
         <div class="searchResults">
             <div class="repoInfo">
                 <h3>Analyzed Projects</h3>
-                <select id="repoList"></select>
+                <select id="repoList">
+                    {% for repo in site.data.repos %}
+                    <option value="{{repo.login}}/{{repo.name}}"
+                            label="{{repo.login}}/{{repo.name}}">
+                    </option>
+                    {% endfor %}
+                </select>
             </div>
 
             <div class="resultContainer">
@@ -71,9 +77,6 @@
         </div>
     </footer>
 </div>
-<footer>
-
-</footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.1.8/ace.js" type="text/javascript" charset="utf-8"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.js" type="text/javascript"
         charset="utf-8"></script>

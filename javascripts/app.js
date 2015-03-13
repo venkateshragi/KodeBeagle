@@ -104,20 +104,6 @@ var app = function () {
         resultSize = size;
     }
 
-    function displayRepoList(containerId) {
-        $.get("../resources/repos.json", function (result) {
-            _.sortBy(result, 'stargazersCount').forEach(function (proj) {
-                var label = proj.login + "/" + proj.name;
-                $("#" + containerId).append($('<option>', {
-                    value: label,
-                    text: label
-                }));
-            });
-        });
-    }
-
-    displayRepoList("repoList");
-
     return {
         search: search,
         saveConfig: updateConfig
