@@ -87,7 +87,9 @@ class JavaFileIndexer extends BasicIndexer {
    */
   private def cleanUpCode(line: String): String = {
     " " + line.replaceFirst("//.*", " ").replaceFirst("import.*", " ")
-      .replaceFirst("\\s*\\*.*", " ").replaceFirst("\\s*\\/\\*.*", " ").replaceAll("\\W+", " ")
+      .replaceFirst("\\s*\\*.*", " ").replaceFirst("\\s*\\/\\*.*", " ")
+      .replaceFirst("""\s*(private|public|protected).*""", " ")
+      .replaceAll("\\W+", " ")
   }
 
   private def generateTokensWRTImports(imports: Seq[(String, String)],
