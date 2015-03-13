@@ -20,8 +20,8 @@ package com.betterdocs.spark
 import java.io.File
 
 import com.betterdocs.configuration.BetterDocsConfig
-import com.betterdocs.crawler.{Repository, ZipBasicParser}
-import com.betterdocs.indexer.{JavaFileIndexer, Token}
+import com.betterdocs.crawler.ZipBasicParser
+import com.betterdocs.indexer.JavaFileIndexer
 import com.betterdocs.logging.Logger
 import org.apache.commons.compress.archivers.zip.ZipFile
 import org.apache.spark.{SparkConf, SparkContext}
@@ -51,9 +51,8 @@ object CreateIndexJob {
       val zipFileName = zipFile.stripPrefix("file:")
       // Ignoring exclude packages.
       RepoFileNameParser(zipFileName)
-    }.flatMap { f =>
-      f
-    }.map(x => toRepoJson(x)).saveAsTextFile(BetterDocsConfig.sparkOutput + "/repo")
+    }.flatMap { f => f }.map(x => toJson(x, addESHeader = true, isToken = false))
+      .saveAsTextFile(BetterDocsConfig.sparkOutput + "/repo")
   }
 
   /**
@@ -67,25 +66,23 @@ object CreateIndexJob {
     Try(f.stripSuffix(".zip").split("~").tail.head).toOption
   }
 
-  def toJson(t: Token, addESHeader: Boolean = false): String = {
+  def toJson[T <: AnyRef <% Product with Serializable](t: T, addESHeader: Boolean = false,
+      isToken: Boolean = true): String = {
     import org.json4s._
     import org.json4s.jackson.Serialization
     import org.json4s.jackson.Serialization.write
     implicit val formats = Serialization.formats(NoTypeHints)
 
-    if (addESHeader) {
+    if (addESHeader && isToken) {
       """|{ "index" : { "_index" : "betterdocs", "_type" : "custom" } }
-         |""".stripMargin + write(t)
-    } else { "" + write(t) }
+         | """.stripMargin + write(t)
+    } else if (addESHeader) {
+      s"""|{ "index" : { "_index" : "${t.productPrefix.toLowerCase}", "_type" : "custom" } }
+          |""".stripMargin + write(t)
+    } else "" + write(t)
+
   }
 
-  def toRepoJson(r: Repository): String = {
-    import org.json4s._
-    import org.json4s.jackson.Serialization
-    import org.json4s.jackson.Serialization.write
-    implicit val formats = Serialization.formats(NoTypeHints)
-    write(r)
-  }
 }
 
 object CreateIndex extends Logger {
