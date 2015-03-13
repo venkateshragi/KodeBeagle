@@ -1,9 +1,103 @@
+body {
+    background: #93B1C6;
+    color: #3F3F3F;
+    font-family: 'Open Sans', sans-serif;
+    margin: 0;
+}
+
+header {
+    font-weight: 600;
+    background: #C7D0D5;
+    color: #EC583A;
+    border-bottom: 1px solid #F5F5F5;
+    height: 50px;
+}
+
+header h2 {
+    line-height: 48px;
+}
+
+header > h2 > span.left {
+    padding-left: 10px;
+}
+
+header > h2 > span.right {
+    float: right;
+    padding-right: 10px;
+    padding-top: 10px;
+}
+
+.container {
+    padding: 10px;
+    min-height: 80%;
+}
+
 .editor {
     min-height: 200px;
 }
 
-.result{
+.result {
     height: 50%;
     width: 49%;
     display: inline-block;
 }
+
+div.topPanel {
+    overflow: hidden;
+    padding-bottom: 10px;
+    border-bottom: 1px dotted #F5F5F5;
+}
+
+div.searchForm {
+    width: 90%;
+    float: left;
+}
+
+div.searchForm>form{
+    margin:0;
+}
+
+span.searchIcon {
+    color: #F5F5F5;
+}
+
+span.settingsIcon {
+    color: #F5F5F5;
+    float: right;
+    padding-right: 10px;
+    margin-top: 4px;
+}
+
+input#searchString {
+    padding: 6px;
+    width: 90%;
+    border: 0;
+    box-shadow: 0;
+    border-radius: 0;
+    color: #3F3F3F;
+}
+
+footer {
+    background: #C7D0D5;
+    color: #EC583A;
+    border-top: 1px solid #F5F5F5;
+    height: 50px;
+}
+
+/*http://www.onextrapixel.com/2013/10/25/40-stunning-website-designs-with-great-color-schemes/*/
+
+/*lighter {
+    background : #C7D0D5
+    color:#93B1C6
+}*/
+/*shadow color - #98C4CC*/
+/*
+orange{
+    #FF7148
+    #EC583A
+}*/
+
+/*whites{
+    #FDFCFA
+    #F5F5F5
+}*/
