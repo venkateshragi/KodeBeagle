@@ -1,0 +1,5483 @@
+[
+  {
+    "login": "apache",
+    "id": 4544259,
+    "name": "karaf-cave",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "cave-2.x",
+    "stargazersCount": 4
+  },
+  {
+    "login": "apache",
+    "id": 5054233,
+    "name": "james-postage",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 23418517,
+    "name": "hadoop",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 433
+  },
+  {
+    "login": "apache",
+    "id": 6935442,
+    "name": "isis",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 125
+  },
+  {
+    "login": "apache",
+    "id": 206347,
+    "name": "directory-clients",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "bigbang",
+    "stargazersCount": 1
+  },
+  {
+    "login": "pdorrell",
+    "id": 19875,
+    "name": "tenblocks",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "apache",
+    "id": 206408,
+    "name": "sanselan",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 24
+  },
+  {
+    "login": "apache",
+    "id": 20248083,
+    "name": "ant-ivyde",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "apache",
+    "id": 9759448,
+    "name": "cloudstack",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 211
+  },
+  {
+    "login": "nmerouze",
+    "id": 40124,
+    "name": "qtjruby-core",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 16
+  },
+  {
+    "login": "apache",
+    "id": 9759451,
+    "name": "creadur-whisker",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 0
+  },
+  {
+    "login": "apache",
+    "id": 19688946,
+    "name": "flex-blazeds",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 5
+  },
+  {
+    "login": "apache",
+    "id": 233184,
+    "name": "webservices-xmlschema",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 3
+  },
+  {
+    "login": "apache",
+    "id": 11943595,
+    "name": "metamodel",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 14
+  },
+  {
+    "login": "apache",
+    "id": 26951044,
+    "name": "incubator-tamaya",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "apache",
+    "id": 206452,
+    "name": "roller",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 25
+  },
+  {
+    "login": "apache",
+    "id": 3657930,
+    "name": "jackrabbit-oak",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 94
+  },
+  {
+    "login": "britt",
+    "id": 4857,
+    "name": "hivedb",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 37
+  },
+  {
+    "login": "apache",
+    "id": 17895094,
+    "name": "rave",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 5
+  },
+  {
+    "login": "bobmcwhirter",
+    "id": 49717,
+    "name": "jboss-rails",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 25
+  },
+  {
+    "login": "apache",
+    "id": 2253620,
+    "name": "james-imap",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "nio-refactoring",
+    "stargazersCount": 3
+  },
+  {
+    "login": "apache",
+    "id": 206371,
+    "name": "commons-codec",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 36
+  },
+  {
+    "login": "apache",
+    "id": 4416959,
+    "name": "tapestry-5",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 42
+  },
+  {
+    "login": "apache",
+    "id": 26309799,
+    "name": "qpid-proton",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "apache",
+    "id": 206392,
+    "name": "xml-graphics-commons",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 3
+  },
+  {
+    "login": "dustin",
+    "id": 7275,
+    "name": "java-digg",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "apache",
+    "id": 419554,
+    "name": "commons-transaction",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 7
+  },
+  {
+    "login": "penguincoder",
+    "id": 30826,
+    "name": "moviegraph",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "apache",
+    "id": 206341,
+    "name": "maven-enforcer",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 10
+  },
+  {
+    "login": "penguincoder",
+    "id": 30822,
+    "name": "massivelyusefulcluster",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 5054237,
+    "name": "james-jsieve",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 22135308,
+    "name": "activemq-openwire",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 11335236,
+    "name": "commons-email",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 15
+  },
+  {
+    "login": "davidB",
+    "id": 21099,
+    "name": "scala-maven-plugin",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 197
+  },
+  {
+    "login": "apache",
+    "id": 10860602,
+    "name": "cordova-plugin-inappbrowser",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 122
+  },
+  {
+    "login": "apache",
+    "id": 11362690,
+    "name": "commons-dbutils",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 24
+  },
+  {
+    "login": "apache",
+    "id": 2580768,
+    "name": "httpasyncclient",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "conn-mgmt-redesign",
+    "stargazersCount": 18
+  },
+  {
+    "login": "apache",
+    "id": 17310686,
+    "name": "knox",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 4
+  },
+  {
+    "login": "matschaffer",
+    "id": 47752,
+    "name": "corundum",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 3
+  },
+  {
+    "login": "apache",
+    "id": 318103,
+    "name": "pdfbox",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 140
+  },
+  {
+    "login": "apache",
+    "id": 206362,
+    "name": "commons-collections",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 77
+  },
+  {
+    "login": "apache",
+    "id": 10860593,
+    "name": "cordova-plugin-contacts",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 38
+  },
+  {
+    "login": "apache",
+    "id": 14227128,
+    "name": "click",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 3
+  },
+  {
+    "login": "bmo",
+    "id": 25151,
+    "name": "jupload",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 4
+  },
+  {
+    "login": "housejester",
+    "id": 43441,
+    "name": "jsondumper",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "brianm",
+    "id": 40776,
+    "name": "mxfingerd",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 3
+  },
+  {
+    "login": "apache",
+    "id": 15070665,
+    "name": "uima-uimafit",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 4
+  },
+  {
+    "login": "apache",
+    "id": 225203,
+    "name": "servicemix4-bundles",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 17
+  },
+  {
+    "login": "relevance",
+    "id": 32473,
+    "name": "java-tdd",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 17
+  },
+  {
+    "login": "codeodor",
+    "id": 49983,
+    "name": "miscellany",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 7
+  },
+  {
+    "login": "apache",
+    "id": 206437,
+    "name": "directory-server",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 18
+  },
+  {
+    "login": "apache",
+    "id": 30956938,
+    "name": "incubator-taverna-common-activities",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 0
+  },
+  {
+    "login": "apache",
+    "id": 206427,
+    "name": "tika",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 173
+  },
+  {
+    "login": "davetron5000",
+    "id": 46873,
+    "name": "restunit",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 20473418,
+    "name": "phoenix",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 45
+  },
+  {
+    "login": "apache",
+    "id": 160995,
+    "name": "xalan-j",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "Bxalan-j_2_2L",
+    "stargazersCount": 13
+  },
+  {
+    "login": "apache",
+    "id": 11362688,
+    "name": "commons-chain",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 9
+  },
+  {
+    "login": "jkriss",
+    "id": 16018,
+    "name": "monomic",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 12
+  },
+  {
+    "login": "hamish",
+    "id": 17638,
+    "name": "easystart",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "apache",
+    "id": 1302095,
+    "name": "openwebbeans",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 20
+  },
+  {
+    "login": "apache",
+    "id": 2226508,
+    "name": "pivot",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "1.5.x",
+    "stargazersCount": 10
+  },
+  {
+    "login": "apache",
+    "id": 1070895,
+    "name": "myfaces-extval",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "1_0_1",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 832676,
+    "name": "karaf",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 139
+  },
+  {
+    "login": "apache",
+    "id": 206373,
+    "name": "harmony-jdktools",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "java6",
+    "stargazersCount": 2
+  },
+  {
+    "login": "penguincoder",
+    "id": 30837,
+    "name": "weblech",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 2127919,
+    "name": "webservices-axiom",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 5
+  },
+  {
+    "login": "apache",
+    "id": 17537838,
+    "name": "cxf-fediz",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 4
+  },
+  {
+    "login": "apache",
+    "id": 13853693,
+    "name": "commons-weaver",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 992027,
+    "name": "forrest",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "FORREST_02_BRANCH",
+    "stargazersCount": 1
+  },
+  {
+    "login": "zootella",
+    "id": 46785,
+    "name": "learning-bittorrent",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 11362687,
+    "name": "commons-bsf",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 4
+  },
+  {
+    "login": "joshwilkins",
+    "id": 43874,
+    "name": "georgia-air-quality-java-toolset",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "clarkware",
+    "id": 44747,
+    "name": "junitperf",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 13
+  },
+  {
+    "login": "adimit",
+    "id": 31107,
+    "name": "werti",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 6
+  },
+  {
+    "login": "apache",
+    "id": 23864217,
+    "name": "ddlutils",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 206384,
+    "name": "log4j",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "BRANCH_1_3_ABANDONED",
+    "stargazersCount": 121
+  },
+  {
+    "login": "apache",
+    "id": 12453634,
+    "name": "incubator-sentry",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 14
+  },
+  {
+    "login": "apache",
+    "id": 1302094,
+    "name": "geronimo-txmanager",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "2.0",
+    "stargazersCount": 2
+  },
+  {
+    "login": "apache",
+    "id": 2641714,
+    "name": "tiles",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "TILES_3_0_X",
+    "stargazersCount": 32
+  },
+  {
+    "login": "99translastions",
+    "id": 42787,
+    "name": "ant-tools",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 17049426,
+    "name": "juddi-scout",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 0
+  },
+  {
+    "login": "apache",
+    "id": 206394,
+    "name": "struts1",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "Cedric",
+    "stargazersCount": 2
+  },
+  {
+    "login": "apache",
+    "id": 206350,
+    "name": "cayenne",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 25
+  },
+  {
+    "login": "identityxx",
+    "id": 24552,
+    "name": "penrose-studio",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 6
+  },
+  {
+    "login": "apache",
+    "id": 11943598,
+    "name": "manifoldcf-integration-solr-3.x",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 0
+  },
+  {
+    "login": "takai",
+    "id": 25528,
+    "name": "jruby-dsl-example",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 160994,
+    "name": "sling",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 87
+  },
+  {
+    "login": "apache",
+    "id": 920237,
+    "name": "myfaces-html5",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 6
+  },
+  {
+    "login": "apache",
+    "id": 7437073,
+    "name": "jena",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 109
+  },
+  {
+    "login": "bobmcwhirter",
+    "id": 47929,
+    "name": "drools",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 10
+  },
+  {
+    "login": "myabc",
+    "id": 17028,
+    "name": "mediateca",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 11304844,
+    "name": "commons-primitives",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 6
+  },
+  {
+    "login": "projectileboy",
+    "id": 40939,
+    "name": "translator",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "apache",
+    "id": 206423,
+    "name": "maven-sandbox",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 4
+  },
+  {
+    "login": "apache",
+    "id": 1358036,
+    "name": "clerezza",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 23
+  },
+  {
+    "login": "apache",
+    "id": 14135469,
+    "name": "incubator-batchee",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 20248082,
+    "name": "ant-ivy",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "1.4.x",
+    "stargazersCount": 4
+  },
+  {
+    "login": "sparklemotion",
+    "id": 33945,
+    "name": "nokogiri",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 3098
+  },
+  {
+    "login": "astubbs",
+    "id": 4502,
+    "name": "wicket-contrib-groovy",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 3
+  },
+  {
+    "login": "apache",
+    "id": 233185,
+    "name": "webservices-neethi",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 3
+  },
+  {
+    "login": "d0k",
+    "id": 32740,
+    "name": "xxo",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 0
+  },
+  {
+    "login": "apache",
+    "id": 25623941,
+    "name": "incubator-reef",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 9
+  },
+  {
+    "login": "apache",
+    "id": 206419,
+    "name": "maven-ant-tasks",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 5
+  },
+  {
+    "login": "tcurdt",
+    "id": 59180,
+    "name": "jdeb",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 221
+  },
+  {
+    "login": "apache",
+    "id": 206354,
+    "name": "pluto",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "1.1.0-ADMIN_PORTLET",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 14612016,
+    "name": "velocity-engine",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 20
+  },
+  {
+    "login": "apache",
+    "id": 1613090,
+    "name": "hcatalog",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "branch-0.1",
+    "stargazersCount": 34
+  },
+  {
+    "login": "apache",
+    "id": 11335240,
+    "name": "commons-jci",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 4
+  },
+  {
+    "login": "apache",
+    "id": 30956945,
+    "name": "incubator-taverna-server",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 0
+  },
+  {
+    "login": "raykrueger",
+    "id": 19816,
+    "name": "hibernate-memcached",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 99
+  },
+  {
+    "login": "apache",
+    "id": 206476,
+    "name": "maven-artifact",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 5
+  },
+  {
+    "login": "carlism",
+    "id": 42503,
+    "name": "bearchart",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "apache",
+    "id": 11384366,
+    "name": "commons-bcel",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 9
+  },
+  {
+    "login": "apache",
+    "id": 15070662,
+    "name": "uima-sandbox",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 3
+  },
+  {
+    "login": "apache",
+    "id": 6240219,
+    "name": "directmemory-lightning",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 0
+  },
+  {
+    "login": "apache",
+    "id": 11384365,
+    "name": "commons-attributes",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 4
+  },
+  {
+    "login": "apache",
+    "id": 2740148,
+    "name": "opennlp",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 99
+  },
+  {
+    "login": "mdippery",
+    "id": 48641,
+    "name": "snodes",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 5
+  },
+  {
+    "login": "fmeyer",
+    "id": 30802,
+    "name": "cripto-classloader",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 390004,
+    "name": "tuscany-sca-2.x",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "2.0-Beta1",
+    "stargazersCount": 10
+  },
+  {
+    "login": "apache",
+    "id": 206483,
+    "name": "maven",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 237
+  },
+  {
+    "login": "apache",
+    "id": 16021498,
+    "name": "incubator-vxquery",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 160989,
+    "name": "tapestry4",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "4.0",
+    "stargazersCount": 3
+  },
+  {
+    "login": "eliasbaixas",
+    "id": 30237,
+    "name": "bamboo",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "wolfdancer",
+    "id": 41243,
+    "name": "cotta",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 5
+  },
+  {
+    "login": "tkaufman",
+    "id": 33276,
+    "name": "10springthings",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "cyberfox",
+    "id": 7915,
+    "name": "jbidwatcher",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 48
+  },
+  {
+    "login": "railsbros-dirk",
+    "id": 2103,
+    "name": "nostromo",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "bobmcwhirter",
+    "id": 47615,
+    "name": "jboss-deployers",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "ericl",
+    "id": 41594,
+    "name": "asteroids",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 0
+  },
+  {
+    "login": "apache",
+    "id": 390003,
+    "name": "tuscany-sdo",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "emf-2.5",
+    "stargazersCount": 2
+  },
+  {
+    "login": "apache",
+    "id": 240464,
+    "name": "geronimo-specs",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "1_0",
+    "stargazersCount": 5
+  },
+  {
+    "login": "apache",
+    "id": 25507371,
+    "name": "hadoop-hdfs",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "HDFS-265",
+    "stargazersCount": 5
+  },
+  {
+    "login": "apache",
+    "id": 20913455,
+    "name": "ant-easyant-easyant4e",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "myabc",
+    "id": 28987,
+    "name": "roller-defensio",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "apache",
+    "id": 21193523,
+    "name": "incubator-optiq-linq4j",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "mhauskn",
+    "id": 45187,
+    "name": "transitivedynamics",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 3
+  },
+  {
+    "login": "apache",
+    "id": 11304834,
+    "name": "commons-dbcp",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 24
+  },
+  {
+    "login": "apache",
+    "id": 688359,
+    "name": "ace",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 15
+  },
+  {
+    "login": "apache",
+    "id": 17971137,
+    "name": "incubator-tajo",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 9
+  },
+  {
+    "login": "elitau",
+    "id": 39308,
+    "name": "mett_media_producer",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "joshwilkins",
+    "id": 44502,
+    "name": "clock-in-out-cpsc502-final-project",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "parabuzzle",
+    "id": 8121,
+    "name": "toobs",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 4
+  },
+  {
+    "login": "apache",
+    "id": 832679,
+    "name": "whirr",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "branch-0.1",
+    "stargazersCount": 94
+  },
+  {
+    "login": "apache",
+    "id": 20248075,
+    "name": "ant-antlibs-antunit",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "Judeqiu",
+    "id": 33546,
+    "name": "boneclient",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "apache",
+    "id": 206424,
+    "name": "cassandra",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 1920
+  },
+  {
+    "login": "apache",
+    "id": 17856644,
+    "name": "incubator-streams",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 10
+  },
+  {
+    "login": "apache",
+    "id": 17537835,
+    "name": "cxf-dosgi",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 1302101,
+    "name": "geronimo-jaspi",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 4
+  },
+  {
+    "login": "apache",
+    "id": 225209,
+    "name": "servicemix-utils",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 3
+  },
+  {
+    "login": "apache",
+    "id": 7770259,
+    "name": "openejb",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "3.0",
+    "stargazersCount": 4
+  },
+  {
+    "login": "mojodna",
+    "id": 48936,
+    "name": "sprout",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "dustin",
+    "id": 7280,
+    "name": "diggwatch",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 3
+  },
+  {
+    "login": "apache",
+    "id": 205417,
+    "name": "maven-wagon",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 14
+  },
+  {
+    "login": "apache",
+    "id": 688354,
+    "name": "log4j-component",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 4
+  },
+  {
+    "login": "apache",
+    "id": 225201,
+    "name": "servicemix-archetypes",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 5
+  },
+  {
+    "login": "blaxter",
+    "id": 49898,
+    "name": "simplegwtmvn",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 688360,
+    "name": "mina-sshd",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 38
+  },
+  {
+    "login": "apache",
+    "id": 17359057,
+    "name": "curator",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 136
+  },
+  {
+    "login": "yawn",
+    "id": 42350,
+    "name": "rabbitmq-spring-tools",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "apache",
+    "id": 11304845,
+    "name": "commons-proxy",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 6
+  },
+  {
+    "login": "apache",
+    "id": 6169821,
+    "name": "creadur-rat",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 2
+  },
+  {
+    "login": "apache",
+    "id": 15070660,
+    "name": "uima-ducc",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 3
+  },
+  {
+    "login": "apache",
+    "id": 1081282,
+    "name": "xerces2-j",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "apache",
+    "stargazersCount": 9
+  },
+  {
+    "login": "myabc",
+    "id": 9092,
+    "name": "nbmerb",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 4
+  },
+  {
+    "login": "apache",
+    "id": 20320123,
+    "name": "incubator-blur",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 15
+  },
+  {
+    "login": "apache",
+    "id": 206346,
+    "name": "synapse",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 7
+  },
+  {
+    "login": "easytiger",
+    "id": 2147,
+    "name": "jquoteticker",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "britt",
+    "id": 4867,
+    "name": "hivedb-blobject",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 5
+  },
+  {
+    "login": "apache",
+    "id": 5054234,
+    "name": "james-jdkim",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 7453207,
+    "name": "incubator-hdt",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 5
+  },
+  {
+    "login": "apache",
+    "id": 20248084,
+    "name": "ant",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 41
+  },
+  {
+    "login": "mrdon",
+    "id": 41285,
+    "name": "crowd-asf-directory",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "apache",
+    "id": 25623942,
+    "name": "syncope",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "mtodd",
+    "id": 14034,
+    "name": "halcyon-clients",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 8
+  },
+  {
+    "login": "roes",
+    "id": 9801,
+    "name": "familytree",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 3
+  },
+  {
+    "login": "apache",
+    "id": 688358,
+    "name": "myfaces-scripting",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "1_0",
+    "stargazersCount": 1
+  },
+  {
+    "login": "pgm",
+    "id": 46010,
+    "name": "junit-dist",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 18830102,
+    "name": "olingo-odata2",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 5
+  },
+  {
+    "login": "apache",
+    "id": 26389457,
+    "name": "tomcat80",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 5
+  },
+  {
+    "login": "tristan",
+    "id": 4506,
+    "name": "django-servlet",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 3
+  },
+  {
+    "login": "exploid",
+    "id": 43463,
+    "name": "controller",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 0
+  },
+  {
+    "login": "apache",
+    "id": 832678,
+    "name": "nuvem",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "before_restructure",
+    "stargazersCount": 2
+  },
+  {
+    "login": "limewirewiki",
+    "id": 45807,
+    "name": "hello-world",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 240470,
+    "name": "geronimo-gshell",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "0.0.2",
+    "stargazersCount": 2
+  },
+  {
+    "login": "andreyvit",
+    "id": 50725,
+    "name": "yoursway-taskus",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "travis",
+    "id": 1482,
+    "name": "cosmo",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 7
+  },
+  {
+    "login": "apache",
+    "id": 2580769,
+    "name": "commons-compress",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 26
+  },
+  {
+    "login": "apache",
+    "id": 16338711,
+    "name": "airavata",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 13
+  },
+  {
+    "login": "apache",
+    "id": 161003,
+    "name": "lucene",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 103
+  },
+  {
+    "login": "projectileboy",
+    "id": 39884,
+    "name": "intelli-arc",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 4
+  },
+  {
+    "login": "apache",
+    "id": 15680134,
+    "name": "river-container",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 206374,
+    "name": "maven-shared",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 17
+  },
+  {
+    "login": "apache",
+    "id": 206317,
+    "name": "camel",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 393
+  },
+  {
+    "login": "apache",
+    "id": 20913453,
+    "name": "ant-easyant-buildtypes",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 2719141,
+    "name": "kalumet",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "0.6.x",
+    "stargazersCount": 4
+  },
+  {
+    "login": "apache",
+    "id": 30956946,
+    "name": "incubator-taverna-workbench-common-activities",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 0
+  },
+  {
+    "login": "jrudolph",
+    "id": 15796,
+    "name": "scolorz",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 3
+  },
+  {
+    "login": "apache",
+    "id": 206398,
+    "name": "httpcore",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "4.0.x",
+    "stargazersCount": 50
+  },
+  {
+    "login": "apache",
+    "id": 240465,
+    "name": "geronimo-genesis",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "1.0",
+    "stargazersCount": 2
+  },
+  {
+    "login": "apache",
+    "id": 860937,
+    "name": "hama",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 65
+  },
+  {
+    "login": "apache",
+    "id": 18627126,
+    "name": "archiva",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 39
+  },
+  {
+    "login": "apache",
+    "id": 9759449,
+    "name": "creadur-tentacles",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 0
+  },
+  {
+    "login": "apache",
+    "id": 225200,
+    "name": "servicemix4-nmr",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "kernel",
+    "stargazersCount": 3
+  },
+  {
+    "login": "zootella",
+    "id": 46784,
+    "name": "learning",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 15680131,
+    "name": "karaf-eik",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "sblanton",
+    "id": 31065,
+    "name": "meister-propgen",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 15928650,
+    "name": "struts",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "develop",
+    "stargazersCount": 139
+  },
+  {
+    "login": "apache",
+    "id": 2442457,
+    "name": "ambari",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 151
+  },
+  {
+    "login": "apache",
+    "id": 206356,
+    "name": "directory-studio-plugin",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 1302100,
+    "name": "geronimo-devtools",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "1.2",
+    "stargazersCount": 4
+  },
+  {
+    "login": "apache",
+    "id": 206318,
+    "name": "fop",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 29
+  },
+  {
+    "login": "timshadel",
+    "id": 7169,
+    "name": "jboss-rules-presentation-may-2007",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "joshsmoore",
+    "id": 8284,
+    "name": "androidmoney",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "apache",
+    "id": 16021500,
+    "name": "jackrabbit-ocm",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 2
+  },
+  {
+    "login": "apache",
+    "id": 206445,
+    "name": "batik",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 20
+  },
+  {
+    "login": "apache",
+    "id": 9759454,
+    "name": "ode-jacob",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 0
+  },
+  {
+    "login": "apache",
+    "id": 390001,
+    "name": "tuscany-sca-1.x",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "java-M1",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 10637892,
+    "name": "commons-beanutils",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 21
+  },
+  {
+    "login": "apache",
+    "id": 206339,
+    "name": "maven-release",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 27
+  },
+  {
+    "login": "apache",
+    "id": 3169287,
+    "name": "incubator-s4",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 25
+  },
+  {
+    "login": "olamy",
+    "id": 41277,
+    "name": "scm-git-test-one-module",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "apache",
+    "id": 20089857,
+    "name": "hbase",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 222
+  },
+  {
+    "login": "wireframe",
+    "id": 31008,
+    "name": "testdox-maven-plugin",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "davetron5000",
+    "id": 49558,
+    "name": "vimdoclet",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 3
+  },
+  {
+    "login": "apache",
+    "id": 205419,
+    "name": "rat",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "incubator-site-import",
+    "stargazersCount": 2
+  },
+  {
+    "login": "apache",
+    "id": 206368,
+    "name": "poi",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "BUILD_BRANCH",
+    "stargazersCount": 75
+  },
+  {
+    "login": "apache",
+    "id": 2306348,
+    "name": "tomcat-maven-plugin",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 22
+  },
+  {
+    "login": "penguincoder",
+    "id": 30831,
+    "name": "portu",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "alx",
+    "id": 17759,
+    "name": "reprap-host-software",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 5683653,
+    "name": "drill",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 371
+  },
+  {
+    "login": "apache",
+    "id": 29903688,
+    "name": "incubator-samoa",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 15
+  },
+  {
+    "login": "apache",
+    "id": 14917769,
+    "name": "axis1-java",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 3
+  },
+  {
+    "login": "dustin",
+    "id": 7283,
+    "name": "spyjar",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 7
+  },
+  {
+    "login": "apache",
+    "id": 20587599,
+    "name": "flink",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 306
+  },
+  {
+    "login": "apache",
+    "id": 206335,
+    "name": "directory-samples",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 688366,
+    "name": "lucene-solr",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 962
+  },
+  {
+    "login": "apache",
+    "id": 2253619,
+    "name": "james-mailbox",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 6
+  },
+  {
+    "login": "apache",
+    "id": 299768,
+    "name": "activemq-activeio",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "activeio-3.0",
+    "stargazersCount": 1
+  },
+  {
+    "login": "tobyilee",
+    "id": 41312,
+    "name": "springref",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 26426726,
+    "name": "commons-text",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 0
+  },
+  {
+    "login": "apache",
+    "id": 15248539,
+    "name": "incubator-wave",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 43
+  },
+  {
+    "login": "identityxx",
+    "id": 24768,
+    "name": "penrose-server",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 13
+  },
+  {
+    "login": "apache",
+    "id": 16132708,
+    "name": "marmotta",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 13
+  },
+  {
+    "login": "apache",
+    "id": 26005707,
+    "name": "activemq-6",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 12
+  },
+  {
+    "login": "timshadel",
+    "id": 5708,
+    "name": "logging-datastore",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "bobmcwhirter",
+    "id": 44363,
+    "name": "microcontainer",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "booleanman",
+    "id": 2478,
+    "name": "rackinterfacefilter",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 5
+  },
+  {
+    "login": "monojohnny",
+    "id": 25519,
+    "name": "jdbc-tester",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "davie",
+    "id": 26132,
+    "name": "jettybuilder",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "apache",
+    "id": 20432793,
+    "name": "stratos",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 60
+  },
+  {
+    "login": "spoike",
+    "id": 14487,
+    "name": "doodle",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 3
+  },
+  {
+    "login": "apache",
+    "id": 240468,
+    "name": "geronimo",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "1.0",
+    "stargazersCount": 16
+  },
+  {
+    "login": "apache",
+    "id": 160999,
+    "name": "zookeeper",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 803
+  },
+  {
+    "login": "apache",
+    "id": 4269155,
+    "name": "tiles-request",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "TREQ_1_0_X",
+    "stargazersCount": 5
+  },
+  {
+    "login": "koke",
+    "id": 17317,
+    "name": "amlights",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 30907750,
+    "name": "incubator-streams-examples",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 0
+  },
+  {
+    "login": "apache",
+    "id": 14135467,
+    "name": "incubator-aurora",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 209
+  },
+  {
+    "login": "apache",
+    "id": 20913458,
+    "name": "ant-easyant-tasks",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "dcrec1",
+    "id": 44305,
+    "name": "vraptor2_sexy_urls",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "apache",
+    "id": 688362,
+    "name": "log4j-zeroconf",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 3
+  },
+  {
+    "login": "wwwjscom",
+    "id": 21341,
+    "name": "ir--top-k-graphs",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "hamish",
+    "id": 13257,
+    "name": "easyweb",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "chrisvest",
+    "id": 16516,
+    "name": "nanopool",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 6
+  },
+  {
+    "login": "apache",
+    "id": 2383782,
+    "name": "oozie",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 113
+  },
+  {
+    "login": "apache",
+    "id": 2493904,
+    "name": "tomcat",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 390
+  },
+  {
+    "login": "andreyvit",
+    "id": 43876,
+    "name": "yoursway-software-update",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "apache",
+    "id": 11304840,
+    "name": "commons-jxpath",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 6
+  },
+  {
+    "login": "apache",
+    "id": 160992,
+    "name": "solr",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "branch-1.1",
+    "stargazersCount": 443
+  },
+  {
+    "login": "apache",
+    "id": 225205,
+    "name": "servicemix4-kernel",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "blueprint",
+    "stargazersCount": 3
+  },
+  {
+    "login": "apache",
+    "id": 688365,
+    "name": "log4j-receivers",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 3
+  },
+  {
+    "login": "sl4mmy",
+    "id": 27423,
+    "name": "ant-skeleton",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "apache",
+    "id": 2641715,
+    "name": "archiva-sandbox",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 2
+  },
+  {
+    "login": "apache",
+    "id": 11304839,
+    "name": "commons-jexl",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 3
+  },
+  {
+    "login": "apache",
+    "id": 4269156,
+    "name": "tiles-autotag",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "AUTOTAG_1_0_X",
+    "stargazersCount": 3
+  },
+  {
+    "login": "apache",
+    "id": 17971138,
+    "name": "tajo",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 33
+  },
+  {
+    "login": "roddotnet",
+    "id": 21626,
+    "name": "clearcut",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 26951043,
+    "name": "ctakes",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 1
+  },
+  {
+    "login": "wireframe",
+    "id": 32854,
+    "name": "webstart-maven-plugin",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "apache",
+    "id": 206363,
+    "name": "maven-doxia-tools",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 3
+  },
+  {
+    "login": "tkaufman",
+    "id": 43336,
+    "name": "adoptingaop",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "pgm",
+    "id": 17520,
+    "name": "ittyflow",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "apache",
+    "id": 160999,
+    "name": "zookeeper",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 789
+  },
+  {
+    "login": "maborg",
+    "id": 1615,
+    "name": "weshowthemoney-com",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "cv",
+    "id": 24616,
+    "name": "cruise-information-radiators",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 6
+  },
+  {
+    "login": "apache",
+    "id": 15861701,
+    "name": "helix",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 24
+  },
+  {
+    "login": "apache",
+    "id": 206378,
+    "name": "commons-lang",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 236
+  },
+  {
+    "login": "apache",
+    "id": 1319605,
+    "name": "bval",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "0.4.x-incubating",
+    "stargazersCount": 6
+  },
+  {
+    "login": "dustin",
+    "id": 1904,
+    "name": "java-memcached-client",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 364
+  },
+  {
+    "login": "apache",
+    "id": 18203743,
+    "name": "servicemix",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 19
+  },
+  {
+    "login": "apache",
+    "id": 20248080,
+    "name": "ant-antlibs-svn",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 11335239,
+    "name": "commons-imaging",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 35
+  },
+  {
+    "login": "apache",
+    "id": 18830104,
+    "name": "olingo-odata4",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 8
+  },
+  {
+    "login": "apache",
+    "id": 688363,
+    "name": "harmony",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "java6",
+    "stargazersCount": 8
+  },
+  {
+    "login": "penguincoder",
+    "id": 30814,
+    "name": "jgraph",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 225210,
+    "name": "servicemix-maven-plugins",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 2
+  },
+  {
+    "login": "apache",
+    "id": 7107916,
+    "name": "commons-net",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 19
+  },
+  {
+    "login": "apache",
+    "id": 3216014,
+    "name": "chemistry-opencmis",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 15
+  },
+  {
+    "login": "apache",
+    "id": 1918497,
+    "name": "derby",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 40
+  },
+  {
+    "login": "eml",
+    "id": 15223,
+    "name": "java-mogilefs",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 17
+  },
+  {
+    "login": "apache",
+    "id": 206402,
+    "name": "httpclient",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 147
+  },
+  {
+    "login": "apache",
+    "id": 20248081,
+    "name": "ant-antlibs-vss",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 2198510,
+    "name": "flume",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 316
+  },
+  {
+    "login": "penguincoder",
+    "id": 30812,
+    "name": "dfamin",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 10616263,
+    "name": "sis",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 6
+  },
+  {
+    "login": "apache",
+    "id": 832680,
+    "name": "maven-surefire",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 77
+  },
+  {
+    "login": "apache",
+    "id": 11335237,
+    "name": "commons-functor",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 9
+  },
+  {
+    "login": "apache",
+    "id": 1070894,
+    "name": "myfaces-extcdi",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "branch_for_jsf_1_2",
+    "stargazersCount": 9
+  },
+  {
+    "login": "apache",
+    "id": 4165633,
+    "name": "redback-components",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 1
+  },
+  {
+    "login": "olamy",
+    "id": 40384,
+    "name": "scm-git-test",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 5
+  },
+  {
+    "login": "apache",
+    "id": 15070661,
+    "name": "uima-ruta",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 5
+  },
+  {
+    "login": "apache",
+    "id": 206459,
+    "name": "avro",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 299
+  },
+  {
+    "login": "apache",
+    "id": 206322,
+    "name": "maven-plugins",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 78
+  },
+  {
+    "login": "apache",
+    "id": 1639246,
+    "name": "vysper",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "0.6",
+    "stargazersCount": 12
+  },
+  {
+    "login": "apache",
+    "id": 3050780,
+    "name": "lenya",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "BRANCH_1_2_X",
+    "stargazersCount": 8
+  },
+  {
+    "login": "apache",
+    "id": 2046220,
+    "name": "empire-db",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "EMPIREDB-99",
+    "stargazersCount": 9
+  },
+  {
+    "login": "apache",
+    "id": 225207,
+    "name": "servicemix4-features",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "ejb3",
+    "stargazersCount": 14
+  },
+  {
+    "login": "lritter",
+    "id": 29081,
+    "name": "gnutch",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 240471,
+    "name": "geronimo-yoko",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 1
+  },
+  {
+    "login": "adrianacd",
+    "id": 43213,
+    "name": "tigus",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 14135471,
+    "name": "incubator-usergrid",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 177
+  },
+  {
+    "login": "mreid",
+    "id": 9580,
+    "name": "siroc",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "ugosan",
+    "id": 49871,
+    "name": "org.roxgt",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "bbeck",
+    "id": 46225,
+    "name": "sudoku",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "jeresig",
+    "id": 16287,
+    "name": "processing-js",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1662
+  },
+  {
+    "login": "apache",
+    "id": 322018,
+    "name": "aries",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 42
+  },
+  {
+    "login": "apache",
+    "id": 206636,
+    "name": "commons-logging",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 21
+  },
+  {
+    "login": "apache",
+    "id": 24404221,
+    "name": "qpid-jms",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 0
+  },
+  {
+    "login": "apache",
+    "id": 20473416,
+    "name": "airavata-sandbox",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 0
+  },
+  {
+    "login": "codeprimate",
+    "id": 26844,
+    "name": "password-vault",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 299771,
+    "name": "activemq-protobuf",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 8
+  },
+  {
+    "login": "jbfeldis",
+    "id": 26473,
+    "name": "upshot-smash-uploader",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 5
+  },
+  {
+    "login": "apache",
+    "id": 17049428,
+    "name": "juddi",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 0
+  },
+  {
+    "login": "apache",
+    "id": 25507372,
+    "name": "hadoop-mapreduce",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "HDFS-641",
+    "stargazersCount": 5
+  },
+  {
+    "login": "apache",
+    "id": 17537834,
+    "name": "cxf-build-utils",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "mreid",
+    "id": 10185,
+    "name": "geovex",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 2200732,
+    "name": "sandesha",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "1_4",
+    "stargazersCount": 1
+  },
+  {
+    "login": "avh4",
+    "id": 33418,
+    "name": "netbeans-junit-example",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 14795578,
+    "name": "uima-uimaj",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 11
+  },
+  {
+    "login": "apache",
+    "id": 15680129,
+    "name": "cordova-amazon-fireos",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 11
+  },
+  {
+    "login": "apache",
+    "id": 5212656,
+    "name": "odftoolkit",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 7
+  },
+  {
+    "login": "apache",
+    "id": 11362691,
+    "name": "commons-digester",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 5
+  },
+  {
+    "login": "olabini",
+    "id": 27291,
+    "name": "jvyamlb",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 14
+  },
+  {
+    "login": "apache",
+    "id": 206333,
+    "name": "axis2-java",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "1_5",
+    "stargazersCount": 21
+  },
+  {
+    "login": "apache",
+    "id": 206632,
+    "name": "maven-archetype",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "archetype-1.0.x",
+    "stargazersCount": 19
+  },
+  {
+    "login": "apache",
+    "id": 206451,
+    "name": "ode",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 32
+  },
+  {
+    "login": "Fudge",
+    "id": 8016,
+    "name": "gitidea",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 17
+  },
+  {
+    "login": "zootella",
+    "id": 45576,
+    "name": "hello-limewire",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 206364,
+    "name": "openjpa",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "0.9.6-incubating",
+    "stargazersCount": 18
+  },
+  {
+    "login": "apache",
+    "id": 20913454,
+    "name": "ant-easyant-core",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "apache",
+    "id": 1783046,
+    "name": "karaf-cellar",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 15
+  },
+  {
+    "login": "apache",
+    "id": 15698466,
+    "name": "jclouds",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 10
+  },
+  {
+    "login": "slagyr",
+    "id": 22927,
+    "name": "limelight",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 108
+  },
+  {
+    "login": "apache",
+    "id": 2211274,
+    "name": "savan",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "java",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 13236985,
+    "name": "incubator-knox",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 20248077,
+    "name": "ant-antlibs-compress",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "apache",
+    "id": 206635,
+    "name": "maven-plugin-tools",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 6
+  },
+  {
+    "login": "apache",
+    "id": 206475,
+    "name": "directory-daemon",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "1.0",
+    "stargazersCount": 2
+  },
+  {
+    "login": "apache",
+    "id": 206421,
+    "name": "maven-plugin-testing",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 4
+  },
+  {
+    "login": "hegjon",
+    "id": 30362,
+    "name": "enterprisebooking-client",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 206357,
+    "name": "pig",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 328
+  },
+  {
+    "login": "credmp",
+    "id": 26695,
+    "name": "maven-emacs-plugin",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 6
+  },
+  {
+    "login": "jrudolph",
+    "id": 20765,
+    "name": "jcosmos",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 2719142,
+    "name": "maven-app-engine",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 3
+  },
+  {
+    "login": "apache",
+    "id": 11304838,
+    "name": "commons-jelly",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "ASF",
+    "stargazersCount": 2
+  },
+  {
+    "login": "apache",
+    "id": 11304841,
+    "name": "commons-launcher",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 3
+  },
+  {
+    "login": "apache",
+    "id": 19932015,
+    "name": "gora",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 11
+  },
+  {
+    "login": "apache",
+    "id": 160987,
+    "name": "james",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "3_0_beta2",
+    "stargazersCount": 30
+  },
+  {
+    "login": "astubbs",
+    "id": 43930,
+    "name": "testdox",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 4
+  },
+  {
+    "login": "scharris",
+    "id": 16899,
+    "name": "jDBMD",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 291570,
+    "name": "shiro",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "1.0.x",
+    "stargazersCount": 143
+  },
+  {
+    "login": "apache",
+    "id": 10637893,
+    "name": "commons-csv",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 24
+  },
+  {
+    "login": "zootella",
+    "id": 46764,
+    "name": "hello",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 3
+  },
+  {
+    "login": "apache",
+    "id": 205403,
+    "name": "ofbiz",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 139
+  },
+  {
+    "login": "nam",
+    "id": 22744,
+    "name": "ltt",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 3
+  },
+  {
+    "login": "bcotton",
+    "id": 44958,
+    "name": "selenium-grid",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 15
+  },
+  {
+    "login": "kboufelliga",
+    "id": 48012,
+    "name": "composer-framework",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 4
+  },
+  {
+    "login": "apache",
+    "id": 19368221,
+    "name": "incubator-brooklyn",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 57
+  },
+  {
+    "login": "apache",
+    "id": 2204545,
+    "name": "rampart",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "1_1",
+    "stargazersCount": 0
+  },
+  {
+    "login": "apache",
+    "id": 25507370,
+    "name": "hadoop-common",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "HADOOP-3628",
+    "stargazersCount": 17
+  },
+  {
+    "login": "jwiegley",
+    "id": 47560,
+    "name": "runner",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 3
+  },
+  {
+    "login": "apache",
+    "id": 26525416,
+    "name": "incubator-lens",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 4
+  },
+  {
+    "login": "apache",
+    "id": 2945916,
+    "name": "james-mime4j",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "apache-mime4j-0.6",
+    "stargazersCount": 5
+  },
+  {
+    "login": "apache",
+    "id": 6898381,
+    "name": "cordova-android",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 900
+  },
+  {
+    "login": "agentcoops",
+    "id": 23050,
+    "name": "gridsweeper",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "slangevi",
+    "id": 19580,
+    "name": "bruse",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 27911088,
+    "name": "incubator-nifi",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "develop",
+    "stargazersCount": 35
+  },
+  {
+    "login": "apache",
+    "id": 688352,
+    "name": "jmeter",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 176
+  },
+  {
+    "login": "apache",
+    "id": 832674,
+    "name": "photark",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "photark-incubator-M1",
+    "stargazersCount": 4
+  },
+  {
+    "login": "lpicanco",
+    "id": 41914,
+    "name": "grails",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 17537839,
+    "name": "cxf-xjc-utils",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "torbjornvatn",
+    "id": 29014,
+    "name": "guice-injector-tester",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "andreyvit",
+    "id": 43870,
+    "name": "yoursway-commons",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 4
+  },
+  {
+    "login": "apache",
+    "id": 270475,
+    "name": "myfaces",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "1_1_2",
+    "stargazersCount": 15
+  },
+  {
+    "login": "apache",
+    "id": 11543457,
+    "name": "falcon",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 29
+  },
+  {
+    "login": "apache",
+    "id": 270479,
+    "name": "xmlbeans",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "1.x",
+    "stargazersCount": 10
+  },
+  {
+    "login": "fbrunel",
+    "id": 7120,
+    "name": "twitterdroid",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 86
+  },
+  {
+    "login": "apache",
+    "id": 205418,
+    "name": "maven-resources",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 2
+  },
+  {
+    "login": "apache",
+    "id": 832673,
+    "name": "tomcat55",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 3
+  },
+  {
+    "login": "apache",
+    "id": 688364,
+    "name": "log4j-extras",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 7
+  },
+  {
+    "login": "apache",
+    "id": 11335235,
+    "name": "commons-el",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 6
+  },
+  {
+    "login": "apache",
+    "id": 205415,
+    "name": "chainsaw",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 2
+  },
+  {
+    "login": "jefferis",
+    "id": 50713,
+    "name": "ij-plugins",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 3
+  },
+  {
+    "login": "gmallard",
+    "id": 35214,
+    "name": "packed-decimal",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 1087803,
+    "name": "maven-integration-testing",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 5
+  },
+  {
+    "login": "apache",
+    "id": 240472,
+    "name": "geronimo-javamail",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "geronimo-javamail_1.3.1-1.1",
+    "stargazersCount": 5
+  },
+  {
+    "login": "jrray",
+    "id": 14073,
+    "name": "gotefarm",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "apache",
+    "id": 4748416,
+    "name": "manifoldcf",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 16
+  },
+  {
+    "login": "apache",
+    "id": 20248078,
+    "name": "ant-antlibs-dotnet",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "tucson-jug",
+    "id": 41970,
+    "name": "xstring",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 206320,
+    "name": "maven-scm",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 28
+  },
+  {
+    "login": "Afton",
+    "id": 25921,
+    "name": "whiteboard",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 206441,
+    "name": "maven-jxr",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 206412,
+    "name": "wicket",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 248
+  },
+  {
+    "login": "LukeHoersten",
+    "id": 6396,
+    "name": "nonblocking",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 206370,
+    "name": "nutch",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 292
+  },
+  {
+    "login": "vara",
+    "id": 46636,
+    "name": "navigps",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 205407,
+    "name": "directory-studio",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 3
+  },
+  {
+    "login": "gingerhendrix",
+    "id": 10477,
+    "name": "monkeytest",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 3
+  },
+  {
+    "login": "apache",
+    "id": 247823,
+    "name": "wink",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 13
+  },
+  {
+    "login": "rictic",
+    "id": 37399,
+    "name": "code_swarm",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 249
+  },
+  {
+    "login": "jmesnil",
+    "id": 41766,
+    "name": "jmx-js",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 8
+  },
+  {
+    "login": "apache",
+    "id": 206401,
+    "name": "struts-sandbox",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "STRUTS_1_2_BRANCH",
+    "stargazersCount": 3
+  },
+  {
+    "login": "apache",
+    "id": 17621324,
+    "name": "struts-examples",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 46
+  },
+  {
+    "login": "apache",
+    "id": 2580770,
+    "name": "commons-exec",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 16
+  },
+  {
+    "login": "d0k",
+    "id": 33468,
+    "name": "ednaunpack",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 5
+  },
+  {
+    "login": "mvdetsen",
+    "id": 21611,
+    "name": "mvdetsen",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 3
+  },
+  {
+    "login": "apache",
+    "id": 161000,
+    "name": "tomcat60",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 36
+  },
+  {
+    "login": "apache",
+    "id": 206479,
+    "name": "qpid",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 55
+  },
+  {
+    "login": "apache",
+    "id": 30956943,
+    "name": "incubator-taverna-plugin-bioinformatics",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 0
+  },
+  {
+    "login": "apache",
+    "id": 6978638,
+    "name": "james-mailet",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 0
+  },
+  {
+    "login": "apache",
+    "id": 20675636,
+    "name": "incubator-parquet-mr",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 71
+  },
+  {
+    "login": "apache",
+    "id": 18905527,
+    "name": "streams",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "STREAMS-26",
+    "stargazersCount": 0
+  },
+  {
+    "login": "apache",
+    "id": 832681,
+    "name": "tomcat70",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 156
+  },
+  {
+    "login": "apache",
+    "id": 206403,
+    "name": "jackrabbit",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 66
+  },
+  {
+    "login": "apache",
+    "id": 21193524,
+    "name": "incubator-calcite",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 65
+  },
+  {
+    "login": "apache",
+    "id": 206396,
+    "name": "commons-io",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 96
+  },
+  {
+    "login": "apache",
+    "id": 24928494,
+    "name": "commons-math",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 19
+  },
+  {
+    "login": "apache",
+    "id": 16977479,
+    "name": "cxf",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 57
+  },
+  {
+    "login": "apache",
+    "id": 15070657,
+    "name": "uima-addons",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 3
+  },
+  {
+    "login": "mreid",
+    "id": 14575,
+    "name": "acrp",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 206399,
+    "name": "maven-doxia-sitetools",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 240466,
+    "name": "geronimo-xbean",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "clasloaderfactory",
+    "stargazersCount": 3
+  },
+  {
+    "login": "henrosoft",
+    "id": 26543,
+    "name": "henrosoftbrickles",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 7748336,
+    "name": "tomee",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "develop",
+    "stargazersCount": 69
+  },
+  {
+    "login": "apache",
+    "id": 8427964,
+    "name": "commons-configuration",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 16
+  },
+  {
+    "login": "apache",
+    "id": 5054231,
+    "name": "james-hupa",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 8
+  },
+  {
+    "login": "apache",
+    "id": 5611579,
+    "name": "flex-falcon",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "develop",
+    "stargazersCount": 30
+  },
+  {
+    "login": "apache",
+    "id": 30956944,
+    "name": "incubator-taverna-plugin-component",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 0
+  },
+  {
+    "login": "apache",
+    "id": 12695027,
+    "name": "incubator-ambari",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 3
+  },
+  {
+    "login": "apache",
+    "id": 10637894,
+    "name": "incubator-provisionr",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 3
+  },
+  {
+    "login": "apache",
+    "id": 2282376,
+    "name": "giraph",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "release-1.0",
+    "stargazersCount": 264
+  },
+  {
+    "login": "northern-bites",
+    "id": 36905,
+    "name": "tool",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 12
+  },
+  {
+    "login": "apache",
+    "id": 10637895,
+    "name": "incubator-tez",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 38
+  },
+  {
+    "login": "apache",
+    "id": 26353925,
+    "name": "fop-pdf-images",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "Temp_FontMerging",
+    "stargazersCount": 0
+  },
+  {
+    "login": "apache",
+    "id": 206317,
+    "name": "camel",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 390
+  },
+  {
+    "login": "apache",
+    "id": 30956948,
+    "name": "incubator-taverna-workbench",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 0
+  },
+  {
+    "login": "apache",
+    "id": 20051204,
+    "name": "incubator-slider",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 20
+  },
+  {
+    "login": "apache",
+    "id": 9290699,
+    "name": "tez",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 38
+  },
+  {
+    "login": "apache",
+    "id": 30956937,
+    "name": "incubator-taverna-commandline",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 0
+  },
+  {
+    "login": "davie",
+    "id": 40444,
+    "name": "hamcrest-collections-changes",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "jboner",
+    "id": 18034,
+    "name": "remoteproxy",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 3
+  },
+  {
+    "login": "apache",
+    "id": 20248079,
+    "name": "ant-antlibs-props",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 17701205,
+    "name": "samza-hello-samza",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 23
+  },
+  {
+    "login": "britt",
+    "id": 11647,
+    "name": "github-java",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 11
+  },
+  {
+    "login": "simonpk",
+    "id": 2490,
+    "name": "j2me-oauth",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 29
+  },
+  {
+    "login": "jasonhudgins",
+    "id": 44872,
+    "name": "hudgejar",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 30956942,
+    "name": "incubator-taverna-osgi",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 0
+  },
+  {
+    "login": "boboroshi",
+    "id": 21080,
+    "name": "rsm",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 2580767,
+    "name": "commons-fileupload",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 25
+  },
+  {
+    "login": "apache",
+    "id": 20089860,
+    "name": "portals-pluto",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 0
+  },
+  {
+    "login": "apache",
+    "id": 212343,
+    "name": "commons-cli",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 23
+  },
+  {
+    "login": "apache",
+    "id": 1750293,
+    "name": "myfaces-portlet-bridge",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 1
+  },
+  {
+    "login": "jicksta",
+    "id": 28746,
+    "name": "stomptomanagerbridge",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 3
+  },
+  {
+    "login": "apache",
+    "id": 206377,
+    "name": "river",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "2.1",
+    "stargazersCount": 4
+  },
+  {
+    "login": "apache",
+    "id": 206338,
+    "name": "directory-shared",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 4
+  },
+  {
+    "login": "apache",
+    "id": 20675635,
+    "name": "incubator-parquet-format",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 36
+  },
+  {
+    "login": "apache",
+    "id": 11247824,
+    "name": "commons-pool",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 28
+  },
+  {
+    "login": "pgm",
+    "id": 33689,
+    "name": "rd4j",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 16473331,
+    "name": "wookie",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 2153096,
+    "name": "sqoop",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 86
+  },
+  {
+    "login": "apache",
+    "id": 6290993,
+    "name": "crunch",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 38
+  },
+  {
+    "login": "apache",
+    "id": 160991,
+    "name": "tapestry5",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "5.0",
+    "stargazersCount": 65
+  },
+  {
+    "login": "apache",
+    "id": 30956940,
+    "name": "incubator-taverna-language",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 0
+  },
+  {
+    "login": "apache",
+    "id": 11335234,
+    "name": "commons-discovery",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 5
+  },
+  {
+    "login": "tapajos",
+    "id": 25924,
+    "name": "pocker-e-sueca",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 0
+  },
+  {
+    "login": "penguincoder",
+    "id": 30825,
+    "name": "matrixoperations",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 206393,
+    "name": "harmony-classlib",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "java6",
+    "stargazersCount": 3
+  },
+  {
+    "login": "janfrode",
+    "id": 47812,
+    "name": "j2me-otp",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 6
+  },
+  {
+    "login": "apache",
+    "id": 205414,
+    "name": "felix",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 95
+  },
+  {
+    "login": "apache",
+    "id": 19020239,
+    "name": "maven-indexer",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 4
+  },
+  {
+    "login": "apache",
+    "id": 225211,
+    "name": "servicemix4-specs",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 7
+  },
+  {
+    "login": "apache",
+    "id": 15070658,
+    "name": "uima-as",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 4
+  },
+  {
+    "login": "tucson-jug",
+    "id": 39299,
+    "name": "git-together-examples",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "berlinbrown",
+    "id": 43734,
+    "name": "physicsforprogrammers",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "andreyvit",
+    "id": 50728,
+    "name": "yoursway-sunrise",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "myabc",
+    "id": 64684,
+    "name": "markdownj",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 256
+  },
+  {
+    "login": "ymirpl",
+    "id": 18117,
+    "name": "nsaper",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "apache",
+    "id": 2195742,
+    "name": "kandula",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "Kandula_1",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 206366,
+    "name": "mina",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 178
+  },
+  {
+    "login": "apache",
+    "id": 160986,
+    "name": "tapestry3",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 1
+  },
+  {
+    "login": "nickmerwin",
+    "id": 40242,
+    "name": "merconf_red5",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 6
+  },
+  {
+    "login": "apache",
+    "id": 206482,
+    "name": "abdera",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "0.1.0",
+    "stargazersCount": 15
+  },
+  {
+    "login": "apache",
+    "id": 3956248,
+    "name": "chukwa",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 24
+  },
+  {
+    "login": "mrdon",
+    "id": 37731,
+    "name": "maven-itblast-plugin",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 9
+  },
+  {
+    "login": "apache",
+    "id": 10472781,
+    "name": "deltaspike",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 31
+  },
+  {
+    "login": "apache",
+    "id": 5054235,
+    "name": "james-app",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "3_0_beta2",
+    "stargazersCount": 2
+  },
+  {
+    "login": "mbadran",
+    "id": 24927,
+    "name": "yarc",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 0
+  },
+  {
+    "login": "dpc",
+    "id": 14256,
+    "name": "dpcgoban",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "henrosoft",
+    "id": 23231,
+    "name": "nehsics",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 3
+  },
+  {
+    "login": "apache",
+    "id": 225208,
+    "name": "servicemix3",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "before_package_renaming",
+    "stargazersCount": 2
+  },
+  {
+    "login": "mth",
+    "id": 17965,
+    "name": "yeti",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 102
+  },
+  {
+    "login": "clarkware",
+    "id": 44749,
+    "name": "jdepend",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 84
+  },
+  {
+    "login": "apache",
+    "id": 11304843,
+    "name": "commons-ognl",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 3
+  },
+  {
+    "login": "bo198214",
+    "id": 39509,
+    "name": "4dbb",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "kef",
+    "id": 48002,
+    "name": "boost",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "gensen",
+    "id": 48496,
+    "name": "jhoptoad",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 7
+  },
+  {
+    "login": "victorr",
+    "id": 27984,
+    "name": "jsqueak",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 9
+  },
+  {
+    "login": "fride",
+    "id": 41568,
+    "name": "infoobject-plugin",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 205403,
+    "name": "ofbiz",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 141
+  },
+  {
+    "login": "xenoterracide",
+    "id": 9589,
+    "name": "school",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 3
+  },
+  {
+    "login": "apache",
+    "id": 16021499,
+    "name": "jackrabbit-filevault",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 10
+  },
+  {
+    "login": "myabc",
+    "id": 4976,
+    "name": "nbgit",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 188
+  },
+  {
+    "login": "chanwit",
+    "id": 43481,
+    "name": "gjit",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "mojodna",
+    "id": 16079,
+    "name": "searchable",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 8
+  },
+  {
+    "login": "const",
+    "id": 44901,
+    "name": "etl-java",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "penguincoder",
+    "id": 30830,
+    "name": "pokedex",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 206387,
+    "name": "activemq",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 229
+  },
+  {
+    "login": "apache",
+    "id": 28738447,
+    "name": "incubator-kylin",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 27
+  },
+  {
+    "login": "apache",
+    "id": 206348,
+    "name": "maven-mercury",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 1
+  },
+  {
+    "login": "dcrec1",
+    "id": 45914,
+    "name": "haml4j",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 7
+  },
+  {
+    "login": "apache",
+    "id": 11384368,
+    "name": "commons-vfs",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 8
+  },
+  {
+    "login": "apache",
+    "id": 939852,
+    "name": "commons-validator",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 24
+  },
+  {
+    "login": "bobmcwhirter",
+    "id": 48515,
+    "name": "jboss-naming",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "davie",
+    "id": 23271,
+    "name": "old-git4idea",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "apache",
+    "id": 10329619,
+    "name": "oltu",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "amber-0.10",
+    "stargazersCount": 29
+  },
+  {
+    "login": "penguincoder",
+    "id": 30833,
+    "name": "sortroutines",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "apache",
+    "id": 206386,
+    "name": "jsecurity",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "0.9.0-RC1",
+    "stargazersCount": 3
+  },
+  {
+    "login": "emarschner",
+    "id": 49025,
+    "name": "sketches",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 3
+  },
+  {
+    "login": "apache",
+    "id": 230296,
+    "name": "wss4j",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 6
+  },
+  {
+    "login": "mheath",
+    "id": 13899,
+    "name": "adbcj",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 85
+  },
+  {
+    "login": "apache",
+    "id": 5269358,
+    "name": "karaf-webconsole",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "apache",
+    "id": 1302098,
+    "name": "activemq-apollo",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 57
+  },
+  {
+    "login": "apache",
+    "id": 11304836,
+    "name": "commons-jcs",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 5
+  },
+  {
+    "login": "fmeyer",
+    "id": 30798,
+    "name": "des-cript",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "dustin",
+    "id": 19861,
+    "name": "web-thermometer",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "apache",
+    "id": 160992,
+    "name": "solr",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "branch-1.1",
+    "stargazersCount": 444
+  },
+  {
+    "login": "apache",
+    "id": 206418,
+    "name": "continuum",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 4
+  },
+  {
+    "login": "dcrec1",
+    "id": 46269,
+    "name": "haml4j_demo_app",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 30449481,
+    "name": "incubator-tinkerpop",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 9
+  },
+  {
+    "login": "apache",
+    "id": 16249272,
+    "name": "incubator-twill",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 21
+  },
+  {
+    "login": "apache",
+    "id": 206428,
+    "name": "cocoon",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "BRANCH_2_1_X",
+    "stargazersCount": 6
+  },
+  {
+    "login": "apache",
+    "id": 31006158,
+    "name": "incubator-ignite",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 13
+  },
+  {
+    "login": "apache",
+    "id": 161005,
+    "name": "jspwiki",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 9
+  },
+  {
+    "login": "apache",
+    "id": 10637896,
+    "name": "logging-log4j2",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 42
+  },
+  {
+    "login": "apache",
+    "id": 2189658,
+    "name": "axis2-transports",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "1.6",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 161003,
+    "name": "lucene",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 104
+  },
+  {
+    "login": "apache",
+    "id": 21193522,
+    "name": "incubator-optiq-csv",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 1167439,
+    "name": "servicemix-components",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "components-2011.02.x",
+    "stargazersCount": 6
+  },
+  {
+    "login": "talios",
+    "id": 39563,
+    "name": "timetrackr",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "klauern",
+    "id": 11546,
+    "name": "callingruby",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "apache",
+    "id": 205422,
+    "name": "struts-maven",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "ARCHETYPES_2.0.X",
+    "stargazersCount": 2
+  },
+  {
+    "login": "cromano",
+    "id": 32696,
+    "name": "loadgenerator",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 20089859,
+    "name": "mahout",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 346
+  },
+  {
+    "login": "andreyvit",
+    "id": 7277,
+    "name": "yoursway-sadr",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "apache",
+    "id": 2473318,
+    "name": "james-protocols",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "imap-integration",
+    "stargazersCount": 4
+  },
+  {
+    "login": "penguincoder",
+    "id": 30821,
+    "name": "jlinkedlist",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 14612017,
+    "name": "velocity-tools",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 4
+  },
+  {
+    "login": "apache",
+    "id": 2524488,
+    "name": "accumulo",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 151
+  },
+  {
+    "login": "apache",
+    "id": 2580771,
+    "name": "directmemory",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 36
+  },
+  {
+    "login": "rikrd",
+    "id": 29408,
+    "name": "geomerative",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 64
+  },
+  {
+    "login": "apache",
+    "id": 206420,
+    "name": "directory-installers",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "bigbang",
+    "stargazersCount": 1
+  },
+  {
+    "login": "wireframe",
+    "id": 25412,
+    "name": "shard",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "apache",
+    "id": 30956939,
+    "name": "incubator-taverna-engine",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 0
+  },
+  {
+    "login": "apache",
+    "id": 1024754,
+    "name": "webservices-commons-xmlschema",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "1.3.1",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 206442,
+    "name": "chemistry",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "0.5",
+    "stargazersCount": 3
+  },
+  {
+    "login": "caillette",
+    "id": 15626,
+    "name": "novelang",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 0
+  },
+  {
+    "login": "penguincoder",
+    "id": 30789,
+    "name": "acmcompetition2003",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 160994,
+    "name": "sling",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 89
+  },
+  {
+    "login": "apache",
+    "id": 1575956,
+    "name": "bookkeeper",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "branch-4.0",
+    "stargazersCount": 59
+  },
+  {
+    "login": "apache",
+    "id": 7728562,
+    "name": "oodt",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 14
+  },
+  {
+    "login": "apache",
+    "id": 1158315,
+    "name": "stanbol",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 79
+  },
+  {
+    "login": "apache",
+    "id": 688356,
+    "name": "maven-2",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "maven-2.2.x",
+    "stargazersCount": 6
+  },
+  {
+    "login": "toddlipcon",
+    "id": 38138,
+    "name": "cassandra",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 10
+  },
+  {
+    "login": "apache",
+    "id": 206460,
+    "name": "axis1",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "AXIS_1_2_1_FINAL",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 206444,
+    "name": "hive",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 529
+  },
+  {
+    "login": "apache",
+    "id": 15895714,
+    "name": "incubator-datafu",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 29
+  },
+  {
+    "login": "apache",
+    "id": 1528544,
+    "name": "mrunit",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "mrunit-0.5.0",
+    "stargazersCount": 28
+  },
+  {
+    "login": "apache",
+    "id": 390002,
+    "name": "tuscany-das",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "das-java-M2",
+    "stargazersCount": 1
+  },
+  {
+    "login": "mudge",
+    "id": 4055,
+    "name": "collapsing-puzzle",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "myabc",
+    "id": 47297,
+    "name": "roller-recaptcha",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 1644192,
+    "name": "ftpserver",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "1.0.0",
+    "stargazersCount": 8
+  },
+  {
+    "login": "rictic",
+    "id": 12727,
+    "name": "gunit",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "apache",
+    "id": 23907761,
+    "name": "incubator-johnzon",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 2
+  },
+  {
+    "login": "apache",
+    "id": 14135470,
+    "name": "storm",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1629
+  },
+  {
+    "login": "simonpk",
+    "id": 2531,
+    "name": "fireeagle-updater-midlet",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 13
+  },
+  {
+    "login": "apache",
+    "id": 2848302,
+    "name": "james-jspf",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "asynch-jspf",
+    "stargazersCount": 2
+  },
+  {
+    "login": "xman",
+    "id": 11496,
+    "name": "reversi",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 4
+  },
+  {
+    "login": "apache",
+    "id": 205414,
+    "name": "felix",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 94
+  },
+  {
+    "login": "apache",
+    "id": 11304842,
+    "name": "commons-modeler",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 1
+  },
+  {
+    "login": "miguelhorlle",
+    "id": 49710,
+    "name": "marque",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "davidyang",
+    "id": 15976,
+    "name": "yappr",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 3
+  },
+  {
+    "login": "apache",
+    "id": 18665398,
+    "name": "archiva-redback-core",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 0
+  },
+  {
+    "login": "apache",
+    "id": 160987,
+    "name": "james",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "3_0_beta2",
+    "stargazersCount": 31
+  },
+  {
+    "login": "joshwilkins",
+    "id": 43871,
+    "name": "java-coordinate-line-reader",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 1
+  },
+  {
+    "login": "apache",
+    "id": 206478,
+    "name": "maven-doxia",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 6
+  },
+  {
+    "login": "apache",
+    "id": 11943599,
+    "name": "manifoldcf-integration-solr-4.x",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "trunk",
+    "stargazersCount": 1
+  },
+  {
+    "login": "tenderlove",
+    "id": 45315,
+    "name": "dom-test-suite",
+    "fork": false,
+    "language": "Java",
+    "defaultBranch": "master",
+    "stargazersCount": 4
+  }
+]

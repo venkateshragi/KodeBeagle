@@ -3,34 +3,79 @@
 <html lang="en">
 <head>
     <title>BetterDocs</title>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:600,400' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <link type="text/css" rel="stylesheet" href="stylesheets/jquery.remodal.css"/>
     <link type="text/css" rel="stylesheet" href="stylesheets/demo.css"/>
 </head>
 <body>
+<div class="remodal-bg">
+    <header>
+        <h2>
+            <span class="left">BetterDocs</span>
+            <span class="right"><i class="fa fa-github"></i></span>
+        </h2>
+    </header>
+    <div class="container">
+        <div class="topPanel">
+            <div class="searchForm">
+                <form id="searchByFQN">
+                    <span class="searchIcon"><i class="fa fa-search fa-flip-horizontal"></i></span>
+                    <input type="text" id="searchString" required
+                           placeholder="java.nio.channels.FileChannel,java.nio.MappedByteBuffer">
+                </form>
+            </div>
+            <span class="settingsIcon"><a href="#modal"><i class="fa fa-cog"></i></a></span>
+        </div>
 
-<div>
-    <div>Search
-        <form id="searchByFQN">
-            <label>ElasticSearch URL
-                <input type="text" id="esURL" required placeholder="localhost:9200">
-            </label>
-            <label>ClassName(s)
-                <input type="text" id="searchString" required placeholder="java.nio.channels.FileChannel">
-            </label>
-            <input type="submit" value="Search">
+        <div class="searchResults">
+            <div class="repoInfo">
+                <h3>Analyzed Projects</h3>
+                <select id="repoList">
+                    {% for repo in site.data.repos %}
+                    <option value="{{repo.login}}/{{repo.name}}">{{repo.login}}/{{repo.name}}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="resultContainer">
+                <h3>Code Reference</h3>
+
+                <div id="results"></div>
+            </div>
+
+        </div>
+        {% raw %}
+        <script id="result-template" type="text/x-handlebars-template">
+            {{#each files}}
+            <div class="result" id="result{{@index}}">
+                <div><a href="{{path}}">{{name}}</a></div>
+                <br/>
+
+                <div id="result{{@index}}-editor" class="editor">{{content}}</div>
+            </div>
+            {{/each}}
+        </script>
+        {% endraw %}
+    </div>
+</div>
+<div class="remodal" data-remodal-id="modal">
+    <div class="heading">
+        Configuration
+    </div>
+    <div class="modalContent">
+        <form>
+            <input type="text" id="elasticSearchURL"
+                   placeholder="BetterDocs URL" value="172.16.12.162:9200"><br/>
+            <input type="number" id="resultSize" value="50" placeholder="Result size">
         </form>
     </div>
-    <div id="results"></div>
-    {% raw %}
-    <script id="result-template" type="text/x-handlebars-template">
-        {{#each files}}
-        <div class="result" id="result{{@index}}">
-            <div><a href="{{path}}">{{name}}</a></div>
-            <br/>
-            <div id="result{{@index}}-editor" class="editor">{{content}}</div>
+    <footer>
+        <div class="modalFooter">
+            <a class="remodal-confirm" href="#">Save</a>
         </div>
-        {{/each}}
-    </script>
-    {% endraw %}
+    </footer>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.1.8/ace.js" type="text/javascript" charset="utf-8"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.js" type="text/javascript"
@@ -41,15 +86,24 @@
         charset="utf-8"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.4.0/lodash.min.js" type="text/javascript"
         charset="utf-8"></script>
-
+<script src="javascripts/jquery.remodal.js"></script>
 
 <script src="javascripts/app.js"></script>
 
 <script>
+    var ht = Math.floor($(".repoInfo").height() / 14);
+    $("#repoList").attr("size", ht - 12);
     $("#searchByFQN").submit(function (evt) {
         evt.preventDefault();
         app.search($("#searchString").val());
     });
+
+    $(document).on('close', '.remodal', function (e) {
+        if (e.reason === "confirmation") {
+            app.saveConfig($("#elasticSearchURL").val(), $("#resultSize").val());
+        }
+    });
+
 </script>
 </body>
 </html>
