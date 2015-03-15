@@ -27,8 +27,8 @@ class JavaFileIndexerSuite extends FunSuite with BeforeAndAfterAll {
   val stream =
     Thread.currentThread().getContextClassLoader.getResourceAsStream("TransportClient.java")
   val writer = new StringWriter()
-  val allOccurrences = List(74, 75, 101, 105, 108, 109, 123, 137, 141, 144, 145, 158, 172, 187,
-    188, 189, 191, 198, 203)
+  val allOccurrences = List(74, 75, 79, 101, 103, 105, 106, 108, 109, 114, 117, 119, 120, 121, 123,
+    125, 137, 139, 141, 144, 145, 150, 154, 156, 158, 160, 172, 187, 188, 189, 191, 198, 203, 204)
   val sampleRepo = Repository("sample", 0, "sample", false, "Java", "master", 0)
   override def beforeAll() {
     IOUtils.copy(stream, writer)
@@ -52,7 +52,7 @@ class JavaFileIndexerSuite extends FunSuite with BeforeAndAfterAll {
       Map("sample-master/Sample.java" -> writer.toString), List(), Some(Repository.empty))
     val occurrences = result.map(x => x.lineNumbers).reduce(_ ++ _).sorted.distinct
     assert(occurrences === allOccurrences)
-    assert(result.size == 30)
+    assert(result.size == 58)
   }
 
   test("Excluded imports should not be part of Tokens") {
@@ -79,6 +79,16 @@ class JavaFileIndexerSuite extends FunSuite with BeforeAndAfterAll {
       List(), Some(Repository.empty))
     assert(result.size === 1)
     assert(!result.head.lineNumbers.exists(Set(67, 68, 70)))
+  }
+
+  test("Should exclude commented code for processing indexes.") {
+    val javaFileIndexer = new JavaFileIndexer {
+      override val linesOfContext = 2000
+    }
+    val result = javaFileIndexer.generateTokens(Map("sample-master/Sample.java" -> writer.toString),
+      List(), Some(Repository.empty))
+    assert(result.size === 1)
+    assert(!result.head.lineNumbers.exists(Set(77, 82)))
   }
 
 }

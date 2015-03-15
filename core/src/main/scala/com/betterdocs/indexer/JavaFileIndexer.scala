@@ -79,27 +79,28 @@ class JavaFileIndexer extends BasicIndexer {
   private def extractImports(java: String, packages: List[String]) = java.split("\n")
     .filter(x => x.startsWith("import"))
     .map(x => importPattern.matcher(x)).filter(_.find)
-    .flatMap(x => Try(x.group(1) -> x.group(2).trim).toOption)
-    .filterNot { case (left, right) => packages.contains(left) }
+    .flatMap(x => Try((x.group(1),  x.group(2).trim)).toOption)
+    .filterNot { case (left, right) => packages.contains(left) }.toSet
 
   /**
    * Takes a line of code and cleans it for further indexing.
    */
   private def cleanUpCode(line: String): String = {
-    " " + line.replaceFirst("//.*", " ").replaceFirst("import.*", " ")
-      .replaceFirst("\\s*\\*.*", " ").replaceFirst("\\s*\\/\\*.*", " ")
-      .replaceFirst("""\s*(private|public|protected).*""", " ")
+   val cleaned = line.replaceFirst("""\s*(import|private|public|protected|\/?\*|//).*""", "")
       .replaceAll("\\W+", " ")
+    if(!cleaned.isEmpty) " " + cleaned.toLowerCase + " " else ""
   }
 
-  private def generateTokensWRTImports(imports: Seq[(String, String)],
+  private def generateTokensWRTImports(imports: Set[(String, String)],
       java: String): List[Array[(Int, (String, String))]] = {
-    val lines = java.split("\n")
+    val lines = java.split("\n").map(cleanUpCode)
     (lines.sliding(linesOfContext) zip (1 to lines.size).sliding(linesOfContext)).toList
       .map { case (linesWindow, lineNumbersWindow) =>
-      (linesWindow zip lineNumbersWindow).flatMap { case (line, lineNumber) =>
-        imports.map(y => (cleanUpCode(line).contains(" " + y._2 + " "), lineNumber, y))
+      (linesWindow zip lineNumbersWindow).flatMap { case (line, lineNumber) if !line.isEmpty =>
+        val l = line.split(" ").distinct
+        imports.map(y => (l.contains(y._2.toLowerCase), lineNumber, y))
           .filter(_._1).map(a => (a._2, a._3))
+      case _ => Set[(Int, (String, String))]()
       }
     }.distinct.filter(_.nonEmpty)
   }

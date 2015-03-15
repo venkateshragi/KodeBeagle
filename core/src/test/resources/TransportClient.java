@@ -74,12 +74,12 @@ public class TransportClient implements Closeable {
     this.channel = Preconditions.checkNotNull(channel);
     this.handler = Preconditions.checkNotNull(handler);
   }
-
+// Channel
   public boolean isActive() {
     return channel.isOpen() || channel.isActive();
   }
 
-  /**
+  /** Channel
    * Requests a single chunk from the remote side, from the pre-negotiated streamId.
    *
    * Chunk indices go from 0 onwards. It is valid to request the same chunk multiple times, though
