@@ -36,13 +36,20 @@ var app = function () {
         editor.resize(true);
 
         editor.setTheme("ace/theme/github");
-        editor.getSession().setMode("ace/mode/java");
+        editor.getSession().setMode("ace/mode/java", function () {
+            editor.getSession().foldAll();
+            lineNumbers.forEach(function (n) {
+                editor.getSession().unfold(n - 1);
+            })
+        });
+
         editor.setReadOnly(true);
         editor.setValue(content, 1);
 
         markers.forEach(function (m) {
-            editor.getSession().addMarker(m, "ace_active-line", "background");
+            editor.getSession().addMarker(m, "ace_selection", "background");
         });
+
         editor.gotoLine(lineNumbers[lineNumbers.length - 1], 0, true);
     }
 
