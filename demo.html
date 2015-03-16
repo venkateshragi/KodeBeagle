@@ -31,7 +31,8 @@
             <div id="connectionError" class="alert-box error">
                 <i class="fa fa-times-circle"></i> <span>error: </span>Failed to connect to BetterDocs server
             </div>
-            <div class="repoInfo">
+
+            <div class="repoInfo" id="analyzedProj">
                 <h3>Analyzed Projects</h3>
                 <select id="repoList">
                     {% for repo in site.data.repos %}
@@ -39,6 +40,10 @@
                     </option>
                     {% endfor %}
                 </select>
+            </div>
+
+            <div class="repoInfo" id="resultTreeContainer">
+
             </div>
 
             <div class="resultContainer">
@@ -56,6 +61,21 @@
                 <br/>
 
                 <div id="result{{@index}}-editor" class="editor">{{content}}</div>
+            </div>
+            {{/each}}
+        </script>
+        <script id="result-tree-template" type="text/x-handlebars-template">
+            <h3>Projects with Usage</h3>
+            <div id="resultTree">
+                <ul>
+                    {{#each projects}}
+                    <li>{{name}}</li>
+                    <ul>
+                        {{#each files}}
+                        <li>{{name}}</li>
+                        {{/each}}
+                    </ul>
+                </ul>
             </div>
             {{/each}}
         </script>
