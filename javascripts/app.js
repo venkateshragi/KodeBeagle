@@ -6,8 +6,10 @@ var app = function () {
         resultSize = 50,
         source = $("#result-template").html(),
         template = Handlebars.compile(source),
-        Range = ace.require('ace/range').Range;
+        Range = ace.require('ace/range').Range,
+        errorElement = $("#connectionError");
 
+    errorElement.hide();
 
     function getMarkers(lineNumbers) {
         return lineNumbers.map(function (line) {
@@ -95,7 +97,8 @@ var app = function () {
             //console.log(resp.hits.hits);
             updateView(resp.hits.hits);
         }, function (err) {
-            console.log(err.message);
+            errorElement.slideDown("slow");
+            errorElement.slideUp(2500);
         });
     }
 
