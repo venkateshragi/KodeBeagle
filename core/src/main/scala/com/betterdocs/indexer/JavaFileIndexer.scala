@@ -27,8 +27,10 @@ import scala.collection.immutable
 import scala.util.Try
 
 
-/** This is the smallest and the only entity that we store as index. (Read about: Reverse Index.) */
-case class Token(file: String, strings: Set[String], lineNumbers: Seq[Int], score: Int)
+case class IndexEntry(file: String, tokens: Set[Token], score: Int)
+
+/* Since our tokens are fully qualified import names. */
+case class Token(importName: String, lineNumbers: immutable.SortedSet[Int])
 
 trait BasicIndexer extends Serializable {
 
@@ -39,8 +41,11 @@ trait BasicIndexer extends Serializable {
   val importPattern: Pattern = Pattern.compile("import (.*)\\.(\\w+);")
 
   def generateTokens(files: Map[String, String], excludePackages: List[String],
-      repo: Option[Repository]): Set[Token]
+      repo: Option[Repository]): Set[IndexEntry]
 
+  protected def mapToTokens(map: mutable.Map[String, immutable.SortedSet[Int]]): Set[Token] = {
+    map.map{ case (key, value) => Token(key, value) }.toSet
+  }
 }
 
 class JavaFileIndexer extends BasicIndexer {
@@ -49,25 +54,24 @@ class JavaFileIndexer extends BasicIndexer {
   override def linesOfContext: Int = BetterDocsConfig.linesOfContext.toInt
 
   override def generateTokens(files: Map[String, String], excludePackages: List[String],
-    repo: Option[Repository]): Set[Token] = {
-    var tokens = immutable.HashSet[Token]()
+    repo: Option[Repository]): Set[IndexEntry] = {
+    var tokens = immutable.HashSet[IndexEntry]()
     val r = repo.getOrElse(Repository.empty)
     for (file <- files) {
       val (fileName, fileContent) = file
-      val tokenMap = new mutable.HashMap[String, List[Int]]
+      val tokenMap = new mutable.HashMap[String, immutable.SortedSet[Int]]
       val imports = extractImports(fileContent, excludePackages)
       generateTokensWRTImports(imports, fileContent).map { x =>
        x.map { y =>
           val FQCN = y._2._1 + "." + y._2._2
-          val oldValue: List[Int] = tokenMap.getOrElse(FQCN, List())
+          val oldValue: immutable.SortedSet[Int] = tokenMap.getOrElse(FQCN, immutable.SortedSet())
           // This map can be used to create one to N index if required.
           tokenMap += ((FQCN, oldValue ++ List(y._1)))
         }
         val (_, actualFileName) = fileName.splitAt(fileName.indexOf('/'))
           val fullGithubURL =
             s"""http://github.com/${r.login}/${r.name}/blob/${r.defaultBranch}$actualFileName"""
-        tokens = tokens + Token(fullGithubURL, tokenMap.keySet.toSet,
-          tokenMap.values.flatten.toSeq.sorted.distinct, r.stargazersCount)
+        tokens = tokens + IndexEntry(fullGithubURL, mapToTokens(tokenMap), r.stargazersCount)
         //  tokens = tokens ++ List(Token(fullGithubURL, x.map(z => z._2._1 + "." + z._2
         //  ._2), x.head._1, score))
         tokenMap.clear()
