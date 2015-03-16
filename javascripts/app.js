@@ -13,9 +13,9 @@ var app = function () {
 
     function getMarkers(lineNumbers) {
         return lineNumbers.map(function (line) {
-            var startMark = line - 6,
-                endMark = line + 4;
-            return new Range(startMark, 0, endMark, 0);
+            /*var startMark = line - 6,
+             endMark = line + 4;*/
+            return new Range(line, 0, line, 10);
         });
     }
 
@@ -31,7 +31,7 @@ var app = function () {
         editor.setValue(content, 1);
 
         markers.forEach(function (m) {
-            editor.getSession().addMarker(m, "ace_active-line", "background");
+            editor.getSession().addMarker(m, "ace_active-line", "fullLine");
         });
         editor.gotoLine(lineNumbers[lineNumbers.length - 1], 0, true);
     }
@@ -71,10 +71,35 @@ var app = function () {
         $("#results").html(template({"files": files}));
     }
 
-    function search(queryString) {
-        var mustTerms = queryString.split(",").map(function (queryTerm) {
+    function andQuery(terms) {
+        var mustTerms = terms.map(function (queryTerm) {
             return {"term": {"custom.strings": queryTerm.trim()}};
         });
+
+        return {
+            "bool": {
+                "must": mustTerms,
+                "must_not": [],
+                "should": []
+            }
+        };
+    }
+
+    function basicQuery(term) {
+        return {
+            "filtered": {
+                "query": {
+                    "query_string": {
+                        "query": term
+                    }
+                }
+            }
+        };
+    }
+
+    function search(queryString) {
+        var queryTerms = queryString.split(","),
+            queryBlock = queryTerms.length > 1 ? andQuery(queryTerms) : basicQuery(queryTerms[0]);
 
         $.es.Client({
             host: esURL,
@@ -83,13 +108,7 @@ var app = function () {
             index: 'betterdocs',
             size: resultSize,
             body: {
-                "query": {
-                    "bool": {
-                        "must": mustTerms,
-                        "must_not": [],
-                        "should": []
-                    }
-                },
+                "query": queryBlock,
                 "sort": [
                     {"score": {"order": "desc"}}]
             }
