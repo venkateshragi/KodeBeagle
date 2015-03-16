@@ -218,3 +218,10 @@ div.resultContainer {
 .alert-box.error .fa-times-circle {
     color: red;
 }
+
+.ace_layer.ace_text-layer .ace_line .ace_fold,.ace_line .ace_fold:hover {
+    background-image: none;
+    border:0px;
+    border-radius:0px;
+    color: #000;
+}
