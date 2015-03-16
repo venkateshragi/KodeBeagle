@@ -4,16 +4,28 @@ var app = function () {
     "use strict";
     var esURL = "172.16.12.162:9200",
         resultSize = 50,
-        source = $("#result-template").html(),
-        template = Handlebars.compile(source),
-        Range = ace.require('ace/range').Range;
+        analyzedProjContainer = $("#analyzedProj"),
+        resultTreeContainer = $("#resultTreeContainer"),
+        resultTreeTemplateHTML = $("#result-tree-template").html(),
+        resultTemplateHTML = $("#result-template").html(),
+        resultTreeTemplate = Handlebars.compile(resultTreeTemplateHTML),
+        resultTemplate = Handlebars.compile(resultTemplateHTML),
+        Range = ace.require('ace/range').Range,
+        errorElement = $("#connectionError");
 
+    function init() {
+        errorElement.hide();
+        resultTreeContainer.hide();
+    }
+
+    init();
 
     function getMarkers(lineNumbers) {
         return lineNumbers.map(function (line) {
-            var startMark = line - 6,
-                endMark = line + 4;
-            return new Range(startMark, 0, endMark, 0);
+            /*var startMark = line - 6,
+             endMark = line + 4;*/
+            /*IMPORTANT NOTE: Range takes row number starting from 0*/
+            return new Range(line - 1, 0, line - 1, 1000);
         });
     }
 
@@ -38,23 +50,40 @@ var app = function () {
         var elements = filePath.split("/"),
             repoName = elements[3] + "-" + elements[4],
             fileName = elements[elements.length - 1];
-        return repoName + ":" + fileName;
+        return {"repo": repoName, "file": fileName};
     }
 
     function updateView(data) {
-        var files = [],
+        var files = [], projects = [], groupedByRepos = [],
             groupedData = _.groupBy(data, function (entry) {
-                return entry._source.file
+                return entry._source.file;
             });
+
+        groupedByRepos = _.groupBy(data, function (entry) {
+            var labels = getFileName(entry._source.file);
+            return labels.repo;
+        });
+
+        projects = _.map(groupedByRepos, function (files, label) {
+            var fileList = _.map(files, function (f) {
+                return {name: getFileName(f._source.file).file};
+            });
+
+            return {
+                name: label,
+                files: _.unique(fileList, _.iteratee('name'))
+            }
+        });
 
         _.keys(groupedData).slice(0, 1).forEach(function (fileName, index) {
             var sameFile = groupedData[fileName],
+                labels = getFileName(fileName),
                 filePath = fileName.replace("http://github.com", "http://github-raw-cors-proxy.herokuapp.com"),
                 occurences = (_.unique(_.flatten(sameFile.map(function (src) {
                     return src._source.lineNumbers;
                 })))).sort();
 
-            files.push({path: fileName, name: getFileName(fileName), lines: occurences});
+            files.push({path: fileName, name: labels.repo + ":" + labels.file, lines: occurences});
 
             $.get(filePath, function (result) {
                 var id = "result" + index;
@@ -66,13 +95,41 @@ var app = function () {
             });
         });
 
-        $("#results").html(template({"files": files}));
+        $("#results").html(resultTemplate({"files": files}));
+        analyzedProjContainer.hide();
+        resultTreeContainer.show();
+        resultTreeContainer.html(resultTreeTemplate({"projects": projects}));
+    }
+
+    function andQuery(terms) {
+        var mustTerms = terms.map(function (queryTerm) {
+            return {"term": {"custom.strings": queryTerm.trim()}};
+        });
+
+        return {
+            "bool": {
+                "must": mustTerms,
+                "must_not": [],
+                "should": []
+            }
+        };
+    }
+
+    function basicQuery(term) {
+        return {
+            "filtered": {
+                "query": {
+                    "query_string": {
+                        "query": term
+                    }
+                }
+            }
+        };
     }
 
     function search(queryString) {
-        var mustTerms = queryString.split(",").map(function (queryTerm) {
-            return {"term": {"custom.strings": queryTerm.trim()}};
-        });
+        var queryTerms = queryString.split(","),
+            queryBlock = queryTerms.length > 1 ? andQuery(queryTerms) : basicQuery(queryTerms[0]);
 
         $.es.Client({
             host: esURL,
@@ -81,13 +138,7 @@ var app = function () {
             index: 'betterdocs',
             size: resultSize,
             body: {
-                "query": {
-                    "bool": {
-                        "must": mustTerms,
-                        "must_not": [],
-                        "should": []
-                    }
-                },
+                "query": queryBlock,
                 "sort": [
                     {"score": {"order": "desc"}}]
             }
@@ -95,7 +146,8 @@ var app = function () {
             //console.log(resp.hits.hits);
             updateView(resp.hits.hits);
         }, function (err) {
-            console.log(err.message);
+            errorElement.slideDown("slow");
+            errorElement.slideUp(2500);
         });
     }
 

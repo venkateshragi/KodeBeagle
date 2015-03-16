@@ -198,3 +198,23 @@ div.resultContainer {
     padding: 5px;
     height: 80%;
 }
+
+.alert-box {
+    color: #555;
+    padding: 10px 5px;
+    margin: 10px;
+}
+
+.alert-box span {
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.alert-box.error {
+    background: #ffecec;
+    border: 1px solid #f5aca6;
+}
+
+.alert-box.error .fa-times-circle {
+    color: red;
+}
