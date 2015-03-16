@@ -15,7 +15,8 @@ var app = function () {
         return lineNumbers.map(function (line) {
             /*var startMark = line - 6,
              endMark = line + 4;*/
-            return new Range(line, 0, line, 10);
+            /*IMPORTANT NOTE: Range takes row number starting from 0*/
+            return new Range(line - 1, 0, line - 1, 1000);
         });
     }
 
@@ -31,7 +32,7 @@ var app = function () {
         editor.setValue(content, 1);
 
         markers.forEach(function (m) {
-            editor.getSession().addMarker(m, "ace_active-line", "fullLine");
+            editor.getSession().addMarker(m, "ace_active-line", "background");
         });
         editor.gotoLine(lineNumbers[lineNumbers.length - 1], 0, true);
     }
