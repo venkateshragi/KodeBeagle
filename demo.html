@@ -32,22 +32,30 @@
                 <i class="fa fa-times-circle"></i> <span>error: </span>Failed to connect to BetterDocs server
             </div>
 
-            <div class="repoInfo" id="analyzedProj">
-                <h3>Analyzed Projects</h3>
-                <select id="repoList">
-                    {% for repo in site.data.repos %}
-                    <option value="{{repo.login}}/{{repo.name}}">{{repo.login}}/{{repo.name}}
-                    </option>
-                    {% endfor %}
-                </select>
+            <div id="leftPanel">
+                <div class="repoInfo" id="analyzedProj">
+                    <h3>Analyzed Projects</h3>
+                    <select id="repoList">
+                        {% for repo in site.data.repos %}
+                        <option value="{{repo.login}}/{{repo.name}}">{{repo.login}}/{{repo.name}}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="repoInfo" id="resultTreeContainer">
+                </div>
             </div>
 
-            <div class="repoInfo" id="resultTreeContainer">
-
-            </div>
-
-            <div class="resultContainer">
-                <h3>Code Reference</h3>
+            <div class="resultContainer" id="rightSideContainer">
+                <h3>Code Reference
+                    <span id="expand" class="viewOptions">
+                        <a href="javascript:void(0);" onclick="app.expand()"><i class="fa fa-expand pull-right"></i></a>
+                    </span>
+                    <span id="compress" class="viewOptions">
+                        <a href="javascript:void(0);" onclick="app.compress()"><i class="fa fa-compress pull-right"></i></a>
+                    </span>
+                </h3>
 
                 <div id="results"></div>
             </div>
@@ -65,7 +73,7 @@
             {{/each}}
         </script>
         <script id="result-tree-template" type="text/x-handlebars-template">
-            <h3>Projects with Usage</h3>
+            <h3>Projects with Usage </h3>
             <div id="resultTree">
                 <ul>
                     {{#each projects}}

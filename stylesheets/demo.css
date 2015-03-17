@@ -219,9 +219,25 @@ div.resultContainer {
     color: red;
 }
 
-.ace_layer.ace_text-layer .ace_line .ace_fold,.ace_line .ace_fold:hover {
+.ace_layer.ace_text-layer .ace_line .ace_fold, .ace_line .ace_fold:hover {
     background-image: none;
-    border:0px;
-    border-radius:0px;
+    border: 0px;
+    border-radius: 0px;
     color: #000;
+}
+
+span.viewOptions a {
+    color: #F5F5F5;
+}
+
+span.viewOptions .fa {
+    margin-right: 5px;
+}
+
+h3 {
+    margin: 5px 0;
+}
+
+div.resultContainer.fullWidth {
+    width: 98%;
 }

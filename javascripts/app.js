@@ -11,11 +11,16 @@ var app = function () {
         resultTreeTemplate = Handlebars.compile(resultTreeTemplateHTML),
         resultTemplate = Handlebars.compile(resultTemplateHTML),
         Range = ace.require('ace/range').Range,
-        errorElement = $("#connectionError");
+        errorElement = $("#connectionError"),
+        leftPanel = $("#leftPanel"),
+        rightSideContainer = $("#rightSideContainer"),
+        expandIcon = $("#expand"),
+        compressIcon = $("#compress");
 
     function init() {
         errorElement.hide();
         resultTreeContainer.hide();
+        compressIcon.hide();
     }
 
     init();
@@ -163,8 +168,24 @@ var app = function () {
         resultSize = size;
     }
 
+    function expandResultView(){
+        leftPanel.hide();
+        expandIcon.hide();
+        rightSideContainer.addClass("fullWidth");
+        compressIcon.show();
+    }
+
+    function compressResultView(){
+        leftPanel.show();
+        compressIcon.hide();
+        rightSideContainer.removeClass("fullWidth");
+        expandIcon.show();
+    }
+
     return {
         search: search,
-        saveConfig: updateConfig
+        saveConfig: updateConfig,
+        expand: expandResultView,
+        compress: compressResultView
     };
 }();
