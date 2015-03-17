@@ -36,7 +36,7 @@ case class Repository(login: String, id: Int, name: String, fork: Boolean, langu
 
 /** For testing */
 object Repository {
-  def empty = Repository("n-a", -1, "n-a", fork = false, "Java", "n-a", 0)
+  def invalid = Repository("n-a", -1, "n-a", fork = false, "Java", "n-a", 0)
 }
 
 /**

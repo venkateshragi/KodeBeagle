@@ -40,7 +40,7 @@ class JavaFileIndexerSuite extends FunSuite with BeforeAndAfterAll {
     }
     val resultTokens = javaFileIndexer.generateTokens(Map("sample-master/Sample.java" -> writer
       .toString),
-      List(), Some(Repository.empty))
+      List(), Some(Repository.invalid))
     assert(resultTokens.size === 1)
     val result = resultTokens.head.tokens.flatMap(_.lineNumbers).toList.distinct.sorted
     assert(result === allOccurrences)
@@ -51,7 +51,7 @@ class JavaFileIndexerSuite extends FunSuite with BeforeAndAfterAll {
       override val linesOfContext = 10
     }
     val result = javaFileIndexer.generateTokens(
-      Map("sample-master/Sample.java" -> writer.toString), List(), Some(Repository.empty))
+      Map("sample-master/Sample.java" -> writer.toString), List(), Some(Repository.invalid))
     val occurrences = result.flatMap(x => x.tokens.map(_.lineNumbers)).reduce(_ ++ _)
     assert(occurrences.toList === allOccurrences)
     assert(result.size == 58)
@@ -64,9 +64,9 @@ class JavaFileIndexerSuite extends FunSuite with BeforeAndAfterAll {
     val excludes = Set("org.apache.spark", "org.apache", "org",
       "org.apache.spark.network.protocol")
     val resultWOExcludes = javaFileIndexer.generateTokens(Map("sample-master/Sample.java" ->
-      writer.toString), List(), Some(Repository.empty))
+      writer.toString), List(), Some(Repository.invalid))
     val resultWExcludes = javaFileIndexer.generateTokens(Map("sample-master/Sample.java" ->
-      writer.toString), excludes.toList, Some(Repository.empty))
+      writer.toString), excludes.toList, Some(Repository.invalid))
     val expected = resultWOExcludes.flatMap(x => x.tokens.map(_.importName))
       .filterNot(_.startsWith("org.apache.spark.network.protocol"))
     val result = resultWExcludes.flatMap(x => x.tokens.map(_.importName))
@@ -78,7 +78,7 @@ class JavaFileIndexerSuite extends FunSuite with BeforeAndAfterAll {
       override val linesOfContext = 2000
     }
     val resultTokens = javaFileIndexer.generateTokens(Map("sample-master/Sample.java" -> writer.toString),
-      List(), Some(Repository.empty))
+      List(), Some(Repository.invalid))
     assert(resultTokens.size === 1)
     val result = resultTokens.head.tokens.flatMap(x => x.lineNumbers).toList.distinct
     assert(!result.exists(Set(67, 68, 70)))
@@ -90,7 +90,7 @@ class JavaFileIndexerSuite extends FunSuite with BeforeAndAfterAll {
     }
     val resultTokens = javaFileIndexer.generateTokens(Map("sample-master/Sample.java" -> writer
       .toString),
-      List(), Some(Repository.empty))
+      List(), Some(Repository.invalid))
     assert(resultTokens.size === 1)
     val result = resultTokens.head.tokens.flatMap(x => x.lineNumbers).toList.distinct
     assert(!result.exists(Set(77, 82)))

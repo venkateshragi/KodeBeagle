@@ -27,7 +27,7 @@ import scala.collection.immutable
 import scala.util.Try
 
 
-case class IndexEntry(file: String, tokens: Set[Token], score: Int)
+case class IndexEntry(repoId: Int, file: String, tokens: Set[Token], score: Int)
 
 /* Since our tokens are fully qualified import names. */
 case class Token(importName: String, lineNumbers: immutable.SortedSet[Int])
@@ -56,7 +56,7 @@ class JavaFileIndexer extends BasicIndexer {
   override def generateTokens(files: Map[String, String], excludePackages: List[String],
     repo: Option[Repository]): Set[IndexEntry] = {
     var tokens = immutable.HashSet[IndexEntry]()
-    val r = repo.getOrElse(Repository.empty)
+    val r = repo.getOrElse(Repository.invalid)
     for (file <- files) {
       val (fileName, fileContent) = file
       val tokenMap = new mutable.HashMap[String, immutable.SortedSet[Int]]
@@ -71,7 +71,7 @@ class JavaFileIndexer extends BasicIndexer {
         val (_, actualFileName) = fileName.splitAt(fileName.indexOf('/'))
           val fullGithubURL =
             s"""http://github.com/${r.login}/${r.name}/blob/${r.defaultBranch}$actualFileName"""
-        tokens = tokens + IndexEntry(fullGithubURL, mapToTokens(tokenMap), r.stargazersCount)
+        tokens = tokens + IndexEntry(r.id, fullGithubURL, mapToTokens(tokenMap), r.stargazersCount)
         //  tokens = tokens ++ List(Token(fullGithubURL, x.map(z => z._2._1 + "." + z._2
         //  ._2), x.head._1, score))
         tokenMap.clear()

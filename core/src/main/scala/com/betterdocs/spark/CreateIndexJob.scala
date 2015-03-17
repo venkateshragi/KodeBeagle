@@ -20,7 +20,7 @@ package com.betterdocs.spark
 import java.io.File
 
 import com.betterdocs.configuration.BetterDocsConfig
-import com.betterdocs.crawler.ZipBasicParser
+import com.betterdocs.crawler.{Repository, ZipBasicParser}
 import com.betterdocs.indexer.JavaFileIndexer
 import com.betterdocs.logging.Logger
 import org.apache.commons.compress.archivers.zip.ZipFile
@@ -30,6 +30,12 @@ import scala.collection.mutable.ArrayBuffer
 import scala.util.{Failure, Success, Try}
 
 object CreateIndexJob {
+
+  case class RepositorySource(repoId: Int, sourceFiles: Set[SourceFile])
+  case class SourceFile(fileName: String, fileContent: String)
+
+  def mapToSourceFiles(map: ArrayBuffer[(String, String)]) = map.map(x => SourceFile(x._1, x._2))
+    .toSet
 
   def main(args: Array[String]): Unit = {
     val conf = new SparkConf()
@@ -47,12 +53,23 @@ object CreateIndexJob {
         .generateTokens(files.toMap, packages, repo)
     }.map(x => toJson(x, addESHeader = true)).saveAsTextFile(BetterDocsConfig.sparkOutput)
 
+    // Generate repository index.
     sc.binaryFiles(BetterDocsConfig.githubDir).map { case (zipFile, _) =>
       val zipFileName = zipFile.stripPrefix("file:")
       // Ignoring exclude packages.
       RepoFileNameParser(zipFileName)
     }.flatMap { f => f }.map(x => toJson(x, addESHeader = true, isToken = false))
       .saveAsTextFile(BetterDocsConfig.sparkOutput + "/repo")
+
+    sc.binaryFiles(BetterDocsConfig.githubDir).map { case (zipFile, _) =>
+      val zipFileName = zipFile.stripPrefix("file:")
+      // Ignoring exclude packages.
+      val repo = RepoFileNameParser(zipFileName).getOrElse(Repository.invalid)
+      val (filesMap, _) = ZipBasicParser.readFilesAndPackages(new ZipFile(zipFileName))
+      (repo.id, mapToSourceFiles(filesMap))
+    }.map(x => toJson(x, addESHeader = true, isToken = false))
+      .saveAsTextFile(BetterDocsConfig.sparkOutput + "/source")
+
   }
 
   /**
