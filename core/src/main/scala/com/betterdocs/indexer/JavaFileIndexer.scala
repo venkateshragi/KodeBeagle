@@ -90,7 +90,8 @@ class JavaFileIndexer extends BasicIndexer {
    * Takes a line of code and cleans it for further indexing.
    */
   private def cleanUpCode(line: String): String = {
-   val cleaned = line.replaceFirst("""\s*(import|private|public|protected|\/?\*|//).*""", "")
+   val cleaned =
+     line.replaceFirst("""(\s*(import|private|public|protected|\/?\*|//).*)|\".*\"""", "")
       .replaceAll("\\W+", " ")
     if(!cleaned.isEmpty) " " + cleaned.toLowerCase + " " else ""
   }

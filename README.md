@@ -16,7 +16,9 @@ Update the configuration in application.properties
 BetterDocs is built by [SBT](http://www.scala-sbt.org/)
 
 `$ sbt`
+
 `$ > project core`
+
 `$ > run`
 
 Then select `com.betterdocs.spark.CreateIndexJob` to run the Spark job that creates index which can be digested by elasticsearch.
