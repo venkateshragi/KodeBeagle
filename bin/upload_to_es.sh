@@ -50,27 +50,16 @@ curl -XPUT 'localhost:9201/betterdocs/custom/_mapping' -d '
     }
 }'
 
-curl -XPUT 'localhost:9201/repositorysource' -d '{
+curl -XPUT 'localhost:9201/sourcefile' -d '{
  "mappings": {
-    "typerepositorysource" : {
+    "typesourcefile" : {
         "properties" : {
            "repoId" : { "type" : "integer", "index" : "not_analyzed" },
-           "sourceFiles": {
-                   "type": "nested",
-                   "properties": {
-                       "fileName": {
-                           "type": "string",
-                           "index" : "not_analyzed"
-                       },
-                       "fileContent": {
-                           "type": "string",
-                           "index" : "no"
-                       }
-                 }
-             }
+           "fileName": { "type": "string", "index" : "not_analyzed" },
+           "fileContent": { "type": "string", "index" : "no" }
         }
+      }
     }
-  }
 }'
 
 

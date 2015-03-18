@@ -31,11 +31,10 @@ import scala.util.{Failure, Success, Try}
 
 object CreateIndexJob {
 
-  case class RepositorySource(repoId: Int, sourceFiles: Set[SourceFile])
-  case class SourceFile(fileName: String, fileContent: String)
+  case class SourceFile(repoId: Int, fileName: String, fileContent: String)
 
-  def mapToSourceFiles(map: ArrayBuffer[(String, String)]) = map.map(x => SourceFile(x._1, x._2))
-    .toSet
+  def mapToSourceFiles(id: Int, map: ArrayBuffer[(String, String)]) = map.map(x => SourceFile(id, x
+    ._1, x._2)).toSet
 
   def main(args: Array[String]): Unit = {
     val conf = new SparkConf()
@@ -54,19 +53,19 @@ object CreateIndexJob {
     }.map(x => toJson(x, addESHeader = true)).saveAsTextFile(BetterDocsConfig.sparkOutput)
 
     // Generate repository index.
-    sc.binaryFiles(BetterDocsConfig.githubDir).map { case (zipFile, _) =>
+    sc.binaryFiles(BetterDocsConfig.githubDir).flatMap { case (zipFile, _) =>
       val zipFileName = zipFile.stripPrefix("file:")
       // Ignoring exclude packages.
       RepoFileNameParser(zipFileName)
-    }.flatMap { f => f }.map(x => toJson(x, addESHeader = true, isToken = false))
+    }.map(x => toJson(x, addESHeader = true, isToken = false))
       .saveAsTextFile(BetterDocsConfig.sparkOutput + "/repo")
 
-    sc.binaryFiles(BetterDocsConfig.githubDir).map { case (zipFile, _) =>
+    sc.binaryFiles(BetterDocsConfig.githubDir).flatMap { case (zipFile, _) =>
       val zipFileName = zipFile.stripPrefix("file:")
       // Ignoring exclude packages.
       val repo = RepoFileNameParser(zipFileName).getOrElse(Repository.invalid)
       val (filesMap, _) = ZipBasicParser.readFilesAndPackages(new ZipFile(zipFileName))
-      RepositorySource(repo.id, mapToSourceFiles(filesMap))
+      mapToSourceFiles(repo.id, filesMap)
     }.map(x => toJson(x, addESHeader = true, isToken = false))
       .saveAsTextFile(BetterDocsConfig.sparkOutput + "/source")
 
