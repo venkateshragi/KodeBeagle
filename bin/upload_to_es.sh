@@ -20,14 +20,14 @@
 # DISCLAIMER: There are no defensive checks please use it carefully.
 
 echo "Clearing all indexes from elasticsearch at once."
-curl -XDELETE 'http://localhost:9200/_all/'
+curl -XDELETE 'http://localhost:9201/_all/'
 
 # create a betterdocs index
-curl -XPUT 'http://localhost:9200/betterdocs/'
+curl -XPUT 'http://localhost:9201/betterdocs/'
 
 # Updating mappings and types for betterdocs index.
 
-curl -XPUT 'localhost:9200/betterdocs/custom/_mapping' -d '
+curl -XPUT 'localhost:9201/betterdocs/custom/_mapping' -d '
 {
     "custom" : {
         "properties" : {
@@ -45,13 +45,37 @@ curl -XPUT 'localhost:9200/betterdocs/custom/_mapping' -d '
                             }
                         }
                     },
-                "score" : { "type" : "long", "index" : "not_analyzed" }
+                "score" : { "type" : "integer", "index" : "not_analyzed" }
         }
     }
 }'
 
+curl -XPUT 'localhost:9201/repositorysource' -d '{
+ "mappings": {
+    "typerepositorysource" : {
+        "properties" : {
+           "repoId" : { "type" : "integer", "index" : "not_analyzed" },
+           "sourceFiles": {
+                   "type": "nested",
+                   "properties": {
+                       "fileName": {
+                           "type": "string",
+                           "index" : "not_analyzed"
+                       },
+                       "fileContent": {
+                           "type": "string",
+                           "index" : "no"
+                       }
+                 }
+             }
+        }
+    }
+  }
+}'
+
+
 for f in `find $1 -name 'part*'`
 do
     echo "uploading $f to elasticsearch."
-    curl -s -XPOST 'localhost:9200/_bulk' --data-binary '@'$f >/dev/null
+    curl -s -XPOST 'localhost:9201/_bulk' --data-binary '@'$f >/dev/null
 done
