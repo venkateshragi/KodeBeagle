@@ -66,7 +66,7 @@ object CreateIndexJob {
       // Ignoring exclude packages.
       val repo = RepoFileNameParser(zipFileName).getOrElse(Repository.invalid)
       val (filesMap, _) = ZipBasicParser.readFilesAndPackages(new ZipFile(zipFileName))
-      (repo.id, mapToSourceFiles(filesMap))
+      RepositorySource(repo.id, mapToSourceFiles(filesMap))
     }.map(x => toJson(x, addESHeader = true, isToken = false))
       .saveAsTextFile(BetterDocsConfig.sparkOutput + "/source")
 
