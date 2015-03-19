@@ -23,6 +23,7 @@ import org.apache.commons.io.IOUtils
 import scala.collection.JavaConversions._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
+import scala.util.Try
 
 /**
  * Extracts java files and packages from the given zip file.
@@ -46,8 +47,7 @@ object ZipBasicParser {
     val files = allJavaFiles.map(x => x.getName -> zip.getInputStream(x))
     for ((name, f) <- files) {
       val b = new Array[Byte](bufferSize)
-      IOUtils.read(f, b)
-      list += (name -> new String(b).trim)
+      Try(IOUtils.read(f, b)).toOption.foreach(x => list += (name -> new String(b).trim))
     }
     (list, allPackages)
   }

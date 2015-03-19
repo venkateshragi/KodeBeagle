@@ -83,9 +83,11 @@ class JavaFileIndexer extends BasicIndexer {
         //  ._2), x.head._1, score))
         tokenMap.clear()
       }
-      indexEntries =
-        indexEntries + IndexEntry(r.id, fullGithubURL, extractTokensASTParser(imports,
-          fileContent, fileName), score)
+
+      Try(extractTokensASTParser(imports, fileContent, fileName)).toOption.foreach{ x =>
+        indexEntries = indexEntries + IndexEntry(r.id, fullGithubURL, x, score)
+      }
+
     }
     indexEntries
   }
@@ -126,7 +128,7 @@ class JavaFileIndexer extends BasicIndexer {
   private def extractTokensWRTImports(imports: Set[(String, String)],
       java: String): List[Array[(Int, (String, String))]] = {
     val lines = java.split("\n").map(cleanUpCode)
-    (lines.sliding(linesOfContext) zip (1 to lines.size).sliding(linesOfContext)).toList
+    (lines.sliding(linesOfContext) zip (1 to lines.length).sliding(linesOfContext)).toList
       .map { case (linesWindow, lineNumbersWindow) =>
       (linesWindow zip lineNumbersWindow).flatMap { case (line, lineNumber) if !line.isEmpty =>
         val l = line.split(" ").distinct
