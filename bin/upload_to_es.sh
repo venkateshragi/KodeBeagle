@@ -34,6 +34,7 @@ curl -XPUT 'localhost:9201/betterdocs/custom/_mapping' -d '
                 "file" : { "type" : "string", "index" : "no" },
                 "tokens": {
                         "type": "nested",
+                        "include_in_parent": true,
                         "properties": {
                             "importName": {
                                 "type": "string",

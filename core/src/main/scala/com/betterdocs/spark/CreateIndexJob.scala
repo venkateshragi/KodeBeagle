@@ -23,6 +23,7 @@ import com.betterdocs.configuration.BetterDocsConfig
 import com.betterdocs.crawler.{Repository, ZipBasicParser}
 import com.betterdocs.indexer.JavaFileIndexer
 import com.betterdocs.logging.Logger
+import com.betterdocs.parser.RepoFileNameParser
 import org.apache.commons.compress.archivers.zip.ZipFile
 import org.apache.spark.{SparkConf, SparkContext}
 
@@ -33,8 +34,14 @@ object CreateIndexJob {
 
   case class SourceFile(repoId: Int, fileName: String, fileContent: String)
 
-  def mapToSourceFiles(id: Int, map: ArrayBuffer[(String, String)]) = map.map(x => SourceFile(id, x
-    ._1, x._2)).toSet
+  def mapToSourceFiles(repo: Repository, map: ArrayBuffer[(String, String)]) = {
+    def fileNameToURL(f: String) = { // TODO: use method from javaFileIndexer.
+      val (_, actualFileName) = f.splitAt(f.indexOf('/'))
+      s"""${repo.login}/${repo.name}/blob/${repo.defaultBranch}$actualFileName"""
+    }
+
+    map.map(x => SourceFile(repo.id, fileNameToURL(x._1), x._2)).toSet
+  }
 
   def main(args: Array[String]): Unit = {
     val conf = new SparkConf()
@@ -65,7 +72,7 @@ object CreateIndexJob {
       // Ignoring exclude packages.
       val repo = RepoFileNameParser(zipFileName).getOrElse(Repository.invalid)
       val (filesMap, _) = ZipBasicParser.readFilesAndPackages(new ZipFile(zipFileName))
-      mapToSourceFiles(repo.id, filesMap)
+      mapToSourceFiles(repo, filesMap)
     }.map(x => toJson(x, addESHeader = true, isToken = false))
       .saveAsTextFile(BetterDocsConfig.sparkOutput + "/source")
 

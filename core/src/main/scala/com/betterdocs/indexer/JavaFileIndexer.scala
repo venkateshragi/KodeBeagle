@@ -21,6 +21,7 @@ import java.util.regex.Pattern
 
 import com.betterdocs.configuration.BetterDocsConfig
 import com.betterdocs.crawler.Repository
+import com.betterdocs.parser.MethodVisitor
 
 import scala.collection.mutable
 import scala.collection.immutable
@@ -52,32 +53,58 @@ class JavaFileIndexer extends BasicIndexer {
 
   /** For Java code based on trial and error 10 to 20 seems good. */
   override def linesOfContext: Int = BetterDocsConfig.linesOfContext.toInt
+  private val parser = new MethodVisitor()
+
+  def fileNameToURL(repo: Repository, f: String) = {
+    val (_, actualFileName) = f.splitAt(f.indexOf('/'))
+    s"""${repo.login}/${repo.name}/blob/${repo.defaultBranch}$actualFileName"""
+  }
 
   override def generateTokens(files: Map[String, String], excludePackages: List[String],
     repo: Option[Repository]): Set[IndexEntry] = {
-    var tokens = immutable.HashSet[IndexEntry]()
+    var indexEntries = immutable.HashSet[IndexEntry]()
     val r = repo.getOrElse(Repository.invalid)
     for (file <- files) {
       val (fileName, fileContent) = file
       val tokenMap = new mutable.HashMap[String, immutable.SortedSet[Int]]
       val imports = extractImports(fileContent, excludePackages)
-      generateTokensWRTImports(imports, fileContent).map { x =>
+      val fullGithubURL = fileNameToURL(r, fileName)
+      // Penalize score of test files.
+      val score = if (isTestFile(imports)) r.stargazersCount / 3 else r.stargazersCount
+      extractTokensWRTImports(imports, fileContent).foreach { x =>
        x.map { y =>
-          val FQCN = y._2._1 + "." + y._2._2
+          val FQCN = tuple2ToImportString(y._2)
           val oldValue: immutable.SortedSet[Int] = tokenMap.getOrElse(FQCN, immutable.SortedSet())
           // This map can be used to create one to N index if required.
           tokenMap += ((FQCN, oldValue ++ List(y._1)))
         }
-        val (_, actualFileName) = fileName.splitAt(fileName.indexOf('/'))
-          val fullGithubURL =
-            s"""http://github.com/${r.login}/${r.name}/blob/${r.defaultBranch}$actualFileName"""
-        tokens = tokens + IndexEntry(r.id, fullGithubURL, mapToTokens(tokenMap), r.stargazersCount)
+        indexEntries = indexEntries + IndexEntry(r.id, fullGithubURL, mapToTokens(tokenMap), score)
         //  tokens = tokens ++ List(Token(fullGithubURL, x.map(z => z._2._1 + "." + z._2
         //  ._2), x.head._1, score))
         tokenMap.clear()
       }
+      indexEntries =
+        indexEntries + IndexEntry(r.id, fullGithubURL, extractTokensASTParser(imports,
+          fileContent, fileName), score)
     }
-    tokens
+    indexEntries
+  }
+
+  private def tuple2ToImportString(importName: (String, String)): String = {
+    importName._1 + "." + importName._2
+  }
+
+  private def isTestFile(imports: Set[(String, String)]) = {
+    imports.exists(x => x._1.equalsIgnoreCase("org.junit"))
+  }
+
+  private def extractTokensASTParser(imports: Set[(String, String)],
+      fileContent: String, fileName: String): Set[Token] = {
+    parser.parse(fileContent, fileName)
+    val importsSet = imports.map(tuple2ToImportString)
+    import scala.collection.JavaConversions._
+    parser.getLineNumbersMap.map(x => Token(x._1, immutable.SortedSet[Int]() ++ x._2.map(_.toInt)))
+      .filter(x => importsSet.contains(x.importName)).toSet
   }
 
   private def extractImports(java: String, packages: List[String]) = java.split("\n")
@@ -96,7 +123,7 @@ class JavaFileIndexer extends BasicIndexer {
     if(!cleaned.isEmpty) " " + cleaned.toLowerCase + " " else ""
   }
 
-  private def generateTokensWRTImports(imports: Set[(String, String)],
+  private def extractTokensWRTImports(imports: Set[(String, String)],
       java: String): List[Array[(Int, (String, String))]] = {
     val lines = java.split("\n").map(cleanUpCode)
     (lines.sliding(linesOfContext) zip (1 to lines.size).sliding(linesOfContext)).toList

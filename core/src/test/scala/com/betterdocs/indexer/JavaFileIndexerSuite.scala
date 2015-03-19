@@ -41,8 +41,8 @@ class JavaFileIndexerSuite extends FunSuite with BeforeAndAfterAll {
     val resultTokens = javaFileIndexer.generateTokens(Map("sample-master/Sample.java" -> writer
       .toString),
       List(), Some(Repository.invalid))
-    assert(resultTokens.size === 1)
-    val result = resultTokens.head.tokens.flatMap(_.lineNumbers).toList.distinct.sorted
+    assert(resultTokens.size === 2)
+    val result = resultTokens.flatMap(_.tokens.flatMap(_.lineNumbers)).toList.distinct.sorted
     assert(result === allOccurrences)
   }
 
@@ -54,7 +54,7 @@ class JavaFileIndexerSuite extends FunSuite with BeforeAndAfterAll {
       Map("sample-master/Sample.java" -> writer.toString), List(), Some(Repository.invalid))
     val occurrences = result.flatMap(x => x.tokens.map(_.lineNumbers)).reduce(_ ++ _)
     assert(occurrences.toList === allOccurrences)
-    assert(result.size == 58)
+    assert(result.size == 59)
   }
 
   test("Excluded imports should not be part of Tokens") {
@@ -77,10 +77,9 @@ class JavaFileIndexerSuite extends FunSuite with BeforeAndAfterAll {
     val javaFileIndexer = new JavaFileIndexer {
       override val linesOfContext = 2000
     }
-    val resultTokens = javaFileIndexer.generateTokens(Map("sample-master/Sample.java" -> writer.toString),
-      List(), Some(Repository.invalid))
-    assert(resultTokens.size === 1)
-    val result = resultTokens.head.tokens.flatMap(x => x.lineNumbers).toList.distinct
+    val resultTokens = javaFileIndexer.generateTokens(Map("sample-master/Sample.java" ->
+      writer.toString), List(), Some(Repository.invalid))
+    val result = resultTokens.flatMap(_.tokens.flatMap(_.lineNumbers)).toList.distinct.sorted
     assert(!result.exists(Set(67, 68, 70)))
   }
 
@@ -88,11 +87,9 @@ class JavaFileIndexerSuite extends FunSuite with BeforeAndAfterAll {
     val javaFileIndexer = new JavaFileIndexer {
       override val linesOfContext = 2000
     }
-    val resultTokens = javaFileIndexer.generateTokens(Map("sample-master/Sample.java" -> writer
-      .toString),
-      List(), Some(Repository.invalid))
-    assert(resultTokens.size === 1)
-    val result = resultTokens.head.tokens.flatMap(x => x.lineNumbers).toList.distinct
+    val resultTokens = javaFileIndexer.generateTokens(Map("sample-master/Sample.java" ->
+      writer.toString), List(), Some(Repository.invalid))
+    val result = resultTokens.flatMap(_.tokens.flatMap(_.lineNumbers)).toList.distinct.sorted
     assert(!result.exists(Set(77, 82)))
   }
 

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.betterdocs.spark
+package com.betterdocs.parser
 
 import com.betterdocs.crawler.Repository
 import com.betterdocs.logging.Logger
