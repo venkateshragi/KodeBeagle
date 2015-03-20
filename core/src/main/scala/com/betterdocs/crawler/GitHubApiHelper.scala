@@ -104,7 +104,7 @@ object GitHubApiHelper extends Logger {
    * Find the number of repo pages in an organisation.
    */
   def repoPagesCount(url: String) = executeMethod(url, token).getResponseHeader("Link").
-    getElements.toList(1).getValue.substring(0, 2).toInt
+    getElements.toList(1).getValue.substring(0, 2).replaceAll("\\W+", "").toInt
 
   /*
      * Helper for accessing Java - Apache Http client. 

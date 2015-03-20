@@ -34,13 +34,14 @@ object CreateIndexJob {
 
   case class SourceFile(repoId: Int, fileName: String, fileContent: String)
 
-  def mapToSourceFiles(repo: Repository, map: ArrayBuffer[(String, String)]) = {
+  def mapToSourceFiles(repo: Option[Repository], map: ArrayBuffer[(String, String)]) = {
+    val repo2 = repo.getOrElse(Repository.invalid)
     def fileNameToURL(f: String) = { // TODO: use method from javaFileIndexer.
       val (_, actualFileName) = f.splitAt(f.indexOf('/'))
-      s"""${repo.login}/${repo.name}/blob/${repo.defaultBranch}$actualFileName"""
+      s"""${repo2.login}/${repo2.name}/blob/${repo2.defaultBranch}$actualFileName"""
     }
 
-    map.map(x => SourceFile(repo.id, fileNameToURL(x._1), x._2)).toSet
+    map.map(x => SourceFile(repo2.id, fileNameToURL(x._1), x._2)).toSet
   }
 
   def main(args: Array[String]): Unit = {
@@ -48,32 +49,25 @@ object CreateIndexJob {
       .setMaster(BetterDocsConfig.sparkMaster)
       .setAppName("CreateIndexJob")
     val sc = new SparkContext(conf)
-    sc.binaryFiles(BetterDocsConfig.githubDir).map { case (zipFile, _) =>
+    val zipFileExtractedRDD = sc.binaryFiles(BetterDocsConfig.githubDir).map { case (zipFile, _) =>
       val zipFileName = zipFile.stripPrefix("file:")
       // Ignoring exclude packages.
       val (filesMap, packages) = ZipBasicParser.readFilesAndPackages(new ZipFile(zipFileName))
       (filesMap, RepoFileNameParser(zipFileName), packages)
-    }.flatMap { f =>
+    }.cache()
+
+    zipFileExtractedRDD.flatMap { f =>
       val (files, repo, packages) = f
       new JavaFileIndexer()
         .generateTokens(files.toMap, packages, repo)
     }.map(x => toJson(x, addESHeader = true)).saveAsTextFile(BetterDocsConfig.sparkOutput)
 
     // Generate repository index.
-    sc.binaryFiles(BetterDocsConfig.githubDir).flatMap { case (zipFile, _) =>
-      val zipFileName = zipFile.stripPrefix("file:")
-      // Ignoring exclude packages.
-      RepoFileNameParser(zipFileName)
-    }.map(x => toJson(x, addESHeader = true, isToken = false))
+    zipFileExtractedRDD.map(x => toJson(x._2, addESHeader = true, isToken = false))
       .saveAsTextFile(BetterDocsConfig.sparkOutput + "/repo")
 
-    sc.binaryFiles(BetterDocsConfig.githubDir).flatMap { case (zipFile, _) =>
-      val zipFileName = zipFile.stripPrefix("file:")
-      // Ignoring exclude packages.
-      val repo = RepoFileNameParser(zipFileName).getOrElse(Repository.invalid)
-      val (filesMap, _) = ZipBasicParser.readFilesAndPackages(new ZipFile(zipFileName))
-      mapToSourceFiles(repo, filesMap)
-    }.map(x => toJson(x, addESHeader = true, isToken = false))
+    zipFileExtractedRDD.flatMap(x => mapToSourceFiles(x._2, x._1))
+      .map(x => toJson(x, addESHeader = true, isToken = false))
       .saveAsTextFile(BetterDocsConfig.sparkOutput + "/source")
 
   }
