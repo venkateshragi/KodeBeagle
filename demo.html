@@ -65,7 +65,7 @@
         <script id="result-template" type="text/x-handlebars-template">
             {{#each files}}
             <div class="result" id="result{{@index}}">
-                <div><a href="http://github.com/{{path}}">{{name}}</a></div>
+                <div><a href="http://github.com/{{path}}">{{repo}}/{{name}}</a></div>
                 <br/>
 
                 <div id="result{{@index}}-editor" class="editor">{{content}}</div>

@@ -136,6 +136,18 @@ var app = function () {
         return _.flatten(result);
     }
 
+    function buildSearchString(str) {
+        var result = "";
+        if (str[0] === "\'") {
+            result = str.substr(1, str.length - 2);
+        } else {
+            result = str.split(",").map(function(entry){
+                return "*"+entry.trim();
+            }).join(",");
+        }
+        return result;
+    }
+
     function processResult(searchString, data) {
         var result = [],
             intermediateResult = [],
@@ -197,14 +209,15 @@ var app = function () {
     }
 
     function search(queryString) {
-        var queryBlock = getQuery(queryString);
+        var correctedQuery = buildSearchString(queryString),
+            queryBlock = getQuery(correctedQuery);
 
         queryES("betterdocs", {
             "query": queryBlock,
             "sort": [
                 {"score": {"order": "desc"}}]
         }, resultSize, function (result) {
-            updateView(queryString, result);
+            updateView(correctedQuery, result);
         });
     }
 
