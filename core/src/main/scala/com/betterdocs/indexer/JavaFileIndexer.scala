@@ -53,7 +53,6 @@ class JavaFileIndexer extends BasicIndexer {
 
   /** For Java code based on trial and error 10 to 20 seems good. */
   override def linesOfContext: Int = BetterDocsConfig.linesOfContext.toInt
-  private val parser = new MethodVisitor()
 
   def fileNameToURL(repo: Repository, f: String) = {
     val (_, actualFileName) = f.splitAt(f.indexOf('/'))
@@ -102,6 +101,7 @@ class JavaFileIndexer extends BasicIndexer {
 
   private def extractTokensASTParser(imports: Set[(String, String)],
       fileContent: String, fileName: String): Set[Token] = {
+    val parser = new MethodVisitor()
     parser.parse(fileContent, fileName)
     val importsSet = imports.map(tuple2ToImportString)
     import scala.collection.JavaConversions._
