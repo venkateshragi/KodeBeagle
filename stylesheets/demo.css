@@ -241,3 +241,7 @@ h3 {
 div.resultContainer.fullWidth {
     width: 98%;
 }
+
+#connectionError {
+    display: none;
+}

@@ -29,7 +29,7 @@
         </div>
         <div class="searchResults">
             <div id="connectionError" class="alert-box error">
-                <i class="fa fa-times-circle"></i> <span>error: </span>Failed to connect to BetterDocs server
+                <i class="fa fa-times-circle"></i> <span>error: </span> <span id="errorMsg"></span>
             </div>
 
             <div id="leftPanel">
@@ -65,7 +65,7 @@
         <script id="result-template" type="text/x-handlebars-template">
             {{#each files}}
             <div class="result" id="result{{@index}}">
-                <div><a href="{{path}}">{{name}}</a></div>
+                <div><a href="http://github.com/{{path}}">{{name}}</a></div>
                 <br/>
 
                 <div id="result{{@index}}-editor" class="editor">{{content}}</div>

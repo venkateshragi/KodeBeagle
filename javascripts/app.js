@@ -15,10 +15,10 @@ var app = function () {
         leftPanel = $("#leftPanel"),
         rightSideContainer = $("#rightSideContainer"),
         expandIcon = $("#expand"),
-        compressIcon = $("#compress");
+        compressIcon = $("#compress"),
+        errorMsgContainer = $("#errorMsg");
 
     function init() {
-        errorElement.hide();
         resultTreeContainer.hide();
         compressIcon.hide();
     }
@@ -55,7 +55,7 @@ var app = function () {
 
     function getFileName(filePath) {
         var elements = filePath.split("/"),
-            repoName = elements[3] + "-" + elements[4],
+            repoName = elements[0] + "-" + elements[1],
             fileName = elements[elements.length - 1];
         return {"repo": repoName, "file": fileName};
     }
@@ -78,16 +78,39 @@ var app = function () {
         resultTreeContainer.html(resultTreeTemplate({"projects": projects}));
     }
 
+    function fetchFileQuery(fileName) {
+        return {"query": {"term": {"typesourcefile.fileName": fileName}}}
+    }
+
+    function queryES(indexName, queryBody, resultSize, successCallback) {
+        $.es.Client({
+            host: esURL,
+            log: 'trace'
+        }).search({
+            index: indexName,
+            size: resultSize,
+            body: queryBody
+        }).then(function (result) {
+                successCallback(result.hits.hits);
+            }, function (err) {
+                errorMsgContainer.text(err.message);
+                errorElement.slideDown("slow");
+                errorElement.slideUp(2500);
+            }
+        )
+    }
+
     function updateRightSide(processedData) {
         var files = processedData.slice(0, 1);
 
         files.forEach(function (fileInfo, index) {
-            var filePath = fileInfo.path.replace("http://github.com", "http://github-raw-cors-proxy.herokuapp.com");
 
-            $.get(filePath, function (result) {
-                var id = "result" + index;
-                if (result !== "Not Found") {
-                    enableAceEditor(id + "-editor", result, fileInfo.lines);
+            queryES("sourcefile", fetchFileQuery(fileInfo.path), 1, function (result) {
+                var id = "result" + index,
+                    content = "";
+                if (result.length > 0) {
+                    content = result[0]._source.fileContent;
+                    enableAceEditor(id + "-editor", content, fileInfo.lines);
                 } else {
                     $("#" + id).hide();
                 }
@@ -176,23 +199,12 @@ var app = function () {
     function search(queryString) {
         var queryBlock = getQuery(queryString);
 
-        $.es.Client({
-            host: esURL,
-            log: 'trace'
-        }).search({
-            index: 'betterdocs',
-            size: resultSize,
-            body: {
-                "query": queryBlock,
-                "sort": [
-                    {"score": {"order": "desc"}}]
-            }
-        }).then(function (resp) {
-            console.log(resp.hits.hits);
-            updateView(queryString, resp.hits.hits);
-        }, function (err) {
-            errorElement.slideDown("slow");
-            errorElement.slideUp(2500);
+        queryES("betterdocs", {
+            "query": queryBlock,
+            "sort": [
+                {"score": {"order": "desc"}}]
+        }, resultSize, function (result) {
+            updateView(queryString, result);
         });
     }
 
