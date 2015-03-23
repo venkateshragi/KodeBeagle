@@ -63,7 +63,7 @@ object CreateIndexJob {
     }.map(x => toJson(x, addESHeader = true)).saveAsTextFile(BetterDocsConfig.sparkOutput)
 
     // Generate repository index.
-    zipFileExtractedRDD.map(x => toJson(x._2, addESHeader = true, isToken = false))
+    zipFileExtractedRDD.map(x => toJson(x._2.get, addESHeader = true, isToken = false))
       .saveAsTextFile(BetterDocsConfig.sparkOutput + "/repo")
 
     zipFileExtractedRDD.flatMap(x => mapToSourceFiles(x._2, x._1))
