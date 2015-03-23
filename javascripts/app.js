@@ -18,6 +18,15 @@ var app = function () {
         compressIcon = $("#compress"),
         errorMsgContainer = $("#errorMsg");
 
+
+    Handlebars.registerHelper('collapseFunc', function (index, lines) {
+        return "app.collapseAll('result" + index + "-editor',[" + lines + "])";
+    });
+
+    Handlebars.registerHelper('expandFunc', function (index) {
+        return "app.expandAll('result" + index + "-editor')";
+    });
+
     function init() {
         resultTreeContainer.hide();
         compressIcon.hide();
@@ -25,32 +34,58 @@ var app = function () {
 
     init();
 
-    function getMarkers(lineNumbers) {
-        return lineNumbers.map(function (line) {
-            /*var startMark = line - 6,
-             endMark = line + 4;*/
+    function highlightLine(editor, lineNumbers) {
+        lineNumbers.forEach(function (line) {
             /*IMPORTANT NOTE: Range takes row number starting from 0*/
-            return new Range(line - 1, 0, line - 1, 1000);
+            var row = line - 1,
+                endCol = editor.session.getLine(row).length,
+                range = new Range(row, 0, row, endCol);
+
+            editor.getSession().addMarker(range, "ace_selection", "background");
         });
     }
 
-    function enableAceEditor(id, content, lineNumbers) {
-        var editor = ace.edit(id),
-            markers = getMarkers(lineNumbers);
+    function foldLines(editor, lineNumbers) {
+        var nextLine = 0;
+        lineNumbers.forEach(function (n) {
+            if (nextLine !== n - 1) {
+                var range = new Range(nextLine, 0, n - 1, 0);
+                editor.getSession().addFold("...", range);
+            }
+            nextLine = n;
+        });
+        editor.getSession().addFold("...", new Range(nextLine, 0, editor.getSession().getLength(), 0));
+    }
 
+    function extractCode(editor, lineNumbers) {
+        var relevantUsage = [];
+        lineNumbers.forEach(function (n) {
+            var content = editor.session.getLine(n - 1);
+            relevantUsage.push(content);
+        });
+        analyzedProjContainer.hide();
+        resultTreeContainer.show();
+        resultTreeContainer.html(resultTreeTemplate({"examples": _.unique(relevantUsage)}));
+    }
+
+    function enableAceEditor(id, content, lineNumbers) {
+        $("#" + id).html("");
+        var editor = ace.edit(id);
+
+        editor.setValue(content);
+        editor.setReadOnly(true);
         editor.resize(true);
 
         editor.setTheme("ace/theme/github");
-        editor.getSession().setMode("ace/mode/java");
+        editor.getSession().setMode("ace/mode/java", function () {
 
-        editor.setReadOnly(true);
-        editor.setValue(content, 1);
-
-        markers.forEach(function (m) {
-            editor.getSession().addMarker(m, "ace_selection", "background");
+            highlightLine(editor, lineNumbers);
+            foldLines(editor, lineNumbers);
         });
 
         editor.gotoLine(lineNumbers[lineNumbers.length - 1], 0, true);
+
+        extractCode(editor, lineNumbers);
     }
 
     function getFileName(filePath) {
@@ -58,24 +93,6 @@ var app = function () {
             repoName = elements[0] + "-" + elements[1],
             fileName = elements[elements.length - 1];
         return {"repo": repoName, "file": fileName};
-    }
-
-    function updateLeftPanel(processedData) {
-        var projects = [],
-            groupedByRepos = _.groupBy(processedData, function (entry) {
-                return entry.repo;
-            });
-
-        projects = _.map(groupedByRepos, function (files, label) {
-            return {
-                name: label,
-                files: _.unique(files, _.iteratee('name'))
-            }
-        });
-
-        analyzedProjContainer.hide();
-        resultTreeContainer.show();
-        resultTreeContainer.html(resultTreeTemplate({"projects": projects}));
     }
 
     function fetchFileQuery(fileName) {
@@ -141,8 +158,8 @@ var app = function () {
         if (str[0] === "\'") {
             result = str.substr(1, str.length - 2);
         } else {
-            result = str.split(",").map(function(entry){
-                return "*"+entry.trim();
+            result = str.split(",").map(function (entry) {
+                return "*" + entry.trim();
             }).join(",");
         }
         return result;
@@ -151,7 +168,7 @@ var app = function () {
     function processResult(searchString, data) {
         var result = [],
             intermediateResult = [],
-            groupedData = [];
+            groupedData = [], matchingImports = [];
 
         groupedData = _.groupBy(data, function (entry) {
             return entry._source.file;
@@ -162,8 +179,13 @@ var app = function () {
                 lineNumbers = [];
 
             files.forEach(function (f) {
-                var matchingTokens = filterRelevantTokens(searchString, f._source.tokens);
-                var possibleLines = _.pluck(matchingTokens, "lineNumbers");
+                var matchingTokens = filterRelevantTokens(searchString, f._source.tokens),
+                    possibleLines = _.pluck(matchingTokens, "lineNumbers");
+
+                matchingImports = matchingImports.concat(matchingTokens.map(function (x) {
+                    return x.importName;
+                }));
+
                 lineNumbers = lineNumbers.concat(possibleLines);
             });
 
@@ -180,13 +202,14 @@ var app = function () {
             return -elem.lines.length;
         });
 
+        console.log(_.unique(matchingImports));
         return result;
     }
 
     function updateView(searchString, data) {
         var processedData = processResult(searchString, data);
 
-        updateLeftPanel(processedData);
+        //updateLeftPanel(processedData);
         updateRightSide(processedData);
     }
 
@@ -240,10 +263,22 @@ var app = function () {
         expandIcon.show();
     }
 
+    function collapseUnnecessaryLines(id, lineNumbers) {
+        var editor = ace.edit(id);
+        foldLines(editor, lineNumbers);
+    }
+
+    function expandAllBlocks(id){
+        var editor = ace.edit(id);
+        editor.getSession().unfold();
+    }
+
     return {
         search: search,
         saveConfig: updateConfig,
         expand: expandResultView,
-        compress: compressResultView
+        compress: compressResultView,
+        collapseAll: collapseUnnecessaryLines,
+        expandAll:expandAllBlocks
     };
 }();

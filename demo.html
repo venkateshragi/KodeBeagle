@@ -65,7 +65,10 @@
         <script id="result-template" type="text/x-handlebars-template">
             {{#each files}}
             <div class="result" id="result{{@index}}">
-                <div><a href="http://github.com/{{path}}">{{repo}}/{{name}}</a></div>
+                <div><a href="http://github.com/{{path}}">{{repo}}/{{name}}</a>
+                    <span><a href="javascript:void(0);" onclick="{{collapseFunc @index lines}}">collapse</a></span>
+                    <span><a href="javascript:void(0);" onclick="{{expandFunc @index}}">expand</a></span>
+                </div>
                 <br/>
 
                 <div id="result{{@index}}-editor" class="editor">{{content}}</div>
@@ -73,18 +76,11 @@
             {{/each}}
         </script>
         <script id="result-tree-template" type="text/x-handlebars-template">
-            <h3>Projects with Usage </h3>
+            <h3>Common Usage </h3>
             <div id="resultTree">
-                <ul>
-                    {{#each projects}}
-                    <li>{{name}}</li>
-                    <ul>
-                        {{#each files}}
-                        <li>{{name}}</li>
-                        {{/each}}
-                    </ul>
-                    {{/each}}
-                </ul>
+                {{#each examples}}
+                <div>{{this}}</div>
+                {{/each}}
             </div>
         </script>
         {% endraw %}
