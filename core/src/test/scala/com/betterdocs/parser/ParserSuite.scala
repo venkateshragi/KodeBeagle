@@ -76,7 +76,7 @@ class MethodVisitorSuite extends FunSuite with BeforeAndAfterAll {
     val m: MethodVisitor = new MethodVisitor
     m.parse(stream)
     val lines = m.getLineNumbersMap.toMap.values.flatMap(x => x.map(_.toInt)).toList.sorted.distinct
-    assert(lines === List(79, 101, 102, 103, 106, 108, 137, 138, 139, 141, 142, 144, 172, 187,
+    assert(lines === List(79, 101, 102, 103, 105, 106, 108, 137, 138, 139, 141, 142, 144, 172, 187,
       189, 191, 198, 203))
   }
 }
