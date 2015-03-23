@@ -29,25 +29,33 @@
         </div>
         <div class="searchResults">
             <div id="connectionError" class="alert-box error">
-                <i class="fa fa-times-circle"></i> <span>error: </span>Failed to connect to BetterDocs server
+                <i class="fa fa-times-circle"></i> <span>error: </span> <span id="errorMsg"></span>
             </div>
 
-            <div class="repoInfo" id="analyzedProj">
-                <h3>Analyzed Projects</h3>
-                <select id="repoList">
-                    {% for repo in site.data.repos %}
-                    <option value="{{repo.login}}/{{repo.name}}">{{repo.login}}/{{repo.name}}
-                    </option>
-                    {% endfor %}
-                </select>
+            <div id="leftPanel">
+                <div class="repoInfo" id="analyzedProj">
+                    <h3>Analyzed Projects</h3>
+                    <select id="repoList">
+                        {% for repo in site.data.repos %}
+                        <option value="{{repo.login}}/{{repo.name}}">{{repo.login}}/{{repo.name}}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="repoInfo" id="resultTreeContainer">
+                </div>
             </div>
 
-            <div class="repoInfo" id="resultTreeContainer">
-
-            </div>
-
-            <div class="resultContainer">
-                <h3>Code Reference</h3>
+            <div class="resultContainer" id="rightSideContainer">
+                <h3>Code Reference
+                    <span id="expand" class="viewOptions">
+                        <a href="javascript:void(0);" onclick="app.expand()"><i class="fa fa-expand pull-right"></i></a>
+                    </span>
+                    <span id="compress" class="viewOptions">
+                        <a href="javascript:void(0);" onclick="app.compress()"><i class="fa fa-compress pull-right"></i></a>
+                    </span>
+                </h3>
 
                 <div id="results"></div>
             </div>
@@ -57,7 +65,7 @@
         <script id="result-template" type="text/x-handlebars-template">
             {{#each files}}
             <div class="result" id="result{{@index}}">
-                <div><a href="{{path}}">{{name}}</a></div>
+                <div><a href="http://github.com/{{path}}">{{repo}}/{{name}}</a></div>
                 <br/>
 
                 <div id="result{{@index}}-editor" class="editor">{{content}}</div>
@@ -65,7 +73,7 @@
             {{/each}}
         </script>
         <script id="result-tree-template" type="text/x-handlebars-template">
-            <h3>Projects with Usage</h3>
+            <h3>Projects with Usage </h3>
             <div id="resultTree">
                 <ul>
                     {{#each projects}}
@@ -75,9 +83,9 @@
                         <li>{{name}}</li>
                         {{/each}}
                     </ul>
+                    {{/each}}
                 </ul>
             </div>
-            {{/each}}
         </script>
         {% endraw %}
     </div>
@@ -89,7 +97,7 @@
     <div class="modalContent">
         <form>
             <input type="text" id="elasticSearchURL"
-                   placeholder="BetterDocs URL" value="172.16.12.162:9200"><br/>
+                   placeholder="BetterDocs URL" value="172.16.12.162:9201"><br/>
             <input type="number" id="resultSize" value="50" placeholder="Result size">
         </form>
     </div>

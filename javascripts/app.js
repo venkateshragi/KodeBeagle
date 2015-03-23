@@ -2,7 +2,7 @@
 var app = function () {
 
     "use strict";
-    var esURL = "172.16.12.162:9200",
+    var esURL = "172.16.12.162:9201",
         resultSize = 50,
         analyzedProjContainer = $("#analyzedProj"),
         resultTreeContainer = $("#resultTreeContainer"),
@@ -11,11 +11,16 @@ var app = function () {
         resultTreeTemplate = Handlebars.compile(resultTreeTemplateHTML),
         resultTemplate = Handlebars.compile(resultTemplateHTML),
         Range = ace.require('ace/range').Range,
-        errorElement = $("#connectionError");
+        errorElement = $("#connectionError"),
+        leftPanel = $("#leftPanel"),
+        rightSideContainer = $("#rightSideContainer"),
+        expandIcon = $("#expand"),
+        compressIcon = $("#compress"),
+        errorMsgContainer = $("#errorMsg");
 
     function init() {
-        errorElement.hide();
         resultTreeContainer.hide();
+        compressIcon.hide();
     }
 
     init();
@@ -36,12 +41,7 @@ var app = function () {
         editor.resize(true);
 
         editor.setTheme("ace/theme/github");
-        editor.getSession().setMode("ace/mode/java", function () {
-            editor.getSession().foldAll();
-            lineNumbers.forEach(function (n) {
-                editor.getSession().unfold(n - 1);
-            })
-        });
+        editor.getSession().setMode("ace/mode/java");
 
         editor.setReadOnly(true);
         editor.setValue(content, 1);
@@ -55,47 +55,62 @@ var app = function () {
 
     function getFileName(filePath) {
         var elements = filePath.split("/"),
-            repoName = elements[3] + "-" + elements[4],
+            repoName = elements[0] + "-" + elements[1],
             fileName = elements[elements.length - 1];
         return {"repo": repoName, "file": fileName};
     }
 
-    function updateView(data) {
-        var files = [], projects = [], groupedByRepos = [],
-            groupedData = _.groupBy(data, function (entry) {
-                return entry._source.file;
+    function updateLeftPanel(processedData) {
+        var projects = [],
+            groupedByRepos = _.groupBy(processedData, function (entry) {
+                return entry.repo;
             });
-
-        groupedByRepos = _.groupBy(data, function (entry) {
-            var labels = getFileName(entry._source.file);
-            return labels.repo;
-        });
 
         projects = _.map(groupedByRepos, function (files, label) {
-            var fileList = _.map(files, function (f) {
-                return {name: getFileName(f._source.file).file};
-            });
-
             return {
                 name: label,
-                files: _.unique(fileList, _.iteratee('name'))
+                files: _.unique(files, _.iteratee('name'))
             }
         });
 
-        _.keys(groupedData).slice(0, 1).forEach(function (fileName, index) {
-            var sameFile = groupedData[fileName],
-                labels = getFileName(fileName),
-                filePath = fileName.replace("http://github.com", "http://github-raw-cors-proxy.herokuapp.com"),
-                occurences = (_.unique(_.flatten(sameFile.map(function (src) {
-                    return src._source.lineNumbers;
-                })))).sort();
+        analyzedProjContainer.hide();
+        resultTreeContainer.show();
+        resultTreeContainer.html(resultTreeTemplate({"projects": projects}));
+    }
 
-            files.push({path: fileName, name: labels.repo + ":" + labels.file, lines: occurences});
+    function fetchFileQuery(fileName) {
+        return {"query": {"term": {"typesourcefile.fileName": fileName}}}
+    }
 
-            $.get(filePath, function (result) {
-                var id = "result" + index;
-                if (result !== "Not Found") {
-                    enableAceEditor(id + "-editor", result, occurences);
+    function queryES(indexName, queryBody, resultSize, successCallback) {
+        $.es.Client({
+            host: esURL,
+            log: 'trace'
+        }).search({
+            index: indexName,
+            size: resultSize,
+            body: queryBody
+        }).then(function (result) {
+                successCallback(result.hits.hits);
+            }, function (err) {
+                errorMsgContainer.text(err.message);
+                errorElement.slideDown("slow");
+                errorElement.slideUp(2500);
+            }
+        )
+    }
+
+    function updateRightSide(processedData) {
+        var files = processedData.slice(0, 1);
+
+        files.forEach(function (fileInfo, index) {
+
+            queryES("sourcefile", fetchFileQuery(fileInfo.path), 1, function (result) {
+                var id = "result" + index,
+                    content = "";
+                if (result.length > 0) {
+                    content = result[0]._source.fileContent;
+                    enableAceEditor(id + "-editor", content, fileInfo.lines);
                 } else {
                     $("#" + id).hide();
                 }
@@ -103,15 +118,86 @@ var app = function () {
         });
 
         $("#results").html(resultTemplate({"files": files}));
-        analyzedProjContainer.hide();
-        resultTreeContainer.show();
-        resultTreeContainer.html(resultTreeTemplate({"projects": projects}));
     }
 
-    function andQuery(terms) {
-        var mustTerms = terms.map(function (queryTerm) {
-            return {"term": {"custom.strings": queryTerm.trim()}};
+    function filterRelevantTokens(searchString, tokens) {
+        var result = searchString.split(",").map(function (term) {
+
+            var matchingTokens = [],
+                correctedTerm = term.trim().replace(/\*/g, ".*").replace(/\?/g, ".{1}");
+
+            matchingTokens = tokens.filter(function (tk) {
+                return (tk["importName"]).search(correctedTerm) >= 0;
+            });
+
+            return matchingTokens;
         });
+
+        return _.flatten(result);
+    }
+
+    function buildSearchString(str) {
+        var result = "";
+        if (str[0] === "\'") {
+            result = str.substr(1, str.length - 2);
+        } else {
+            result = str.split(",").map(function(entry){
+                return "*"+entry.trim();
+            }).join(",");
+        }
+        return result;
+    }
+
+    function processResult(searchString, data) {
+        var result = [],
+            intermediateResult = [],
+            groupedData = [];
+
+        groupedData = _.groupBy(data, function (entry) {
+            return entry._source.file;
+        });
+
+        intermediateResult = _.map(groupedData, function (files, fileName) {
+            var labels = getFileName(fileName),
+                lineNumbers = [];
+
+            files.forEach(function (f) {
+                var matchingTokens = filterRelevantTokens(searchString, f._source.tokens);
+                var possibleLines = _.pluck(matchingTokens, "lineNumbers");
+                lineNumbers = lineNumbers.concat(possibleLines);
+            });
+
+            lineNumbers = (_.unique(_.flatten(lineNumbers))).sort(function (a, b) {
+                return a - b;
+            });
+
+            return {path: fileName, repo: labels.repo, name: labels.file, lines: lineNumbers}
+
+        });
+
+        /* sort by descending lengths*/
+        result = _.sortBy(intermediateResult, function (elem) {
+            return -elem.lines.length;
+        });
+
+        return result;
+    }
+
+    function updateView(searchString, data) {
+        var processedData = processResult(searchString, data);
+
+        updateLeftPanel(processedData);
+        updateRightSide(processedData);
+    }
+
+    function getQuery(queryString) {
+        var terms = queryString.split(","),
+            mustTerms = terms.map(function (queryTerm) {
+                var prefix = (queryTerm.search(/\*/) >= 0 || queryTerm.search(/\?/) >= 0) ? "wildcard" : "term";
+                var result = {};
+                result[prefix] = {"custom.tokens.importName": queryTerm.trim()};
+                return result;
+            });
 
         return {
             "bool": {
@@ -122,39 +208,16 @@ var app = function () {
         };
     }
 
-    function basicQuery(term) {
-        return {
-            "filtered": {
-                "query": {
-                    "query_string": {
-                        "query": term
-                    }
-                }
-            }
-        };
-    }
-
     function search(queryString) {
-        var queryTerms = queryString.split(","),
-            queryBlock = queryTerms.length > 1 ? andQuery(queryTerms) : basicQuery(queryTerms[0]);
+        var correctedQuery = buildSearchString(queryString),
+            queryBlock = getQuery(correctedQuery);
 
-        $.es.Client({
-            host: esURL,
-            log: 'trace'
-        }).search({
-            index: 'betterdocs',
-            size: resultSize,
-            body: {
-                "query": queryBlock,
-                "sort": [
-                    {"score": {"order": "desc"}}]
-            }
-        }).then(function (resp) {
-            //console.log(resp.hits.hits);
-            updateView(resp.hits.hits);
-        }, function (err) {
-            errorElement.slideDown("slow");
-            errorElement.slideUp(2500);
+        queryES("betterdocs", {
+            "query": queryBlock,
+            "sort": [
+                {"score": {"order": "desc"}}]
+        }, resultSize, function (result) {
+            updateView(correctedQuery, result);
         });
     }
 
@@ -163,8 +226,24 @@ var app = function () {
         resultSize = size;
     }
 
+    function expandResultView() {
+        leftPanel.hide();
+        expandIcon.hide();
+        rightSideContainer.addClass("fullWidth");
+        compressIcon.show();
+    }
+
+    function compressResultView() {
+        leftPanel.show();
+        compressIcon.hide();
+        rightSideContainer.removeClass("fullWidth");
+        expandIcon.show();
+    }
+
     return {
         search: search,
-        saveConfig: updateConfig
+        saveConfig: updateConfig,
+        expand: expandResultView,
+        compress: compressResultView
     };
 }();
