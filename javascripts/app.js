@@ -19,12 +19,8 @@ var app = function () {
         errorMsgContainer = $("#errorMsg");
 
 
-    Handlebars.registerHelper('collapseFunc', function (index, lines) {
-        return "app.collapseAll('result" + index + "-editor',[" + lines + "])";
-    });
-
-    Handlebars.registerHelper('expandFunc', function (index) {
-        return "app.expandAll('result" + index + "-editor')";
+    Handlebars.registerHelper('stringifyFunc', function (fnName,index, lines) {
+        return "app."+fnName+"All('result" + index + "-editor',[" + lines + "])";
     });
 
     function init() {
@@ -268,9 +264,12 @@ var app = function () {
         foldLines(editor, lineNumbers);
     }
 
-    function expandAllBlocks(id){
+    function expandAllBlocks(id, lineNumbers) {
         var editor = ace.edit(id);
-        editor.getSession().unfold();
+        editor.getSession().foldAll();
+        lineNumbers.forEach(function (n) {
+            editor.getSession().unfold(n);
+        });
     }
 
     return {
@@ -279,6 +278,6 @@ var app = function () {
         expand: expandResultView,
         compress: compressResultView,
         collapseAll: collapseUnnecessaryLines,
-        expandAll:expandAllBlocks
+        expandAll: expandAllBlocks
     };
 }();
