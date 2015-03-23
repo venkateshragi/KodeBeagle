@@ -69,7 +69,7 @@ class JavaFileIndexer extends BasicIndexer {
       val imports = extractImports(fileContent, excludePackages)
       val fullGithubURL = fileNameToURL(r, fileName)
       // Penalize score of test files.
-      val score = if (isTestFile(imports)) r.stargazersCount / 3 else r.stargazersCount
+      val score = if (isTestFile(imports)) r.stargazersCount / 5 else r.stargazersCount
       extractTokensWRTImports(imports, fileContent).foreach { x =>
        x.map { y =>
           val FQCN = tuple2ToImportString(y._2)
