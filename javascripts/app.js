@@ -29,6 +29,10 @@ var app = function () {
         return "app." + fnName + "All('result" + index + "-editor',[" + lines + "])";
     });
 
+    Handlebars.registerHelper('updateEditorFn', function (file) {
+        return "app.showFileContent(["+JSON.stringify(file)+"])";
+    });
+
     function init() {
         searchMetaContainer.hide();
         compressIcon.hide();
@@ -59,7 +63,7 @@ var app = function () {
         editor.getSession().addFold("...", new Range(nextLine, 0, editor.getSession().getLength(), 0));
     }
 
-    function extractCode(editor, lineNumbers) {
+    /*function extractCode(editor, lineNumbers) {
         var relevantUsage = [];
         lineNumbers.forEach(function (n) {
             var content = editor.session.getLine(n - 1);
@@ -69,7 +73,7 @@ var app = function () {
         resultTreeContainer.hide();
         methodTab.addClass("active");
         methodsContainer.html(methodsContainerTemplate({"examples": _.unique(relevantUsage)}));
-    }
+    }*/
 
     function enableAceEditor(id, content, lineNumbers) {
         $("#" + id).html("");
@@ -87,8 +91,6 @@ var app = function () {
         });
 
         editor.gotoLine(lineNumbers[lineNumbers.length - 1], 0, true);
-
-        extractCode(editor, lineNumbers);
     }
 
     function getFileName(filePath) {
@@ -133,6 +135,7 @@ var app = function () {
             }
         });
 
+        fileTab.addClass("active");
         resultTreeContainer.html(resultTreeTemplate({"projects": projects}));
     }
 
@@ -212,7 +215,13 @@ var app = function () {
                 return a - b;
             });
 
-            return {path: fileName, repo: labels.repo, name: labels.file, lines: lineNumbers, score: files[0]._source.score};
+            return {
+                path: fileName,
+                repo: labels.repo,
+                name: labels.file,
+                lines: lineNumbers,
+                score: files[0]._source.score
+            };
 
         });
 
@@ -321,6 +330,7 @@ var app = function () {
         collapseAll: collapseUnnecessaryLines,
         expandAll: expandAllBlocks,
         showFiles: showRelevantFiles,
-        showMethods: showFreqUsedMethods
+        showMethods: showFreqUsedMethods,
+        showFileContent: updateRightSide
     };
 }();

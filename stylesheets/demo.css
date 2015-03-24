@@ -272,3 +272,7 @@ div.leftPanelPadding {
     color: #EC583A;
     cursor: default;
 }
+
+li.clickable{
+    cursor: pointer;
+}

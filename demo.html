@@ -92,7 +92,7 @@
                     <li>{{name}}</li>
                     <ul>
                         {{#each files}}
-                        <li>{{name}}</li>
+                        <li class="clickable" onclick="{{updateEditorFn @this}}">{{name}}</li>
                         {{/each}}
                     </ul>
                     {{/each}}
