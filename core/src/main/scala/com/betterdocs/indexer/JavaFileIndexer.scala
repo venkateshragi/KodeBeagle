@@ -83,8 +83,8 @@ class JavaFileIndexer extends BasicIndexer {
         tokenMap.clear()
       }
 
-      Try(extractTokensASTParser(imports, fileContent, fileName)).toOption.foreach{ x =>
-        indexEntries = indexEntries + IndexEntry(r.id, fullGithubURL, x, score)
+      Try(extractTokensASTParser(imports, fileContent, fileName)).toOption.foreach { x =>
+        x.foreach { y => indexEntries = indexEntries + IndexEntry(r.id, fullGithubURL, y, score) }
       }
 
     }
@@ -100,13 +100,14 @@ class JavaFileIndexer extends BasicIndexer {
   }
 
   private def extractTokensASTParser(imports: Set[(String, String)],
-      fileContent: String, fileName: String): Set[Token] = {
+      fileContent: String, fileName: String): Set[Set[Token]] = {
     val parser = new MethodVisitor()
     parser.parse(fileContent, fileName)
     val importsSet = imports.map(tuple2ToImportString)
     import scala.collection.JavaConversions._
-    parser.getLineNumbersMap.map(x => Token(x._1, immutable.SortedSet[Int]() ++ x._2.map(_.toInt)))
-      .filter(x => importsSet.contains(x.importName)).toSet
+    parser.getListOflineNumbersMap.map(x => x.map(y => Token(y._1, immutable.SortedSet[Int]() ++
+      y._2.map(_.toInt)))
+      .filter(x => importsSet.contains(x.importName)).toSet).toSet
   }
 
   private def extractImports(java: String, packages: List[String]) = java.split("\n")
@@ -122,7 +123,7 @@ class JavaFileIndexer extends BasicIndexer {
    val cleaned =
      line.replaceFirst("""(\s*(import|private|public|protected|\/?\*|//).*)|\".*\"""", "")
       .replaceAll("\\W+", " ")
-    if(!cleaned.isEmpty) " " + cleaned.toLowerCase + " " else ""
+    if(!cleaned.isEmpty) " " + cleaned + " " else ""
   }
 
   private def extractTokensWRTImports(imports: Set[(String, String)],
@@ -132,7 +133,7 @@ class JavaFileIndexer extends BasicIndexer {
       .map { case (linesWindow, lineNumbersWindow) =>
       (linesWindow zip lineNumbersWindow).flatMap { case (line, lineNumber) if !line.isEmpty =>
         val l = line.split(" ").distinct
-        imports.map(y => (l.contains(y._2.toLowerCase), lineNumber, y))
+        imports.map(y => (l.contains(y._2), lineNumber, y))
           .filter(_._1).map(a => (a._2, a._3))
       case _ => Set[(Int, (String, String))]()
       }

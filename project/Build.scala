@@ -52,12 +52,17 @@ object BetterDocsBuild extends Build {
 
 object Dependencies {
 
-  val spark = "org.apache.spark" %% "spark-core" % "1.3.0" % "provided"
+  val spark = "org.apache.spark" %% "spark-core" % "1.3.0"
   val parserCombinator = "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.3"
   val scalaTest = "org.scalatest" %% "scalatest" % "2.2.4" % "test" 
-  val sl4j = "org.slf4j" % "slf4j-log4j12" % "1.7.10" % "provided"
+  val slf4j = "org.slf4j" % "slf4j-log4j12" % "1.7.10"
   val javaparser = "com.github.javaparser" % "javaparser-core" % "2.0.0"
-  val betterDocs = Seq(spark, parserCombinator, scalaTest, sl4j, javaparser)
+  val json4s = "org.json4s" %% "json4s-ast" % "3.2.10"
+  val json4sJackson = "org.json4s" %% "json4s-jackson" % "3.2.10"
+  val httpClient = "commons-httpclient" % "commons-httpclient" % "3.1"
+
+  val betterDocs = Seq(spark, parserCombinator, scalaTest, slf4j, javaparser, json4s, 
+    json4sJackson)
 
   // transitively uses
   // commons-httpclient-3.1

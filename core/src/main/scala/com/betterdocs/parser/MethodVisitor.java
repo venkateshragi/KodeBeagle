@@ -49,6 +49,8 @@ public class MethodVisitor extends VoidVisitorAdapter {
     private String currentMethod;
     private HashMap<String, String> nameVsTypeMap;
     private HashMap<String, ArrayList<Integer>> lineNumbersMap = new HashMap<String, ArrayList<Integer>>();
+    private ArrayList<HashMap<String, ArrayList<Integer>>> listOflineNumbersMap = new
+            ArrayList<HashMap<String, ArrayList<Integer>>>();
 
     public void parse(String classcontent, String filename) throws ParseException, IOException {
         if (classcontent == null || classcontent.isEmpty()) {
@@ -90,11 +92,7 @@ public class MethodVisitor extends VoidVisitorAdapter {
         className = arg + "." + n.getName();
         List<BodyDeclaration> members = n.getMembers();
         for (BodyDeclaration b : members) {
-            if (b instanceof FieldDeclaration) {
-                visit((FieldDeclaration) b, null);
-            } else if (b instanceof MethodDeclaration) {
-                visit((MethodDeclaration) b, null);
-            }
+            fancyVisitBody(null, b);
         }
     }
 
@@ -126,6 +124,10 @@ public class MethodVisitor extends VoidVisitorAdapter {
         if (body != null) {
             visit(body, nameVsTypeMap);
         }
+        // On each method encountered we store their imports as map.
+        listOflineNumbersMap.add(lineNumbersMap);
+        lineNumbersMap = new HashMap<String, ArrayList<Integer>>();
+
     }
 
     public void fancyVisit(Expression exp, Object arg) {
@@ -137,6 +139,10 @@ public class MethodVisitor extends VoidVisitorAdapter {
             visit((VariableDeclarationExpr) exp, arg);
         } else if (exp instanceof ObjectCreationExpr) {
             visit((ObjectCreationExpr) exp, arg);
+        } else if (exp instanceof CastExpr) {
+            visit((CastExpr) exp, arg);
+        } else if (exp != null && !getFullScope(exp).equals(exp.toString())) {
+            updateLineNumbersMap(getFullScope(exp), exp.getBeginLine());
         }
     }
 
@@ -152,29 +158,25 @@ public class MethodVisitor extends VoidVisitorAdapter {
             try {
                 Expression target = n.getTarget();
                 Expression value = n.getValue();
-                fancyVisit(target, arg);
-                fancyVisit(value, arg);
+                fancyVisit(target, target.getData());
+                fancyVisit(value, value.getData());
                 String targetScope = getFullScope(target);
                 String valueScope = getFullScope(value);
-                ArrayList<Integer> lines = new ArrayList<Integer>();
-                lines.add(target.getBeginLine());
                 //lines.add(target.getEndLine()); TODO: Maybe add this ?
-                updateLineNumbersMap(targetScope, lines);
-                lines.clear();
-                lines.add(value.getBeginLine());
-                updateLineNumbersMap(valueScope, lines);
+                updateLineNumbersMap(targetScope, target.getBeginLine());
+                updateLineNumbersMap(valueScope, value.getBeginLine());
             } catch (Exception e) {
-               // e.printStackTrace();
+                e.printStackTrace();
             }
         }
     }
 
-    private void updateLineNumbersMap(String targetScope, List<Integer> lines) {
+    private void updateLineNumbersMap(String targetScope, Integer line) {
         ArrayList<Integer> lineNumbers = lineNumbersMap.get(targetScope);
-        if( lineNumbers == null) {
+        if (lineNumbers == null) {
             lineNumbers = new ArrayList<Integer>();
         }
-        lineNumbers.addAll(lines);
+        lineNumbers.add(line);
         lineNumbersMap.put(targetScope, lineNumbers);
     }
 
@@ -183,21 +185,46 @@ public class MethodVisitor extends VoidVisitorAdapter {
 
         if (n != null) {
             try {
-                String targetScope = fullType(n.getType().toString());
-                ArrayList<Integer> lines = new ArrayList<Integer>();
-                lines.add(n.getBeginLine());
-                //lines.add(target.getEndLine()); TODO: Maybe add this ?
-                updateLineNumbersMap(targetScope, lines);
+                String fullTypeName = fullType(n.getType().toString());
+                if (n.getArgs() != null) {
+                    for (Expression arg : n.getArgs()) {
+                        fancyVisit(arg, arg.getData());
+                    }
+                }
+                updateLineNumbersMap(fullTypeName, n.getBeginLine());
+
+                // Process anonymous class body.
+                if (n.getAnonymousClassBody() != null) {
+                    for (BodyDeclaration bdecl : n.getAnonymousClassBody()) {
+                        fancyVisitBody(arg1, bdecl);
+                    }
+                }
             } catch (Exception e) {
-                //e.printStackTrace();
+                e.printStackTrace();
             }
         }
 
     }
 
+    private void fancyVisitBody(Object arg1, BodyDeclaration bdecl) {
+        if (bdecl instanceof FieldDeclaration) {
+            visit(((FieldDeclaration) bdecl), arg1);
+        } else if (bdecl instanceof MethodDeclaration) {
+            visit((MethodDeclaration) bdecl, arg1);
+        } else if (bdecl instanceof ClassOrInterfaceDeclaration) {
+            visit((ClassOrInterfaceDeclaration) bdecl, arg1);
+        }
+    }
+
     @Override
     public void visit(MethodCallExpr n, Object arg) {
         Expression s = n.getScope();
+        List<Expression> args = n.getArgs();
+        if (args != null) {
+            for (Expression e : args) {
+                fancyVisit(e, arg);
+            }
+        }
         if (s instanceof MethodCallExpr) {
             MethodCallExpr m = (MethodCallExpr) s;
             visit(m, arg);
@@ -210,9 +237,7 @@ public class MethodVisitor extends VoidVisitorAdapter {
     private void updateCallStack(Expression s, String name) {
         String fullscope = getFullScope(s);
         if (s != null) {
-            ArrayList<Integer> lines = new ArrayList<Integer>();
-            lines.add(s.getBeginLine());
-            updateLineNumbersMap(fullscope, lines);
+            updateLineNumbersMap(fullscope, s.getBeginLine());
         }
         List<String> stack = methodCallStack.get(currentMethod);
         if (stack == null) {
@@ -254,11 +279,15 @@ public class MethodVisitor extends VoidVisitorAdapter {
             fancyVisit(initExpr, arg);
             String type = n.getType().toString();
             nameVsTypeMap.put(id, fullType(type));
-            ArrayList<Integer> lines = new ArrayList<Integer>();
-            lines.add(n.getBeginLine());
-            updateLineNumbersMap(fullType(type), lines);
+            updateLineNumbersMap(fullType(type), n.getBeginLine());
         }
 
+    }
+
+    @Override
+    public void visit(CastExpr n, Object arg) {
+        updateLineNumbersMap(fullType(n.getType().toString()), n.getBeginLine());
+        if (n.getExpr() != null) fancyVisit(n.getExpr(), arg);
     }
 
     private String fullType(String type) {
@@ -293,7 +322,7 @@ public class MethodVisitor extends VoidVisitorAdapter {
         MultiTypeParameter exception = n.getExcept();
 
         String name = exception.getId().getName();
-        for(Type t: exception.getTypes()) {
+        for (Type t : exception.getTypes()) {
             nameVsTypeMap.put(name, fullType(t.toString()));
         }
 
@@ -308,6 +337,10 @@ public class MethodVisitor extends VoidVisitorAdapter {
 
     public HashMap<String, ArrayList<Integer>> getLineNumbersMap() {
         return lineNumbersMap;
+    }
+
+    public ArrayList<HashMap<String, ArrayList<Integer>>> getListOflineNumbersMap() {
+        return listOflineNumbersMap;
     }
 
 }
