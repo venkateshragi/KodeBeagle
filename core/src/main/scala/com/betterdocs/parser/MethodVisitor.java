@@ -47,7 +47,7 @@ public class MethodVisitor extends VoidVisitorAdapter {
     private String className = null;
     private Map<String, List<String>> methodCallStack = new HashMap<String, List<String>>();
     private String currentMethod;
-    private HashMap<String, String> nameVsTypeMap;
+    private HashMap<String, String> nameVsTypeMap = new HashMap<String, String>();
     private HashMap<String, ArrayList<Integer>> lineNumbersMap = new HashMap<String, ArrayList<Integer>>();
     private ArrayList<HashMap<String, ArrayList<Integer>>> listOflineNumbersMap = new
             ArrayList<HashMap<String, ArrayList<Integer>>>();
@@ -127,7 +127,6 @@ public class MethodVisitor extends VoidVisitorAdapter {
         // On each method encountered we store their imports as map.
         listOflineNumbersMap.add(lineNumbersMap);
         lineNumbersMap = new HashMap<String, ArrayList<Integer>>();
-
     }
 
     public void fancyVisit(Expression exp, Object arg) {
@@ -149,7 +148,7 @@ public class MethodVisitor extends VoidVisitorAdapter {
     @Override
     public void visit(ExpressionStmt n, Object arg) {
         Expression xpr = n.getExpression();
-        fancyVisit(xpr, arg);
+        if (xpr != null) fancyVisit(xpr, arg);
     }
 
     @Override
@@ -158,8 +157,8 @@ public class MethodVisitor extends VoidVisitorAdapter {
             try {
                 Expression target = n.getTarget();
                 Expression value = n.getValue();
-                fancyVisit(target, target.getData());
-                fancyVisit(value, value.getData());
+                fancyVisit(target, arg);
+                fancyVisit(value, arg);
                 String targetScope = getFullScope(target);
                 String valueScope = getFullScope(value);
                 //lines.add(target.getEndLine()); TODO: Maybe add this ?
@@ -188,7 +187,7 @@ public class MethodVisitor extends VoidVisitorAdapter {
                 String fullTypeName = fullType(n.getType().toString());
                 if (n.getArgs() != null) {
                     for (Expression arg : n.getArgs()) {
-                        fancyVisit(arg, arg.getData());
+                        fancyVisit(arg, arg1);
                     }
                 }
                 updateLineNumbersMap(fullTypeName, n.getBeginLine());
