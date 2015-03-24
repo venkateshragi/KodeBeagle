@@ -172,7 +172,7 @@ public class MethodVisitor extends VoidVisitorAdapter {
     private void updateLineNumbersMap(String targetScope, List<Integer> lines) {
         ArrayList<Integer> lineNumbers = lineNumbersMap.get(targetScope);
         if( lineNumbers == null) {
-            lineNumbers = new ArrayList<>();
+            lineNumbers = new ArrayList<Integer>();
         }
         lineNumbers.addAll(lines);
         lineNumbersMap.put(targetScope, lineNumbers);
