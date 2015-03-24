@@ -71,7 +71,7 @@
         <script id="result-template" type="text/x-handlebars-template">
             {{#each files}}
             <div class="result" id="result{{@index}}">
-                <div><a href="http://github.com/{{path}}">{{repo}}/{{name}}</a>
+                <div><a href="http://github.com/{{path}}" target="_blank">{{repo}}/{{name}}</a>
                     <span><a href="javascript:void(0);" onclick="{{stringifyFunc 'collapse' @index lines}}">collapse</a></span>
                     <span><a href="javascript:void(0);"
                              onclick="{{stringifyFunc 'expand' @index lines}}">expand</a></span>
