@@ -106,8 +106,7 @@ class JavaFileIndexer extends BasicIndexer {
     val importsSet = imports.map(tuple2ToImportString)
     import scala.collection.JavaConversions._
     parser.getListOflineNumbersMap.map(x => x.map(y => Token(y._1, immutable.SortedSet[Int]() ++
-      y._2.map(_.toInt)))
-      .filter(x => importsSet.contains(x.importName)).toSet).toSet
+      y._2.map(_.toInt))).filter(x => importsSet.contains(x.importName)).toSet).toSet
   }
 
   private def extractImports(java: String, packages: List[String]) = java.split("\n")

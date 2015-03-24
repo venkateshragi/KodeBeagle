@@ -140,6 +140,8 @@ public class MethodVisitor extends VoidVisitorAdapter {
             visit((ObjectCreationExpr) exp, arg);
         } else if (exp instanceof CastExpr) {
             visit((CastExpr) exp, arg);
+        } else if (exp instanceof EnclosedExpr) {
+            visit((EnclosedExpr) exp, arg);
         } else if (exp != null && !getFullScope(exp).equals(exp.toString())) {
             updateLineNumbersMap(getFullScope(exp), exp.getBeginLine());
         }
@@ -224,12 +226,7 @@ public class MethodVisitor extends VoidVisitorAdapter {
                 fancyVisit(e, arg);
             }
         }
-        if (s instanceof MethodCallExpr) {
-            MethodCallExpr m = (MethodCallExpr) s;
-            visit(m, arg);
-            // can't get the return type so atleast salvage on call.
-            return;
-        }
+        fancyVisit(s, arg);
         updateCallStack(s, n.getName());
     }
 
@@ -289,6 +286,11 @@ public class MethodVisitor extends VoidVisitorAdapter {
         if (n.getExpr() != null) fancyVisit(n.getExpr(), arg);
     }
 
+    @Override
+    public void visit(EnclosedExpr expr, Object arg) {
+        if (expr.getInner() != null) fancyVisit(expr.getInner(), arg);
+    }
+
     private String fullType(String type) {
         String fullType = importDeclMap.get(type.toString());
         fullType = fullType == null ? type.toString() : fullType;
@@ -332,10 +334,6 @@ public class MethodVisitor extends VoidVisitorAdapter {
 
     public Map<String, List<String>> getMethodCallStack() {
         return methodCallStack;
-    }
-
-    public HashMap<String, ArrayList<Integer>> getLineNumbersMap() {
-        return lineNumbersMap;
     }
 
     public ArrayList<HashMap<String, ArrayList<Integer>>> getListOflineNumbersMap() {
