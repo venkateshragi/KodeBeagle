@@ -16,15 +16,21 @@ var app = function () {
         rightSideContainer = $("#rightSideContainer"),
         expandIcon = $("#expand"),
         compressIcon = $("#compress"),
-        errorMsgContainer = $("#errorMsg");
+        errorMsgContainer = $("#errorMsg"),
+        searchMetaContainer = $('#searchMeta'),
+        methodsContainer = $("#methodsContainer"),
+        methodsContainerTemplateHTML = $("#common-usage-template").html(),
+        methodsContainerTemplate = Handlebars.compile(methodsContainerTemplateHTML),
+        fileTab = $("#fileTab"),
+        methodTab = $("#methodTab");
 
 
-    Handlebars.registerHelper('stringifyFunc', function (fnName,index, lines) {
-        return "app."+fnName+"All('result" + index + "-editor',[" + lines + "])";
+    Handlebars.registerHelper('stringifyFunc', function (fnName, index, lines) {
+        return "app." + fnName + "All('result" + index + "-editor',[" + lines + "])";
     });
 
     function init() {
-        resultTreeContainer.hide();
+        searchMetaContainer.hide();
         compressIcon.hide();
     }
 
@@ -59,9 +65,10 @@ var app = function () {
             var content = editor.session.getLine(n - 1);
             relevantUsage.push(content);
         });
-        analyzedProjContainer.hide();
-        resultTreeContainer.show();
-        resultTreeContainer.html(resultTreeTemplate({"examples": _.unique(relevantUsage)}));
+
+        resultTreeContainer.hide();
+        $("#methodTab").addClass("active");
+        methodsContainer.html(methodsContainerTemplate({"examples": _.unique(relevantUsage)}));
     }
 
     function enableAceEditor(id, content, lineNumbers) {
@@ -111,6 +118,22 @@ var app = function () {
                 errorElement.slideUp(2500);
             }
         )
+    }
+
+    function updateLeftPanel(processedData) {
+        var projects = [],
+            groupedByRepos = _.groupBy(processedData, function (entry) {
+                return entry.repo;
+            });
+
+        projects = _.map(groupedByRepos, function (files, label) {
+            return {
+                name: label,
+                files: _.unique(files, _.iteratee('name'))
+            }
+        });
+
+        resultTreeContainer.html(resultTreeTemplate({"projects": projects}));
     }
 
     function updateRightSide(processedData) {
@@ -205,7 +228,10 @@ var app = function () {
     function updateView(searchString, data) {
         var processedData = processResult(searchString, data);
 
-        //updateLeftPanel(processedData);
+        analyzedProjContainer.hide();
+        searchMetaContainer.show();
+
+        updateLeftPanel(processedData);
         updateRightSide(processedData);
     }
 
@@ -272,12 +298,28 @@ var app = function () {
         });
     }
 
+    function showRelevantFiles() {
+        methodsContainer.hide();
+        methodTab.removeClass("active");
+        fileTab.addClass("active");
+        resultTreeContainer.show();
+    }
+
+    function showFreqUsedMethods() {
+        resultTreeContainer.hide();
+        fileTab.removeClass("active");
+        methodTab.addClass("active");
+        methodsContainer.show();
+    }
+
     return {
         search: search,
         saveConfig: updateConfig,
         expand: expandResultView,
         compress: compressResultView,
         collapseAll: collapseUnnecessaryLines,
-        expandAll: expandAllBlocks
+        expandAll: expandAllBlocks,
+        showFiles: showRelevantFiles,
+        showMethods: showFreqUsedMethods
     };
 }();

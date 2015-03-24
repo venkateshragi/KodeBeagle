@@ -182,7 +182,6 @@ div.repoInfo {
     float: left;
     border: 1px solid #F5F5F5;
     width: 35%;
-    padding: 5px;
     min-height: 80%;
 }
 
@@ -244,4 +243,32 @@ div.resultContainer.fullWidth {
 
 #connectionError {
     display: none;
+}
+
+div.leftPanelPadding {
+    padding: 5px;
+}
+
+.tabs {
+    height: 30px;
+    overflow: hidden;
+}
+
+.tabs div {
+    background: #EC583A;
+    width: 50%;
+    display: inline-block;
+    height: 100%;
+    color: #C7D0D5;
+    cursor: pointer;
+    text-align: center;
+    line-height: 30px;
+    font-weight: 700;
+    float: left;
+}
+
+.tabs div.active {
+    background: #C7D0D5;
+    color: #EC583A;
+    cursor: default;
 }
