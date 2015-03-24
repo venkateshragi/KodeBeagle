@@ -67,7 +67,7 @@ var app = function () {
         });
 
         resultTreeContainer.hide();
-        $("#methodTab").addClass("active");
+        methodTab.addClass("active");
         methodsContainer.html(methodsContainerTemplate({"examples": _.unique(relevantUsage)}));
     }
 
@@ -212,13 +212,14 @@ var app = function () {
                 return a - b;
             });
 
-            return {path: fileName, repo: labels.repo, name: labels.file, lines: lineNumbers}
+            return {path: fileName, repo: labels.repo, name: labels.file, lines: lineNumbers, score: files[0]._source.score};
 
         });
 
-        /* sort by descending lengths*/
+        /* sort by descending usage/occurrence with weighted score */
         result = _.sortBy(intermediateResult, function (elem) {
-            return -elem.lines.length;
+            var sortScore = (elem.score * 10000) + elem.lines.length;
+            return -sortScore;
         });
 
         console.log(_.unique(matchingImports));
