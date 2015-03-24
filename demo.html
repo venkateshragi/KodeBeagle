@@ -56,14 +56,12 @@
             </div>
 
             <div class="resultContainer" id="rightSideContainer">
-                <h3>Code Reference
                     <span id="expand" class="viewOptions">
                         <a href="javascript:void(0);" onclick="app.expand()"><i class="fa fa-expand pull-right"></i></a>
                     </span>
                     <span id="compress" class="viewOptions">
                         <a href="javascript:void(0);" onclick="app.compress()"><i class="fa fa-compress pull-right"></i></a>
                     </span>
-                </h3>
 
                 <div id="results"></div>
             </div>
@@ -78,8 +76,6 @@
                     <span><a href="javascript:void(0);"
                              onclick="{{stringifyFunc 'expand' @index lines}}">expand</a></span>
                 </div>
-                <br/>
-
                 <div id="result{{@index}}-editor" class="editor">{{content}}</div>
             </div>
             {{/each}}
@@ -105,9 +101,15 @@
         <script id="common-usage-template" type="text/x-handlebars-template">
             <h3>Commonly Used Methods </h3>
             <div id="commonMethods">
-                {{#each examples}}
-                <div>{{this}}</div>
-                {{/each}}
+                <ul>{{#each groupedMethods}}
+                    <li>{{className}}</li>
+                    <ul>
+                        {{#each methods}}
+                        <li>{{method}}</li>
+                        {{/each}}
+                    </ul>
+                    {{/each}}
+                </ul>
             </div>
         </script>
         {% endraw %}

@@ -22,7 +22,8 @@ var app = function () {
         methodsContainerTemplateHTML = $("#common-usage-template").html(),
         methodsContainerTemplate = Handlebars.compile(methodsContainerTemplateHTML),
         fileTab = $("#fileTab"),
-        methodTab = $("#methodTab");
+        methodTab = $("#methodTab"),
+        commonMethods = [];
 
 
     Handlebars.registerHelper('stringifyFunc', function (fnName, index, lines) {
@@ -30,7 +31,7 @@ var app = function () {
     });
 
     Handlebars.registerHelper('updateEditorFn', function (file) {
-        return "app.showFileContent(["+JSON.stringify(file)+"])";
+        return "app.showFileContent([" + JSON.stringify(file) + "])";
     });
 
     function init() {
@@ -63,17 +64,18 @@ var app = function () {
         editor.getSession().addFold("...", new Range(nextLine, 0, editor.getSession().getLength(), 0));
     }
 
-    /*function extractCode(editor, lineNumbers) {
-        var relevantUsage = [];
-        lineNumbers.forEach(function (n) {
-            var content = editor.session.getLine(n - 1);
-            relevantUsage.push(content);
-        });
-
+    function displayCommonMethods() {
+        fileTab.removeClass("active");
         resultTreeContainer.hide();
         methodTab.addClass("active");
-        methodsContainer.html(methodsContainerTemplate({"examples": _.unique(relevantUsage)}));
-    }*/
+        methodsContainer.html("");
+        var groupedMethods = _.map(_.groupBy(commonMethods, "className"), function (matches, className) {
+            return {
+                className: className, methods: matches
+            }
+        });
+        methodsContainer.html(methodsContainerTemplate({"groupedMethods": groupedMethods}));
+    }
 
     function enableAceEditor(id, content, lineNumbers) {
         $("#" + id).html("");
@@ -105,14 +107,24 @@ var app = function () {
     }
 
     function queryES(indexName, queryBody, resultSize, successCallback) {
+        var indexTerms = indexName.split("/"),
+            index = indexTerms[0],
+            searchConfig;
+
+        searchConfig = {
+            index: index,
+            size: resultSize,
+            body: queryBody
+        };
+
+        if (indexTerms.length === 2) {
+            searchConfig.type = indexTerms[1];
+        }
+
         $.es.Client({
             host: esURL,
             log: 'trace'
-        }).search({
-            index: indexName,
-            size: resultSize,
-            body: queryBody
-        }).then(function (result) {
+        }).search(searchConfig).then(function (result) {
                 successCallback(result.hits.hits);
             }, function (err) {
                 errorMsgContainer.text(err.message);
@@ -231,18 +243,23 @@ var app = function () {
             return -sortScore;
         });
 
-        console.log(_.unique(matchingImports));
-        return result;
+        return {classes: _.unique(matchingImports), result: result};
     }
 
     function updateView(searchString, data) {
+        commonMethods = [];
         var processedData = processResult(searchString, data);
 
         analyzedProjContainer.hide();
         searchMetaContainer.show();
 
-        updateLeftPanel(processedData);
-        updateRightSide(processedData);
+        updateLeftPanel(processedData.result);
+        updateRightSide(processedData.result);
+
+        processedData.classes.forEach(function (cName) {
+            searchCommonUsage(cName);
+        });
+
     }
 
     function getQuery(queryString) {
@@ -320,6 +337,43 @@ var app = function () {
         fileTab.removeClass("active");
         methodTab.addClass("active");
         methodsContainer.show();
+    }
+
+    function searchCommonUsage(className) {
+
+        var query, mustTerms = className.toLowerCase().split(".").map(function (entry) {
+            return {"term": {"body": entry}};
+        });
+        query = {
+            "query": {
+                "filtered": {
+                    "query": {
+                        "bool": {
+                            "must": mustTerms
+                        }
+                    },
+                    "filter": {
+                        "and": {
+                            "filters": [
+                                {"term": {"length": "1"}}
+                            ],
+                            "_cache": true
+                        }
+                    }
+                }
+            },
+            "sort": [{"freq": {"order": "desc"}}, "_score"]
+        };
+
+        queryES("fpgrowth/patterns", query, 10, function (result) {
+            result.forEach(function (entry) {
+                var src = entry._source,
+                    methodName = _.difference(src.body[0].split("."), className.split("."));
+                commonMethods.push({className: className, method: methodName, freq: src.freq});
+            });
+
+            displayCommonMethods();
+        })
     }
 
     return {
