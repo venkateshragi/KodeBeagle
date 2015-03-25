@@ -10,23 +10,20 @@
 </head>
 <body>
 <div class="remodal-bg">
-    <header>
-        <h2>
-            <span class="left">BetterDocs</span>
-            <span class="right"><i class="fa fa-github"></i></span>
-        </h2>
-    </header>
-    <div class="container">
-        <div class="topPanel">
-            <div class="searchForm">
-                <form id="searchByFQN">
-                    <span class="searchIcon"><i class="fa fa-search fa-flip-horizontal"></i></span>
-                    <input type="text" id="searchString" required
-                           placeholder="java.nio.channels.FileChannel,java.nio.MappedByteBuffer">
-                </form>
-            </div>
-            <span class="settingsIcon"><a href="#modal"><i class="fa fa-cog"></i></a></span>
+
+
+    <div class="topPanel">
+        <span class="logo">BetterDocs</span>
+        <div class="searchForm">
+            <form id="searchByFQN">
+                <span class="searchIcon"><i class="fa fa-search fa-flip-horizontal"></i></span>
+                <input type="text" id="searchString" required
+                       placeholder="FileChannel,MappedByteBuffer">
+            </form>
         </div>
+        <span class="settingsIcon"><a href="#modal"><i class="fa fa-cog"></i></a></span>
+    </div>
+    <div class="container">
         <div class="searchResults">
             <div id="connectionError" class="alert-box error">
                 <i class="fa fa-times-circle"></i> <span>error: </span> <span id="errorMsg"></span>
@@ -146,7 +143,7 @@
 <script src="javascripts/app.js"></script>
 
 <script>
-    var ht = Math.floor($(".repoInfo").height() / 14);
+    var ht = Math.floor($("#leftPanel").height() / 14);
     $("#repoList").attr("size", ht - 12);
     $("#searchByFQN").submit(function (evt) {
         evt.preventDefault();
