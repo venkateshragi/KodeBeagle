@@ -23,6 +23,7 @@ var app = function () {
         methodsContainerTemplate = Handlebars.compile(methodsContainerTemplateHTML),
         fileTab = $("#fileTab"),
         methodTab = $("#methodTab"),
+        currentResult = [],
         commonMethods = [];
 
 
@@ -151,21 +152,24 @@ var app = function () {
         resultTreeContainer.html(resultTreeTemplate({"projects": projects}));
     }
 
+    function renderFileContent(fileInfo, index) {
+        queryES("sourcefile", fetchFileQuery(fileInfo.path), 1, function (result) {
+            var id = "result" + index,
+                content = "";
+            if (result.length > 0) {
+                content = result[0]._source.fileContent;
+                enableAceEditor(id + "-editor", content, fileInfo.lines);
+            } else {
+                $("#" + id).hide();
+            }
+        });
+    }
+
     function updateRightSide(processedData) {
-        var files = processedData.slice(0, 1);
+        var files = processedData.slice(0, 2);
 
         files.forEach(function (fileInfo, index) {
-
-            queryES("sourcefile", fetchFileQuery(fileInfo.path), 1, function (result) {
-                var id = "result" + index,
-                    content = "";
-                if (result.length > 0) {
-                    content = result[0]._source.fileContent;
-                    enableAceEditor(id + "-editor", content, fileInfo.lines);
-                } else {
-                    $("#" + id).hide();
-                }
-            });
+            renderFileContent(fileInfo, index);
         });
 
         $("#results").html(resultTemplate({"files": files}));
@@ -243,6 +247,7 @@ var app = function () {
             return -sortScore;
         });
 
+        currentResult = result;
         return {classes: _.unique(matchingImports), result: result};
     }
 
@@ -368,12 +373,25 @@ var app = function () {
         queryES("fpgrowth/patterns", query, 10, function (result) {
             result.forEach(function (entry) {
                 var src = entry._source,
-                    methodName = _.difference(src.body[0].split("."), className.split("."));
-                commonMethods.push({className: className, method: methodName, freq: src.freq});
+                    methodName,
+                    location = src.body[0].search(className);
+
+                if (location > -1) {
+                    methodName = src.body[0].substr(className.length + 1); //taking length+1 so that '.' is excluded
+                    commonMethods.push({className: className, method: methodName, freq: src.freq});
+                }
             });
 
             displayCommonMethods();
         })
+    }
+
+    function addFileToView(files) {
+        var index = _.findIndex(currentResult, {name: files[0].name});
+        $("#result" + index).remove();
+        $("#results").prepend(resultTemplate({"files": files}).replace(/result0/g, "result" + index));
+        renderFileContent(files[0], index);
+        rightSideContainer.scrollTop(0);
     }
 
     return {
@@ -385,6 +403,6 @@ var app = function () {
         expandAll: expandAllBlocks,
         showFiles: showRelevantFiles,
         showMethods: showFreqUsedMethods,
-        showFileContent: updateRightSide
+        showFileContent: addFileToView
     };
 }();

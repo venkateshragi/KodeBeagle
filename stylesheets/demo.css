@@ -24,18 +24,18 @@ header h2 {
 }
 
 .editor {
-    height: 100%;
+    height: 90%;
 }
 
 .result {
-    height: 85%;
+    height: 50%;
     width: 100%;
     display: inline-block;
 }
 
 div.topPanel {
     overflow: hidden;
-    padding-top: 20px;
+    padding-top: 15px;
     padding-bottom: 10px;
     border-bottom: 1px dotted #F5F5F5;
     background: #C7D0D5;
@@ -189,10 +189,12 @@ div.repoInfo select {
 div.resultContainer {
     margin-top: 5px;
     float: right;
-    width: 70%;
+    width: 60%;
     border: 1px solid #F5F5F5;
     padding: 5px;
     height: 85%;
+    max-height: 85%;
+    overflow-y: auto;
 }
 
 .alert-box {
@@ -280,5 +282,5 @@ div#leftPanel {
     /*padding: 5px;*/
     min-height: 86.5%;
     float: left;
-    width: 27%;
+    width: 38%;
 }
