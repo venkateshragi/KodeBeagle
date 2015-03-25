@@ -16,38 +16,80 @@ var app = function () {
         rightSideContainer = $("#rightSideContainer"),
         expandIcon = $("#expand"),
         compressIcon = $("#compress"),
-        errorMsgContainer = $("#errorMsg");
+        errorMsgContainer = $("#errorMsg"),
+        searchMetaContainer = $('#searchMeta'),
+        methodsContainer = $("#methodsContainer"),
+        methodsContainerTemplateHTML = $("#common-usage-template").html(),
+        methodsContainerTemplate = Handlebars.compile(methodsContainerTemplateHTML),
+        fileTab = $("#fileTab"),
+        methodTab = $("#methodTab"),
+        commonMethods = [];
+
+
+    Handlebars.registerHelper('stringifyFunc', function (fnName, index, lines) {
+        return "app." + fnName + "All('result" + index + "-editor',[" + lines + "])";
+    });
+
+    Handlebars.registerHelper('updateEditorFn', function (file) {
+        return "app.showFileContent([" + JSON.stringify(file) + "])";
+    });
 
     function init() {
-        resultTreeContainer.hide();
+        searchMetaContainer.hide();
         compressIcon.hide();
     }
 
     init();
 
-    function getMarkers(lineNumbers) {
-        return lineNumbers.map(function (line) {
-            /*var startMark = line - 6,
-             endMark = line + 4;*/
+    function highlightLine(editor, lineNumbers) {
+        lineNumbers.forEach(function (line) {
             /*IMPORTANT NOTE: Range takes row number starting from 0*/
-            return new Range(line - 1, 0, line - 1, 1000);
+            var row = line - 1,
+                endCol = editor.session.getLine(row).length,
+                range = new Range(row, 0, row, endCol);
+
+            editor.getSession().addMarker(range, "ace_selection", "background");
         });
     }
 
-    function enableAceEditor(id, content, lineNumbers) {
-        var editor = ace.edit(id),
-            markers = getMarkers(lineNumbers);
+    function foldLines(editor, lineNumbers) {
+        var nextLine = 0;
+        lineNumbers.forEach(function (n) {
+            if (nextLine !== n - 1) {
+                var range = new Range(nextLine, 0, n - 1, 0);
+                editor.getSession().addFold("...", range);
+            }
+            nextLine = n;
+        });
+        editor.getSession().addFold("...", new Range(nextLine, 0, editor.getSession().getLength(), 0));
+    }
 
+    function displayCommonMethods() {
+        fileTab.removeClass("active");
+        resultTreeContainer.hide();
+        methodTab.addClass("active");
+        methodsContainer.html("");
+        var groupedMethods = _.map(_.groupBy(commonMethods, "className"), function (matches, className) {
+            return {
+                className: className, methods: matches
+            }
+        });
+        methodsContainer.html(methodsContainerTemplate({"groupedMethods": groupedMethods}));
+    }
+
+    function enableAceEditor(id, content, lineNumbers) {
+        $("#" + id).html("");
+        var editor = ace.edit(id);
+
+        editor.setValue(content);
+        editor.setReadOnly(true);
         editor.resize(true);
 
         editor.setTheme("ace/theme/github");
-        editor.getSession().setMode("ace/mode/java");
+        editor.getSession().setMode("ace/mode/java", function () {
 
-        editor.setReadOnly(true);
-        editor.setValue(content, 1);
-
-        markers.forEach(function (m) {
-            editor.getSession().addMarker(m, "ace_selection", "background");
+            highlightLine(editor, lineNumbers);
+            foldLines(editor, lineNumbers);
         });
 
         editor.gotoLine(lineNumbers[lineNumbers.length - 1], 0, true);
@@ -58,6 +100,38 @@ var app = function () {
             repoName = elements[0] + "-" + elements[1],
             fileName = elements[elements.length - 1];
         return {"repo": repoName, "file": fileName};
+    }
+
+    function fetchFileQuery(fileName) {
+        return {"query": {"term": {"typesourcefile.fileName": fileName}}}
+    }
+
+    function queryES(indexName, queryBody, resultSize, successCallback) {
+        var indexTerms = indexName.split("/"),
+            index = indexTerms[0],
+            searchConfig;
+
+        searchConfig = {
+            index: index,
+            size: resultSize,
+            body: queryBody
+        };
+
+        if (indexTerms.length === 2) {
+            searchConfig.type = indexTerms[1];
+        }
+
+        $.es.Client({
+            host: esURL,
+            log: 'trace'
+        }).search(searchConfig).then(function (result) {
+                successCallback(result.hits.hits);
+            }, function (err) {
+                errorMsgContainer.text(err.message);
+                errorElement.slideDown("slow");
+                errorElement.slideUp(2500);
+            }
+        )
     }
 
     function updateLeftPanel(processedData) {
@@ -73,31 +147,8 @@ var app = function () {
             }
         });
 
-        analyzedProjContainer.hide();
-        resultTreeContainer.show();
+        fileTab.addClass("active");
         resultTreeContainer.html(resultTreeTemplate({"projects": projects}));
-    }
-
-    function fetchFileQuery(fileName) {
-        return {"query": {"term": {"typesourcefile.fileName": fileName}}}
-    }
-
-    function queryES(indexName, queryBody, resultSize, successCallback) {
-        $.es.Client({
-            host: esURL,
-            log: 'trace'
-        }).search({
-            index: indexName,
-            size: resultSize,
-            body: queryBody
-        }).then(function (result) {
-                successCallback(result.hits.hits);
-            }, function (err) {
-                errorMsgContainer.text(err.message);
-                errorElement.slideDown("slow");
-                errorElement.slideUp(2500);
-            }
-        )
     }
 
     function updateRightSide(processedData) {
@@ -141,8 +192,8 @@ var app = function () {
         if (str[0] === "\'") {
             result = str.substr(1, str.length - 2);
         } else {
-            result = str.split(",").map(function(entry){
-                return "*"+entry.trim();
+            result = str.split(",").map(function (entry) {
+                return "*" + entry.trim();
             }).join(",");
         }
         return result;
@@ -151,7 +202,7 @@ var app = function () {
     function processResult(searchString, data) {
         var result = [],
             intermediateResult = [],
-            groupedData = [];
+            groupedData = [], matchingImports = [];
 
         groupedData = _.groupBy(data, function (entry) {
             return entry._source.file;
@@ -162,8 +213,13 @@ var app = function () {
                 lineNumbers = [];
 
             files.forEach(function (f) {
-                var matchingTokens = filterRelevantTokens(searchString, f._source.tokens);
-                var possibleLines = _.pluck(matchingTokens, "lineNumbers");
+                var matchingTokens = filterRelevantTokens(searchString, f._source.tokens),
+                    possibleLines = _.pluck(matchingTokens, "lineNumbers");
+
+                matchingImports = matchingImports.concat(matchingTokens.map(function (x) {
+                    return x.importName;
+                }));
+
                 lineNumbers = lineNumbers.concat(possibleLines);
             });
 
@@ -171,23 +227,39 @@ var app = function () {
                 return a - b;
             });
 
-            return {path: fileName, repo: labels.repo, name: labels.file, lines: lineNumbers}
+            return {
+                path: fileName,
+                repo: labels.repo,
+                name: labels.file,
+                lines: lineNumbers,
+                score: files[0]._source.score
+            };
 
         });
 
-        /* sort by descending lengths*/
+        /* sort by descending usage/occurrence with weighted score */
         result = _.sortBy(intermediateResult, function (elem) {
-            return -elem.lines.length;
+            var sortScore = (elem.score * 10000) + elem.lines.length;
+            return -sortScore;
         });
 
-        return result;
+        return {classes: _.unique(matchingImports), result: result};
     }
 
     function updateView(searchString, data) {
+        commonMethods = [];
         var processedData = processResult(searchString, data);
 
-        updateLeftPanel(processedData);
-        updateRightSide(processedData);
+        analyzedProjContainer.hide();
+        searchMetaContainer.show();
+
+        updateLeftPanel(processedData.result);
+        updateRightSide(processedData.result);
+
+        processedData.classes.forEach(function (cName) {
+            searchCommonUsage(cName);
+        });
+
     }
 
     function getQuery(queryString) {
@@ -240,10 +312,79 @@ var app = function () {
         expandIcon.show();
     }
 
+    function collapseUnnecessaryLines(id, lineNumbers) {
+        var editor = ace.edit(id);
+        foldLines(editor, lineNumbers);
+    }
+
+    function expandAllBlocks(id, lineNumbers) {
+        var editor = ace.edit(id);
+        editor.getSession().foldAll();
+        lineNumbers.forEach(function (n) {
+            editor.getSession().unfold(n);
+        });
+    }
+
+    function showRelevantFiles() {
+        methodsContainer.hide();
+        methodTab.removeClass("active");
+        fileTab.addClass("active");
+        resultTreeContainer.show();
+    }
+
+    function showFreqUsedMethods() {
+        resultTreeContainer.hide();
+        fileTab.removeClass("active");
+        methodTab.addClass("active");
+        methodsContainer.show();
+    }
+
+    function searchCommonUsage(className) {
+
+        var query, mustTerms = className.toLowerCase().split(".").map(function (entry) {
+            return {"term": {"body": entry}};
+        });
+        query = {
+            "query": {
+                "filtered": {
+                    "query": {
+                        "bool": {
+                            "must": mustTerms
+                        }
+                    },
+                    "filter": {
+                        "and": {
+                            "filters": [
+                                {"term": {"length": "1"}}
+                            ],
+                            "_cache": true
+                        }
+                    }
+                }
+            },
+            "sort": [{"freq": {"order": "desc"}}, "_score"]
+        };
+
+        queryES("fpgrowth/patterns", query, 10, function (result) {
+            result.forEach(function (entry) {
+                var src = entry._source,
+                    methodName = _.difference(src.body[0].split("."), className.split("."));
+                commonMethods.push({className: className, method: methodName, freq: src.freq});
+            });
+
+            displayCommonMethods();
+        })
+    }
+
     return {
         search: search,
         saveConfig: updateConfig,
         expand: expandResultView,
-        compress: compressResultView
+        compress: compressResultView,
+        collapseAll: collapseUnnecessaryLines,
+        expandAll: expandAllBlocks,
+        showFiles: showRelevantFiles,
+        showMethods: showFreqUsedMethods,
+        showFileContent: updateRightSide
     };
 }();
