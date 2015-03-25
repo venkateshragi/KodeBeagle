@@ -284,3 +284,8 @@ div#leftPanel {
     float: left;
     width: 38%;
 }
+
+div.leftPanelContent{
+    max-height: 80%;
+    overflow-y: auto;
+}
