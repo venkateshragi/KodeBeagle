@@ -346,15 +346,12 @@ var app = function () {
 
     function searchCommonUsage(className) {
 
-        var query, mustTerms = className.toLowerCase().split(".").map(function (entry) {
-            return {"term": {"body": entry}};
-        });
-        query = {
+        var query = {
             "query": {
                 "filtered": {
                     "query": {
                         "bool": {
-                            "must": mustTerms
+                            "must": [{"term": {"body": className}}]
                         }
                     },
                     "filter": {
