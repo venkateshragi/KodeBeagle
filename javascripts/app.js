@@ -24,7 +24,8 @@ var app = function () {
         fileTab = $("#fileTab"),
         methodTab = $("#methodTab"),
         currentResult = [],
-        commonMethods = [];
+        commonMethods = [],
+        docsBaseUrl = "http://192.168.2.28/api/";
 
 
     Handlebars.registerHelper('stringifyFunc', function (fnName, index, lines) {
@@ -33,6 +34,10 @@ var app = function () {
 
     Handlebars.registerHelper('updateEditorFn', function (file) {
         return "app.showFileContent([" + JSON.stringify(file) + "])";
+    });
+
+    Handlebars.registerHelper('displayDoc', function (method) {
+        return "app.showDocumentation(" + JSON.stringify(method) + ")";
     });
 
     function init() {
@@ -375,11 +380,17 @@ var app = function () {
 
                 if (location > -1) {
                     methodName = src.body[0].substr(className.length + 1); //taking length+1 so that '.' is excluded
-                    commonMethods.push({className: className, method: methodName, freq: src.freq});
+                    commonMethods.push({
+                        className: className,
+                        method: methodName,
+                        freq: src.freq,
+                        id: className.replace(/\./g, "") + "-" + methodName
+                    });
                 }
             });
 
             displayCommonMethods();
+            addMethodDoc();
         })
     }
 
@@ -390,6 +401,96 @@ var app = function () {
         renderFileContent(files[0], index);
         rightSideContainer.scrollTop(0);
     }
+
+    function getClassLinks(methodInfo) {
+        var pageUrl = methodInfo.className.replace(/\./g, "/") + ".html",
+            methodRegex = "(" + pageUrl + "#" + methodInfo.method + ".*)";
+        return {url: pageUrl, regex: new RegExp(/\".*/.source + methodRegex + /\"/.source)};
+    }
+
+    function detailedDoc() {
+        $("#results").hide();
+        $("#docContainer").show();
+    }
+
+    function addMethodDoc() {
+        commonMethods.forEach(function (methodInfo) {
+            var links = {};
+            if (methodInfo.className.search("java") === 0) {
+                links = getClassLinks(methodInfo);
+                $.get(docsBaseUrl + links.url, function (result) {
+                    var methodDoc = "",
+                        linkToMethod = "",
+                        matchedResult = result.match(links.regex);
+
+                    //temporary hack to avoid error for inherited methods
+                    if (matchedResult && matchedResult.length > 1) {
+                        linkToMethod = matchedResult[1].split("#")[1].replace(/[\(\)]/g, "\\$&").replace(/%20/g, " ");
+
+                        //regex to capture the content from the anchor for the method. Fetches anchor to li end.
+                        var contentRegex = new RegExp((/<a\sname=\"/).source + linkToMethod + (/\">.*?<\/a><ul class="blockList">((?!<\/li>).)*/).source);
+
+                        methodDoc = result.replace(/\n/g, "").match(contentRegex);
+                        methodDoc = methodDoc[0].substring(methodDoc[0].search("<h4"));
+
+                    } else {
+                        methodDoc = "Sorry!! This could be an inherited method. Please see the complete documentation."
+                    }
+
+
+                    $("#" + methodInfo.id).tooltipster({
+                        theme: 'tooltipster-light',
+                        content: $("<div>" + methodDoc + "</div>"),
+                        position: 'right',
+                        interactive: true,
+                        maxWidth: leftPanel.width()*2
+                    });
+                });
+            }
+        });
+    }
+/* old method to render complete doc
+    function fetchMethodDoc(methodInfo) {
+        var links = {},
+            container = $("#docContainer");
+        if (methodInfo.className.search("java") === 0) {
+            links = getClassLinks(methodInfo);
+            $.get(docsBaseUrl + links.url, function (result) {
+                var methodDoc = "",
+                    linkToMethod = "",
+                    matchedResult = result.match(links.regex);
+
+                var el = document.createElement('div');
+                el.innerHTML = result;
+
+
+                var header = $('div.header', el),
+                    content = $('div.contentContainer', el);
+
+                container.html(header);
+                container.append(content);
+                /*rightSideContainer.scrollTop(
+                 $("a[name='" + linkToMethod + "'").offset().top - container.offset().top + container.scrollTop()
+                 );*/
+
+                //temporary hack to avoid error for inherited methods
+     /*           if (matchedResult && matchedResult.length > 1) {
+                    linkToMethod = matchedResult[1].split("#")[1].replace(/[\(\)]/g, "\\$&").replace(/%20/g, " ");
+
+                    //regex to capture the content from the anchor for the method. Fetches anchor to li end.
+                    var contentRegex = new RegExp((/<a\sname=\"/).source + linkToMethod + (/\">.*?<\/a><ul class="blockList">((?!<\/li>).)*//*).source);
+
+                    methodDoc = result.replace(/\n/g, "").match(contentRegex);
+                    methodDoc = methodDoc[0].substring(methodDoc[0].search("<h4"));
+
+                } else {
+                    methodDoc = "Sorry!! Failed to find documentation. Please see the complete documentation."
+                }
+
+
+            });
+        }
+    }*/
 
     return {
         search: search,
