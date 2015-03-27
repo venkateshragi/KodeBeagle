@@ -27,25 +27,25 @@ class JavaFileIndexerSuite extends FunSuite with BeforeAndAfterAll {
   val stream =
     Thread.currentThread().getContextClassLoader.getResourceAsStream("TransportClient.java")
   val writer = new StringWriter()
-  val allOccurrences = List(74, 75, 79, 101, 103, 105, 106, 108, 109, 114, 117, 119, 120, 121, 123,
-    125, 137, 139, 141, 144, 145, 150, 154, 156, 158, 160, 172, 187, 188, 189, 191, 198, 203, 204)
+  val allOccurrences = List(74, 75, 101, 105, 108, 109, 123, 137, 141, 144, 145, 158, 172, 187,
+    188, 189, 191, 198, 203)
   val sampleRepo = Repository("sample", 0, "sample", false, "Java", "master", 0)
   override def beforeAll() {
     IOUtils.copy(stream, writer)
   }
 
-  ignore("Parse a file and verify tokens when lines of context is more than file size") {
+  test("Parse a file and verify tokens when lines of context is more than file size") {
     val javaFileIndexer = new JavaFileIndexer {
       override val linesOfContext = 2000
     }
     val resultTokens = javaFileIndexer.generateTokens(Map("sample-master/Sample.java" -> writer
       .toString), List(), Some(Repository.invalid))
-    assert(resultTokens.size === 2)
+    assert(resultTokens.size === 1)
     val result = resultTokens.flatMap(_.tokens.flatMap(_.lineNumbers)).toList.distinct.sorted
     assert(result === allOccurrences)
   }
 
-  ignore("Parse a file and verify tokens when lines of context is much less than file size") {
+  test("Parse a file and verify tokens when lines of context is much less than file size") {
     val javaFileIndexer = new JavaFileIndexer {
       override val linesOfContext = 10
     }
@@ -53,7 +53,7 @@ class JavaFileIndexerSuite extends FunSuite with BeforeAndAfterAll {
       Map("sample-master/Sample.java" -> writer.toString), List(), Some(Repository.invalid))
     val occurrences = result.flatMap(x => x.tokens.map(_.lineNumbers)).reduce(_ ++ _)
     assert(occurrences.toList === allOccurrences)
-    assert(result.size == 59)
+    assert(result.size == 30)
   }
 
   test("Excluded imports should not be part of Tokens") {
@@ -69,7 +69,7 @@ class JavaFileIndexerSuite extends FunSuite with BeforeAndAfterAll {
     val expected = resultWOExcludes.flatMap(x => x.tokens.map(_.importName))
       .filterNot(_.startsWith("org.apache.spark.network.protocol"))
     val result = resultWExcludes.flatMap(x => x.tokens.map(_.importName))
-    assert(expected === result)
+    assert(result === expected)
   }
 
   test("Should not include global variables and declarations in indexes.") {
@@ -87,6 +87,59 @@ class JavaFileIndexerSuite extends FunSuite with BeforeAndAfterAll {
       override val linesOfContext = 2000
     }
     val resultTokens = javaFileIndexer.generateTokens(Map("sample-master/Sample.java" ->
+      writer.toString), List(), Some(Repository.invalid))
+    val result = resultTokens.flatMap(_.tokens.flatMap(_.lineNumbers)).toList.distinct.sorted
+    assert(!result.exists(Set(77, 82)))
+  }
+
+}
+
+class JavaASTBasedIndexerSuite extends FunSuite with BeforeAndAfterAll {
+  val stream =
+    Thread.currentThread().getContextClassLoader.getResourceAsStream("TransportClient.java")
+  val writer = new StringWriter()
+  val allOccurrences = List(74, 75, 79, 101, 103, 105, 106, 108, 109, 112, 114, 117, 118, 119, 120,
+    121, 123, 125, 137, 139, 141, 144, 145, 148, 150, 153, 154, 156, 158, 160, 172, 187, 188, 189,
+    191, 198, 203, 204)
+  val sampleRepo = Repository("sample", 0, "sample", false, "Java", "master", 0)
+  override def beforeAll() {
+    IOUtils.copy(stream, writer)
+  }
+
+  test("Parse a file and verify tokens") {
+    val indexer = new JavaASTBasedIndexer
+    val resultTokens = indexer.generateTokens(Map("sample-master/Sample.java" -> writer
+      .toString), List(), Some(Repository.invalid))
+    assert(resultTokens.size === 7)
+    val result = resultTokens.flatMap(_.tokens.flatMap(_.lineNumbers)).toList.distinct.sorted
+    assert(result === allOccurrences)
+  }
+
+  test("Excluded imports should not be part of Tokens") {
+    val indexer = new JavaASTBasedIndexer
+    val excludes = Set("org.apache.spark", "org.apache", "org",
+      "org.apache.spark.network.protocol")
+    val resultWOExcludes = indexer.generateTokens(Map("sample-master/Sample.java" ->
+      writer.toString), List(), Some(Repository.invalid))
+    val resultWExcludes = indexer.generateTokens(Map("sample-master/Sample.java" ->
+      writer.toString), excludes.toList, Some(Repository.invalid))
+    val expected = resultWOExcludes.flatMap(x => x.tokens.map(_.importName))
+      .filterNot(_.startsWith("org.apache.spark.network.protocol"))
+    val result = resultWExcludes.flatMap(x => x.tokens.map(_.importName))
+    assert(expected === result)
+  }
+
+  test("Should not include global variables and declarations in indexes.") {
+    val indexer = new JavaASTBasedIndexer
+    val resultTokens = indexer.generateTokens(Map("sample-master/Sample.java" ->
+      writer.toString), List(), Some(Repository.invalid))
+    val result = resultTokens.flatMap(_.tokens.flatMap(_.lineNumbers)).toList.distinct.sorted
+    assert(!result.exists(Set(67, 68, 70)))
+  }
+
+  test("Should exclude commented code for processing indexes.") {
+    val indexer = new JavaASTBasedIndexer
+    val resultTokens = indexer.generateTokens(Map("sample-master/Sample.java" ->
       writer.toString), List(), Some(Repository.invalid))
     val result = resultTokens.flatMap(_.tokens.flatMap(_.lineNumbers)).toList.distinct.sorted
     assert(!result.exists(Set(77, 82)))

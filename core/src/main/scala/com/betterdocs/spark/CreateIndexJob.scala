@@ -17,18 +17,15 @@
 
 package com.betterdocs.spark
 
-import java.io.File
-
 import com.betterdocs.configuration.BetterDocsConfig
 import com.betterdocs.crawler.{Repository, ZipBasicParser}
-import com.betterdocs.indexer.JavaFileIndexer
-import com.betterdocs.logging.Logger
+import com.betterdocs.indexer.JavaASTBasedIndexer
 import com.betterdocs.parser.RepoFileNameParser
 import org.apache.commons.compress.archivers.zip.ZipFile
 import org.apache.spark.{SparkConf, SparkContext}
 
 import scala.collection.mutable.ArrayBuffer
-import scala.util.{Failure, Success, Try}
+import scala.util.Try
 
 object CreateIndexJob {
 
@@ -36,12 +33,9 @@ object CreateIndexJob {
 
   def mapToSourceFiles(repo: Option[Repository], map: ArrayBuffer[(String, String)]) = {
     val repo2 = repo.getOrElse(Repository.invalid)
-    def fileNameToURL(f: String) = { // TODO: use method from javaFileIndexer.
-      val (_, actualFileName) = f.splitAt(f.indexOf('/'))
-      s"""${repo2.login}/${repo2.name}/blob/${repo2.defaultBranch}$actualFileName"""
-    }
+    import com.betterdocs.indexer.JavaFileIndexerHelper._
 
-    map.map(x => SourceFile(repo2.id, fileNameToURL(x._1), x._2)).toSet
+    map.map(x => SourceFile(repo2.id, fileNameToURL(repo2, x._1), x._2)).toSet
   }
 
   def main(args: Array[String]): Unit = {
@@ -58,17 +52,17 @@ object CreateIndexJob {
 
     zipFileExtractedRDD.flatMap { f =>
       val (files, repo, packages) = f
-      new JavaFileIndexer()
+      new JavaASTBasedIndexer()
         .generateTokens(files.toMap, packages, repo)
-    }.map(x => toJson(x, addESHeader = true)).saveAsTextFile(BetterDocsConfig.sparkOutput)
+    }.map(x => toJson(x, addESHeader = true)).saveAsTextFile(BetterDocsConfig.sparkIndexOutput)
 
     // Generate repository index.
     zipFileExtractedRDD.map(x => toJson(x._2.get, addESHeader = true, isToken = false))
-      .saveAsTextFile(BetterDocsConfig.sparkOutput + "/repo")
+      .saveAsTextFile(BetterDocsConfig.sparkRepoOutput)
 
     zipFileExtractedRDD.flatMap(x => mapToSourceFiles(x._2, x._1))
       .map(x => toJson(x, addESHeader = true, isToken = false))
-      .saveAsTextFile(BetterDocsConfig.sparkOutput + "/source")
+      .saveAsTextFile(BetterDocsConfig.sparkSourceOutput)
 
   }
 
@@ -84,7 +78,7 @@ object CreateIndexJob {
   }
 
   def toJson[T <: AnyRef <% Product with Serializable](t: T, addESHeader: Boolean = false,
-      isToken: Boolean = true): String = {
+      isToken: Boolean = true ): String = {
     import org.json4s._
     import org.json4s.jackson.Serialization
     import org.json4s.jackson.Serialization.write
@@ -98,49 +92,5 @@ object CreateIndexJob {
           |""".stripMargin + write(t)  // scalastyle:on
     } else "" + write(t)
 
-  }
-
-}
-
-object CreateIndex extends Logger {
-
-  def main(args: Array[String]): Unit = {
-    import com.betterdocs.crawler.ZipBasicParser._
-    for (f <- listAllFiles(BetterDocsConfig.githubDir)) {
-      val zipFile = Try(new ZipFile(f))
-      zipFile match {
-        case Success(zf) =>
-          val tokens: String = getTokens(f, zf)
-          scala.tools.nsc.io.File(BetterDocsConfig.sparkOutput + s"/$f.tokens").writeAll(tokens)
-        case Failure(e) => log.warn(s"$f failed because ${e.getMessage}")
-      }
-    }
-  }
-
-  def getTokens(f: File, zf: ZipFile): String = {
-    val indexer: JavaFileIndexer = new JavaFileIndexer
-    import com.betterdocs.crawler.ZipBasicParser._
-    import indexer._
-    val files: (ArrayBuffer[(String, String)], List[String]) = readFilesAndPackages(zf)
-    val repo = RepoFileNameParser(f.getName)
-    val tokens = generateTokens(files._1.toMap, files._2, repo)
-      .map(CreateIndexJob.toJson(_, addESHeader = true)).mkString("\n")
-    tokens
-  }
-}
-
-object CreateIndexPar extends Logger {
-
-  def main(args: Array[String]): Unit = {
-    import com.betterdocs.crawler.ZipBasicParser._
-    listAllFiles(BetterDocsConfig.githubDir).par.foreach { f =>
-      val zipFile = Try(new ZipFile(f))
-      zipFile match {
-        case Success(zf) =>
-          val tokens: String = CreateIndex.getTokens(f, zf)
-          scala.tools.nsc.io.File(BetterDocsConfig.sparkOutput + s"/$f.tokens").writeAll(tokens)
-        case Failure(e) => log.warn(s"$f failed because ${e.getMessage}")
-      }
-    }
   }
 }
