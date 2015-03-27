@@ -4,16 +4,20 @@
 <head>
     <title>BetterDocs</title>
     <link href='http://fonts.googleapis.com/css?family=Open+Sans:600,400' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/normalize/3.0.2/normalize.min.css">
     <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
     <link type="text/css" rel="stylesheet" href="stylesheets/jquery.remodal.css"/>
-    <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tooltipster/3.0.5/css/tooltipster.css"/>
-    <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tooltipster/3.0.5/css/themes/tooltipster-light.css"/>
+    <link type="text/css" rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/tooltipster/3.0.5/css/tooltipster.css"/>
+    <link type="text/css" rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/tooltipster/3.0.5/css/themes/tooltipster-light.css"/>
     <link type="text/css" rel="stylesheet" href="stylesheets/demo.css"/>
 </head>
 <body>
 <div class="remodal-bg">
     <div class="topPanel">
         <span class="logo">BetterDocs</span>
+
         <div class="searchForm">
             <form id="searchByFQN">
                 <span class="searchIcon"><i class="fa fa-search fa-flip-horizontal"></i></span>
@@ -45,23 +49,23 @@
                         <div id="fileTab" onclick="app.showFiles()">Files</div>
                         <div id="methodTab" onclick="app.showMethods()">Methods</div>
                     </div>
-                    <div class="leftPanelPadding">
-                        <div id="resultTreeContainer" class="leftPanelContent"></div>
-                        <div id="methodsContainer" class="leftPanelContent"></div>
+                    <div>
+                        <div id="resultTreeContainer" class="leftPanelContent leftPanelPadding"></div>
+                        <div id="methodsContainer" class="leftPanelContent leftPanelPadding"></div>
                     </div>
                 </div>
             </div>
 
-            <div class="resultContainer" id="rightSideContainer">
+            <div class="rightContainer" id="rightSideContainer">
+                <div class="resultHeader">
                     <span id="expand" class="viewOptions">
                         <a href="javascript:void(0);" onclick="app.expand()"><i class="fa fa-expand pull-right"></i></a>
                     </span>
                     <span id="compress" class="viewOptions">
                         <a href="javascript:void(0);" onclick="app.compress()"><i class="fa fa-compress pull-right"></i></a>
                     </span>
-
-                <div id="results"></div>
-                <div id="docContainer" class="documentation"></div>
+                </div>
+                <div id="results" class="resultContainer"></div>
             </div>
 
         </div>
@@ -69,10 +73,14 @@
         <script id="result-template" type="text/x-handlebars-template">
             {{#each files}}
             <div class="result" id="result{{@index}}">
-                <div><a href="http://github.com/{{path}}" target="_blank">{{repo}}/{{name}}</a>
-                    <span><a href="javascript:void(0);" onclick="{{stringifyFunc 'collapse' @index lines}}">collapse</a></span>
-                    <span><a href="javascript:void(0);"
-                             onclick="{{stringifyFunc 'expand' @index lines}}">expand</a></span>
+                <div class="fileHeader">
+                    <a href="http://github.com/{{path}}" target="_blank">{{repo}}/{{name}}</a>
+                    <span class="pull-right codeIcon"><a href="javascript:void(0);"
+                                                         onclick="{{stringifyFunc 'collapse' @index lines}}">
+                        <i class="fa fa-caret-square-o-down"></i></a></span>
+                    <span class="pull-right codeIcon"><a href="javascript:void(0);"
+                                                         onclick="{{stringifyFunc 'expand' @index lines}}"><i
+                            class="fa fa-caret-square-o-right"></i></a></span>
                 </div>
                 <div id="result{{@index}}-editor" class="editor">{{content}}</div>
             </div>
@@ -100,7 +108,10 @@
             <h3>Commonly Used Methods </h3>
             <div id="commonMethods">
                 <ul>{{#each groupedMethods}}
-                    <li>{{className}}</li>
+                    <li><span>{{className}}</span>
+                        <span class="documentation"><a href="{{docUrl url}}" target="_blank" class="pull-right">API
+                            Docs</a></span>
+                    </li>
                     <ul>
                         {{#each methods}}
                         <li class="clickable"><span id="{{id}}">{{method}}</span></li>
@@ -146,8 +157,9 @@
 <script src="javascripts/app.js"></script>
 
 <script>
-    var ht = Math.floor($("#leftPanel").height() / 14);
-    $("#repoList").attr("size", ht - 12);
+    var ht = Math.floor(($("#leftPanel").height() - 21 ) / 14);
+    ht = (ht <= 35) ? ht - 7 : ht - 10;
+    $("#repoList").attr("size", ht);
     $("#searchByFQN").submit(function (evt) {
         evt.preventDefault();
         app.search($("#searchString").val());

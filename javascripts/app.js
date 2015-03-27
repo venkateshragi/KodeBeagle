@@ -37,7 +37,19 @@ var app = function () {
     });
 
     Handlebars.registerHelper('displayDoc', function (method) {
-        return "app.showDocumentation(" + JSON.stringify(method) + ")";
+        var result = "";
+        if (method.url.search("java") === 0) {
+            result = "app.showDocumentation(" + JSON.stringify(method) + ")";
+        }
+        return result;
+    });
+
+    Handlebars.registerHelper('docUrl', function (url) {
+        var result = "javascript:void(0);";
+        if (url.search("java") === 0) {
+            result = "http://docs.oracle.com/javase/7/docs/api/" + url;
+        }
+        return result;
     });
 
     function init() {
@@ -77,10 +89,12 @@ var app = function () {
         methodsContainer.html("");
         var groupedMethods = _.map(_.groupBy(commonMethods, "className"), function (matches, className) {
             return {
-                className: className, methods: matches
+                className: className, methods: matches, url: matches[0].url
             }
         });
         methodsContainer.html(methodsContainerTemplate({"groupedMethods": groupedMethods}));
+        //calling addMethodDoc on grouped Methods to reduce number of requests for toolTip (making it faster)
+        addMethodDoc(groupedMethods);
     }
 
     function enableAceEditor(id, content, lineNumbers) {
@@ -375,22 +389,25 @@ var app = function () {
         queryES("fpgrowth/patterns", query, 10, function (result) {
             result.forEach(function (entry) {
                 var src = entry._source,
-                    methodName,
-                    location = src.body[0].search(className);
+                    methodName, methodRegex,
+                    location = src.body[0].search(className),
+                    pageUrl = className.replace(/\./g, "/") + ".html";
 
                 if (location > -1) {
                     methodName = src.body[0].substr(className.length + 1); //taking length+1 so that '.' is excluded
+                    methodRegex = "(" + pageUrl + "#" + methodName + ".*)";
                     commonMethods.push({
                         className: className,
                         method: methodName,
                         freq: src.freq,
-                        id: className.replace(/\./g, "") + "-" + methodName
+                        id: className.replace(/\./g, "") + "-" + methodName,
+                        url: pageUrl,
+                        regex: new RegExp(/\".*/.source + methodRegex + /\"/.source)
                     });
                 }
             });
 
             displayCommonMethods();
-            addMethodDoc();
         })
     }
 
@@ -402,95 +419,88 @@ var app = function () {
         rightSideContainer.scrollTop(0);
     }
 
-    function getClassLinks(methodInfo) {
-        var pageUrl = methodInfo.className.replace(/\./g, "/") + ".html",
-            methodRegex = "(" + pageUrl + "#" + methodInfo.method + ".*)";
-        return {url: pageUrl, regex: new RegExp(/\".*/.source + methodRegex + /\"/.source)};
-    }
+    function addMethodDoc(classWiseMethods) {
+        classWiseMethods.forEach(function (entry) {
+            var url = entry.url;
 
-    function detailedDoc() {
-        $("#results").hide();
-        $("#docContainer").show();
-    }
+            if (url.search("java") === 0) {
+                $.get(docsBaseUrl + url, function (result) {
 
-    function addMethodDoc() {
-        commonMethods.forEach(function (methodInfo) {
-            var links = {};
-            if (methodInfo.className.search("java") === 0) {
-                links = getClassLinks(methodInfo);
-                $.get(docsBaseUrl + links.url, function (result) {
-                    var methodDoc = "",
-                        linkToMethod = "",
-                        matchedResult = result.match(links.regex);
+                    entry.methods.forEach(function (methodInfo) {
+                        var methodDoc = "",
+                            linkToMethod = "",
+                            matchedResult = result.match(methodInfo.regex);
 
-                    //temporary hack to avoid error for inherited methods
-                    if (matchedResult && matchedResult.length > 1) {
-                        linkToMethod = matchedResult[1].split("#")[1].replace(/[\(\)]/g, "\\$&").replace(/%20/g, " ");
+                        //temporary hack to avoid error for inherited methods
+                        if (matchedResult && matchedResult.length > 1) {
+                            linkToMethod = matchedResult[1].split("#")[1].replace(/[\(\)]/g, "\\$&").replace(/%20/g, " ");
 
-                        //regex to capture the content from the anchor for the method. Fetches anchor to li end.
-                        var contentRegex = new RegExp((/<a\sname=\"/).source + linkToMethod + (/\">.*?<\/a><ul class="blockList">((?!<\/li>).)*/).source);
+                            //regex to capture the content from the anchor for the method. Fetches anchor to li end.
+                            var contentRegex = new RegExp((/<a\sname=\"/).source + linkToMethod + (/\">.*?<\/a><ul class="blockList">((?!<\/li>).)*/).source);
 
-                        methodDoc = result.replace(/\n/g, "").match(contentRegex);
-                        methodDoc = methodDoc[0].substring(methodDoc[0].search("<h4"));
+                            methodDoc = result.replace(/\n/g, "").match(contentRegex);
+                            methodDoc = methodDoc[0].substring(methodDoc[0].search("<h4"));
 
-                    } else {
-                        methodDoc = "Sorry!! This could be an inherited method. Please see the complete documentation."
-                    }
-
-
-                    $("#" + methodInfo.id).tooltipster({
-                        theme: 'tooltipster-light',
-                        content: $("<div>" + methodDoc + "</div>"),
-                        position: 'right',
-                        interactive: true,
-                        maxWidth: leftPanel.width()*2
+                        } else {
+                            methodDoc = "Sorry!! This could be an inherited method. Please see the complete documentation."
+                        }
+                        $("#" + methodInfo.id).tooltipster({
+                            theme: 'tooltipster-light',
+                            content: $("<div>" + methodDoc + "</div>"),
+                            position: 'right',
+                            interactive: true,
+                            maxWidth: leftPanel.width() * 2
+                        });
                     });
+
                 });
             }
         });
     }
-/* old method to render complete doc
-    function fetchMethodDoc(methodInfo) {
-        var links = {},
-            container = $("#docContainer");
-        if (methodInfo.className.search("java") === 0) {
-            links = getClassLinks(methodInfo);
-            $.get(docsBaseUrl + links.url, function (result) {
-                var methodDoc = "",
-                    linkToMethod = "",
-                    matchedResult = result.match(links.regex);
 
-                var el = document.createElement('div');
-                el.innerHTML = result;
+    /* old method to render complete doc
+     function fetchMethodDoc(methodInfo) {
+     var links = {},
+     container = $("#docContainer");
+     if (methodInfo.className.search("java") === 0) {
+     links = getClassLinks(methodInfo);
+     $.get(docsBaseUrl + links.url, function (result) {
+     var methodDoc = "",
+     linkToMethod = "",
+     matchedResult = result.match(links.regex);
 
-
-                var header = $('div.header', el),
-                    content = $('div.contentContainer', el);
-
-                container.html(header);
-                container.append(content);
-                /*rightSideContainer.scrollTop(
-                 $("a[name='" + linkToMethod + "'").offset().top - container.offset().top + container.scrollTop()
-                 );*/
-
-                //temporary hack to avoid error for inherited methods
-     /*           if (matchedResult && matchedResult.length > 1) {
-                    linkToMethod = matchedResult[1].split("#")[1].replace(/[\(\)]/g, "\\$&").replace(/%20/g, " ");
-
-                    //regex to capture the content from the anchor for the method. Fetches anchor to li end.
-                    var contentRegex = new RegExp((/<a\sname=\"/).source + linkToMethod + (/\">.*?<\/a><ul class="blockList">((?!<\/li>).)*//*).source);
-
-                    methodDoc = result.replace(/\n/g, "").match(contentRegex);
-                    methodDoc = methodDoc[0].substring(methodDoc[0].search("<h4"));
-
-                } else {
-                    methodDoc = "Sorry!! Failed to find documentation. Please see the complete documentation."
-                }
+     var el = document.createElement('div');
+     el.innerHTML = result;
 
 
-            });
-        }
-    }*/
+     var header = $('div.header', el),
+     content = $('div.contentContainer', el);
+
+     container.html(header);
+     container.append(content);
+     /*rightSideContainer.scrollTop(
+     $("a[name='" + linkToMethod + "'").offset().top - container.offset().top + container.scrollTop()
+     );*/
+
+    //temporary hack to avoid error for inherited methods
+    /*           if (matchedResult && matchedResult.length > 1) {
+     linkToMethod = matchedResult[1].split("#")[1].replace(/[\(\)]/g, "\\$&").replace(/%20/g, " ");
+
+     //regex to capture the content from the anchor for the method. Fetches anchor to li end.
+     var contentRegex = new RegExp((/<a\sname=\"/).source + linkToMethod + (/\">.*?<\/a><ul class="blockList">((?!<\/li>).)*/
+    /*).source);
+
+     methodDoc = result.replace(/\n/g, "").match(contentRegex);
+     methodDoc = methodDoc[0].substring(methodDoc[0].search("<h4"));
+
+     } else {
+     methodDoc = "Sorry!! Failed to find documentation. Please see the complete documentation."
+     }
+
+
+     });
+     }
+     }*/
 
     return {
         search: search,
