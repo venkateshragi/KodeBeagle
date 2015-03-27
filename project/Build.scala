@@ -44,7 +44,7 @@ object BetterDocsBuild extends Build {
      // retrieveManaged := true, // enable this if we need jars of dependencies.
       crossPaths := false,
       fork := true,
-      javacOptions ++= Seq("-source", "1.5"),
+      javacOptions ++= Seq("-source", "1.6"),
       javaOptions += "-Xmx2048m" // For running spark job.
     )
 
@@ -52,7 +52,7 @@ object BetterDocsBuild extends Build {
 
 object Dependencies {
 
-  val spark = "org.apache.spark" %% "spark-core" % "1.3.0"
+  val spark = "org.apache.spark" %% "spark-core" % "1.3.0" // % "provided" Provided makes it not run through sbt run.
   val parserCombinator = "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.3"
   val scalaTest = "org.scalatest" %% "scalatest" % "2.2.4" % "test" 
   val slf4j = "org.slf4j" % "slf4j-log4j12" % "1.7.10"
@@ -60,16 +60,12 @@ object Dependencies {
   val json4s = "org.json4s" %% "json4s-ast" % "3.2.10"
   val json4sJackson = "org.json4s" %% "json4s-jackson" % "3.2.10"
   val httpClient = "commons-httpclient" % "commons-httpclient" % "3.1"
-
-  val betterDocs = Seq(spark, parserCombinator, scalaTest, slf4j, javaparser, json4s, 
+  val config = "com.typesafe" % "config" % "1.2.1"
+  val betterDocs = Seq(spark, parserCombinator, scalaTest, slf4j, javaparser, json4s, config,
     json4sJackson)
 
   // transitively uses
-  // commons-httpclient-3.1
   // commons-io-2.4
-  // json4s-jackson_2.11-3.2.10
-  // json4s-ast_2.11-3.2.10.jar
   // commons-compress-1.4.1
-  // "com.typesafe" % "config" % "1.2.1"
 
 }
