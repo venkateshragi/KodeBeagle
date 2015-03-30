@@ -55,6 +55,8 @@ var app = function () {
     function init() {
         searchMetaContainer.hide();
         compressIcon.hide();
+        //hack for setting same height for both containers on different screens
+        $(".leftPanelContent").height(rightSideContainer.height() - 40);
     }
 
     init();
@@ -440,7 +442,7 @@ var app = function () {
 
                             methodDoc = result.replace(/\n/g, "").match(contentRegex);
                             methodDoc = methodDoc[0].substring(methodDoc[0].search("<h4"));
-                            methodDoc = methodDoc.replace(/\s\s+/g, "").replace(new RegExp("../../../","g"), docsBaseUrl);
+                            methodDoc = methodDoc.replace(/\s\s+/g, "").replace(new RegExp("../../../", "g"), docsBaseUrl);
 
                         } else {
                             methodDoc = "Sorry!! This could be an inherited method. Please see the complete documentation."

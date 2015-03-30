@@ -24,7 +24,7 @@ header h2 {
 
 .container {
     padding: 10px;
-    min-height: 85.5%;
+    height: 100%;
 }
 
 .editor {
@@ -193,15 +193,15 @@ div.repoInfo select {
 }
 
 div.rightContainer{
-    margin-top: 5px;
     float: right;
     width: 60%;
-    height: 84%;
+    height: 90%;
     border: 1px solid #F5F5F5;
 }
 
 div.resultContainer {
-    padding: 5px;
+    padding: 0 5px 5px 5px;
+    height:100%;
     overflow-y: auto;
 }
 
@@ -288,15 +288,14 @@ li.clickable {
 }
 
 div#leftPanel {
-    margin-top: 5px;
     /*padding: 5px;*/
-    height: 84%;
+    height: 90%;
     float: left;
     width: 38%;
 }
 
 div.leftPanelContent {
-    height: 92%;
+    /*height: 94%;*/
     overflow-y: auto;
     border: 1px solid #F5F5F5;
     border-top: none;
