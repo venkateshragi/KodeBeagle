@@ -157,7 +157,7 @@
 
 <script>
     var ht = Math.floor(($("#leftPanel").height() - 21 ) / 14);
-    ht = (ht <= 35) ? ht - 7 : ht - 10;
+    ht = (ht <= 40) ? ht - 8 : ht - 10;
     $("#repoList").attr("size", ht);
     $("#searchByFQN").submit(function (evt) {
         evt.preventDefault();
