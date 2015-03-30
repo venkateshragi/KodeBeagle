@@ -89,6 +89,7 @@ input#searchString {
     border-radius: 0;
     color: #3F3F3F;
     padding: 10px 5px 10px 20px;
+    font-size:14px;
 }
 
 footer {

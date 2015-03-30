@@ -395,7 +395,7 @@ var app = function () {
 
                 if (location > -1) {
                     methodName = src.body[0].substr(className.length + 1); //taking length+1 so that '.' is excluded
-                    methodRegex = "(" + pageUrl + "#" + methodName + ".*)";
+                    methodRegex = "(" + pageUrl + "#" + methodName + "\\([\\w\\.\\d,%]*\\))";
                     commonMethods.push({
                         className: className,
                         method: methodName,
@@ -436,10 +436,11 @@ var app = function () {
                             linkToMethod = matchedResult[1].split("#")[1].replace(/[\(\)]/g, "\\$&").replace(/%20/g, " ");
 
                             //regex to capture the content from the anchor for the method. Fetches anchor to li end.
-                            var contentRegex = new RegExp((/<a\sname=\"/).source + linkToMethod + (/\">.*?<\/a><ul class="blockList">((?!<\/li>).)*/).source);
+                            var contentRegex = new RegExp((/<a\sname=\"/).source + linkToMethod + (/\">.*?<\/a><ul((?!<\/li>).)*/).source);
 
                             methodDoc = result.replace(/\n/g, "").match(contentRegex);
                             methodDoc = methodDoc[0].substring(methodDoc[0].search("<h4"));
+                            methodDoc = methodDoc.replace(/\s\s+/g, "").replace(new RegExp("../../../","g"), docsBaseUrl);
 
                         } else {
                             methodDoc = "Sorry!! This could be an inherited method. Please see the complete documentation."
