@@ -156,20 +156,7 @@
 <script src="javascripts/app.js"></script>
 
 <script>
-    var ht = Math.floor(($("#leftPanel").height() - 21 ) / 14);
-    ht = (ht <= 40) ? ht - 8 : ht - 10;
-    $("#repoList").attr("size", ht);
-    $("#searchByFQN").submit(function (evt) {
-        evt.preventDefault();
-        app.search($("#searchString").val());
-    });
-
-    $(document).on('close', '.remodal', function (e) {
-        if (e.reason === "confirmation") {
-            app.saveConfig($("#elasticSearchURL").val(), $("#resultSize").val());
-        }
-    });
-
+    app.initialize();
 </script>
 
 <!--Google Analytics-->

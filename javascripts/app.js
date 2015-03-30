@@ -53,13 +53,37 @@ var app = function () {
     });
 
     function init() {
+        var screenHeight = screen.availHeight,
+            topPanel = $(".topPanel").outerHeight(), containerHeight;
+
+        if (screenHeight < 800) {
+            containerHeight = screenHeight - 2 * (topPanel+10);
+        } else {
+            containerHeight = screenHeight - 3 * topPanel;
+        }
+
+        $(".container").height(containerHeight);
+
+        var ht = Math.floor(($("#leftPanel").height() - 21 ) / 14);
+        ht = (ht <= 40) ? ht - 8 : ht - 11;
+
+        $("#repoList").attr("size", ht);
+        $("#searchByFQN").submit(function (evt) {
+            evt.preventDefault();
+            app.search($("#searchString").val());
+        });
+
+        $(document).on('close', '.remodal', function (e) {
+            if (e.reason === "confirmation") {
+                app.saveConfig($("#elasticSearchURL").val(), $("#resultSize").val());
+            }
+        });
+
         searchMetaContainer.hide();
         compressIcon.hide();
         //hack for setting same height for both containers on different screens
         $(".leftPanelContent").height(rightSideContainer.height() - 40);
     }
-
-    init();
 
     function highlightLine(editor, lineNumbers) {
         lineNumbers.forEach(function (line) {
@@ -443,6 +467,7 @@ var app = function () {
                             methodDoc = result.replace(/\n/g, "").match(contentRegex);
                             methodDoc = methodDoc[0].substring(methodDoc[0].search("<h4"));
                             methodDoc = methodDoc.replace(/\s\s+/g, "").replace(new RegExp("../../../", "g"), docsBaseUrl);
+                            methodDoc = methodDoc.replace(/<a/g, "<a target='_blank'");
 
                         } else {
                             methodDoc = "Sorry!! This could be an inherited method. Please see the complete documentation."
@@ -506,6 +531,7 @@ var app = function () {
      }*/
 
     return {
+        initialize: init,
         search: search,
         saveConfig: updateConfig,
         expand: expandResultView,
