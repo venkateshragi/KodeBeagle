@@ -19,69 +19,100 @@ package com.imaginea.betterdocs;
 
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.actionSystem.ToggleAction;
+import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.EditorFactory;
+import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.vfs.LocalFileSystem;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
-import com.intellij.packaging.impl.artifacts.JarFromModulesTemplate;
-import com.intellij.psi.JavaPsiFacade;
-import com.intellij.psi.PsiPackage;
 import com.intellij.ui.components.JBScrollPane;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
+import groovy.swing.impl.DefaultAction;
 
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-
-import java.awt.Component;
+import javax.swing.JTree;
+import javax.swing.border.Border;
+import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.Color;
-import java.util.HashSet;
-import java.util.Set;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
 
-/**
- * BetterDocsWindow
- */
-public class BetterDocsWindow implements ToolWindowFactory
-{
+public class BetterDocsWindow implements ToolWindowFactory {
+
     @Override
-    public void createToolWindowContent(Project project, ToolWindow toolWindow)
-    {
+    public void createToolWindowContent(Project project, ToolWindow toolWindow) {
         toolWindow.setIcon(Messages.getInformationIcon());
-        Component component = toolWindow.getComponent();
+        DefaultMutableTreeNode root = new DefaultMutableTreeNode("Projects");
 
-        JTextArea betterDocsText = new JTextArea(1, 1);
-        betterDocsText.setBackground(new Color(255, 255, 0));
-        betterDocsText.setEditable(false);
-        betterDocsText.setLineWrap(false);
+        JTree jTree = new JTree(root);
+        jTree.setVisible(false);
+        jTree.setAutoscrolls(true);
+        jTree.setForeground(new Color(100, 155, 155));
 
-        JBScrollPane scrollPane = new JBScrollPane();
-        scrollPane.setViewportView(betterDocsText);
-        scrollPane.setAutoscrolls(true);
-
-        JTextField distance = new JTextField(1);
-        distance.setBackground(new Color(10, 100, 100));
-        distance.setEditable(true);
-
+        Document document = EditorFactory.getInstance().createDocument("");
+        Editor windowEditor = EditorFactory.getInstance().createEditor(document, project, FileTypeManager.getInstance().getFileTypeByExtension("java"), false);
 
         BetterDocsAction action = new BetterDocsAction();
-        action.setTextPane(betterDocsText);
-        
+        action.setTree(jTree);
+        action.setWindowEditor(windowEditor);
+
         DefaultActionGroup group = new DefaultActionGroup();
         group.add(action);
         JComponent toolBar = ActionManager.getInstance().createActionToolbar("BetterDocs", group, true).getComponent();
 
+        EditorToggleAction toggleAction = new EditorToggleAction();
+        DefaultActionGroup moveGroup = new DefaultActionGroup();
+        moveGroup.add(toggleAction);
+
+
+        JComponent moveBar = ActionManager.getInstance().createActionToolbar("Move", moveGroup, true).getComponent();
+
         FormLayout layout = new FormLayout(
-                "left:pref, fill:pref:grow",
-                "fill:pref:grow");
+                "pref, pref:grow",
+                "pref, pref");
+
         CellConstraints cc = new CellConstraints();
 
-        JPanel p = new JPanel(layout);
-        p.add(toolBar, cc.xy (1, 1));
-        p.add(scrollPane, cc.xy (2, 1));
-        p.add(distance, cc.xy (1, 1));
+        JBScrollPane jTreeScrollPane = new JBScrollPane();
+        jTreeScrollPane.setViewportView(jTree);
+        jTreeScrollPane.setAutoscrolls(true);
+        jTreeScrollPane.setBackground(new Color(255, 0, 0));
 
-        component.getParent().add(p);
+        JPanel jPanel = new JPanel(layout);
+        jPanel.setVisible(true);
+        jPanel.add(toolBar , cc.xy(1, 1));
+        jPanel.add(moveBar, cc.xy(1, 2));
+        jPanel.add(jTreeScrollPane , cc.xy(2, 1));
+
+        JPanel windowPanel = new JPanel();
+        windowPanel.setVisible(true);
+        windowPanel.add(windowEditor.getComponent());
+        windowPanel.setPreferredSize(new Dimension(500, 500));
+
+        final JSplitPane jSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, jPanel, windowEditor.getComponent());
+        jSplitPane.setDividerLocation(0.1);
+        toggleAction.setjSplitPane(jSplitPane);
+
+        toolWindow.getComponent().getParent().add(jSplitPane);
     }
 }
+

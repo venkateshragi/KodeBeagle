@@ -59,8 +59,13 @@ public class CodeBlock extends AnAction {
         int offset = editor.getCaretModel().getOffset();
 
         String distance = Messages.showInputDialog(project, "approx code distance", "input", Messages.getQuestionIcon());
-        Messages.showMessageDialog(getNeighbourCode(document, document.getLineNumber(offset), Integer.parseInt(distance)), "Searchable tokens", Messages.getInformationIcon());
 
+        try{
+            Integer.parseInt(distance);
+            Messages.showMessageDialog(getNeighbourCode(document, document.getLineNumber(offset), Integer.parseInt(distance)), "Searchable tokens", Messages.getInformationIcon());
+        } catch (Exception e1) {
+            e1.printStackTrace();
+        }
     }
 
     //Pass currentLine as currentLine + 1 because counting starts from 0
@@ -74,3 +79,4 @@ public class CodeBlock extends AnAction {
         return stringBuilder.toString();
     }
 }
+

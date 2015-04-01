@@ -41,3 +41,4 @@
         <toolWindow id="Better Docs" anchor="right" factoryClass="com.imaginea.betterdocs.BetterDocsWindow"/>
     </extensions>
 </idea-plugin>
+
