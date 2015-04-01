@@ -80,8 +80,9 @@ class JavaFileIndexer extends BasicIndexer {
       val imports = extractImports(fileContent, excludePackages)
       val fullGithubURL = fileNameToURL(r, fileName)
       // Penalize score of test files.
-      val score = if (isTestFile(imports))
-        r.stargazersCount / penalizeTestFiles else r.stargazersCount
+      val score = if (isTestFile(imports)) {
+        r.stargazersCount / penalizeTestFiles
+      } else r.stargazersCount
       extractTokensWRTImports(imports, fileContent).foreach { x =>
        x.map { y =>
           val FQCN = tuple2ToImportString(y._2)
@@ -109,7 +110,7 @@ class JavaFileIndexer extends BasicIndexer {
    val cleaned =
      line.replaceFirst("""(\s*(import|private|public|protected|\/?\*|//).*)|\".*\"""", "")
       .replaceAll("\\W+", " ")
-    if(!cleaned.isEmpty) " " + cleaned + " " else ""
+    if(!cleaned.isEmpty) " " + cleaned.toLowerCase + " " else ""
   }
 
   private def extractTokensWRTImports(imports: Set[(String, String)],
@@ -119,7 +120,7 @@ class JavaFileIndexer extends BasicIndexer {
       .map { case (linesWindow, lineNumbersWindow) =>
       (linesWindow zip lineNumbersWindow).flatMap { case (line, lineNumber) if !line.isEmpty =>
         val l = line.split(" ").distinct
-        imports.map(y => (l.contains(y._2), lineNumber, y))
+        imports.map(y => (l.contains(y._2.toLowerCase), lineNumber, y))
           .filter(_._1).map(a => (a._2, a._3))
       case _ => Set[(Int, (String, String))]()
       }
