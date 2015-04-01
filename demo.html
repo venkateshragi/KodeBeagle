@@ -36,10 +36,6 @@
                 <div class="repoInfo leftPanelPadding" id="analyzedProj">
                     <h3>Analyzed Projects</h3>
                     <select id="repoList">
-                        {% for repo in site.data.repos %}
-                        <option value="{{repo.login}}/{{repo.name}}">{{repo.login}}/{{repo.name}}
-                        </option>
-                        {% endfor %}
                     </select>
                 </div>
 
@@ -130,7 +126,7 @@
     <div class="modalContent">
         <form>
             <input type="text" id="elasticSearchURL"
-                   placeholder="BetterDocs URL" value="172.16.12.162:9201"><br/>
+                   placeholder="BetterDocs URL" value="172.16.12.201:9201"><br/>
             <input type="number" id="resultSize" value="50" placeholder="Result size">
         </form>
     </div>

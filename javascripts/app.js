@@ -2,7 +2,7 @@
 var app = function () {
 
     "use strict";
-    var esURL = "172.16.12.162:9201",
+    var esURL = "172.16.12.201:9201",
         resultSize = 50,
         analyzedProjContainer = $("#analyzedProj"),
         resultTreeContainer = $("#resultTreeContainer"),
@@ -52,12 +52,28 @@ var app = function () {
         return result;
     });
 
+    function loadRepoList() {
+        queryES("repository", {
+            "query": {"match_all": {}},
+            "sort": [{"stargazersCount": {"order": "desc"}}]
+        }, 750, function (result) {
+            result.forEach(function (repo) {
+                var repoLabel = repo._source.login + "/" + repo._source.name;
+                $("#repoList").append($('<option>', {
+                    value: repoLabel,
+                    text: repoLabel
+                }));
+            });
+
+        });
+    }
+
     function init() {
         var screenHeight = screen.availHeight,
             topPanel = $(".topPanel").outerHeight(), containerHeight;
 
         if (screenHeight < 800) {
-            containerHeight = screenHeight - 2 * (topPanel+10);
+            containerHeight = screenHeight - 2 * (topPanel + 10);
         } else {
             containerHeight = screenHeight - 3 * topPanel;
         }
@@ -83,6 +99,7 @@ var app = function () {
         compressIcon.hide();
         //hack for setting same height for both containers on different screens
         $(".leftPanelContent").height(rightSideContainer.height() - 40);
+        loadRepoList();
     }
 
     function highlightLine(editor, lineNumbers) {
