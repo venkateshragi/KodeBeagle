@@ -1,32 +1,34 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
     <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
     <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
 
     <title>BetterDocs</title>
-  </head>
+</head>
 
-  <body>
+<body>
 
-    <header>
-      <div class="container">
+<header>
+    <div class="container">
         <h1>BetterDocs</h1>
+
         <h2>BetterDocs is not docs.</h2>
 
         <section id="downloads">
-          <a href="https://github.com/Shiti/BetterDocs" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
+            <a href="https://github.com/scrapcodes/BetterDocs" class="btn btn-github"><span class="icon"></span>View on
+                GitHub</a>
+            <a href="{{ site.baseurl }}/demo.html" class="btn btn-github"><i class="fa fa-play"></i> Demo</a>
         </section>
-      </div>
-    </header>
-
-    <div class="container">
-        {{content}}
     </div>
+</header>
 
-  </body>
+<div class="container">
+    {{content}}
+</div>
+
+</body>
 </html>

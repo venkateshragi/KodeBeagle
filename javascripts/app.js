@@ -2,7 +2,7 @@
 var app = function () {
 
     "use strict";
-    var esURL = "172.16.12.162:9201",
+    var esURL = "172.16.12.201:9201",
         resultSize = 50,
         analyzedProjContainer = $("#analyzedProj"),
         resultTreeContainer = $("#resultTreeContainer"),
@@ -23,7 +23,9 @@ var app = function () {
         methodsContainerTemplate = Handlebars.compile(methodsContainerTemplateHTML),
         fileTab = $("#fileTab"),
         methodTab = $("#methodTab"),
-        commonMethods = [];
+        currentResult = [],
+        commonMethods = [],
+        docsBaseUrl = "http://192.168.2.28/api/";
 
 
     Handlebars.registerHelper('stringifyFunc', function (fnName, index, lines) {
@@ -34,12 +36,71 @@ var app = function () {
         return "app.showFileContent([" + JSON.stringify(file) + "])";
     });
 
-    function init() {
-        searchMetaContainer.hide();
-        compressIcon.hide();
+    Handlebars.registerHelper('displayDoc', function (method) {
+        var result = "";
+        if (method.url.search("java") === 0) {
+            result = "app.showDocumentation(" + JSON.stringify(method) + ")";
+        }
+        return result;
+    });
+
+    Handlebars.registerHelper('docUrl', function (url) {
+        var result = "javascript:void(0);";
+        if (url.search("java") === 0) {
+            result = "http://docs.oracle.com/javase/7/docs/api/" + url;
+        }
+        return result;
+    });
+
+    function loadRepoList() {
+        queryES("repository", {
+            "query": {"match_all": {}},
+            "sort": [{"stargazersCount": {"order": "desc"}}]
+        }, 750, function (result) {
+            result.forEach(function (repo) {
+                var repoLabel = repo._source.login + "/" + repo._source.name;
+                $("#repoList").append($('<option>', {
+                    value: repoLabel,
+                    text: repoLabel
+                }));
+            });
+
+        });
     }
 
-    init();
+    function init() {
+        var screenHeight = screen.availHeight,
+            topPanel = $(".topPanel").outerHeight(), containerHeight;
+
+        if (screenHeight < 800) {
+            containerHeight = screenHeight - 2 * (topPanel + 10);
+        } else {
+            containerHeight = screenHeight - 3 * topPanel;
+        }
+
+        $(".container").height(containerHeight);
+
+        var ht = Math.floor(($("#leftPanel").height() - 21 ) / 14);
+        ht = (ht <= 40) ? ht - 8 : ht - 11;
+
+        $("#repoList").attr("size", ht);
+        $("#searchByFQN").submit(function (evt) {
+            evt.preventDefault();
+            app.search($("#searchString").val());
+        });
+
+        $(document).on('close', '.remodal', function (e) {
+            if (e.reason === "confirmation") {
+                app.saveConfig($("#elasticSearchURL").val(), $("#resultSize").val());
+            }
+        });
+
+        searchMetaContainer.hide();
+        compressIcon.hide();
+        //hack for setting same height for both containers on different screens
+        $(".leftPanelContent").height(rightSideContainer.height() - 40);
+        loadRepoList();
+    }
 
     function highlightLine(editor, lineNumbers) {
         lineNumbers.forEach(function (line) {
@@ -71,10 +132,12 @@ var app = function () {
         methodsContainer.html("");
         var groupedMethods = _.map(_.groupBy(commonMethods, "className"), function (matches, className) {
             return {
-                className: className, methods: matches
+                className: className, methods: matches, url: matches[0].url
             }
         });
         methodsContainer.html(methodsContainerTemplate({"groupedMethods": groupedMethods}));
+        //calling addMethodDoc on grouped Methods to reduce number of requests for toolTip (making it faster)
+        addMethodDoc(groupedMethods);
     }
 
     function enableAceEditor(id, content, lineNumbers) {
@@ -151,21 +214,24 @@ var app = function () {
         resultTreeContainer.html(resultTreeTemplate({"projects": projects}));
     }
 
+    function renderFileContent(fileInfo, index) {
+        queryES("sourcefile", fetchFileQuery(fileInfo.path), 1, function (result) {
+            var id = "result" + index,
+                content = "";
+            if (result.length > 0) {
+                content = result[0]._source.fileContent;
+                enableAceEditor(id + "-editor", content, fileInfo.lines);
+            } else {
+                $("#" + id).hide();
+            }
+        });
+    }
+
     function updateRightSide(processedData) {
-        var files = processedData.slice(0, 1);
+        var files = processedData.slice(0, 2);
 
         files.forEach(function (fileInfo, index) {
-
-            queryES("sourcefile", fetchFileQuery(fileInfo.path), 1, function (result) {
-                var id = "result" + index,
-                    content = "";
-                if (result.length > 0) {
-                    content = result[0]._source.fileContent;
-                    enableAceEditor(id + "-editor", content, fileInfo.lines);
-                } else {
-                    $("#" + id).hide();
-                }
-            });
+            renderFileContent(fileInfo, index);
         });
 
         $("#results").html(resultTemplate({"files": files}));
@@ -243,6 +309,7 @@ var app = function () {
             return -sortScore;
         });
 
+        currentResult = result;
         return {classes: _.unique(matchingImports), result: result};
     }
 
@@ -341,15 +408,12 @@ var app = function () {
 
     function searchCommonUsage(className) {
 
-        var query, mustTerms = className.toLowerCase().split(".").map(function (entry) {
-            return {"term": {"body": entry}};
-        });
-        query = {
+        var query = {
             "query": {
                 "filtered": {
                     "query": {
                         "bool": {
-                            "must": mustTerms
+                            "must": [{"term": {"body": className}}]
                         }
                     },
                     "filter": {
@@ -368,15 +432,123 @@ var app = function () {
         queryES("fpgrowth/patterns", query, 10, function (result) {
             result.forEach(function (entry) {
                 var src = entry._source,
-                    methodName = _.difference(src.body[0].split("."), className.split("."));
-                commonMethods.push({className: className, method: methodName, freq: src.freq});
+                    methodName, methodRegex,
+                    location = src.body[0].search(className),
+                    pageUrl = className.replace(/\./g, "/") + ".html";
+
+                if (location > -1) {
+                    methodName = src.body[0].substr(className.length + 1); //taking length+1 so that '.' is excluded
+                    methodRegex = "(" + pageUrl + "#" + methodName + "\\([\\w\\.\\d,%]*\\))";
+                    commonMethods.push({
+                        className: className,
+                        method: methodName,
+                        freq: src.freq,
+                        id: className.replace(/\./g, "") + "-" + methodName,
+                        url: pageUrl,
+                        regex: new RegExp(/\".*/.source + methodRegex + /\"/.source)
+                    });
+                }
             });
 
             displayCommonMethods();
         })
     }
 
+    function addFileToView(files) {
+        var index = _.findIndex(currentResult, {name: files[0].name});
+        $("#result" + index).remove();
+        $("#results").prepend(resultTemplate({"files": files}).replace(/result0/g, "result" + index));
+        renderFileContent(files[0], index);
+        rightSideContainer.scrollTop(0);
+    }
+
+    function addMethodDoc(classWiseMethods) {
+        classWiseMethods.forEach(function (entry) {
+            var url = entry.url;
+
+            if (url.search("java") === 0) {
+                $.get(docsBaseUrl + url, function (result) {
+
+                    entry.methods.forEach(function (methodInfo) {
+                        var methodDoc = "",
+                            linkToMethod = "",
+                            matchedResult = result.match(methodInfo.regex);
+
+                        //temporary hack to avoid error for inherited methods
+                        if (matchedResult && matchedResult.length > 1) {
+                            linkToMethod = matchedResult[1].split("#")[1].replace(/[\(\)]/g, "\\$&").replace(/%20/g, " ");
+
+                            //regex to capture the content from the anchor for the method. Fetches anchor to li end.
+                            var contentRegex = new RegExp((/<a\sname=\"/).source + linkToMethod + (/\">.*?<\/a><ul((?!<\/li>).)*/).source);
+
+                            methodDoc = result.replace(/\n/g, "").match(contentRegex);
+                            methodDoc = methodDoc[0].substring(methodDoc[0].search("<h4"));
+                            methodDoc = methodDoc.replace(/\s\s+/g, "").replace(new RegExp("../../../", "g"), docsBaseUrl);
+                            methodDoc = methodDoc.replace(/<a/g, "<a target='_blank'");
+
+                        } else {
+                            methodDoc = "Sorry!! This could be an inherited method. Please see the complete documentation."
+                        }
+                        $("#" + methodInfo.id).tooltipster({
+                            theme: 'tooltipster-light',
+                            content: $("<div>" + methodDoc + "</div>"),
+                            position: 'right',
+                            interactive: true,
+                            maxWidth: leftPanel.width() * 2
+                        });
+                    });
+
+                });
+            }
+        });
+    }
+
+    /* old method to render complete doc
+     function fetchMethodDoc(methodInfo) {
+     var links = {},
+     container = $("#docContainer");
+     if (methodInfo.className.search("java") === 0) {
+     links = getClassLinks(methodInfo);
+     $.get(docsBaseUrl + links.url, function (result) {
+     var methodDoc = "",
+     linkToMethod = "",
+     matchedResult = result.match(links.regex);
+
+     var el = document.createElement('div');
+     el.innerHTML = result;
+
+
+     var header = $('div.header', el),
+     content = $('div.contentContainer', el);
+
+     container.html(header);
+     container.append(content);
+     /*rightSideContainer.scrollTop(
+     $("a[name='" + linkToMethod + "'").offset().top - container.offset().top + container.scrollTop()
+     );*/
+
+    //temporary hack to avoid error for inherited methods
+    /*           if (matchedResult && matchedResult.length > 1) {
+     linkToMethod = matchedResult[1].split("#")[1].replace(/[\(\)]/g, "\\$&").replace(/%20/g, " ");
+
+     //regex to capture the content from the anchor for the method. Fetches anchor to li end.
+     var contentRegex = new RegExp((/<a\sname=\"/).source + linkToMethod + (/\">.*?<\/a><ul class="blockList">((?!<\/li>).)*/
+    /*).source);
+
+     methodDoc = result.replace(/\n/g, "").match(contentRegex);
+     methodDoc = methodDoc[0].substring(methodDoc[0].search("<h4"));
+
+     } else {
+     methodDoc = "Sorry!! Failed to find documentation. Please see the complete documentation."
+     }
+
+
+     });
+     }
+     }*/
+
     return {
+        initialize: init,
         search: search,
         saveConfig: updateConfig,
         expand: expandResultView,
@@ -385,6 +557,6 @@ var app = function () {
         expandAll: expandAllBlocks,
         showFiles: showRelevantFiles,
         showMethods: showFreqUsedMethods,
-        showFileContent: updateRightSide
+        showFileContent: addFileToView
     };
 }();
