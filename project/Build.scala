@@ -35,13 +35,14 @@ object BetterDocsBuild extends Build {
   val scalacOptionsList = Seq("-encoding", "UTF-8", "-unchecked", "-optimize", "-deprecation",
     "-feature")
 
-  val ideaLib = sys.env.get("IDEA_LIB") // This is required for plugin development.
+  // This is required for plugin devlopment.
+  val ideaLib = sys.env.get("IDEA_LIB").orElse(sys.props.get("idea.lib"))
 
   def aggregatedProjects: Seq[ProjectReference] = {
     if (ideaLib.isDefined) {
       Seq(core, ideaPlugin)
     } else {
-      println("[warn] Plugin project disabled.")
+      println("""[warn] Plugin project disabled. To enable append -Didea.lib="idea/lib" to JVM params in SBT settings or while invoking sbt (incase it is called from commandline.). """)
       Seq(core)
     }
   }
