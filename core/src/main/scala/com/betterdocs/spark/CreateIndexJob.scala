@@ -83,13 +83,13 @@ object CreateIndexJob {
     import org.json4s.jackson.Serialization
     import org.json4s.jackson.Serialization.write
     implicit val formats = Serialization.formats(NoTypeHints)
-
+    val indexName = t.productPrefix.toLowerCase
     if (addESHeader && isToken) {
       """|{ "index" : { "_index" : "betterdocs", "_type" : "custom" } }
          | """.stripMargin + write(t)
-    } else if (addESHeader) { // scalastyle:off
-      s"""|{ "index" : { "_index" : "${t.productPrefix.toLowerCase}", "_type" : "type${t.productPrefix.toLowerCase}" } }
-          |""".stripMargin + write(t)  // scalastyle:on
+    } else if (addESHeader) {
+      s"""|{ "index" : { "_index" : "$indexName", "_type" : "type$indexName" } }
+          |""".stripMargin + write(t)
     } else "" + write(t)
 
   }
