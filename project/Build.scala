@@ -24,13 +24,34 @@ object BetterDocsBuild extends Build {
     id = "betterdocs",
     base = file("."),
     settings = betterDocsSettings,
-    aggregate = Seq(core)
+    aggregate = aggregatedProjects
   )
 
   lazy val core = Project("core", file("core"), settings = coreSettings)
 
+  lazy val ideaPlugin = Project("ideaPlugin", file("plugins/idea/betterdocsidea"), settings =
+    pluginSettings)
+
   val scalacOptionsList = Seq("-encoding", "UTF-8", "-unchecked", "-optimize", "-deprecation",
     "-feature")
+
+  val ideaLib = sys.env.get("IDEA_LIB") // This is required for plugin development.
+
+  def aggregatedProjects: Seq[ProjectReference] = {
+    if (ideaLib.isDefined) {
+      Seq(core, ideaPlugin)
+    } else {
+      println("[warn] Plugin project disabled.")
+      Seq(core)
+    }
+  }
+
+  def pluginSettings = betterDocsSettings ++ (if (!ideaLib.isDefined) Seq() else Seq(
+    name := "BetterDocsIdeaPlugin",
+    libraryDependencies ++= Dependencies.ideaPlugin,
+    autoScalaLibrary := false,
+    unmanagedBase := file(ideaLib.get)
+    ))
 
   def coreSettings = betterDocsSettings ++ Seq(libraryDependencies ++= Dependencies.betterDocs)
 
@@ -63,7 +84,9 @@ object Dependencies {
   val config = "com.typesafe" % "config" % "1.2.1"
   val betterDocs = Seq(spark, parserCombinator, scalaTest, slf4j, javaparser, json4s, config,
     json4sJackson)
+  val elasticsearch = "org.elasticsearch" % "elasticsearch" % "1.4.4"
 
+  val ideaPlugin = Seq(elasticsearch)
   // transitively uses
   // commons-io-2.4
   // commons-compress-1.4.1
