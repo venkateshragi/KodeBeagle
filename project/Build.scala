@@ -83,8 +83,10 @@ object Dependencies {
   val json4sJackson = "org.json4s" %% "json4s-jackson" % "3.2.10"
   val httpClient = "commons-httpclient" % "commons-httpclient" % "3.1"
   val config = "com.typesafe" % "config" % "1.2.1"
+  val jgit = "org.eclipse.jgit" % "org.eclipse.jgit" % "3.7.0.201502260915-r"
+
   val betterDocs = Seq(spark, parserCombinator, scalaTest, slf4j, javaparser, json4s, config,
-    json4sJackson)
+    json4sJackson, jgit)
   val elasticsearch = "org.elasticsearch" % "elasticsearch" % "1.4.4"
 
   val ideaPlugin = Seq(elasticsearch)

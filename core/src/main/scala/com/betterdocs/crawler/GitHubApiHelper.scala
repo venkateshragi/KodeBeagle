@@ -26,6 +26,7 @@ import com.betterdocs.logging.Logger
 import org.apache.commons.httpclient.HttpClient
 import org.apache.commons.httpclient.methods.GetMethod
 import org.apache.commons.io.FileUtils
+import org.eclipse.jgit.api.CloneCommand
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 
@@ -149,6 +150,20 @@ object GitHubApiHelper extends Logger {
       case x: Throwable =>
         log.error(s"Failed to download $r", x)
         None
+    }
+  }
+
+   def cloneRepository(url: String, targetDir: String): Unit = {
+    try {
+      val file = new File(targetDir)
+      val clone = new CloneCommand()
+      clone.setBare(false)
+      clone.setCloneAllBranches(true)
+      clone.setDirectory(file).setURI(url)
+      clone.call()
+    } catch {
+      case x: Throwable =>
+        log.error(s"Failed to download $url", x)
     }
   }
 }
