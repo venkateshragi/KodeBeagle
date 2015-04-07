@@ -17,6 +17,7 @@
 
 import sbt._
 import sbt.Keys._
+import de.johoop.findbugs4sbt.FindBugs._
 
 object BetterDocsBuild extends Build {
 
@@ -47,7 +48,7 @@ object BetterDocsBuild extends Build {
     }
   }
 
-  def pluginSettings = betterDocsSettings ++ (if (!ideaLib.isDefined) Seq() else Seq(
+  def pluginSettings = betterDocsSettings ++ (if (!ideaLib.isDefined) Seq() else findbugsSettings ++ Seq(
     name := "BetterDocsIdeaPlugin",
     libraryDependencies ++= Dependencies.ideaPlugin,
     autoScalaLibrary := false,
