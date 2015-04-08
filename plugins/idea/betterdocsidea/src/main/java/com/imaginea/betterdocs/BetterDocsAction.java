@@ -17,6 +17,11 @@
 
 package com.imaginea.betterdocs;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.stream.JsonReader;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataKeys;
@@ -28,6 +33,21 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiPackage;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.swing.JTree;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.Client;
@@ -40,23 +60,6 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.SortOrder;
 import org.jetbrains.annotations.NotNull;
-
-import javax.swing.JTree;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class BetterDocsAction extends AnAction {
     Project project;
@@ -206,28 +209,21 @@ public class BetterDocsAction extends AnAction {
     }
 
     private ArrayList<Integer> getLineNumbers(Set<String> importsSet, String tokens) {
-
         ArrayList<Integer> lineNumbers = new ArrayList<Integer>();
+        JsonReader reader = new JsonReader(new StringReader(tokens));
+        reader.setLenient(true);
+        JsonArray tokensArray = new JsonParser().parse(reader).getAsJsonArray();
 
-        Matcher tokenMatcher = Pattern.compile(
-                Pattern.quote("{")
-                        + "(.*?)"
-                        + Pattern.quote("}")
-        ).matcher(tokens);
-
-        while (tokenMatcher.find()) {
-            String set = tokenMatcher.group(1);
-            String importName = set.substring(set.lastIndexOf("importName=") + "importName=".length());
-            if (importsSet.contains(importName)) {
-                Pattern pattern = Pattern.compile("\\d+");
-                Matcher lineMatcher = pattern.matcher(set);
-                while (lineMatcher.find()) {
-                    lineNumbers.add(Integer.parseInt(lineMatcher.group()));
+        for(JsonElement token : tokensArray) {
+            JsonObject jObject = token.getAsJsonObject();
+            String importName = jObject.get("importName").toString().replaceAll("\"", "");
+            if(importsSet.contains(importName)) {
+                JsonArray lineNumbersArray = jObject.getAsJsonArray("lineNumbers");
+                for (JsonElement lineNumber : lineNumbersArray) {
+                    lineNumbers.add(lineNumber.getAsInt());
                 }
             }
-
         }
-
         return lineNumbers;
     }
 
