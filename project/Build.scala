@@ -64,6 +64,7 @@ object BetterDocsBuild extends Build {
       version := "0.0.1-SNAPSHOT",
       scalaVersion := "2.11.6",
       scalacOptions := scalacOptionsList,
+      resolvers += "apache special" at "https://repository.apache.org/content/repositories/orgapachespark-1083/",
      // retrieveManaged := true, // enable this if we need jars of dependencies.
       crossPaths := false,
       fork := true,
@@ -75,7 +76,7 @@ object BetterDocsBuild extends Build {
 
 object Dependencies {
 
-  val spark = "org.apache.spark" %% "spark-core" % "1.3.0" // % "provided" Provided makes it not run through sbt run.
+  val spark = "org.apache.spark" %% "spark-core" % "1.3.1" // % "provided" Provided makes it not run through sbt run.
   val parserCombinator = "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.3"
   val scalaTest = "org.scalatest" %% "scalatest" % "2.2.4" % "test" 
   val slf4j = "org.slf4j" % "slf4j-log4j12" % "1.7.10"

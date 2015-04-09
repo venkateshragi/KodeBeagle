@@ -43,11 +43,16 @@ object CreateIndexJob {
       .setMaster(BetterDocsConfig.sparkMaster)
       .setAppName("CreateIndexJob")
     val sc = new SparkContext(conf)
-    val zipFileExtractedRDD = sc.binaryFiles(BetterDocsConfig.githubDir).map { case (zipFile, _) =>
-      val zipFileName = zipFile.stripPrefix("file:")
+    val zipFileNameRDD = sc.binaryFiles(BetterDocsConfig.githubDir).map { case (zipFile, _) =>
+      zipFile.stripPrefix("file:")
+    }.cache()
+    val zipFileExtractedRDD = zipFileNameRDD.flatMap { zipFileName =>
       // Ignoring exclude packages.
-      val (filesMap, packages) = ZipBasicParser.readFilesAndPackages(new ZipFile(zipFileName))
-      (filesMap, RepoFileNameParser(zipFileName), packages)
+      val zipFileOpt = Try(new ZipFile(zipFileName)).toOption
+      zipFileOpt.map { zipFile =>
+        val (filesMap, packages) = ZipBasicParser.readFilesAndPackages(zipFile)
+        (filesMap, RepoFileNameParser(zipFileName), packages)
+      }
     }.cache()
 
     zipFileExtractedRDD.flatMap { f =>
@@ -57,7 +62,8 @@ object CreateIndexJob {
     }.map(x => toJson(x, addESHeader = true)).saveAsTextFile(BetterDocsConfig.sparkIndexOutput)
 
     // Generate repository index.
-    zipFileExtractedRDD.map(x => toJson(x._2.get, addESHeader = true, isToken = false))
+    zipFileNameRDD.flatMap(x => RepoFileNameParser(x))
+      .map(x => toJson(x, addESHeader = true, isToken = false))
       .saveAsTextFile(BetterDocsConfig.sparkRepoOutput)
 
     zipFileExtractedRDD.flatMap(x => mapToSourceFiles(x._2, x._1))
