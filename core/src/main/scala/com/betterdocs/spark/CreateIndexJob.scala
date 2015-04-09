@@ -55,20 +55,13 @@ object CreateIndexJob {
       }
     }.cache()
 
-    zipFileExtractedRDD.flatMap { f =>
+    zipFileExtractedRDD.map { f =>
       val (files, repo, packages) = f
-      new JavaASTBasedIndexer()
-        .generateTokens(files.toMap, packages, repo)
-    }.map(x => toJson(x, addESHeader = true)).saveAsTextFile(BetterDocsConfig.sparkIndexOutput)
-
-    // Generate repository index.
-    zipFileNameRDD.flatMap(x => RepoFileNameParser(x))
-      .map(x => toJson(x, addESHeader = true, isToken = false))
-      .saveAsTextFile(BetterDocsConfig.sparkRepoOutput)
-
-    zipFileExtractedRDD.flatMap(x => mapToSourceFiles(x._2, x._1))
-      .map(x => toJson(x, addESHeader = true, isToken = false))
-      .saveAsTextFile(BetterDocsConfig.sparkSourceOutput)
+      (repo, new JavaASTBasedIndexer()
+        .generateTokens(files.toMap, packages, repo), mapToSourceFiles(repo, files))
+    }.flatMap { case (a, b, c) =>
+      Seq(toJson(a, isToken = false), toJson(b, isToken = true), toJson(c, isToken = false))
+    }.saveAsTextFile(BetterDocsConfig.sparkIndexOutput)
 
   }
 
@@ -83,8 +76,12 @@ object CreateIndexJob {
     Try(f.stripSuffix(".zip").split("~").tail.head).toOption
   }
 
-  def toJson[T <: AnyRef <% Product with Serializable](t: T, addESHeader: Boolean = false,
-      isToken: Boolean = true ): String = {
+  def toJson[T <:AnyRef <% Product with Serializable](t: Set[T], isToken: Boolean): String = {
+    (for (item <- t) yield toJson(item, addESHeader = true, isToken)).mkString("\n")
+  }
+
+  def toJson[T <: AnyRef <% Product with Serializable](t: T, addESHeader: Boolean = true,
+      isToken: Boolean = false ): String = {
     import org.json4s._
     import org.json4s.jackson.Serialization
     import org.json4s.jackson.Serialization.write
