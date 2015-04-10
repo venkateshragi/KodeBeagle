@@ -45,7 +45,7 @@ object CreateIndexJob {
     val sc = new SparkContext(conf)
     val zipFileNameRDD = sc.binaryFiles(BetterDocsConfig.githubDir).map { case (zipFile, _) =>
       zipFile.stripPrefix("file:")
-    }.cache()
+    }
     val zipFileExtractedRDD = zipFileNameRDD.flatMap { zipFileName =>
       // Ignoring exclude packages.
       val zipFileOpt = Try(new ZipFile(zipFileName)).toOption
@@ -53,8 +53,9 @@ object CreateIndexJob {
         val (filesMap, packages) = ZipBasicParser.readFilesAndPackages(zipFile)
         (filesMap, RepoFileNameParser(zipFileName), packages)
       }
-    }.cache()
+    }
 
+    // Create indexes for elastic search.
     zipFileExtractedRDD.map { f =>
       val (files, repo, packages) = f
       (repo, new JavaASTBasedIndexer()
