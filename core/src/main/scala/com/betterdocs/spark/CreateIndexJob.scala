@@ -60,8 +60,9 @@ object CreateIndexJob {
       val (files, repo, packages) = f
       (repo, new JavaASTBasedIndexer()
         .generateTokens(files.toMap, packages, repo), mapToSourceFiles(repo, files))
-    }.flatMap { case (a, b, c) =>
+    }.flatMap { case (Some(a), b, c) =>
       Seq(toJson(a, isToken = false), toJson(b, isToken = true), toJson(c, isToken = false))
+    case _ => Seq()
     }.saveAsTextFile(BetterDocsConfig.sparkIndexOutput)
 
   }
@@ -78,7 +79,7 @@ object CreateIndexJob {
   }
 
   def toJson[T <:AnyRef <% Product with Serializable](t: Set[T], isToken: Boolean): String = {
-    (for (item <- t) yield toJson(item, addESHeader = true, isToken)).mkString("\n")
+    (for (item <- t) yield toJson(item, addESHeader = true, isToken = isToken)).mkString("\n")
   }
 
   def toJson[T <: AnyRef <% Product with Serializable](t: T, addESHeader: Boolean = true,
