@@ -69,7 +69,8 @@ object BetterDocsBuild extends Build {
       crossPaths := false,
       fork := true,
       javacOptions ++= Seq("-source", "1.6"),
-      javaOptions += "-Xmx2048m" // For running spark job.
+      javaOptions += "-Xmx2048m",
+      javaOptions += "-XX:+HeapDumpOnOutOfMemoryError"
     )
 
 }

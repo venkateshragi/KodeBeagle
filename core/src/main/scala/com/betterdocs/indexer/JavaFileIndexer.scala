@@ -31,7 +31,7 @@ import scala.util.Try
 case class IndexEntry(repoId: Int, file: String, tokens: Set[Token], score: Int)
 
 /* Since our tokens are fully qualified import names. */
-case class Token(importName: String, lineNumbers: immutable.SortedSet[Int])
+case class Token(importName: String, lineNumbers: immutable.Set[Int])
 
 trait BasicIndexer extends Serializable {
 
