@@ -27,6 +27,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
+import com.intellij.ui.JBColor;
 import com.intellij.ui.components.JBScrollPane;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
@@ -40,15 +41,19 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 public class BetterDocsWindow implements ToolWindowFactory {
 
+    private static final String PREF_PREF_GROW = "pref, pref:grow";
+    private static final String PREF_PREF = "pref, pref";
+    private static final String PROJECTS = "Projects";
+
     @Override
     public void createToolWindowContent(Project project, ToolWindow toolWindow) {
         toolWindow.setIcon(Messages.getInformationIcon());
-        DefaultMutableTreeNode root = new DefaultMutableTreeNode("Projects");
+        DefaultMutableTreeNode root = new DefaultMutableTreeNode(PROJECTS);
 
         JTree jTree = new JTree(root);
         jTree.setVisible(false);
         jTree.setAutoscrolls(true);
-        jTree.setForeground(new Color(100, 155, 155));
+        jTree.setForeground(new JBColor(new Color(100, 155, 155), new Color(100, 155, 155)));
 
         Document document = EditorFactory.getInstance().createDocument("");
         Editor windowEditor = EditorFactory.getInstance().createEditor(document, project, FileTypeManager.getInstance().getFileTypeByExtension("java"), false);
@@ -69,8 +74,8 @@ public class BetterDocsWindow implements ToolWindowFactory {
         JComponent moveBar = ActionManager.getInstance().createActionToolbar("Move", moveGroup, true).getComponent();
 
         FormLayout layout = new FormLayout(
-                "pref, pref:grow",
-                "pref, pref");
+                PREF_PREF_GROW,
+                PREF_PREF);
 
         CellConstraints cc = new CellConstraints();
 
@@ -81,9 +86,9 @@ public class BetterDocsWindow implements ToolWindowFactory {
 
         JPanel jPanel = new JPanel(layout);
         jPanel.setVisible(true);
-        jPanel.add(toolBar , cc.xy(1, 1));
+        jPanel.add(toolBar, cc.xy(1, 1));
         jPanel.add(moveBar, cc.xy(1, 2));
-        jPanel.add(jTreeScrollPane , cc.xy(2, 1));
+        jPanel.add(jTreeScrollPane, cc.xy(2, 1));
 
         JPanel windowPanel = new JPanel();
         windowPanel.setVisible(true);

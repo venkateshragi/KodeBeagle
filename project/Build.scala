@@ -90,9 +90,8 @@ object Dependencies {
 
   val betterDocs = Seq(spark, parserCombinator, scalaTest, slf4j, javaparser, json4s, config,
     json4sJackson, jgit)
-  val elasticsearch = "org.elasticsearch" % "elasticsearch" % "1.4.4"
 
-  val ideaPlugin = Seq(elasticsearch)
+  val ideaPlugin = Seq()
   // transitively uses
   // commons-io-2.4
   // commons-compress-1.4.1

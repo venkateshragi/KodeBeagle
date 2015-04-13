@@ -17,6 +17,7 @@
 
 package com.imaginea.betterdocs;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -31,15 +32,16 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.psi.JavaPsiFacade;
-import com.intellij.psi.PsiPackage;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -48,23 +50,40 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.common.settings.ImmutableSettings;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.InetSocketTransportAddress;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.sort.SortOrder;
+import javax.swing.tree.MutableTreeNode;
+import javax.swing.tree.TreeNode;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.jetbrains.annotations.NotNull;
 
 public class BetterDocsAction extends AnAction {
-    Project project;
-    JTree jTree;
-    Editor windowEditor;
+    private static final String IMPORT_NAME = "importName";
+    private static final String LINE_NUMBERS = "lineNumbers";
+    private static final String BETTER_DOCS = "BetterDocs";
+    private static final String HITS = "hits";
+    private static final String SOURCE = "_source";
+    private static final String FILE_CONTENT = "fileContent";
+    private static final String IMPORT = "import ";
+    private static final String SORT_ORDER = "desc";
+    private static final String APPLICATION_JSON = "application/json";
+    private static final String FILE = "file";
+    private static final String TOKENS = "tokens";
+    private static final String CUSTOM_TOKENS_IMPORT_NAME = "custom.tokens.importName";
+    private static final char CH = '.';
+    private static final String EASTIC_SEARCH_SOURCE_FILE_URL = "http://172.16.12.201:9201/sourcefile/_search";
+    private static final String ELASTIC_SEARCH_BETTERDOCS_URL = "http://172.16.12.201:9201/betterdocs/_search";
+
+    private Project project;
+    private JTree jTree;
+    private Editor windowEditor;
+    private Editor projectEditor;
+
+    public void setProjectEditor(Editor projectEditor) {
+        this.projectEditor = projectEditor;
+    }
 
     public void setWindowEditor(Editor windowEditor) {
         this.windowEditor = windowEditor;
@@ -75,7 +94,7 @@ public class BetterDocsAction extends AnAction {
     }
 
     public BetterDocsAction() {
-        super("BetterDocs", "BetterDocs", Messages.getInformationIcon());
+        super(BETTER_DOCS, BETTER_DOCS, Messages.getInformationIcon());
     }
 
     @Override
@@ -89,12 +108,10 @@ public class BetterDocsAction extends AnAction {
         }
     }
 
-    private DefaultMutableTreeNode getNodes(String projectName, List<CodeInfo> codeInfoList) {
-        DefaultMutableTreeNode node = new DefaultMutableTreeNode(projectName.replace("/", "-"));
-        Set<String> fileNameSet = new HashSet<String>();
-        Iterator codeInfoIterator = codeInfoList.iterator();
-        while (codeInfoIterator.hasNext()) {
-            CodeInfo codeInfo = (CodeInfo) codeInfoIterator.next();
+    private static MutableTreeNode getNodes(String projectName, Iterable<CodeInfo> codeInfoCollection) {
+        DefaultMutableTreeNode node = new DefaultMutableTreeNode(projectName);
+        Collection<String> fileNameSet = new HashSet<String>();
+        for (CodeInfo codeInfo : codeInfoCollection) {
             if (!fileNameSet.contains(codeInfo.getFileName())) {
                 node.add(new DefaultMutableTreeNode(codeInfo));
                 fileNameSet.add(codeInfo.getFileName());
@@ -104,54 +121,69 @@ public class BetterDocsAction extends AnAction {
     }
 
     public void runAction(final AnActionEvent e) throws IOException {
-        Editor projectEditor = DataKeys.EDITOR.getData(e.getDataContext());
+        final Editor projectEditor = DataKeys.EDITOR.getData(e.getDataContext());
 
-        if (projectEditor == null) {
-            //no editor currently available
-            return;
-        }
+        if (projectEditor != null) {
+            setProjectEditor(projectEditor);
 
-        Set<String> importsSet = getImportsAsSet(projectEditor.getDocument());
-        Set<String> linesSet = getLinesAsSet(projectEditor.getDocument(), 0, projectEditor.getDocument().getLineCount() - 1);
-        Set<String> importsInLinesSet = importsInLines(linesSet, importsSet);
-        jTree.setVisible(true);
+            Set<String> imports = getImports(projectEditor.getDocument());
+            Set<String> lines = getLines(projectEditor, projectEditor.getDocument());
+            Set<String> importsInLines = importsInLines(lines, imports);
 
-        DefaultTreeModel model = (DefaultTreeModel) jTree.getModel();
-        final DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
-        root.removeAllChildren();
+            DefaultTreeModel model = (DefaultTreeModel) jTree.getModel();
+            DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
+            root.removeAllChildren();
 
-        Map<String, ArrayList<CodeInfo>> projectNodes = new HashMap<String, ArrayList<CodeInfo>>();
-        SearchHit[] results = getQueryResults(importsInLinesSet);
+            if (!importsInLines.isEmpty()) {
+                jTree.setVisible(true);
 
-        if (results.length > 0) {
-            for (SearchHit hit : results) {
-                Map<String, Object> result = hit.getSource();
-                String fileName = result.get("file").toString();
-                String tokens = result.get("tokens").toString();
+                String esQueryJson = getESQueryJson(importsInLines);
+                String esResultJson = getESResultJson(esQueryJson, ELASTIC_SEARCH_BETTERDOCS_URL);
+                Map<String, String> fileTokensMap = getFileTokens(esResultJson);
 
-                ArrayList<Integer> lineNumbers = getLineNumbers(importsSet, tokens);
-                String contents = getContentsForFile(fileName);
-                CodeInfo codeInfo = new CodeInfo(fileName, lineNumbers, contents);
-
-                String projectName = fileName.substring(0, fileName.indexOf("/", fileName.indexOf("/") + 1));
-                if (projectNodes.containsKey(projectName)) {
-                    projectNodes.get(projectName).add(codeInfo);
-                } else {
-                    projectNodes.put(projectName, new ArrayList<CodeInfo>(Arrays.asList(codeInfo)));
-                }
+                Map<String, ArrayList<CodeInfo>> projectNodes = new HashMap<String, ArrayList<CodeInfo>>();
+                updateProjectNodes(imports, fileTokensMap, projectNodes);
+                updateRoot(root, projectNodes);
+                model.reload(root);
+                jTree.addTreeSelectionListener(getTreeSelectionListener(root));
+            } else {
+                jTree.updateUI();
             }
         }
+    }
 
-        Iterator projectNodesIterator = projectNodes.entrySet().iterator();
+    private Editor getEditor(AnActionEvent e) {
+        final Editor projectEditor = DataKeys.EDITOR.getData(e.getDataContext());
+        return projectEditor;
+    }
 
-        while (projectNodesIterator.hasNext()) {
-            Map.Entry currentProject = (Map.Entry) projectNodesIterator.next();
-            root.add(getNodes(currentProject.getKey().toString(), (List<CodeInfo>) currentProject.getValue()));
+    private void updateProjectNodes(Collection<String> imports, Map<String, String> fileTokensMap, Map<String, ArrayList<CodeInfo>> projectNodes) {
+        for (Map.Entry<String, String> entry : fileTokensMap.entrySet()) {
+            String fileName = entry.getKey();
+            String tokens = entry.getValue();
+
+            ArrayList<Integer> lineNumbers = getLineNumbers(imports, tokens);
+            String contents = getContentsForFile(fileName);
+            CodeInfo codeInfo = new CodeInfo(fileName, lineNumbers, contents);
+
+            String projectName = fileName.substring(0, fileName.indexOf('/', fileName.indexOf('/') + 1));
+            if (projectNodes.containsKey(projectName)) {
+                projectNodes.get(projectName).add(codeInfo);
+            } else {
+                projectNodes.put(projectName, new ArrayList<CodeInfo>(Collections.singletonList(codeInfo)));
+            }
         }
+    }
 
-        model.reload(root);
+    private static DefaultMutableTreeNode updateRoot(DefaultMutableTreeNode root, Map<String, ArrayList<CodeInfo>> projectNodes) {
+        for (Map.Entry<String, ArrayList<CodeInfo>> entry : projectNodes.entrySet()) {
+            root.add(getNodes(entry.getKey(), entry.getValue()));
+        }
+        return root;
+    }
 
-        jTree.addTreeSelectionListener(new TreeSelectionListener() {
+    private TreeSelectionListener getTreeSelectionListener(final TreeNode root) {
+        return new TreeSelectionListener() {
             @Override
             public void valueChanged(TreeSelectionEvent treeSelectionEvent) {
                 DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)
@@ -160,65 +192,71 @@ public class BetterDocsAction extends AnAction {
                 if (selectedNode == null) {
 
                 } else if (selectedNode.isLeaf() && root.getChildCount() > 0) {
-
                     final CodeInfo codeInfo = (CodeInfo) selectedNode.getUserObject();
                     final Document windowEditorDocument = windowEditor.getDocument();
-                    new WriteCommandAction(project) {
-                        @Override
-                        protected void run(@NotNull Result result) throws Throwable {
-                            windowEditorDocument.setReadOnly(false);
-                            windowEditorDocument.setText(codeInfo.getContents());
-                            windowEditorDocument.setReadOnly(true);
-                        }
-                    }.execute();
 
-                    final ArrayList<Integer> linesForFolding = codeInfo.getLineNumbers();
+                    writeToDocument(codeInfo, windowEditorDocument);
+
+                    final List<Integer> linesForFolding = codeInfo.getLineNumbers();
                     linesForFolding.add(windowEditorDocument.getLineCount() + 1);
                     java.util.Collections.sort(linesForFolding);
+                    addFoldings(windowEditorDocument, linesForFolding);
+                }
+            }
+        };
+    }
 
-                    windowEditor.getFoldingModel().runBatchFoldingOperation(new Runnable() {
-                        @Override
-                        public void run() {
-                            Iterator linesFoldingIterator = linesForFolding.iterator();
-                            int prevLine = 0;
-                            while (linesFoldingIterator.hasNext()) {
-                                int currentLine = Integer.parseInt(linesFoldingIterator.next().toString()) - 1;
-                                if (prevLine < windowEditorDocument.getLineCount()) {
+    private void writeToDocument(final CodeInfo codeInfo, final Document windowEditorDocument) {
+        new WriteCommandAction(project) {
+            @Override
+            protected void run(@NotNull Result result) throws Throwable {
+                windowEditorDocument.setReadOnly(false);
+                windowEditorDocument.setText(codeInfo.getContents());
+                windowEditorDocument.setReadOnly(true);
+            }
+        }.execute();
 
-                                    int startOffset = windowEditorDocument.getLineStartOffset(prevLine);
-                                    int endOffset = windowEditorDocument.getLineEndOffset(currentLine - 1);
+    }
 
-                                    if (startOffset < endOffset) {
-                                        try {
-                                            windowEditor.getFoldingModel()
-                                                    .addFoldRegion(startOffset, endOffset, "...")
-                                                    .setExpanded(false);
+    private void addFoldings(final Document windowEditorDocument, final Iterable<Integer> linesForFolding) {
+        windowEditor.getFoldingModel().runBatchFoldingOperation(new Runnable() {
+            @Override
+            public void run() {
+                int prevLine = 0;
+                for (int line : linesForFolding) {
+                    int currentLine = line - 1;
+                    if (prevLine < windowEditorDocument.getLineCount()) {
 
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                        }
-                                    }
-                                    prevLine = currentLine + 1;
-                                }
+                        int startOffset = windowEditorDocument.getLineStartOffset(prevLine);
+                        int endOffset = windowEditorDocument.getLineEndOffset(currentLine - 1);
+
+                        if (startOffset < endOffset) {
+                            try {
+                                windowEditor.getFoldingModel()
+                                        .addFoldRegion(startOffset, endOffset, "...")
+                                        .setExpanded(false);
+                            } catch (NullPointerException e) {
+                                //e.printStackTrace();
                             }
                         }
-                    });
+                        prevLine = currentLine + 1;
+                    }
                 }
             }
         });
     }
 
-    private ArrayList<Integer> getLineNumbers(Set<String> importsSet, String tokens) {
+    private ArrayList<Integer> getLineNumbers(Collection<String> imports, String tokens) {
         ArrayList<Integer> lineNumbers = new ArrayList<Integer>();
         JsonReader reader = new JsonReader(new StringReader(tokens));
         reader.setLenient(true);
         JsonArray tokensArray = new JsonParser().parse(reader).getAsJsonArray();
 
-        for(JsonElement token : tokensArray) {
+        for (JsonElement token : tokensArray) {
             JsonObject jObject = token.getAsJsonObject();
-            String importName = jObject.get("importName").toString().replaceAll("\"", "");
-            if(importsSet.contains(importName)) {
-                JsonArray lineNumbersArray = jObject.getAsJsonArray("lineNumbers");
+            String importName = jObject.getAsJsonPrimitive(IMPORT_NAME).getAsString();
+            if (imports.contains(importName)) {
+                JsonArray lineNumbersArray = jObject.getAsJsonArray(LINE_NUMBERS);
                 for (JsonElement lineNumber : lineNumbersArray) {
                     lineNumbers.add(lineNumber.getAsInt());
                 }
@@ -229,123 +267,164 @@ public class BetterDocsAction extends AnAction {
 
 
     private String getContentsForFile(String file) {
-        Settings settings = getSettings();
+        String esFileQueryJson = getJsonForFileContent(file);
+        String esFileResultJson = getESResultJson(esFileQueryJson, EASTIC_SEARCH_SOURCE_FILE_URL);
 
-        TransportClient transportClient = new TransportClient(settings);
-        Client client = transportClient.addTransportAddress(new InetSocketTransportAddress("172.16.12.201", 9301));
-        SearchResponse searchResponse = client.prepareSearch("sourcefile")
-                .setSearchType(SearchType.QUERY_AND_FETCH)
-                .setQuery(QueryBuilders.termQuery("fileName", file))
-                .setFrom(0).setSize(1).setExplain(true)
-                .execute()
-                .actionGet();
-        SearchHit[] results = searchResponse.getHits().getHits();
-        client.close();
-        transportClient.close();
-        for (SearchHit hit : results) {
-            Map<String, Object> result = hit.getSource();
-            //Few files have /r as EOL which results in illegal EOL Exception.
-            return result.get("fileContent").toString().replaceAll("\r", "\n");
-        }
-        return "Could not load File now...Please try again";
-    }
-
-    private Settings getSettings() {
-        return ImmutableSettings.settingsBuilder()
-                .put("path.conf", "/home/prudhvib/Downloads/elasticsearch-1.4.1.jar/config/names.txt")
-                .put("cluster.name", "betterdocs")
-                .classLoader(Settings.class.getClassLoader())
-                .build();
+        JsonReader reader = new JsonReader(new StringReader(esFileResultJson));
+        reader.setLenient(true);
+        JsonElement jsonElement = new JsonParser().parse(reader);
+        JsonObject jsonObject = jsonElement.getAsJsonObject();
+        JsonObject hitsObject = jsonObject.getAsJsonObject(HITS);
+        JsonArray hitsArray = hitsObject.getAsJsonArray(HITS);
+        JsonObject hitObject = hitsArray.get(0).getAsJsonObject();
+        JsonObject sourceObject = hitObject.getAsJsonObject(SOURCE);
+        String fileContent = sourceObject.getAsJsonPrimitive(FILE_CONTENT).getAsString();
+        return fileContent;
     }
 
     public void setProject(Project project) {
         this.project = project;
     }
 
+    private static Set<String> importsInLines(Iterable<String> lines, Iterable<String> imports) {
+        Set<String> importsInLines = new HashSet<String>();
 
-    private SearchHit[] getQueryResults(Set<String> output) {
-        Settings settings = getSettings();
-
-        TransportClient transportClient = new TransportClient(settings);
-        Client client = transportClient.addTransportAddress(new InetSocketTransportAddress("172.16.12.201", 9301));
-        SearchResponse searchResponse = client.prepareSearch("betterdocs")
-                .setSearchType(SearchType.QUERY_AND_FETCH)
-                .setQuery(getBoolQueryBuilder(output))
-                .addSort("score", SortOrder.ASC)
-                .setFrom(0).setSize(10).setExplain(true)
-                .execute()
-                .actionGet();
-        SearchHit[] results = searchResponse.getHits().getHits();
-
-        return results;
-    }
-
-    private BoolQueryBuilder getBoolQueryBuilder(Set<String> importsInLinesSet) {
-        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        Iterator importsIterator = importsInLinesSet.iterator();
-        while (importsIterator.hasNext()) {
-            boolQueryBuilder = setMustToken(boolQueryBuilder, importsIterator.next().toString());
-        }
-        return boolQueryBuilder;
-    }
-
-    private BoolQueryBuilder setMustToken(BoolQueryBuilder boolQueryBuilder, String searchItem) {
-        return boolQueryBuilder.must(QueryBuilders.termQuery("custom.tokens.importName", searchItem));
-    }
-
-
-    private Set<String> importsInLines(Set<String> linesSet, Set<String> importSet) {
-        Iterator iterator = linesSet.iterator();
-        Set<String> importsInLinesSet = new HashSet<String>();
-        while (iterator.hasNext()) {
-            String line = iterator.next().toString();
-            Iterator importsIterator = importSet.iterator();
-            while (importsIterator.hasNext()) {
-                String nextImport = importsIterator.next().toString();
-                if (line.contains(nextImport.substring(nextImport.lastIndexOf(".") + 1))) {
-                    importsInLinesSet.add(nextImport);
+        for (String line : lines) {
+            for (String nextImport : imports) {
+                if (line.contains(nextImport.substring(nextImport.lastIndexOf(CH) + 1))) {
+                    importsInLines.add(nextImport);
                 }
             }
         }
-        return importsInLinesSet;
+        return importsInLines;
     }
 
-    private Set<String> getLinesAsSet(Document document, int startLine, int endLine) {
-        Set<String> linesSet = new HashSet<String>();
-        for (int i = startLine; i <= endLine; i++) {
-            String line = document.getCharsSequence().subSequence(document.getLineStartOffset(i), document.getLineEndOffset(i)).toString();
-            if (!line.contains("import ")) {
-                linesSet.add(line);
-            }
-        }
-        return linesSet;
-    }
-
-    private Set<String> getImportsAsSet(Document document) {
+    private static Set<String> getLines(Editor projectEditor, Document document) {
+        Set<String> lines = new HashSet<String>();
         int startLine = 0;
         int endLine = document.getLineCount() - 1;
-        Set<String> importsSet = new HashSet<String>();
+
         for (int i = startLine; i <= endLine; i++) {
-            String line = document.getCharsSequence().subSequence(document.getLineStartOffset(i), document.getLineEndOffset(i) + document.getLineSeparatorLength(i)).toString();
-            if (line.contains("import ") && !line.contains("*")) {
-                importsSet.add(line.replace("import", "").replace(";", "").trim());
+            String line = document.getCharsSequence().subSequence(document.getLineStartOffset(i), document.getLineEndOffset(i)).toString();
+            if (!line.contains(IMPORT)) {
+                lines.add(line);
             }
         }
-        return importsSet;
+        return lines;
+    }
+
+    private static Set<String> getImports(Document document) {
+        int startLine = 0;
+        int endLine = document.getLineCount() - 1;
+        Set<String> imports = new HashSet<String>();
+        for (int i = startLine; i <= endLine; i++) {
+            String line = document.getCharsSequence().subSequence(document.getLineStartOffset(i), document.getLineEndOffset(i) + document.getLineSeparatorLength(i)).toString();
+            if (line.contains(IMPORT) && !line.contains("*")) {
+                imports.add(line.replace(IMPORT, "").replace(";", "").trim());
+            }
+        }
+        return imports;
+    }
+
+    private String getESQueryJson(Set<String> importsInLines) {
+        ESQuery esQuery = new ESQuery();
+        ESQuery.Query query = new ESQuery.Query();
+        esQuery.setQuery(query);
+        esQuery.setFrom(0);
+        esQuery.setSize(3);
+
+        List<ESQuery.Sort> sortList = new ArrayList<ESQuery.Sort>();
+
+        ESQuery.Sort sort = new ESQuery.Sort();
+
+        ESQuery.Score score = new ESQuery.Score();
+        score.setOrder(SORT_ORDER);
+
+        sort.setScore(score);
+
+        sortList.add(sort);
+        esQuery.setSort(sortList);
+
+        ESQuery.Bool bool = new ESQuery.Bool();
+        query.setBool(bool);
+
+        List<ESQuery.Must> mustList = new ArrayList<ESQuery.Must>();
+
+        ESQuery.Must must;
+        ESQuery.Term term;
+
+        for (String nextImport : importsInLines) {
+            must = new ESQuery.Must();
+            bool.setMust(mustList);
+            bool.setMustNot(new ArrayList<ESQuery.Must>());
+            bool.setShould(new ArrayList<ESQuery.Must>());
+            term = new ESQuery.Term();
+            must.setTerm(term);
+            term.setImportName(nextImport);
+            mustList.add(must);
+        }
+
+        Gson gson = new Gson();
+        return gson.toJson(esQuery).replaceAll(IMPORT_NAME, CUSTOM_TOKENS_IMPORT_NAME);
     }
 
 
-    private String getLocalPackages(Editor editor, Project project) {
-        PsiPackage pack = JavaPsiFacade.getInstance(project).findPackage("");
-        PsiPackage[] subPackages = pack.getSubPackages();
+    private static String getESResultJson(String esQueryJson, String url) {
+        StringBuilder stringBuilder = new StringBuilder();
+        try {
+            HttpClient httpClient = new DefaultHttpClient();
+            HttpPost postRequest = new HttpPost(url);
+            StringEntity input = new StringEntity(esQueryJson);
+            input.setContentType(APPLICATION_JSON);
+            postRequest.setEntity(input);
+            HttpResponse response = httpClient.execute(postRequest);
+            if (response.getStatusLine().getStatusCode() != 200) {
+                throw new RuntimeException("Failed : HTTP error code : " +
+                        response.getStatusLine().getStatusCode());
+            }
 
-        int length = subPackages.length;
-        StringBuilder sb = new StringBuilder();
-
-        for (int i = 0; i < length; i++) {
-            sb.append(subPackages[i].toString() + "\n");
+            BufferedReader br = new BufferedReader(new InputStreamReader(
+                    (response.getEntity().getContent())));
+            String output;
+            while ((output = br.readLine()) != null) {
+                stringBuilder.append(output);
+            }
+            httpClient.getConnectionManager().shutdown();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        return sb.toString();
+        return stringBuilder.toString();
+    }
+
+    private static Map<String, String> getFileTokens(String esResultJson) {
+        Map<String, String> fileTokenMap = new HashMap<String, String>();
+        JsonReader reader = new JsonReader(new StringReader(esResultJson));
+        reader.setLenient(true);
+        JsonElement jsonElement = new JsonParser().parse(reader);
+        JsonObject jsonObject = jsonElement.getAsJsonObject();
+        JsonObject hitsObject = jsonObject.getAsJsonObject(HITS);
+        JsonArray hitsArray = hitsObject.getAsJsonArray(HITS);
+
+        for (JsonElement hits : hitsArray) {
+            JsonObject hitObject = hits.getAsJsonObject();
+            JsonObject sourceObject = hitObject.getAsJsonObject(SOURCE);
+            String fileName = sourceObject.getAsJsonPrimitive(FILE).getAsString();
+            String tokens = sourceObject.get(TOKENS).toString();
+            fileTokenMap.put(fileName, tokens);
+        }
+        return fileTokenMap;
+    }
+
+    private static String getJsonForFileContent(String fileName) {
+        ESFileContent esFileContent = new ESFileContent();
+        ESFileContent.Query query = new ESFileContent.Query();
+        esFileContent.setQuery(query);
+        ESFileContent.Term term = new ESFileContent.Term();
+        query.setTerm(term);
+        term.setFileName(fileName);
+        Gson gson = new Gson();
+        return gson.toJson(esFileContent);
     }
 }
-
