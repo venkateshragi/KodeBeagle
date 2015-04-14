@@ -22,9 +22,6 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.ui.Messages;
 import javax.swing.JSplitPane;
 
-/**
- * Created by prudhvib on 1/4/15.
- */
 public class EditorToggleAction extends AnAction{
     private JSplitPane jSplitPane;
 

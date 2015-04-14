@@ -30,6 +30,7 @@ import com.intellij.openapi.application.Result;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.FoldRegion;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import java.io.BufferedReader;
@@ -166,7 +167,12 @@ public class BetterDocsAction extends AnAction {
             String contents = getContentsForFile(fileName);
             CodeInfo codeInfo = new CodeInfo(fileName, lineNumbers, contents);
 
-            String projectName = fileName.substring(0, fileName.indexOf('/', fileName.indexOf('/') + 1));
+            //Taking projectName as name till 2nd '/'
+            int startIndex = fileName.indexOf('/');
+            int endIndex = fileName.indexOf('/', startIndex + 1);
+
+            String projectName = fileName.substring(0, endIndex);
+
             if (projectNodes.containsKey(projectName)) {
                 projectNodes.get(projectName).add(codeInfo);
             } else {
@@ -223,6 +229,8 @@ public class BetterDocsAction extends AnAction {
             @Override
             public void run() {
                 int prevLine = 0;
+                cleanFoldingRegions(windowEditor);
+
                 for (int line : linesForFolding) {
                     int currentLine = line - 1;
                     if (prevLine < windowEditorDocument.getLineCount()) {
@@ -230,20 +238,23 @@ public class BetterDocsAction extends AnAction {
                         int startOffset = windowEditorDocument.getLineStartOffset(prevLine);
                         int endOffset = windowEditorDocument.getLineEndOffset(currentLine - 1);
 
-                        if (startOffset < endOffset) {
-                            try {
-                                windowEditor.getFoldingModel()
-                                        .addFoldRegion(startOffset, endOffset, "...")
-                                        .setExpanded(false);
-                            } catch (NullPointerException e) {
-                                //e.printStackTrace();
-                            }
+                        if (startOffset < endOffset && windowEditor.getFoldingModel() != null) {
+                            windowEditor.getFoldingModel()
+                                    .addFoldRegion(startOffset, endOffset, "...")
+                                    .setExpanded(false);
                         }
                         prevLine = currentLine + 1;
                     }
                 }
             }
         });
+    }
+
+    private static void cleanFoldingRegions(Editor windowEditor) {
+        FoldRegion[] foldRegions = windowEditor.getFoldingModel().getAllFoldRegions();
+        for (FoldRegion currentRegion : foldRegions) {
+            windowEditor.getFoldingModel().removeFoldRegion(currentRegion);
+        }
     }
 
     private ArrayList<Integer> getLineNumbers(Collection<String> imports, String tokens) {
@@ -301,8 +312,18 @@ public class BetterDocsAction extends AnAction {
 
     private static Set<String> getLines(Editor projectEditor, Document document) {
         Set<String> lines = new HashSet<String>();
-        int startLine = 0;
-        int endLine = document.getLineCount() - 1;
+        int startLine;
+        int endLine;
+        int distance = 10;
+
+        if (projectEditor.getSelectionModel().hasSelection()) {
+            startLine = document.getLineNumber(projectEditor.getSelectionModel().getSelectionStart());
+            endLine = document.getLineNumber(projectEditor.getSelectionModel().getSelectionEnd());
+        } else {
+            int currentLine = document.getLineNumber(projectEditor.getCaretModel().getOffset());
+            startLine = currentLine - distance >= 0 ? currentLine - distance : 0;
+            endLine = currentLine + distance <= document.getLineCount() - 1 ? currentLine + distance : document.getLineCount() - 1;
+        }
 
         for (int i = startLine; i <= endLine; i++) {
             String line = document.getCharsSequence().subSequence(document.getLineStartOffset(i), document.getLineEndOffset(i)).toString();
@@ -383,8 +404,8 @@ public class BetterDocsAction extends AnAction {
                         response.getStatusLine().getStatusCode());
             }
 
-            BufferedReader br = new BufferedReader(new InputStreamReader(
-                    (response.getEntity().getContent())));
+            BufferedReader br = new BufferedReader(
+                    new InputStreamReader((response.getEntity().getContent())));
             String output;
             while ((output = br.readLine()) != null) {
                 stringBuilder.append(output);
