@@ -18,6 +18,7 @@
 import sbt._
 import sbt.Keys._
 import de.johoop.findbugs4sbt.FindBugs._
+import de.johoop.cpd4sbt.CopyPasteDetector._
 
 object BetterDocsBuild extends Build {
 
@@ -48,7 +49,8 @@ object BetterDocsBuild extends Build {
     }
   }
 
-  def pluginSettings = betterDocsSettings ++ (if (!ideaLib.isDefined) Seq() else findbugsSettings ++ Seq(
+  def pluginSettings = betterDocsSettings ++ (if (!ideaLib.isDefined) Seq() else 
+    findbugsSettings ++ codequality.CodeQualityPlugin.Settings ++ cpdSettings ++ Seq(
     name := "BetterDocsIdeaPlugin",
     libraryDependencies ++= Dependencies.ideaPlugin,
     autoScalaLibrary := false,
