@@ -19,6 +19,7 @@ import sbt._
 import sbt.Keys._
 import de.johoop.findbugs4sbt.FindBugs._
 import de.johoop.cpd4sbt.CopyPasteDetector._
+import de.johoop.cpd4sbt.Language
 
 object BetterDocsBuild extends Build {
 
@@ -54,6 +55,8 @@ object BetterDocsBuild extends Build {
     name := "BetterDocsIdeaPlugin",
     libraryDependencies ++= Dependencies.ideaPlugin,
     autoScalaLibrary := false,
+    cpdLanguage := Language.Java,
+    cpdMinimumTokens := 30,
     unmanagedBase := file(ideaLib.get)
     ))
 
