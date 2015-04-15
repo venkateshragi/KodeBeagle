@@ -19,9 +19,6 @@ package com.imaginea.betterdocs;
 
 import java.util.ArrayList;
 
-/**
- * Created by prudhvib on 25/3/15.
- */
 public class CodeInfo {
     private ArrayList<Integer> lineNumbers;
     private String contents;
@@ -36,7 +33,7 @@ public class CodeInfo {
     }
 
     public String getFileName() {
-        return  fileName;
+        return fileName;
     }
 
     public CodeInfo(String fileName, ArrayList<Integer> lineNumbers, String contents) {

@@ -23,6 +23,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
+import com.intellij.icons.AllIcons;
+import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataKeys;
@@ -73,18 +75,28 @@ public class BetterDocsAction extends AnAction {
     private static final String FILE = "file";
     private static final String TOKENS = "tokens";
     private static final String CUSTOM_TOKENS_IMPORT_NAME = "custom.tokens.importName";
-    private static final char CH = '.';
-    private static final String EASTIC_SEARCH_SOURCE_FILE_URL = "http://172.16.12.201:9201/sourcefile/_search";
-    private static final String ELASTIC_SEARCH_BETTERDOCS_URL = "http://172.16.12.201:9201/betterdocs/_search";
+    private static final char DOT = '.';
+    private static final String ILLEGAL_FORMAT = "Please Provide valid numbers for distance and size in settings. Using default values for now";
+    private static final String INFO = "Info";
+    private static final String EMPTY_ES_URL = "Please set/modify proper esURL in idea settings";
+    public static final String ES_URL = "esURL";
+    public static final String DISTANCE = "distance";
+    public static final String SIZE = "size";
+    private static final String BETTERDOCS_SEARCH = "/betterdocs/_search";
+    private static final String SOURCEFILE_SEARCH = "/sourcefile/_search";
+    private static final String FAILED_HTTP_ERROR_CODE = "Failed : HTTP error code : ";
+    public static final String ES_URL_DEFAULT = "http://172.16.12.201:9201";
+    public static final int DISTANCE_DEFAULT_VALUE = 10;
+    public static final int SIZE_DEFAULT_VALUE = 30;
+
 
     private Project project;
     private JTree jTree;
     private Editor windowEditor;
-    private Editor projectEditor;
 
-    public void setProjectEditor(Editor projectEditor) {
-        this.projectEditor = projectEditor;
-    }
+    private int distance;
+    private int size;
+    private String esURL;
 
     public void setWindowEditor(Editor windowEditor) {
         this.windowEditor = windowEditor;
@@ -95,12 +107,22 @@ public class BetterDocsAction extends AnAction {
     }
 
     public BetterDocsAction() {
-        super(BETTER_DOCS, BETTER_DOCS, Messages.getInformationIcon());
+        super(BETTER_DOCS, BETTER_DOCS, AllIcons.Actions.Refresh);
     }
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent anActionEvent) {
         setProject(anActionEvent.getProject());
+        PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
+        try {
+            this.distance = propertiesComponent.getOrInitInt(DISTANCE, DISTANCE_DEFAULT_VALUE);
+            this.size = propertiesComponent.getOrInitInt(SIZE, SIZE_DEFAULT_VALUE);
+            this.esURL = propertiesComponent.getValue(ES_URL, ES_URL_DEFAULT);
+        } catch (NumberFormatException ne) {
+            this.distance = DISTANCE_DEFAULT_VALUE;
+            this.size = SIZE_DEFAULT_VALUE;
+            Messages.showInfoMessage(String.format(ILLEGAL_FORMAT), INFO);
+        }
 
         try {
             runAction(anActionEvent);
@@ -125,7 +147,6 @@ public class BetterDocsAction extends AnAction {
         final Editor projectEditor = DataKeys.EDITOR.getData(e.getDataContext());
 
         if (projectEditor != null) {
-            setProjectEditor(projectEditor);
 
             Set<String> imports = getImports(projectEditor.getDocument());
             Set<String> lines = getLines(projectEditor, projectEditor.getDocument());
@@ -139,23 +160,23 @@ public class BetterDocsAction extends AnAction {
                 jTree.setVisible(true);
 
                 String esQueryJson = getESQueryJson(importsInLines);
-                String esResultJson = getESResultJson(esQueryJson, ELASTIC_SEARCH_BETTERDOCS_URL);
-                Map<String, String> fileTokensMap = getFileTokens(esResultJson);
+                String esResultJson = getESResultJson(esQueryJson, esURL + BETTERDOCS_SEARCH);
 
-                Map<String, ArrayList<CodeInfo>> projectNodes = new HashMap<String, ArrayList<CodeInfo>>();
-                updateProjectNodes(imports, fileTokensMap, projectNodes);
-                updateRoot(root, projectNodes);
-                model.reload(root);
-                jTree.addTreeSelectionListener(getTreeSelectionListener(root));
+                if (!esResultJson.equals(EMPTY_ES_URL)) {
+                    Map<String, String> fileTokensMap = getFileTokens(esResultJson);
+
+                    Map<String, ArrayList<CodeInfo>> projectNodes = new HashMap<String, ArrayList<CodeInfo>>();
+                    updateProjectNodes(imports, fileTokensMap, projectNodes);
+                    updateRoot(root, projectNodes);
+                    model.reload(root);
+                    jTree.addTreeSelectionListener(getTreeSelectionListener(root));
+                } else {
+                    Messages.showInfoMessage(EMPTY_ES_URL, INFO);
+                }
             } else {
                 jTree.updateUI();
             }
         }
-    }
-
-    private Editor getEditor(AnActionEvent e) {
-        final Editor projectEditor = DataKeys.EDITOR.getData(e.getDataContext());
-        return projectEditor;
     }
 
     private void updateProjectNodes(Collection<String> imports, Map<String, String> fileTokensMap, Map<String, ArrayList<CodeInfo>> projectNodes) {
@@ -279,7 +300,7 @@ public class BetterDocsAction extends AnAction {
 
     private String getContentsForFile(String file) {
         String esFileQueryJson = getJsonForFileContent(file);
-        String esFileResultJson = getESResultJson(esFileQueryJson, EASTIC_SEARCH_SOURCE_FILE_URL);
+        String esFileResultJson = getESResultJson(esFileQueryJson, esURL + SOURCEFILE_SEARCH);
 
         JsonReader reader = new JsonReader(new StringReader(esFileResultJson));
         reader.setLenient(true);
@@ -289,7 +310,8 @@ public class BetterDocsAction extends AnAction {
         JsonArray hitsArray = hitsObject.getAsJsonArray(HITS);
         JsonObject hitObject = hitsArray.get(0).getAsJsonObject();
         JsonObject sourceObject = hitObject.getAsJsonObject(SOURCE);
-        String fileContent = sourceObject.getAsJsonPrimitive(FILE_CONTENT).getAsString();
+        //Replacing \r as it's treated as bad end of line character
+        String fileContent = sourceObject.getAsJsonPrimitive(FILE_CONTENT).getAsString().replaceAll("\r", "");
         return fileContent;
     }
 
@@ -302,7 +324,7 @@ public class BetterDocsAction extends AnAction {
 
         for (String line : lines) {
             for (String nextImport : imports) {
-                if (line.contains(nextImport.substring(nextImport.lastIndexOf(CH) + 1))) {
+                if (line.contains(nextImport.substring(nextImport.lastIndexOf(DOT) + 1))) {
                     importsInLines.add(nextImport);
                 }
             }
@@ -310,11 +332,10 @@ public class BetterDocsAction extends AnAction {
         return importsInLines;
     }
 
-    private static Set<String> getLines(Editor projectEditor, Document document) {
+    private Set<String> getLines(Editor projectEditor, Document document) {
         Set<String> lines = new HashSet<String>();
         int startLine;
         int endLine;
-        int distance = 10;
 
         if (projectEditor.getSelectionModel().hasSelection()) {
             startLine = document.getLineNumber(projectEditor.getSelectionModel().getSelectionStart());
@@ -352,7 +373,7 @@ public class BetterDocsAction extends AnAction {
         ESQuery.Query query = new ESQuery.Query();
         esQuery.setQuery(query);
         esQuery.setFrom(0);
-        esQuery.setSize(3);
+        esQuery.setSize(size);
 
         List<ESQuery.Sort> sortList = new ArrayList<ESQuery.Sort>();
 
@@ -400,7 +421,7 @@ public class BetterDocsAction extends AnAction {
             postRequest.setEntity(input);
             HttpResponse response = httpClient.execute(postRequest);
             if (response.getStatusLine().getStatusCode() != 200) {
-                throw new RuntimeException("Failed : HTTP error code : " +
+                throw new RuntimeException(FAILED_HTTP_ERROR_CODE +
                         response.getStatusLine().getStatusCode());
             }
 
@@ -411,10 +432,18 @@ public class BetterDocsAction extends AnAction {
                 stringBuilder.append(output);
             }
             httpClient.getConnectionManager().shutdown();
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+            return EMPTY_ES_URL;
         } catch (MalformedURLException e) {
             e.printStackTrace();
+            return EMPTY_ES_URL;
         } catch (IOException e) {
             e.printStackTrace();
+            return EMPTY_ES_URL;
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return EMPTY_ES_URL;
         }
         return stringBuilder.toString();
     }

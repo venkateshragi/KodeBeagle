@@ -5,7 +5,7 @@
   <vendor email="support@imaginea.com" url="http://www.Imaginea.com">Imaginea</vendor>
 
   <description><![CDATA[
-      Better Docs is not docs
+          Code with Confidence
     ]]></description>
 
   <change-notes><![CDATA[
@@ -30,15 +30,12 @@
     <!-- Add your project components here -->
   </project-components>
     <actions>
-        <action id="betterdocsidea.CurrentFile" class="com.imaginea.betterdocs.CodeBlock"
-                text="Contents of Selection" description="Shows the contents of the selection or current file if not selected">
-            <add-to-group group-id="ToolsMenu" anchor="first"/>
-            <keyboard-shortcut keymap="$default" first-keystroke="shift F"/>
-        </action>
+
     </actions>
 
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="Better Docs" anchor="right" factoryClass="com.imaginea.betterdocs.BetterDocsWindow"/>
+        <applicationConfigurable instance="com.imaginea.betterdocs.BetterDocsSettings"></applicationConfigurable>
     </extensions>
 </idea-plugin>
 

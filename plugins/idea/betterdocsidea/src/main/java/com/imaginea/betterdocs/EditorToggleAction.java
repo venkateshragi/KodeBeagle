@@ -22,7 +22,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.ui.Messages;
 import javax.swing.JSplitPane;
 
-public class EditorToggleAction extends AnAction{
+public class EditorToggleAction extends AnAction {
     private JSplitPane jSplitPane;
 
     public void setjSplitPane(JSplitPane jSplitPane) {
@@ -36,7 +36,7 @@ public class EditorToggleAction extends AnAction{
     @Override
     public void actionPerformed(AnActionEvent anActionEvent) {
         double location = (double) jSplitPane.getDividerLocation();
-        if(location / jSplitPane.getWidth() < 0.5) {
+        if (location / jSplitPane.getWidth() < 0.5) {
             jSplitPane.setDividerLocation(0.3);
         } else {
             jSplitPane.setDividerLocation(0.08);
