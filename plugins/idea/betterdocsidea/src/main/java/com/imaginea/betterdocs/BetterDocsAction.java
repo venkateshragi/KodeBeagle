@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.MalformedURLException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -57,6 +58,7 @@ import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -85,7 +87,7 @@ public class BetterDocsAction extends AnAction {
     private static final String BETTERDOCS_SEARCH = "/betterdocs/_search";
     private static final String SOURCEFILE_SEARCH = "/sourcefile/_search";
     private static final String FAILED_HTTP_ERROR_CODE = "Failed : HTTP error code : ";
-    public static final String ES_URL_DEFAULT = "http://172.16.12.201:9201";
+    public static final String ES_URL_DEFAULT = "http://labs.imaginea.com/betterdocs";
     public static final int DISTANCE_DEFAULT_VALUE = 10;
     public static final int SIZE_DEFAULT_VALUE = 30;
 
@@ -158,16 +160,16 @@ public class BetterDocsAction extends AnAction {
 
             if (!importsInLines.isEmpty()) {
                 jTree.setVisible(true);
-
                 String esQueryJson = getESQueryJson(importsInLines);
                 String esResultJson = getESResultJson(esQueryJson, esURL + BETTERDOCS_SEARCH);
 
                 if (!esResultJson.equals(EMPTY_ES_URL)) {
                     Map<String, String> fileTokensMap = getFileTokens(esResultJson);
-
                     Map<String, ArrayList<CodeInfo>> projectNodes = new HashMap<String, ArrayList<CodeInfo>>();
+
                     updateProjectNodes(imports, fileTokensMap, projectNodes);
                     updateRoot(root, projectNodes);
+
                     model.reload(root);
                     jTree.addTreeSelectionListener(getTreeSelectionListener(root));
                 } else {
@@ -415,13 +417,17 @@ public class BetterDocsAction extends AnAction {
         StringBuilder stringBuilder = new StringBuilder();
         try {
             HttpClient httpClient = new DefaultHttpClient();
+            HttpGet getRequest = new HttpGet(url + "?source=" + URLEncoder.encode(esQueryJson, "UTF-8"));
+            getRequest.setHeader("USER-AGENT", "Idea-Plugin");
+
             HttpPost postRequest = new HttpPost(url);
             StringEntity input = new StringEntity(esQueryJson);
             input.setContentType(APPLICATION_JSON);
             postRequest.setEntity(input);
-            HttpResponse response = httpClient.execute(postRequest);
+
+            HttpResponse response = httpClient.execute(getRequest);
             if (response.getStatusLine().getStatusCode() != 200) {
-                throw new RuntimeException(FAILED_HTTP_ERROR_CODE +
+                throw new RuntimeException(FAILED_HTTP_ERROR_CODE + url +
                         response.getStatusLine().getStatusCode());
             }
 
