@@ -42,7 +42,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 public class BetterDocsWindow implements ToolWindowFactory {
 
     private static final String PREF_PREF_GROW = "pref, pref:grow";
-    private static final String PREF_PREF = "pref, pref";
+    private static final String PREF_PREF = "pref";
     private static final String PROJECTS = "Projects";
 
     @Override
@@ -70,9 +70,6 @@ public class BetterDocsWindow implements ToolWindowFactory {
         DefaultActionGroup moveGroup = new DefaultActionGroup();
         moveGroup.add(toggleAction);
 
-
-        JComponent moveBar = ActionManager.getInstance().createActionToolbar("Move", moveGroup, true).getComponent();
-
         FormLayout layout = new FormLayout(
                 PREF_PREF_GROW,
                 PREF_PREF);
@@ -83,20 +80,18 @@ public class BetterDocsWindow implements ToolWindowFactory {
         jTreeScrollPane.setViewportView(jTree);
         jTreeScrollPane.setAutoscrolls(true);
         jTreeScrollPane.setBackground(new Color(255, 0, 0));
+        jTreeScrollPane.setPreferredSize(new Dimension(200, 300));
 
         JPanel jPanel = new JPanel(layout);
         jPanel.setVisible(true);
         jPanel.add(toolBar, cc.xy(1, 1));
-        jPanel.add(moveBar, cc.xy(1, 2));
         jPanel.add(jTreeScrollPane, cc.xy(2, 1));
 
-        JPanel windowPanel = new JPanel();
-        windowPanel.setVisible(true);
-        windowPanel.add(windowEditor.getComponent());
-        windowPanel.setPreferredSize(new Dimension(500, 500));
+        JBScrollPane jbScrollPane = new JBScrollPane();
+        jbScrollPane.setViewportView(windowEditor.getComponent());
 
-        final JSplitPane jSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, jPanel, windowEditor.getComponent());
-        jSplitPane.setDividerLocation(0.1);
+        final JSplitPane jSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, jbScrollPane, jPanel);
+        jSplitPane.setDividerLocation(0.5);
         toggleAction.setjSplitPane(jSplitPane);
 
         toolWindow.getComponent().getParent().add(jSplitPane);
