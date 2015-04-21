@@ -171,8 +171,7 @@ var app = function () {
 
     function queryES(indexName, queryBody, resultSize, successCallback) {
         $.ajax({
-            url: esURL + "/" + indexName + "/_search?size=" + resultSize,
-            data: queryBody,
+            url: esURL + "/" + indexName + "/_search?size=" + resultSize+"&source="+JSON.stringify(queryBody),
             success: function (result) {
                 successCallback(result.hits.hits);
             },
