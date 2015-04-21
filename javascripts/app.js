@@ -2,7 +2,7 @@
 var app = function () {
 
     "use strict";
-    var esURL = "172.16.12.201:9201",
+    var esURL = "http://labs.imaginea.com/betterdocs",
         resultSize = 50,
         analyzedProjContainer = $("#analyzedProj"),
         resultTreeContainer = $("#resultTreeContainer"),
@@ -170,31 +170,18 @@ var app = function () {
     }
 
     function queryES(indexName, queryBody, resultSize, successCallback) {
-        var indexTerms = indexName.split("/"),
-            index = indexTerms[0],
-            searchConfig;
-
-        searchConfig = {
-            index: index,
-            size: resultSize,
-            body: queryBody
-        };
-
-        if (indexTerms.length === 2) {
-            searchConfig.type = indexTerms[1];
-        }
-
-        $.es.Client({
-            host: esURL,
-            log: 'trace'
-        }).search(searchConfig).then(function (result) {
+        $.ajax({
+            url: esURL + "/" + indexName + "/_search?size=" + resultSize,
+            data: queryBody,
+            success: function (result) {
                 successCallback(result.hits.hits);
-            }, function (err) {
+            },
+            error: function (err) {
                 errorMsgContainer.text(err.message);
                 errorElement.slideDown("slow");
                 errorElement.slideUp(2500);
             }
-        )
+        });
     }
 
     function updateLeftPanel(processedData) {
