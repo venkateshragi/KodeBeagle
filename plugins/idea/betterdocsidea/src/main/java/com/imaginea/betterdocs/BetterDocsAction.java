@@ -59,8 +59,6 @@ import javax.swing.tree.TreeNode;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.jetbrains.annotations.NotNull;
 
@@ -73,7 +71,6 @@ public class BetterDocsAction extends AnAction {
     private static final String FILE_CONTENT = "fileContent";
     private static final String IMPORT = "import ";
     private static final String SORT_ORDER = "desc";
-    private static final String APPLICATION_JSON = "application/json";
     private static final String FILE = "file";
     private static final String TOKENS = "tokens";
     private static final String CUSTOM_TOKENS_IMPORT_NAME = "custom.tokens.importName";
@@ -84,12 +81,15 @@ public class BetterDocsAction extends AnAction {
     public static final String ES_URL = "esURL";
     public static final String DISTANCE = "distance";
     public static final String SIZE = "size";
-    private static final String BETTERDOCS_SEARCH = "/betterdocs/_search";
-    private static final String SOURCEFILE_SEARCH = "/sourcefile/_search";
+    private static final String BETTERDOCS_SEARCH = "/betterdocs/_search?source=";
+    private static final String SOURCEFILE_SEARCH = "/sourcefile/_search?source=";
     private static final String FAILED_HTTP_ERROR_CODE = "Failed : HTTP error code : ";
     public static final String ES_URL_DEFAULT = "http://labs.imaginea.com/betterdocs";
     public static final int DISTANCE_DEFAULT_VALUE = 10;
     public static final int SIZE_DEFAULT_VALUE = 30;
+    private static final String USER_AGENT = "USER-AGENT";
+    private static final String IDEA_PLUGIN = "Idea-Plugin";
+    private static final String UTF_8 = "UTF-8";
 
 
     private Project project;
@@ -417,13 +417,11 @@ public class BetterDocsAction extends AnAction {
         StringBuilder stringBuilder = new StringBuilder();
         try {
             HttpClient httpClient = new DefaultHttpClient();
-            HttpGet getRequest = new HttpGet(url + "?source=" + URLEncoder.encode(esQueryJson, "UTF-8"));
-            getRequest.setHeader("USER-AGENT", "Idea-Plugin");
+            String encodedJson = URLEncoder.encode(esQueryJson, UTF_8);
+            String esGetURL = url + encodedJson;
 
-            HttpPost postRequest = new HttpPost(url);
-            StringEntity input = new StringEntity(esQueryJson);
-            input.setContentType(APPLICATION_JSON);
-            postRequest.setEntity(input);
+            HttpGet getRequest = new HttpGet(esGetURL);
+            getRequest.setHeader(USER_AGENT, IDEA_PLUGIN);
 
             HttpResponse response = httpClient.execute(getRequest);
             if (response.getStatusLine().getStatusCode() != 200) {
