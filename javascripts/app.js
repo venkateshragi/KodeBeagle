@@ -25,7 +25,7 @@ var app = function () {
         methodTab = $("#methodTab"),
         currentResult = [],
         commonMethods = [],
-        docsBaseUrl = "http://192.168.2.28/api/";
+        docsBaseUrl = "http://labs.imaginea.com/java7docs/api";
 
 
     Handlebars.registerHelper('stringifyFunc', function (fnName, index, lines) {
