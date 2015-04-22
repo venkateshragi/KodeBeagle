@@ -221,6 +221,16 @@ var app = function () {
         });
 
         $("#results").html(resultTemplate({"files": files}));
+
+        $('.fa-caret-square-o-right').tooltipster({
+            theme: 'tooltipster-light',
+            content: "Expand"
+        });
+
+        $('.fa-caret-square-o-down').tooltipster({
+            theme: 'tooltipster-light',
+            content: "Collapse"
+        });
     }
 
     function filterRelevantTokens(searchString, tokens) {
@@ -372,6 +382,7 @@ var app = function () {
 
     function expandAllBlocks(id, lineNumbers) {
         var editor = ace.edit(id);
+        editor.getSession().unfold();
         editor.getSession().foldAll();
         lineNumbers.forEach(function (n) {
             editor.getSession().unfold(n);
@@ -488,50 +499,6 @@ var app = function () {
             }
         });
     }
-
-    /* old method to render complete doc
-     function fetchMethodDoc(methodInfo) {
-     var links = {},
-     container = $("#docContainer");
-     if (methodInfo.className.search("java") === 0) {
-     links = getClassLinks(methodInfo);
-     $.get(docsBaseUrl + links.url, function (result) {
-     var methodDoc = "",
-     linkToMethod = "",
-     matchedResult = result.match(links.regex);
-
-     var el = document.createElement('div');
-     el.innerHTML = result;
-
-
-     var header = $('div.header', el),
-     content = $('div.contentContainer', el);
-
-     container.html(header);
-     container.append(content);
-     /*rightSideContainer.scrollTop(
-     $("a[name='" + linkToMethod + "'").offset().top - container.offset().top + container.scrollTop()
-     );*/
-
-    //temporary hack to avoid error for inherited methods
-    /*           if (matchedResult && matchedResult.length > 1) {
-     linkToMethod = matchedResult[1].split("#")[1].replace(/[\(\)]/g, "\\$&").replace(/%20/g, " ");
-
-     //regex to capture the content from the anchor for the method. Fetches anchor to li end.
-     var contentRegex = new RegExp((/<a\sname=\"/).source + linkToMethod + (/\">.*?<\/a><ul class="blockList">((?!<\/li>).)*/
-    /*).source);
-
-     methodDoc = result.replace(/\n/g, "").match(contentRegex);
-     methodDoc = methodDoc[0].substring(methodDoc[0].search("<h4"));
-
-     } else {
-     methodDoc = "Sorry!! Failed to find documentation. Please see the complete documentation."
-     }
-
-
-     });
-     }
-     }*/
 
     return {
         initialize: init,
