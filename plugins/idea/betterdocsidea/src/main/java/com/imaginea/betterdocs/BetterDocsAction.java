@@ -218,9 +218,7 @@ public class BetterDocsAction extends AnAction {
                 DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)
                         jTree.getLastSelectedPathComponent();
 
-                if (selectedNode == null) {
-
-                } else if (selectedNode.isLeaf() && root.getChildCount() > 0) {
+                if (selectedNode != null && selectedNode.isLeaf() && root.getChildCount() > 0) {
                     final CodeInfo codeInfo = (CodeInfo) selectedNode.getUserObject();
                     final Document windowEditorDocument = windowEditor.getDocument();
 
@@ -429,12 +427,13 @@ public class BetterDocsAction extends AnAction {
                         response.getStatusLine().getStatusCode());
             }
 
-            BufferedReader br = new BufferedReader(
-                    new InputStreamReader((response.getEntity().getContent())));
+            BufferedReader bufferedReader = new BufferedReader(
+                    new InputStreamReader((response.getEntity().getContent()), UTF_8));
             String output;
-            while ((output = br.readLine()) != null) {
+            while ((output = bufferedReader.readLine()) != null) {
                 stringBuilder.append(output);
             }
+            bufferedReader.close();
             httpClient.getConnectionManager().shutdown();
         } catch (IllegalStateException e) {
             e.printStackTrace();

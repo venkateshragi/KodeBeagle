@@ -18,6 +18,10 @@
 package com.imaginea.betterdocs;
 
 public class ESFileContent {
+    public Query getQuery() {
+        return query;
+    }
+
     private Query query;
 
     public static class Query {
@@ -26,6 +30,10 @@ public class ESFileContent {
         public void setTerm(Term term) {
             this.term = term;
         }
+
+        public Term getTerm() {
+            return term;
+        }
     }
 
     public static class Term {
@@ -33,6 +41,10 @@ public class ESFileContent {
 
         public void setFileName(String fileName) {
             this.fileName = fileName;
+        }
+
+        public String getFileName() {
+            return fileName;
         }
     }
 

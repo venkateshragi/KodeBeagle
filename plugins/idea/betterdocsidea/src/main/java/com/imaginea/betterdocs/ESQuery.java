@@ -25,11 +25,31 @@ public class ESQuery {
     private int size;
     private List<Sort> sort;
 
+    public Query getQuery() {
+        return query;
+    }
+
+    public int getFrom() {
+        return from;
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public List<Sort> getSort() {
+        return sort;
+    }
+
     public static class Query {
         private Bool bool;
 
         public void setBool(Bool bool) {
             this.bool = bool;
+        }
+
+        public Bool getBool() {
+            return bool;
         }
     }
 
@@ -50,6 +70,17 @@ public class ESQuery {
             this.should = should;
         }
 
+        public List<Must> getMust() {
+            return must;
+        }
+
+        public List<Must> getMustNot() {
+            return mustNot;
+        }
+
+        public List<Must> getShould() {
+            return should;
+        }
     }
 
     public static class Must {
@@ -57,6 +88,10 @@ public class ESQuery {
 
         public void setTerm(Term term) {
             this.term = term;
+        }
+
+        public Term getTerm() {
+            return term;
         }
     }
 
@@ -66,6 +101,10 @@ public class ESQuery {
         public void setImportName(String importName) {
             this.importName = importName;
         }
+
+        public String getImportName() {
+            return importName;
+        }
     }
 
     public static class Sort {
@@ -74,6 +113,10 @@ public class ESQuery {
         public void setScore(Score score) {
             this.score = score;
         }
+
+        public Score getScore() {
+            return score;
+        }
     }
 
     public static class Score {
@@ -81,6 +124,10 @@ public class ESQuery {
 
         public void setOrder(String order) {
             this.order = order;
+        }
+
+        public String getOrder() {
+            return order;
         }
     }
 
