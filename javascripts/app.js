@@ -221,6 +221,16 @@ var app = function () {
         });
 
         $("#results").html(resultTemplate({"files": files}));
+
+        $('.fa-caret-square-o-right').tooltipster({
+            theme: 'tooltipster-light',
+            content: "Expand"
+        });
+
+        $('.fa-caret-square-o-down').tooltipster({
+            theme: 'tooltipster-light',
+            content: "Collapse"
+        });
     }
 
     function filterRelevantTokens(searchString, tokens) {
@@ -372,6 +382,7 @@ var app = function () {
 
     function expandAllBlocks(id, lineNumbers) {
         var editor = ace.edit(id);
+        editor.getSession().unfold();
         editor.getSession().foldAll();
         lineNumbers.forEach(function (n) {
             editor.getSession().unfold(n);
