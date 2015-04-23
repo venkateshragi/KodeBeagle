@@ -17,14 +17,14 @@
 
 package com.imaginea.betterdocs;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class CodeInfo {
-    private ArrayList<Integer> lineNumbers;
+    private List<Integer> lineNumbers;
     private String contents;
     private String fileName;
 
-    public ArrayList<Integer> getLineNumbers() {
+    public List<Integer> getLineNumbers() {
         return this.lineNumbers;
     }
 
@@ -36,7 +36,7 @@ public class CodeInfo {
         return fileName;
     }
 
-    public CodeInfo(String fileName, ArrayList<Integer> lineNumbers, String contents) {
+    public CodeInfo(String fileName, List<Integer> lineNumbers, String contents) {
         this.fileName = fileName;
         this.lineNumbers = lineNumbers;
         this.contents = contents;

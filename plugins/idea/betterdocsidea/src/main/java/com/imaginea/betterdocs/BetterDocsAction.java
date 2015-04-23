@@ -186,7 +186,7 @@ public class BetterDocsAction extends AnAction {
             String fileName = entry.getKey();
             String tokens = entry.getValue();
 
-            ArrayList<Integer> lineNumbers = getLineNumbers(imports, tokens);
+            List<Integer> lineNumbers = getLineNumbers(imports, tokens);
             String contents = getContentsForFile(fileName);
             CodeInfo codeInfo = new CodeInfo(fileName, lineNumbers, contents);
 
@@ -278,8 +278,8 @@ public class BetterDocsAction extends AnAction {
         }
     }
 
-    private ArrayList<Integer> getLineNumbers(Collection<String> imports, String tokens) {
-        ArrayList<Integer> lineNumbers = new ArrayList<Integer>();
+    private List<Integer> getLineNumbers(Collection<String> imports, String tokens) {
+        List<Integer> lineNumbers = new ArrayList<Integer>();
         JsonReader reader = new JsonReader(new StringReader(tokens));
         reader.setLenient(true);
         JsonArray tokensArray = new JsonParser().parse(reader).getAsJsonArray();
