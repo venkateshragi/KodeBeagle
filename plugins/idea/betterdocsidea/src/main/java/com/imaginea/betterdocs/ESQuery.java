@@ -25,30 +25,30 @@ public class ESQuery {
     private int size;
     private List<Sort> sort;
 
-    public Query getQuery() {
+    public final Query getQuery() {
         return query;
     }
 
-    public int getFrom() {
+    public final int getFrom() {
         return from;
     }
 
-    public int getSize() {
+    public final int getSize() {
         return size;
     }
 
-    public List<Sort> getSort() {
+    public final List<Sort> getSort() {
         return sort;
     }
 
     public static class Query {
         private Bool bool;
 
-        public void setBool(Bool bool) {
-            this.bool = bool;
+        public final void setBool(final Bool pbool) {
+            this.bool = pbool;
         }
 
-        public Bool getBool() {
+        public final Bool getBool() {
             return bool;
         }
     }
@@ -58,27 +58,27 @@ public class ESQuery {
         private List<Must> mustNot;
         private List<Must> should;
 
-        public void setMust(List<Must> must) {
-            this.must = must;
+        public final void setMust(final List<Must> pmust) {
+            this.must = pmust;
         }
 
-        public void setMustNot(List<Must> mustNot) {
-            this.mustNot = mustNot;
+        public final void setMustNot(final List<Must> pmustNot) {
+            this.mustNot = pmustNot;
         }
 
-        public void setShould(List<Must> should) {
-            this.should = should;
+        public final void setShould(final List<Must> pshould) {
+            this.should = pshould;
         }
 
-        public List<Must> getMust() {
+        public final List<Must> getMust() {
             return must;
         }
 
-        public List<Must> getMustNot() {
+        public final List<Must> getMustNot() {
             return mustNot;
         }
 
-        public List<Must> getShould() {
+        public final List<Must> getShould() {
             return should;
         }
     }
@@ -86,11 +86,11 @@ public class ESQuery {
     public static class Must {
         private Term term;
 
-        public void setTerm(Term term) {
-            this.term = term;
+        public final void setTerm(final Term pterm) {
+            this.term = pterm;
         }
 
-        public Term getTerm() {
+        public final Term getTerm() {
             return term;
         }
     }
@@ -98,11 +98,11 @@ public class ESQuery {
     public static class Term {
         private String importName;
 
-        public void setImportName(String importName) {
-            this.importName = importName;
+        public final void setImportName(final String pimportName) {
+            this.importName = pimportName;
         }
 
-        public String getImportName() {
+        public final String getImportName() {
             return importName;
         }
     }
@@ -110,11 +110,11 @@ public class ESQuery {
     public static class Sort {
         private Score score;
 
-        public void setScore(Score score) {
-            this.score = score;
+        public final void setScore(final Score pscore) {
+            this.score = pscore;
         }
 
-        public Score getScore() {
+        public final Score getScore() {
             return score;
         }
     }
@@ -122,28 +122,28 @@ public class ESQuery {
     public static class Score {
         private String order;
 
-        public void setOrder(String order) {
-            this.order = order;
+        public final void setOrder(final String porder) {
+            this.order = porder;
         }
 
-        public String getOrder() {
+        public final String getOrder() {
             return order;
         }
     }
 
-    public void setQuery(Query query) {
-        this.query = query;
+    public final void setQuery(final Query pquery) {
+        this.query = pquery;
     }
 
-    public void setFrom(int from) {
-        this.from = from;
+    public final void setFrom(final int pfrom) {
+        this.from = pfrom;
     }
 
-    public void setSize(int size) {
-        this.size = size;
+    public final void setSize(final int psize) {
+        this.size = psize;
     }
 
-    public void setSort(List<Sort> sort) {
-        this.sort = sort;
+    public final void setSort(final List<Sort> psort) {
+        this.sort = psort;
     }
 }

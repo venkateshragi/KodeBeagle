@@ -24,25 +24,26 @@ public class CodeInfo {
     private String contents;
     private String fileName;
 
-    public List<Integer> getLineNumbers() {
+    public final List<Integer> getLineNumbers() {
         return this.lineNumbers;
     }
 
-    public String getContents() {
+    public final String getContents() {
         return this.contents;
     }
 
-    public String getFileName() {
+    public final String getFileName() {
         return fileName;
     }
 
-    public CodeInfo(String fileName, List<Integer> lineNumbers, String contents) {
-        this.fileName = fileName;
-        this.lineNumbers = lineNumbers;
-        this.contents = contents;
+    public CodeInfo(final String pfileName, final List<Integer> plineNumbers,
+                    final String pcontents) {
+        this.fileName = pfileName;
+        this.lineNumbers = plineNumbers;
+        this.contents = pcontents;
     }
 
-    public String toString() {
+    public final String toString() {
         return fileName.substring(fileName.lastIndexOf("/") + 1);
     }
 }

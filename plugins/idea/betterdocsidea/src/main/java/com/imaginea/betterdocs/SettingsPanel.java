@@ -19,7 +19,6 @@ package com.imaginea.betterdocs;
 
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.options.Configurable;
-import com.intellij.openapi.options.ConfigurationException;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 import javax.swing.JComponent;
@@ -29,10 +28,9 @@ import javax.swing.JTextField;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
 
-public class BetterDocsSettings implements Configurable {
+public class SettingsPanel implements Configurable {
     private static final String BETTER_DOCS_SETTINGS = "BetterDocs Settings";
-    private static final String COLUMNS = "pref, pref:grow";
-    private static final String COLUMN_SPECS = COLUMNS;
+    private static final String COLUMN_SPECS = "pref, pref:grow";
     private static final String ROW_SPECS = "pref, pref, pref";
     private static final String ELASTIC_SEARCH_URL = "Elastic Search URL";
     private static final String RESULTS_SIZE = "Results size";
@@ -44,21 +42,21 @@ public class BetterDocsSettings implements Configurable {
 
     @Nls
     @Override
-    public String getDisplayName() {
+    public final String getDisplayName() {
         return BETTER_DOCS_SETTINGS;
     }
 
     @Nullable
     @Override
-    public String getHelpTopic() {
-        //TODO: Provide URL for HelpTopic in JetBrains website about plugin
+    public final String getHelpTopic() {
+        //Need to provide URL for plugin in JetBrain's website
         return "";
     }
 
     @Nullable
     @Override
-    public JComponent createComponent() {
-        FormLayout layout = new FormLayout(
+    public final JComponent createComponent() {
+        FormLayout formLayout = new FormLayout(
                 COLUMN_SPECS,
                 ROW_SPECS);
 
@@ -79,25 +77,27 @@ public class BetterDocsSettings implements Configurable {
         esURLText.setEditable(true);
         esURLText.setVisible(true);
 
-        if (propertiesComponent.isValueSet(BetterDocsAction.ES_URL)) {
-            esURLText.setText(propertiesComponent.getValue(BetterDocsAction.ES_URL));
+        if (propertiesComponent.isValueSet(RefreshAction.ES_URL)) {
+            esURLText.setText(propertiesComponent.getValue(RefreshAction.ES_URL));
         } else {
-            esURLText.setText(BetterDocsAction.ES_URL_DEFAULT);
+            esURLText.setText(RefreshAction.ES_URL_DEFAULT);
         }
 
         sizeText = new JTextField();
         sizeText.setEditable(true);
         sizeText.setVisible(true);
 
-        sizeText.setText(propertiesComponent.getValue(BetterDocsAction.SIZE, String.valueOf(BetterDocsAction.SIZE_DEFAULT_VALUE)));
+        sizeText.setText(propertiesComponent.getValue(RefreshAction.SIZE,
+                            String.valueOf(RefreshAction.SIZE_DEFAULT_VALUE)));
 
         distanceText = new JTextField();
         distanceText.setEditable(true);
         distanceText.setVisible(true);
 
-        distanceText.setText(propertiesComponent.getValue(BetterDocsAction.DISTANCE, String.valueOf(BetterDocsAction.DISTANCE_DEFAULT_VALUE)));
+        distanceText.setText(propertiesComponent.getValue(RefreshAction.DISTANCE,
+                            String.valueOf(RefreshAction.DISTANCE_DEFAULT_VALUE)));
 
-        JPanel jPanel = new JPanel(layout);
+        JPanel jPanel = new JPanel(formLayout);
         jPanel.add(esURL, cc.xy(1, 3));
         jPanel.add(esURLText, cc.xy(2, 3));
         jPanel.add(size, cc.xy(1, 2));
@@ -109,27 +109,33 @@ public class BetterDocsSettings implements Configurable {
     }
 
     @Override
-    public boolean isModified() {
+    public final boolean isModified() {
         return true;
     }
 
     @Override
-    public void apply() throws ConfigurationException {
+    public final void apply() {
         PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
         String esURLValue = esURLText.getText();
         String sizeValue = sizeText.getText();
         String distanceValue = distanceText.getText();
-        propertiesComponent.setValue(BetterDocsAction.ES_URL, esURLValue);
-        propertiesComponent.setValue(BetterDocsAction.SIZE, sizeValue);
-        propertiesComponent.setValue(BetterDocsAction.DISTANCE, distanceValue);
+        propertiesComponent.setValue(RefreshAction.ES_URL, esURLValue);
+        propertiesComponent.setValue(RefreshAction.SIZE, sizeValue);
+        propertiesComponent.setValue(RefreshAction.DISTANCE, distanceValue);
     }
 
     @Override
-    public void reset() {
+    public final void reset() {
         PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
-        esURLText.setText(propertiesComponent.getValue(BetterDocsAction.ES_URL, BetterDocsAction.ES_URL_DEFAULT));
-        sizeText.setText(propertiesComponent.getValue(BetterDocsAction.SIZE, String.valueOf(BetterDocsAction.SIZE_DEFAULT_VALUE)));
-        distanceText.setText(propertiesComponent.getValue(BetterDocsAction.DISTANCE, String.valueOf(BetterDocsAction.DISTANCE_DEFAULT_VALUE)));
+        esURLText.setText(propertiesComponent.
+                            getValue(RefreshAction.ES_URL,
+                                    RefreshAction.ES_URL_DEFAULT));
+        sizeText.setText(propertiesComponent.
+                            getValue(RefreshAction.SIZE,
+                                    String.valueOf(RefreshAction.SIZE_DEFAULT_VALUE)));
+        distanceText.setText(propertiesComponent.
+                            getValue(RefreshAction.DISTANCE,
+                                    String.valueOf(RefreshAction.DISTANCE_DEFAULT_VALUE)));
     }
 
     @Override
