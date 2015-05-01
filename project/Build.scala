@@ -35,6 +35,9 @@ object BetterDocsBuild extends Build {
   lazy val ideaPlugin = Project("ideaPlugin", file("plugins/idea/betterdocsidea"), settings =
     pluginSettings)
 
+  lazy val pluginTests = Project("pluginTests", file("plugins/idea/pluginTests"), settings =
+    pluginTestSettings) dependsOn(ideaPlugin)
+
   val scalacOptionsList = Seq("-encoding", "UTF-8", "-unchecked", "-optimize", "-deprecation",
     "-feature")
 
@@ -45,7 +48,8 @@ object BetterDocsBuild extends Build {
     if (ideaLib.isDefined) {
       Seq(core, ideaPlugin)
     } else {
-      println("""[warn] Plugin project disabled. To enable append -Didea.lib="idea/lib" to JVM params in SBT settings or while invoking sbt (incase it is called from commandline.). """)
+      println("""[warn] Plugin project disabled. To enable append -Didea.lib="idea/lib" to JVM 
+        params in SBT settings or while invoking sbt (incase it is called from commandline.). """)
       Seq(core)
     }
   }
@@ -59,6 +63,14 @@ object BetterDocsBuild extends Build {
     cpdMinimumTokens := 30,
     unmanagedBase := file(ideaLib.get)
     ))
+
+  def pluginTestSettings = pluginSettings ++ Seq (
+    name := "plugin-test",
+    libraryDependencies ++= Dependencies.ideaPluginTest,
+    autoScalaLibrary := true,
+    scalaVersion := "2.11.6",
+    cpdLanguage := Language.Scala
+    )
 
   def coreSettings = betterDocsSettings ++ Seq(libraryDependencies ++= Dependencies.betterDocs)
 
@@ -92,13 +104,14 @@ object Dependencies {
   val httpClient = "commons-httpclient" % "commons-httpclient" % "3.1"
   val config = "com.typesafe" % "config" % "1.2.1"
   val jgit = "org.eclipse.jgit" % "org.eclipse.jgit" % "3.7.0.201502260915-r"
+  val commonsIO = "commons-io" % "commons-io" % "2.4"
 
   val betterDocs = Seq(spark, parserCombinator, scalaTest, slf4j, javaparser, json4s, config,
-    json4sJackson, jgit)
-
+    json4sJackson, jgit, commonsIO)
+  val ideaPluginTest = Seq(scalaTest, commonsIO)
   val ideaPlugin = Seq()
+
   // transitively uses
-  // commons-io-2.4
   // commons-compress-1.4.1
 
 }
