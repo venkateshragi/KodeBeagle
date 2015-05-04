@@ -348,8 +348,9 @@ public class MethodVisitor extends VoidVisitorAdapter {
     }
 
     private String fullType(String type) {
-        String fullType = importDeclMap.get(type.toString());
-        fullType = fullType == null ? type.toString() : fullType;
+        String typeParamsStripped = type.replaceFirst("<.*>","").trim();
+        String fullType = importDeclMap.get(typeParamsStripped);
+        fullType = fullType == null ? typeParamsStripped : fullType;
         return fullType;
     }
 
