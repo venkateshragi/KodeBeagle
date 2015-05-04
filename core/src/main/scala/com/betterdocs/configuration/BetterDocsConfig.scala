@@ -44,7 +44,7 @@ object BetterDocsConfig {
   private[betterdocs] val githubDir: String = get("betterdocs.github.crawlDir").get
   private[betterdocs] val sparkMaster: String = get("betterdocs.spark.master").get
 
-  def nextToken(arr: Array[String] = githubTokens) = {
+  def nextToken(arr: Array[String] = githubTokens): String = {
     if (lastIndex == arr.length - 1) {
       lastIndex = 0
       arr(lastIndex)

@@ -36,7 +36,7 @@ object BetterDocsBuild extends Build {
     pluginSettings ++ findbugsSettings ++ codequality.CodeQualityPlugin.Settings)
 
   lazy val pluginTests = Project("pluginTests", file("plugins/idea/pluginTests"), settings =
-    pluginTestSettings) dependsOn(ideaPlugin)
+    pluginTestSettings) dependsOn ideaPlugin
 
   val scalacOptionsList = Seq("-encoding", "UTF-8", "-unchecked", "-optimize", "-deprecation",
     "-feature")

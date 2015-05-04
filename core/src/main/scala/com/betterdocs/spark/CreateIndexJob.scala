@@ -31,7 +31,8 @@ object CreateIndexJob {
 
   case class SourceFile(repoId: Int, fileName: String, fileContent: String)
 
-  def mapToSourceFiles(repo: Option[Repository], map: ArrayBuffer[(String, String)]) = {
+  def mapToSourceFiles(repo: Option[Repository],
+      map: ArrayBuffer[(String, String)]): Set[SourceFile] = {
     val repo2 = repo.getOrElse(Repository.invalid)
     import com.betterdocs.indexer.JavaFileIndexerHelper._
 
@@ -83,7 +84,7 @@ object CreateIndexJob {
   }
 
   def toJson[T <: AnyRef <% Product with Serializable](t: T, addESHeader: Boolean = true,
-      isToken: Boolean = false ): String = {
+      isToken: Boolean = false): String = {
     import org.json4s._
     import org.json4s.jackson.Serialization
     import org.json4s.jackson.Serialization.write
