@@ -80,6 +80,7 @@ public class RefreshAction extends AnAction {
         final Editor projectEditor = FileEditorManager.getInstance(project).getSelectedTextEditor();
 
         if (projectEditor != null) {
+            windowObjects.getFileNameContentsMap().clear();
             JTree jTree = windowObjects.getjTree();
 
             Set<String> imports = editorDocOps.getImports(projectEditor.getDocument());

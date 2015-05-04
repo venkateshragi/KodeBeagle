@@ -19,6 +19,8 @@ package com.imaginea.betterdocs;
 
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.JTree;
 
 public final class WindowObjects {
@@ -30,6 +32,15 @@ public final class WindowObjects {
     private int distance;
     private int size;
     private String esURL;
+    private Map<String, String> fileNameContentsMap = new HashMap<String, String>();
+
+    public void setFileNameContentsMap(final Map<String, String> pfileContents) {
+        this.fileNameContentsMap = pfileContents;
+    }
+
+    public Map<String, String> getFileNameContentsMap() {
+        return fileNameContentsMap;
+    }
 
     private WindowObjects() {
 
