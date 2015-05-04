@@ -33,7 +33,7 @@ object BetterDocsBuild extends Build {
   lazy val core = Project("core", file("core"), settings = coreSettings)
 
   lazy val ideaPlugin = Project("ideaPlugin", file("plugins/idea/betterdocsidea"), settings =
-    pluginSettings)
+    pluginSettings ++ findbugsSettings ++ codequality.CodeQualityPlugin.Settings)
 
   lazy val pluginTests = Project("pluginTests", file("plugins/idea/pluginTests"), settings =
     pluginTestSettings) dependsOn(ideaPlugin)
@@ -46,7 +46,7 @@ object BetterDocsBuild extends Build {
 
   def aggregatedProjects: Seq[ProjectReference] = {
     if (ideaLib.isDefined) {
-      Seq(core, ideaPlugin)
+      Seq(core, ideaPlugin, pluginTests)
     } else {
       println("""[warn] Plugin project disabled. To enable append -Didea.lib="idea/lib" to JVM 
         params in SBT settings or while invoking sbt (incase it is called from commandline.). """)
@@ -55,7 +55,7 @@ object BetterDocsBuild extends Build {
   }
 
   def pluginSettings = betterDocsSettings ++ (if (!ideaLib.isDefined) Seq() else 
-    findbugsSettings ++ codequality.CodeQualityPlugin.Settings ++ cpdSettings ++ Seq(
+    cpdSettings ++ Seq(
     name := "BetterDocsIdeaPlugin",
     libraryDependencies ++= Dependencies.ideaPlugin,
     autoScalaLibrary := false,
@@ -68,8 +68,7 @@ object BetterDocsBuild extends Build {
     name := "plugin-test",
     libraryDependencies ++= Dependencies.ideaPluginTest,
     autoScalaLibrary := true,
-    scalaVersion := "2.11.6",
-    cpdLanguage := Language.Scala
+    scalaVersion := "2.11.6"
     )
 
   def coreSettings = betterDocsSettings ++ Seq(libraryDependencies ++= Dependencies.betterDocs)
@@ -81,8 +80,6 @@ object BetterDocsBuild extends Build {
       version := "0.0.1-SNAPSHOT",
       scalaVersion := "2.11.6",
       scalacOptions := scalacOptionsList,
-      resolvers += "apache special" at "https://repository.apache.org/content/repositories/orgapachespark-1083/",
-     // retrieveManaged := true, // enable this if we need jars of dependencies.
       crossPaths := false,
       fork := true,
       javacOptions ++= Seq("-source", "1.6"),

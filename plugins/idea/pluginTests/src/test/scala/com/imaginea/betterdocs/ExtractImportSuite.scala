@@ -26,7 +26,7 @@ import org.scalatest.{BeforeAndAfterAll, FunSuite}
 
 import scala.collection.JavaConversions._
 
-class ExtractImportSuit extends FunSuite with BeforeAndAfterAll {
+class ExtractImportSuite extends FunSuite with BeforeAndAfterAll {
   private val stream: InputStream =
     Thread.currentThread.getContextClassLoader.getResourceAsStream("TestData.java")
 
