@@ -28,6 +28,7 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,6 +37,7 @@ import java.util.Set;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+
 import org.jetbrains.annotations.NotNull;
 
 public class RefreshAction extends AnAction {
@@ -91,7 +93,10 @@ public class RefreshAction extends AnAction {
 
             Set<String> imports = editorDocOps.getImports(projectEditor.getDocument());
             Set<String> lines = editorDocOps.getLines(projectEditor, windowObjects.getDistance());
-            Set<String> importsInLines = editorDocOps.importsInLines(lines, imports);
+            Set<String> internalImports = editorDocOps.getInternalImports(project);
+            Set<String> externalImports = 
+                            editorDocOps.excludeInternalImports(imports, internalImports);
+            Set<String> importsInLines = editorDocOps.importsInLines(lines, externalImports);
 
             DefaultTreeModel model = (DefaultTreeModel) jTree.getModel();
             DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
