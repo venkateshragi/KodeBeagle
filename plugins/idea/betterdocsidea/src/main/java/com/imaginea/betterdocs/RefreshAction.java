@@ -19,6 +19,9 @@ package com.imaginea.betterdocs;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.ide.util.PropertiesComponent;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.editor.Editor;
@@ -45,8 +48,11 @@ public class RefreshAction extends AnAction {
     protected static final String ES_URL_DEFAULT = "http://labs.imaginea.com/betterdocs";
     protected static final int DISTANCE_DEFAULT_VALUE = 10;
     protected static final int SIZE_DEFAULT_VALUE = 30;
-    private static final String EDITOR_ERROR = "Could not get editor any active editor";
+    private static final String EDITOR_ERROR = "Could not get any active editor";
     private static final String INFO = "info";
+    private static final String FORMAT = "%s %s %s";
+    private static final String QUERYING = "Querying";
+    private static final String FOR = "for";
 
     private WindowObjects windowObjects = WindowObjects.getInstance();
     private ProjectTree projectTree = new ProjectTree();
@@ -108,6 +114,10 @@ public class RefreshAction extends AnAction {
 
                     model.reload(root);
                     jTree.addTreeSelectionListener(projectTree.getTreeSelectionListener(root));
+                    Notifications.Bus.notify(new Notification(BETTER_DOCS,
+                                String.format(FORMAT, QUERYING, windowObjects.getEsURL(), FOR),
+                                importsInLines.toString() ,
+                                NotificationType.INFORMATION));
                 } else {
                     Messages.showInfoMessage(EMPTY_ES_URL, INFO);
                 }
