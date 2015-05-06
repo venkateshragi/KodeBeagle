@@ -21,6 +21,7 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import java.util.HashMap;
 import java.util.Map;
+import javax.swing.JPanel;
 import javax.swing.JTree;
 
 public final class WindowObjects {
@@ -48,6 +49,7 @@ public final class WindowObjects {
         return windowObjects;
     }
 
+    private JPanel editorPanel;
 
     public void setFileNameContentsMap(final Map<String, String> pfileContents) {
         this.fileNameContentsMap = pfileContents;
@@ -111,6 +113,14 @@ public final class WindowObjects {
 
     public static WindowObjects getInstance() {
         return windowObjects;
+    }
+
+    public void setPanel(final JPanel pEditorPanel) {
+        this.editorPanel = pEditorPanel;
+    }
+
+    public JPanel getEditorPanel() {
+        return editorPanel;
     }
 
 }

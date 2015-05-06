@@ -29,12 +29,16 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.ui.components.JBScrollPane;
+import com.intellij.ui.components.JBTabbedPane;
 import com.intellij.ui.treeStructure.Tree;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
+import java.awt.Dimension;
+import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 
@@ -43,8 +47,14 @@ public class MainWindow implements ToolWindowFactory, Disposable {
     private static final String COLUMN_SPECS = "pref, pref:grow";
     private static final String ROW_SPECS = "pref";
     private static final String PROJECTS = "Projects";
-    private static final String JAVA = "java";
+    protected static final String JAVA = "java";
     private static final double DIVIDER_LOCATION = 0.5;
+    private static final String MAIN_PANE = "Main Pane";
+    private static final String CODE_PANE = "Code Pane";
+    private static final int EDITOR_SCROLL_PANE_WIDTH = 200;
+    private static final int EDITOR_SCROLL_PANE_HEIGHT = 300;
+    private static final String BETTERDOCS = "BetterDocs";
+    private static final int UNIT_INCREMENT = 16;
     private Editor windowEditor;
 
     @Override
@@ -70,7 +80,7 @@ public class MainWindow implements ToolWindowFactory, Disposable {
         DefaultActionGroup group = new DefaultActionGroup();
         group.add(action);
         JComponent toolBar = ActionManager.getInstance().
-                                            createActionToolbar("BetterDocs", group, true).
+                                            createActionToolbar(BETTERDOCS, group, true).
                                             getComponent();
 
         FormLayout layout = new FormLayout(
@@ -95,7 +105,23 @@ public class MainWindow implements ToolWindowFactory, Disposable {
                                                         jbScrollPane, jPanel);
         jSplitPane.setDividerLocation(DIVIDER_LOCATION);
 
-        toolWindow.getComponent().getParent().add(jSplitPane);
+        JPanel editorPanel = new JPanel();
+        editorPanel.setLayout(new BoxLayout(editorPanel, BoxLayout.Y_AXIS));
+
+        final JBScrollPane editorScrollPane = new JBScrollPane();
+        editorScrollPane.setViewportView(editorPanel);
+        editorScrollPane.setAutoscrolls(true);
+        editorScrollPane.setPreferredSize(new Dimension(EDITOR_SCROLL_PANE_WIDTH,
+                EDITOR_SCROLL_PANE_HEIGHT));
+        editorScrollPane.getVerticalScrollBar().setUnitIncrement(UNIT_INCREMENT);
+
+        windowObjects.setPanel(editorPanel);
+
+        final JTabbedPane jTabbedPane = new JBTabbedPane();
+        jTabbedPane.add(MAIN_PANE, jSplitPane);
+        jTabbedPane.add(CODE_PANE, editorScrollPane);
+
+        toolWindow.getComponent().getParent().add(jTabbedPane);
     }
 
     @Override

@@ -24,16 +24,25 @@ import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.fileTypes.FileType;
+import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.swing.JPanel;
 import javax.swing.JTree;
 import javax.swing.ToolTipManager;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -106,6 +115,7 @@ public class RefreshAction extends AnAction {
             jTree.setVisible(true);
 
             if (!importsInLines.isEmpty()) {
+                windowObjects.getEditorPanel().removeAll();
                 String esQueryJson = jsonUtils.getESQueryJson(importsInLines,
                                         windowObjects.getSize());
                 String esResultJson = esUtils.getESResultJson(esQueryJson,
@@ -127,9 +137,10 @@ public class RefreshAction extends AnAction {
                     jTree.addMouseListener(projectTree.getMouseListener(root));
 
                     Notifications.Bus.notify(new Notification(BETTER_DOCS,
-                                String.format(FORMAT, QUERYING, windowObjects.getEsURL(), FOR),
-                                importsInLines.toString() ,
-                                NotificationType.INFORMATION));
+                            String.format(FORMAT, QUERYING, windowObjects.getEsURL(), FOR),
+                            importsInLines.toString(),
+                            NotificationType.INFORMATION));
+                    buildCodePane(projectNodes);
                 } else {
                     Messages.showInfoMessage(EMPTY_ES_URL, INFO);
                 }
@@ -139,5 +150,84 @@ public class RefreshAction extends AnAction {
         } else {
             Messages.showMessageDialog(EDITOR_ERROR, INFO, Messages.getErrorIcon());
         }
+    }
+
+    protected final void buildCodePane(final Map<String, ArrayList<CodeInfo>> projectNodes) {
+        //Take this from SettignsPanel
+        int maxEditors = 10;
+        int count = 0;
+        JPanel editorPanel = windowObjects.getEditorPanel();
+        List<CodeInfo> resultList = new ArrayList<CodeInfo>();
+
+        for (Map.Entry<String, ArrayList<CodeInfo>> entry : projectNodes.entrySet()) {
+            List<CodeInfo> codeInfoList = entry.getValue();
+            for (CodeInfo codeInfo : codeInfoList) {
+                if (count++ < maxEditors) {
+                    resultList.add(codeInfo);
+                }
+            }
+        }
+
+        Collections.sort(resultList, new Comparator<CodeInfo>() {
+            @Override
+            public int compare(final CodeInfo o1, final CodeInfo o2) {
+                Set<Integer> o1HashSet = new HashSet<Integer>(o1.getLineNumbers());
+                Set<Integer> o2HashSet = new HashSet<Integer>(o2.getLineNumbers());
+                return o2HashSet.size() - o1HashSet.size();
+            }
+        });
+
+        for (CodeInfo codeInfo : resultList) {
+            String fileContents;
+            String fileName = codeInfo.getFileName();
+            if (windowObjects.getFileNameContentsMap().containsKey(fileName)) {
+                fileContents = windowObjects.getFileNameContentsMap().get(fileName);
+            } else {
+                fileContents = esUtils.getContentsForFile(codeInfo.getFileName());
+                windowObjects.getFileNameContentsMap().put(fileName, fileContents);
+            }
+
+            Document tinyEditorDoc = EditorFactory.getInstance().
+                    createDocument(fileContents);
+            StringBuilder stringBuilder = new StringBuilder();
+            Set<Integer> lineNumbersSet = new HashSet<Integer>(codeInfo.getLineNumbers());
+            List<Integer> lineNumbersList = new ArrayList<Integer>(lineNumbersSet);
+            Collections.sort(lineNumbersList);
+
+            for (int line : lineNumbersList) {
+                //Document is 0 indexed
+                line = line - 1;
+                if (line < tinyEditorDoc.getLineCount() - 1) {
+                    int startOffset = tinyEditorDoc.getLineStartOffset(line);
+                    int endOffset = tinyEditorDoc.getLineEndOffset(line)
+                            + tinyEditorDoc.getLineSeparatorLength(line);
+                    String code = tinyEditorDoc.getCharsSequence().
+                            subSequence(startOffset, endOffset).
+                            toString().trim()
+                            + System.lineSeparator();
+                    stringBuilder.append(code);
+                }
+            }
+
+            createEditor(editorPanel, stringBuilder.toString());
+        }
+    }
+
+    private void createEditor(final JPanel editorPanel, final String contents) {
+        Document tinyEditorDoc;
+        tinyEditorDoc =
+                EditorFactory.getInstance().createDocument(contents);
+        tinyEditorDoc.setReadOnly(true);
+        Project project = windowObjects.getProject();
+        FileType fileType =
+                FileTypeManager.getInstance().getFileTypeByExtension(MainWindow.JAVA);
+
+        Editor tinyEditor =
+                EditorFactory.getInstance().
+                        createEditor(tinyEditorDoc, project, fileType, false);
+
+        editorPanel.add(tinyEditor.getComponent());
+        editorPanel.revalidate();
+        editorPanel.repaint();
     }
 }
