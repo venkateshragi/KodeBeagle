@@ -19,6 +19,7 @@ package com.imaginea.betterdocs;
 
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.SelectionModel;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -56,12 +57,19 @@ public class EditorDocOps {
     public final Set<String> getLines(final Editor projectEditor, final int distance) {
         Set<String> lines = new HashSet<String>();
         Document document = projectEditor.getDocument();
+        SelectionModel selectionModel = projectEditor.getSelectionModel();
         int head = 0;
         int tail = document.getLineCount() - 1;
 
-        if (projectEditor.getSelectionModel().hasSelection()) {
-            head = document.getLineNumber(projectEditor.getSelectionModel().getSelectionStart());
-            tail = document.getLineNumber(projectEditor.getSelectionModel().getSelectionEnd());
+        if (selectionModel.hasSelection()) {
+            head = document.getLineNumber(selectionModel.getSelectionStart());
+            tail = document.getLineNumber(selectionModel.getSelectionEnd());
+            /*Selection model gives one more line if line is selected completely.
+              By Checking if complete line is slected and decreasing tail*/
+            if ((document.getLineStartOffset(tail) == selectionModel.getSelectionEnd())) {
+                tail--;
+            }
+
         } else {
             int currentLine = document.getLineNumber(projectEditor.getCaretModel().getOffset());
 
@@ -77,7 +85,7 @@ public class EditorDocOps {
         for (int j = head; j <= tail; j++) {
             String line = document.getCharsSequence().
                                     subSequence(document.getLineStartOffset(j),
-                                                    document.getLineEndOffset(j)).toString();
+                                            document.getLineEndOffset(j)).toString();
             if (!line.contains(IMPORT)) {
                 lines.add(line);
             }
