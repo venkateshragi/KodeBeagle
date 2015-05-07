@@ -6,6 +6,8 @@
 
 [Refer to docs](http://scrapcodes.github.io/BetterDocs/)
 
+We use [gh-pages](https://pages.github.com/) and Jekyll for demo web ui.
+
 ## Installation instructions.
 
 ### Step 1 Configuration.
