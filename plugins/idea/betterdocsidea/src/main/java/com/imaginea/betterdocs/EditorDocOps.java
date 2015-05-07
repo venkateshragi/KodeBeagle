@@ -25,6 +25,9 @@ import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.JavaDirectoryService;
 import com.intellij.psi.PsiDirectory;
+import com.intellij.psi.PsiDocumentManager;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiPackage;
 import com.intellij.psi.search.GlobalSearchScope;
@@ -35,11 +38,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
 import org.jetbrains.annotations.NotNull;
 
 public class EditorDocOps {
     private static final String IMPORT = "import ";
     public static final char DOT = '.';
+    private static final String IMPORT_LIST = "IMPORT_LIST";
+    private static final String IMPORT_STATEMENT = "IMPORT_STATEMENT";
 
     public final Set<String> importsInLines(final Iterable<String> lines,
                                             final Iterable<String> imports) {
@@ -101,17 +110,29 @@ public class EditorDocOps {
         return lines;
     }
 
-    public final Set<String> getImports(final Document document) {
-        int startLine = 0;
-        int endLine = document.getLineCount() - 1;
+    public final Set<String> getImports(@NotNull final Document document,
+                                        @NotNull final Project project) {
+        PsiDocumentManager psiInstance = PsiDocumentManager.getInstance(project);
         Set<String> imports = new HashSet<String>();
-        for (int i = startLine; i <= endLine; i++) {
-            int lineStart = document.getLineStartOffset(i);
-            int lineEnd = document.getLineEndOffset(i) + document.getLineSeparatorLength(i);
-            String line = document.getCharsSequence().
-                                    subSequence(lineStart, lineEnd).toString();
-            if (line.contains(IMPORT) && !line.contains("*")) {
-                imports.add(line.replace(IMPORT, "").replace(";", "").trim());
+
+        if (psiInstance != null && (psiInstance.getPsiFile(document)) != null) {
+            PsiFile psiFile = psiInstance.getPsiFile(document);
+            if (psiFile != null) {
+                PsiElement[] psiRootChildren = psiFile.getChildren();
+                    for (PsiElement element : psiRootChildren) {
+                        if (element.getNode().getElementType().toString().equals(IMPORT_LIST)) {
+                            PsiElement[] importListChildren = element.getChildren();
+                            for (PsiElement importElement : importListChildren) {
+                                if (importElement.getNode().getElementType().
+                                        toString().equals(IMPORT_STATEMENT)) {
+                                    PsiElement[] importsElementList = importElement.getChildren();
+                                    if (importsElementList[2] != null) {// As second element contains the import value
+                                        imports.add(importsElementList[2].getNode().getText());
+                                    }
+                                }
+                            }
+                        }
+                    }
             }
         }
         return imports;
@@ -164,7 +185,8 @@ public class EditorDocOps {
         for (String nextImport : imports) {
             matchFound = false;
             for (String internalImport : internalImports) {
-                if (nextImport.startsWith(internalImport)) {
+                if (nextImport.startsWith(internalImport)
+                        || internalImport.startsWith(nextImport)) {
                     matchFound = true;
                     break;
                 }
@@ -174,5 +196,43 @@ public class EditorDocOps {
             }
         }
         return externalImports;
+    }
+
+    public final Set<String> excludeConfiguredImports(final Set<String> imports,
+                                                  final String excludeImport) {
+        Set<String> excludeImports = getExcludeImports(excludeImport);
+        Set<String> excludedImports = new HashSet<String>();;
+        imports.removeAll(excludeImports);
+        excludedImports.addAll(imports);
+        for (String importStatement : excludeImports) {
+            try {
+                Pattern pattern = Pattern.compile(importStatement);
+                for (String nextImport : imports) {
+                    Matcher matcher = pattern.matcher(nextImport);
+                    if (matcher.find()) {
+                        excludedImports.remove(nextImport);
+                    }
+                }
+            }
+
+           catch (PatternSyntaxException e) {
+               e.printStackTrace();
+           }
+        }
+        return excludedImports;
+    }
+
+    private Set<String> getExcludeImports(final String excludeImport) {
+        Set<String> excludeImports = new HashSet<String>();
+
+        if (!excludeImport.isEmpty()) {
+            String[] excludeImportsArray = excludeImport.split(",");
+
+            for (String imports : excludeImportsArray) {
+                  String replacingDot = imports.replace(".", "\\.");
+                  excludeImports.add(replacingDot.replaceAll("\\*", ".*").trim());
+            }
+        }
+        return excludeImports;
     }
 }

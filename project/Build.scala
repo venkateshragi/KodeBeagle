@@ -82,7 +82,7 @@ object BetterDocsBuild extends Build {
       scalacOptions := scalacOptionsList,
       crossPaths := false,
       fork := true,
-      javacOptions ++= Seq("-source", "1.6"),
+      javacOptions ++= Seq("-source", "1.7"),
       javaOptions += "-Xmx2048m",
       javaOptions += "-XX:+HeapDumpOnOutOfMemoryError"
     )

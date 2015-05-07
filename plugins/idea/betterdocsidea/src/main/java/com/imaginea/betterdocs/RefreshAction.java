@@ -66,12 +66,14 @@ public class RefreshAction extends AnAction {
     private static final String FORMAT = "%s %s %s";
     private static final String QUERYING = "Querying";
     private static final String FOR = "for";
+    protected static final String EXCLUDE_IMPORT_LIST = "Exclude imports";
 
     private WindowObjects windowObjects = WindowObjects.getInstance();
     private ProjectTree projectTree = new ProjectTree();
     private EditorDocOps editorDocOps = new EditorDocOps();
     private ESUtils esUtils = new ESUtils();
     private JSONUtils jsonUtils = new JSONUtils();
+    private PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
 
     public RefreshAction() {
         super(BETTER_DOCS, BETTER_DOCS, AllIcons.Actions.Refresh);
@@ -80,7 +82,6 @@ public class RefreshAction extends AnAction {
     @Override
     public final void actionPerformed(@NotNull final AnActionEvent anActionEvent) {
         windowObjects.setProject(anActionEvent.getProject());
-        PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
 
         windowObjects.setDistance(propertiesComponent.
                                     getOrInitInt(DISTANCE, DISTANCE_DEFAULT_VALUE));
@@ -102,7 +103,16 @@ public class RefreshAction extends AnAction {
             windowObjects.getFileNameContentsMap().clear();
             JTree jTree = windowObjects.getjTree();
 
-            Set<String> imports = editorDocOps.getImports(projectEditor.getDocument());
+            Set<String> imports = editorDocOps.getImports(projectEditor.getDocument(), project);
+
+            if (propertiesComponent.isValueSet(EXCLUDE_IMPORT_LIST)) {
+                String excludeImport = propertiesComponent.getValue(EXCLUDE_IMPORT_LIST);
+
+                if (excludeImport != null) {
+                    imports = editorDocOps.excludeConfiguredImports(imports, excludeImport);
+                }
+            }
+
             Set<String> lines = editorDocOps.getLines(projectEditor, windowObjects.getDistance());
             Set<String> internalImports = editorDocOps.getInternalImports(project);
             Set<String> externalImports =

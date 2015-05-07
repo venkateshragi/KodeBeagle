@@ -31,10 +31,16 @@ import org.jetbrains.annotations.Nullable;
 public class SettingsPanel implements Configurable {
     private static final String BETTER_DOCS_SETTINGS = "BetterDocs Settings";
     private static final String COLUMN_SPECS = "pref, pref:grow";
-    private static final String ROW_SPECS = "pref, pref, pref";
+    private static final String ROW_SPECS = "pref, pref, pref, pref, pref";
     private static final String ELASTIC_SEARCH_URL = "Elastic Search URL";
     private static final String RESULTS_SIZE = "Results size";
     private static final String DISTANCE_FROM_CURSOR = "Distance from cursor";
+    private static final String EXCLUDE_IMPORT_LIST = "Exclude imports";
+    private static final String HELP_TEXT =
+            "Please enter comma separated regex" +
+                    "(e.g. java.util.[A-Z][a-z0-9]*, org.slf4j.Logger)";
+
+    private JTextField excludeImportsText;
 
     private JTextField sizeText;
     private JTextField distanceText;
@@ -73,6 +79,12 @@ public class SettingsPanel implements Configurable {
         JLabel distance = new JLabel(DISTANCE_FROM_CURSOR);
         distance.setVisible(true);
 
+        JLabel excludeImports = new JLabel(EXCLUDE_IMPORT_LIST);
+        excludeImports.setVisible(true);
+
+        JLabel helpText = new JLabel(HELP_TEXT);
+        helpText.setVisible(true);
+
         esURLText = new JTextField();
         esURLText.setEditable(true);
         esURLText.setVisible(true);
@@ -97,6 +109,14 @@ public class SettingsPanel implements Configurable {
         distanceText.setText(propertiesComponent.getValue(RefreshAction.DISTANCE,
                             String.valueOf(RefreshAction.DISTANCE_DEFAULT_VALUE)));
 
+        excludeImportsText = new JTextField();
+        excludeImportsText.setEditable(true);
+        excludeImportsText.setVisible(true);
+
+        if (propertiesComponent.isValueSet(RefreshAction.EXCLUDE_IMPORT_LIST)) {
+            excludeImportsText.setText(propertiesComponent.getValue(RefreshAction.
+                                       EXCLUDE_IMPORT_LIST));
+        }
         JPanel jPanel = new JPanel(formLayout);
         jPanel.add(esURL, cc.xy(1, 3));
         jPanel.add(esURLText, cc.xy(2, 3));
@@ -104,6 +124,9 @@ public class SettingsPanel implements Configurable {
         jPanel.add(sizeText, cc.xy(2, 2));
         jPanel.add(distance, cc.xy(1, 1));
         jPanel.add(distanceText, cc.xy(2, 1));
+        jPanel.add(excludeImports, cc.xy(1, 4));
+        jPanel.add(excludeImportsText, cc.xy(2, 4));
+        jPanel.add(helpText,cc.xy(2, 5));
 
         return jPanel;
     }
@@ -119,9 +142,12 @@ public class SettingsPanel implements Configurable {
         String esURLValue = esURLText.getText();
         String sizeValue = sizeText.getText();
         String distanceValue = distanceText.getText();
+        String excludeImportsValues = excludeImportsText.getText();
         propertiesComponent.setValue(RefreshAction.ES_URL, esURLValue);
         propertiesComponent.setValue(RefreshAction.SIZE, sizeValue);
         propertiesComponent.setValue(RefreshAction.DISTANCE, distanceValue);
+        propertiesComponent.setValue(RefreshAction.EXCLUDE_IMPORT_LIST,
+                                      excludeImportsValues);
     }
 
     @Override
@@ -136,6 +162,11 @@ public class SettingsPanel implements Configurable {
         distanceText.setText(propertiesComponent.
                             getValue(RefreshAction.DISTANCE,
                                     String.valueOf(RefreshAction.DISTANCE_DEFAULT_VALUE)));
+
+        if (propertiesComponent.isValueSet(RefreshAction.EXCLUDE_IMPORT_LIST)) {
+            excludeImportsText.setText(propertiesComponent.getValue(RefreshAction.
+                                       EXCLUDE_IMPORT_LIST));
+        }
     }
 
     @Override
