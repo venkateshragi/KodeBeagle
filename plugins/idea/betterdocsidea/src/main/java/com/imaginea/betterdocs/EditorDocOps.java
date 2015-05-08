@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.StringTokenizer;
 import org.jetbrains.annotations.NotNull;
 
 public class EditorDocOps {
@@ -45,9 +46,14 @@ public class EditorDocOps {
         Set<String> importsInLines = new HashSet<String>();
 
         for (String line : lines) {
-            for (String nextImport : imports) {
-                if (line.contains(nextImport.substring(nextImport.lastIndexOf(DOT) + 1))) {
-                    importsInLines.add(nextImport);
+            StringTokenizer stringTokenizer = new StringTokenizer(line);
+            while (stringTokenizer.hasMoreTokens()) {
+                String token = stringTokenizer.nextToken();
+                for (String nextImport : imports) {
+                    String shortImportName = nextImport.substring(nextImport.lastIndexOf(DOT) + 1);
+                    if (token.equals(shortImportName)) {
+                        importsInLines.add(nextImport);
+                    }
                 }
             }
         }
@@ -57,6 +63,7 @@ public class EditorDocOps {
     public final Set<String> getLines(final Editor projectEditor, final int distance) {
         Set<String> lines = new HashSet<String>();
         Document document = projectEditor.getDocument();
+        String regex = "(\\s*(import|\\/?\\*|//)\\s+.*)|\\\".*";
         SelectionModel selectionModel = projectEditor.getSelectionModel();
         int head = 0;
         int tail = document.getLineCount() - 1;
@@ -83,11 +90,12 @@ public class EditorDocOps {
         }
 
         for (int j = head; j <= tail; j++) {
-            String line = document.getCharsSequence().
-                                    subSequence(document.getLineStartOffset(j),
-                                            document.getLineEndOffset(j)).toString();
-            if (!line.contains(IMPORT)) {
-                lines.add(line);
+            String line =
+                    document.getCharsSequence().subSequence(document.getLineStartOffset(j),
+                            document.getLineEndOffset(j)).toString();
+            String cleanedLine = line.replaceFirst(regex, "").replaceAll("\\W+", " ").trim();
+            if (!cleanedLine.isEmpty()) {
+                lines.add(cleanedLine);
             }
         }
         return lines;
