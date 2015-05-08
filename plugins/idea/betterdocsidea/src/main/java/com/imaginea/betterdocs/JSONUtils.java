@@ -34,6 +34,8 @@ public class JSONUtils {
     private static final String IMPORT_NAME = "importName";
     private static final String LINE_NUMBERS = "lineNumbers";
     private static final String SORT_ORDER = "desc";
+    private static final String ID = "id";
+    private static final String TYPEREPOSITORY_ID = "typerepository.id";
 
     public final String getJsonForFileContent(final String fileName) {
         ESFileContent esFileContent = new ESFileContent();
@@ -44,6 +46,37 @@ public class JSONUtils {
         term.setFileName(fileName);
         Gson gson = new Gson();
         return gson.toJson(esFileContent);
+    }
+
+    public final String getRepoStarsJSON(final int repoId) {
+        RepoStarsJSON repoStarsJSON = new RepoStarsJSON();
+        RepoStarsJSON.Query query = new RepoStarsJSON.Query();
+        repoStarsJSON.setQuery(query);
+        repoStarsJSON.setFrom(0);
+        repoStarsJSON.setSize(1);
+
+        List<RepoStarsJSON.Sort> sortList = new ArrayList<RepoStarsJSON.Sort>();
+        repoStarsJSON.setSort(sortList);
+
+        RepoStarsJSON.Facets facets = new RepoStarsJSON.Facets();
+        repoStarsJSON.setFacets(facets);
+
+        RepoStarsJSON.Bool bool = new RepoStarsJSON.Bool();
+        query.setBool(bool);
+
+        List<RepoStarsJSON.Must> mustList = new ArrayList<RepoStarsJSON.Must>();
+
+        RepoStarsJSON.Must must = new RepoStarsJSON.Must();
+        bool.setMust(mustList);
+        bool.setMustNot(new ArrayList<RepoStarsJSON.Must>());
+        bool.setShould(new ArrayList<RepoStarsJSON.Must>());
+        RepoStarsJSON.Term term = new RepoStarsJSON.Term();
+        must.setTerm(term);
+        term.setId(repoId);
+        mustList.add(must);
+
+        Gson gson = new Gson();
+        return gson.toJson(repoStarsJSON).replaceAll(ID, TYPEREPOSITORY_ID);
     }
 
     public final String getESQueryJson(final Set<String> importsInLines, final int size) {

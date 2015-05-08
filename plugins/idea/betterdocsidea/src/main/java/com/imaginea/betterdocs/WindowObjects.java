@@ -33,6 +33,21 @@ public final class WindowObjects {
     private int size;
     private String esURL;
     private Map<String, String> fileNameContentsMap = new HashMap<String, String>();
+    private Map<String, String> repoStarsMap = new HashMap<String, String>();
+    private Map<String, Integer> repoNameIdMap = new HashMap<String, Integer>();
+
+    public Map<String, Integer> getRepoNameIdMap() {
+        return repoNameIdMap;
+    }
+
+    public Map<String, String> getRepoStarsMap() {
+        return repoStarsMap;
+    }
+
+    public static WindowObjects getWindowObjects() {
+        return windowObjects;
+    }
+
 
     public void setFileNameContentsMap(final Map<String, String> pfileContents) {
         this.fileNameContentsMap = pfileContents;

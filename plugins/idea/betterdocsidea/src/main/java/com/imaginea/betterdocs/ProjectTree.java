@@ -18,16 +18,20 @@
 package com.imaginea.betterdocs;
 
 import com.intellij.openapi.editor.Document;
+import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.MutableTreeNode;
+import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreeNode;
 
 public class ProjectTree {
@@ -117,5 +121,42 @@ public class ProjectTree {
             }
         }
         return node;
+    }
+}
+
+class ToolTipTreeCellRenderer implements TreeCellRenderer {
+    private static final String REPO_STARS = "Repo Stars: ";
+    private WindowObjects windowObjects = WindowObjects.getInstance();
+    private JSONUtils jsonUtils = new JSONUtils();
+    private ESUtils esUtils = new ESUtils();
+    private DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer();
+
+    public Component getTreeCellRendererComponent(final JTree tree, final Object value,
+                                                  final boolean selected, final boolean expanded,
+                                                  final boolean leaf, final int row,
+                                                  final boolean hasFocus) {
+        renderer.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
+
+        if (value != null) {
+            if (value instanceof DefaultMutableTreeNode) {
+                if (!((DefaultMutableTreeNode) value).isLeaf()
+                        && !((DefaultMutableTreeNode) value).isRoot()) {
+                    String repoName = ((DefaultMutableTreeNode) value).getUserObject().toString();
+                    int repoId = windowObjects.getRepoNameIdMap().get(repoName);
+                    String stars;
+                    if (windowObjects.getRepoStarsMap().containsKey(repoName)) {
+                        stars = windowObjects.getRepoStarsMap().get(repoName).toString();
+                    } else {
+                        String repoStarsJson = jsonUtils.getRepoStarsJSON(repoId);
+                        stars = esUtils.getRepoStars(repoStarsJson);
+                        windowObjects.getRepoStarsMap().put(repoName, stars);
+                    }
+                    renderer.setToolTipText(REPO_STARS + stars);
+                } else {
+                    renderer.setToolTipText(null);
+                }
+            }
+        }
+        return renderer;
     }
 }

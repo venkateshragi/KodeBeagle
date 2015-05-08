@@ -35,9 +35,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.JTree;
+import javax.swing.ToolTipManager;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
+import javax.swing.tree.TreeCellRenderer;
 import org.jetbrains.annotations.NotNull;
 
 public class RefreshAction extends AnAction {
@@ -119,6 +121,10 @@ public class RefreshAction extends AnAction {
 
                     model.reload(root);
                     jTree.addTreeSelectionListener(projectTree.getTreeSelectionListener(root));
+                    ToolTipManager.sharedInstance().registerComponent(jTree);
+                    TreeCellRenderer renderer = new ToolTipTreeCellRenderer();
+                    jTree.setCellRenderer(renderer);
+
                     Notifications.Bus.notify(new Notification(BETTER_DOCS,
                                 String.format(FORMAT, QUERYING, windowObjects.getEsURL(), FOR),
                                 importsInLines.toString() ,
