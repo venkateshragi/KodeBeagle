@@ -96,7 +96,7 @@ public class RefreshAction extends AnAction {
             Set<String> imports = editorDocOps.getImports(projectEditor.getDocument());
             Set<String> lines = editorDocOps.getLines(projectEditor, windowObjects.getDistance());
             Set<String> internalImports = editorDocOps.getInternalImports(project);
-            Set<String> externalImports = 
+            Set<String> externalImports =
                             editorDocOps.excludeInternalImports(imports, internalImports);
             Set<String> importsInLines = editorDocOps.importsInLines(lines, externalImports);
 
@@ -124,6 +124,7 @@ public class RefreshAction extends AnAction {
                     ToolTipManager.sharedInstance().registerComponent(jTree);
                     TreeCellRenderer renderer = new ToolTipTreeCellRenderer();
                     jTree.setCellRenderer(renderer);
+                    jTree.addMouseListener(projectTree.getMouseListener(root));
 
                     Notifications.Bus.notify(new Notification(BETTER_DOCS,
                                 String.format(FORMAT, QUERYING, windowObjects.getEsURL(), FOR),

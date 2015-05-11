@@ -17,14 +17,22 @@
 
 package com.imaginea.betterdocs;
 
+import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.editor.Document;
 import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import javax.swing.AbstractAction;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
@@ -39,6 +47,8 @@ public class ProjectTree {
     private WindowEditorOps windowEditorOps = new WindowEditorOps();
     private ESUtils esUtils = new ESUtils();
     private JSONUtils jsonUtils = new JSONUtils();
+    private static final String GITHUB_LINK = "https://github.com/";
+    private static final String RIGHT_CLICK_MENU_ITEM_TEXT = "Go to GitHub";
 
     public final TreeSelectionListener getTreeSelectionListener(final TreeNode root) {
         return new TreeSelectionListener() {
@@ -121,6 +131,37 @@ public class ProjectTree {
             }
         }
         return node;
+    }
+
+    public final MouseListener getMouseListener(final TreeNode root) {
+        return new MouseAdapter() {
+            @Override
+            public void mouseClicked(final MouseEvent mouseEvent) {
+                DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)
+                        windowObjects.getjTree().getLastSelectedPathComponent();
+                String url = "";
+                if (mouseEvent.isMetaDown() && selectedNode != null
+                        && selectedNode.getParent() != null) {
+                    if (!selectedNode.isLeaf()) {
+                        url = selectedNode.getUserObject().toString(); // getting project name
+                    } else if (root.getChildCount() > 0) {
+                        final CodeInfo codeInfo = (CodeInfo) selectedNode.getUserObject();
+                        url = codeInfo.getFileName();
+                    }
+                    final String gitUrl = url;
+                    JPopupMenu menu = new JPopupMenu();
+                    menu.add(new JMenuItem(new AbstractAction() {
+                        @Override
+                        public void actionPerformed(final ActionEvent actionEvent) {
+                            if (!gitUrl.isEmpty()) {
+                                BrowserUtil.browse(GITHUB_LINK + gitUrl);
+                            }
+                        }
+                    })).setText(RIGHT_CLICK_MENU_ITEM_TEXT);
+                    menu.show(mouseEvent.getComponent(), mouseEvent.getX(), mouseEvent.getY());
+                }
+            }
+        };
     }
 }
 
