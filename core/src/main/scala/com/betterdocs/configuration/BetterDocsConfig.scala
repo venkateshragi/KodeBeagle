@@ -35,6 +35,7 @@ object BetterDocsConfig {
   private[betterdocs] val sparkIndexOutput = get("betterdocs.spark.index.outputDir").get
   private[betterdocs] val sparkRepoOutput = get("betterdocs.spark.repo.outputDir").get
   private[betterdocs] val sparkSourceOutput = get("betterdocs.spark.source.outputDir").get
+  private[betterdocs] val sparkMethodsOutput = get("betterdocs.spark.method.outputDir").get
 
   private[betterdocs] val linesOfContext = get("betterdocs.indexing.linesOfContext").get
   // This is required to use GithubAPIHelper

@@ -62,12 +62,12 @@ public class MethodVisitor extends VoidVisitorAdapter {
         try {
             parse(new ByteArrayInputStream(classcontent.getBytes()));
         } catch (Throwable e) {
-            //System.err.println("Could not parse. Skipping file: " + filename + ", exception: " +
-            //        e.getMessage());
-            throw e;
+            System.err.println("Could not parse. Skipping file: " + filename + ", exception: " +
+                    e.getMessage());
+//            throw e;
         }
 
-        //System.out.println("Parsed file : " + filename);
+//        System.out.println("Parsed file : " + filename);
     }
 
     @SuppressWarnings("unchecked")
