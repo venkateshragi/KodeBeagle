@@ -20,14 +20,23 @@ package com.betterdocs.spark
 import com.betterdocs.configuration.BetterDocsConfig
 import com.betterdocs.crawler.{Repository, ZipBasicParser}
 import com.betterdocs.parser.RepoFileNameParser
+import com.betterdocs.spark.CreateIndexJob.SourceFile
 import org.apache.commons.compress.archivers.zip.ZipFile
-import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.rdd.RDD
+import org.apache.spark.{SparkConf, SparkContext}
 
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Try
 
 object SparkIndexJobHelper {
+
+  def mapToSourceFiles(repo: Option[Repository],
+                       map: ArrayBuffer[(String, String)]): Set[SourceFile] = {
+    val repo2 = repo.getOrElse(Repository.invalid)
+    import com.betterdocs.indexer.JavaFileIndexerHelper._
+
+    map.map(x => SourceFile(repo2.id, fileNameToURL(repo2, x._1), x._2)).toSet
+  }
 
   def createSparkContext(conf: SparkConf): SparkContext = new SparkContext(conf)
 
@@ -73,8 +82,7 @@ object SparkIndexJobHelper {
       """|{ "index" : { "_index" : "betterdocs", "_type" : "custom" } }
          | """.stripMargin + write(t)
     } else if (addESHeader) {
-      s"""|{ "index" : { "_index" : "$indexName", "_type" : "type$indexName
-" } }
+      s"""|{ "index" : { "_index" : "$indexName", "_type" : "type$indexName" } }
           |""".stripMargin + write(t)
     } else "" + write(t)
 

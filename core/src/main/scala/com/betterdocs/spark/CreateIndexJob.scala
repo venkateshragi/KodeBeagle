@@ -30,14 +30,6 @@ object CreateIndexJob {
 
   case class SourceFile(repoId: Int, fileName: String, fileContent: String)
 
-  def mapToSourceFiles(repo: Option[Repository],
-                       map: ArrayBuffer[(String, String)]): Set[SourceFile] = {
-    val repo2 = repo.getOrElse(Repository.invalid)
-    import com.betterdocs.indexer.JavaFileIndexerHelper._
-
-    map.map(x => SourceFile(repo2.id, fileNameToURL(repo2, x._1), x._2)).toSet
-  }
-
   def main(args: Array[String]): Unit = {
     val conf = new SparkConf()
       .setMaster(BetterDocsConfig.sparkMaster)

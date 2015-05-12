@@ -19,14 +19,14 @@ package com.betterdocs.spark
 
 import com.betterdocs.configuration.BetterDocsConfig
 import com.betterdocs.crawler.Repository
-import com.betterdocs.parser.MethodVisitorHelper._
+import com.betterdocs.indexer.JavaASTBasedIndexerForMethods
 import com.betterdocs.spark.SparkIndexJobHelper._
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
 
 import scala.collection.mutable.ArrayBuffer
 
-object CreateIndexJobForMethods {
+object CreateIndexJobForMethods  {
 
   def main(args: Array[String]): Unit = {
     val conf = new SparkConf()
@@ -40,10 +40,14 @@ object CreateIndexJobForMethods {
       Option[Repository], List[String])] = makeZipFileExtractedRDD(sc)
 
     // Create indexes for elastic search.
+
     zipFileExtractedRDD.map { f =>
       val (files, repo, packages) = f
-      toJson(extractMethodsAndLineNumbers(files.toMap, repo).toSet, true)
-    }.saveAsTextFile(BetterDocsConfig.sparkMethodsOutput)
-
+      (repo, new JavaASTBasedIndexerForMethods()
+        .generateTokensWithMethods(files.toMap, packages, repo), mapToSourceFiles(repo, files))
+    }.flatMap { case (Some(a), b, c) =>
+      Seq(toJson(a, isToken = false), toJson(b, isToken = false), toJson(c, isToken = false))
+    case _ => Seq()
+    }.saveAsTextFile(BetterDocsConfig.sparkIndexOutput)
   }
 }

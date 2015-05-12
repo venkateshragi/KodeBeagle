@@ -18,7 +18,6 @@
 package com.betterdocs.parser;
 
 import com.github.javaparser.JavaParser;
-import com.github.javaparser.ParseException;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.PackageDeclaration;
@@ -31,7 +30,6 @@ import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,9 +49,10 @@ public class MethodVisitor extends VoidVisitorAdapter {
     private HashMap<String, ArrayList<Integer>> lineNumbersMap = new HashMap<String, ArrayList<Integer>>();
     private ArrayList<HashMap<String, ArrayList<Integer>>> listOflineNumbersMap = new
             ArrayList<HashMap<String, ArrayList<Integer>>>();
-    private HashMap<String, ArrayList<Integer>> methodAndLineNumbers = new HashMap<String, ArrayList<Integer>>();
-    private HashMap<String, HashMap<String, ArrayList<Integer>>> importsAndLineNumbers =
+    private HashMap<String, HashMap<String, ArrayList<Integer>>> importsMethodsAndLineNumbers =
             new HashMap<String, HashMap<String, ArrayList<Integer>>>();
+    private ArrayList<HashMap<String, HashMap<String, ArrayList<Integer>>>> importsMethodsAndLineNumbersList =
+            new ArrayList<HashMap<String, HashMap<String, ArrayList<Integer>>>>();
 
     public void parse(String classcontent, String filename) throws Throwable {
         if (classcontent == null || classcontent.isEmpty()) {
@@ -129,6 +128,8 @@ public class MethodVisitor extends VoidVisitorAdapter {
             visit(body, nameVsTypeMap);
         }
         // On each method encountered we store their imports as map.
+        importsMethodsAndLineNumbersList.add(importsMethodsAndLineNumbers);
+        importsMethodsAndLineNumbers = new HashMap<String, HashMap<String, ArrayList<Integer>>>();
         listOflineNumbersMap.add(lineNumbersMap);
         lineNumbersMap = new HashMap<String, ArrayList<Integer>>();
     }
@@ -152,6 +153,8 @@ public class MethodVisitor extends VoidVisitorAdapter {
             visit(body, nameVsTypeMap);
         }
         // On each method encountered we store their imports as map.
+        importsMethodsAndLineNumbersList.add(importsMethodsAndLineNumbers);
+        importsMethodsAndLineNumbers = new HashMap<String, HashMap<String, ArrayList<Integer>>>();
         listOflineNumbersMap.add(lineNumbersMap);
         lineNumbersMap = new HashMap<String, ArrayList<Integer>>();
     }
@@ -281,8 +284,8 @@ public class MethodVisitor extends VoidVisitorAdapter {
         Expression s = n.getScope();
         String fullScope = getFullScope(s);
 
-        if (importsAndLineNumbers.containsKey(fullScope)) {
-            HashMap<String, ArrayList<Integer>> methodAndLineNumbers = importsAndLineNumbers
+        if (importsMethodsAndLineNumbers.containsKey(fullScope)) {
+            HashMap<String, ArrayList<Integer>> methodAndLineNumbers = importsMethodsAndLineNumbers
                     .get(fullScope);
             updateImportWithMethodAndLineNumbers(n, fullScope,
                     methodAndLineNumbers);
@@ -291,7 +294,7 @@ public class MethodVisitor extends VoidVisitorAdapter {
             ArrayList<Integer> arr = new ArrayList<Integer>();
             arr.add(n.getBeginLine());
             methodAndLineNumbers.put(n.getName(), arr);
-            importsAndLineNumbers.put(fullScope, methodAndLineNumbers);
+            importsMethodsAndLineNumbers.put(fullScope, methodAndLineNumbers);
         }
 
         List<Expression> args = n.getArgs();
@@ -405,7 +408,7 @@ public class MethodVisitor extends VoidVisitorAdapter {
             methodAndLineNumbers.put(n.getName(), arr);
         }
 
-        importsAndLineNumbers.put(fullScope, methodAndLineNumbers);
+        importsMethodsAndLineNumbers.put(fullScope, methodAndLineNumbers);
     }
 
     @SuppressWarnings("unchecked")
@@ -437,7 +440,7 @@ public class MethodVisitor extends VoidVisitorAdapter {
         return importDeclMap;
     }
 
-    public HashMap<String, HashMap<String, ArrayList<Integer>>> getImportsWithMethodAndLineNumber() {
-        return importsAndLineNumbers;
+    public ArrayList<HashMap<String, HashMap<String, ArrayList<Integer>>>> getImportsWithMethodAndLineNumber() {
+        return importsMethodsAndLineNumbersList;
     }
 }

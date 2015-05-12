@@ -17,7 +17,7 @@
 
 package com.betterdocs.parser
 
-import java.io.{StringWriter, InputStream}
+import java.io.{InputStream, StringWriter}
 
 import com.betterdocs.crawler.Repository
 import org.apache.commons.io.IOUtils
@@ -72,12 +72,12 @@ class MethodVisitorSuite extends FunSuite with BeforeAndAfterAll {
   val stream: InputStream =
     Thread.currentThread.getContextClassLoader.getResourceAsStream("TransportClient.java")
 
-  val m: MethodVisitor = new MethodVisitor
-  m.parse(stream)
+  val parser: MethodVisitor = new MethodVisitor
+  parser.parse(stream)
 
   test("Verify method visitor includes lines with usages.") {
 
-    val lines = m.getListOflineNumbersMap.flatMap(x => x.flatMap(_._2)).map(_.toInt)
+    val lines = parser.getListOflineNumbersMap.flatMap(x => x.flatMap(_._2)).map(_.toInt)
       .toList.sorted.distinct
 
     assert(lines === List(74, 75, 79, 101, 102, 103, 105, 106, 108, 109, 112, 113, 114, 115, 117,
@@ -91,38 +91,57 @@ class MethodVisitorSuite extends FunSuite with BeforeAndAfterAll {
     val stream: InputStream =
       Thread.currentThread.getContextClassLoader.getResourceAsStream("TransportClient.java")
 
-    import com.betterdocs.parser.MethodVisitor
     import com.betterdocs.parser.MethodVisitorHelper._
-    val parser: MethodVisitor = new MethodVisitor
-    parser.parse(stream)
 
-    
-    val testMap2 = Map(
-      "com.google.common.util.concurrent.SettableFuture" -> 
-      Map("set" -> List(177), "get" -> List(187), "setException" -> 
-      List(182), "create" -> List(172)),
-      "com.google.common.base.Objects" -> Map("toStringHelper" -> List(203)),
-      "org.slf4j.Logger" -> Map("error" -> List(119, 125, 154, 160), 
-          "debug" -> List(103), "trace" -> List(114, 139, 150)),
-      "java.util.UUID" -> Map("randomUUID" -> List(141)),
-      "org.apache.spark.network.util.NettyUtils" -> Map("getRemoteAddress" -> List(101, 137)),
-      "io.netty.channel.ChannelFuture" -> Map("cause" -> List(118, 119, 123, 153, 154, 158),
-        "isSuccess" -> List(112, 148)),
-      "com.google.common.base.Preconditions" -> Map("checkNotNull" -> List(74, 75)),
-      "io.netty.channel.Channel" -> Map("writeAndFlush" -> List(108, 144), "isActive" -> List(79),
-        "isOpen" -> List(79), "close" -> List(121, 156, 198), "remoteAddress" -> List(204)),
-      "java.util.concurrent.ExecutionException" -> Map("getCause" -> List(189)),
-      "com.google.common.base.Throwables" -> Map("propagate" -> List(189, 191)))
-    
+    val testMap = List(Map("io.netty.channel.Channel" -> Map(),
+      "com.google.common.base.Preconditions" ->
+        Map("checkNotNull" -> List(74, 75))),
+      Map("io.netty.channel.Channel" -> Map("isOpen" -> List(79),
+        "isActive" -> List(79))), Map("org.slf4j.Logger" ->
+        Map("trace" -> List(114), "debug" -> List(103), "error" -> List(119, 125)),
+        "org.apache.spark.network.protocol.ChunkFetchRequest" -> Map(),
+        "io.netty.channel.ChannelFutureListener" -> Map(),
+        "java.io.IOException" -> Map(),
+        "org.apache.spark.network.util.NettyUtils" ->
+          Map("getRemoteAddress" -> List(101)),
+        "io.netty.channel.ChannelFuture" ->
+          Map("cause" -> List(118, 119, 123), "isSuccess" -> List(112)),
+        "io.netty.channel.Channel" -> Map("close" -> List(121), "writeAndFlush" -> List(108)),
+        "org.apache.spark.network.protocol.StreamChunkId" -> Map()), Map("org.slf4j.Logger" ->
+        Map("trace" -> List(139, 150), "error" -> List(154, 160)),
+        "io.netty.channel.ChannelFutureListener" -> Map(), "java.io.IOException" -> Map(),
+        "java.util.UUID" -> Map("randomUUID" -> List(141)),
+        "org.apache.spark.network.util.NettyUtils" -> Map("getRemoteAddress" -> List(137)),
+        "io.netty.channel.ChannelFuture" ->
+          Map("cause" -> List(153, 154, 158), "isSuccess" -> List(148)),
+        "io.netty.channel.Channel" -> Map("close" -> List(156), "writeAndFlush" -> List(144)),
+        "org.apache.spark.network.protocol.RpcRequest" -> Map()),
+      Map("java.util.concurrent.TimeUnit" -> Map(),
+        "java.util.concurrent.ExecutionException" -> Map("getCause" -> List(189)),
+        "com.google.common.base.Throwables" -> Map("propagate" -> List(189, 191)),
+        "com.google.common.util.concurrent.SettableFuture" ->
+          Map("set" -> List(177), "get" -> List(187), "create" -> List(172),
+            "setException" -> List(182))), Map("java.util.concurrent.TimeUnit" -> Map(),
+        "io.netty.channel.Channel" ->
+        Map("close" -> List(198))), Map("io.netty.channel.Channel" ->
+        Map("remoteAddress" -> List(204)),
+        "com.google.common.base.Objects" -> Map("toStringHelper" -> List(203))))
 
-    val resultTokens = getImportsWithMethodAndLineNumbers(parser);
-    assert(resultTokens.size === testMap2.size)
-    assert((testMap2.keySet diff resultTokens.keySet) === Set())
-    assert((resultTokens.keySet diff testMap2.keySet) === Set())
+    val imports = getImports(parser,Set()).map(importName => importName._1 + "." + importName._2)
 
-    resultTokens.foreach {
-      case (k, v) =>
-        assert(resultTokens(k) === testMap2(k))
+    val resultTokens = getImportsWithMethodAndLineNumbers(parser,
+      getTokenMap(parser,imports)).map(_._1)
+
+    for(i <- 0 to resultTokens.size -1) {
+      val resultToken = resultTokens(i)
+      val testToken =  testMap(i)
+      assert(resultToken.size === testToken.size)
+      assert((resultToken.keySet diff testToken.keySet) === Set())
+      assert((testToken.keySet diff resultToken.keySet) === Set())
+      resultToken.foreach {
+        case (k, v) =>
+          assert(resultToken(k) === testToken(k))
+      }
     }
   }
 

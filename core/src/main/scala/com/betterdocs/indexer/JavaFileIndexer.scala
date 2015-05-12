@@ -19,16 +19,18 @@ package com.betterdocs.indexer
 
 import java.util.regex.Pattern
 
+import scala.collection.{immutable, mutable}
+import scala.util.Try
+
 import com.betterdocs.configuration.BetterDocsConfig
 import com.betterdocs.crawler.Repository
-import com.betterdocs.parser.MethodVisitor
-
-import scala.collection.mutable
-import scala.collection.immutable
-import scala.util.Try
+import com.betterdocs.parser.MethodToken
 
 
 case class IndexEntry(repoId: Int, file: String, tokens: Set[Token], score: Int)
+
+case class ImportsMethods(repoId: Int, file: String,
+    tokens: Set[MethodToken], score: Int)
 
 /* Since our tokens are fully qualified import names. */
 case class Token(importName: String, lineNumbers: immutable.Set[Int])
