@@ -45,7 +45,6 @@ import java.util.regex.PatternSyntaxException;
 import org.jetbrains.annotations.NotNull;
 
 public class EditorDocOps {
-    private static final String IMPORT = "import ";
     public static final char DOT = '.';
     private static final String IMPORT_LIST = "IMPORT_LIST";
     private static final String IMPORT_STATEMENT = "IMPORT_STATEMENT";
@@ -126,7 +125,8 @@ public class EditorDocOps {
                                 if (importElement.getNode().getElementType().
                                         toString().equals(IMPORT_STATEMENT)) {
                                     PsiElement[] importsElementList = importElement.getChildren();
-                                    if (importsElementList[2] != null) {// As second element contains the import value
+                                    // As second element contains the import value
+                                    if (importsElementList[2] != null) {
                                         imports.add(importsElementList[2].getNode().getText());
                                     }
                                 }
@@ -199,9 +199,9 @@ public class EditorDocOps {
     }
 
     public final Set<String> excludeConfiguredImports(final Set<String> imports,
-                                                  final String excludeImport) {
+            final String excludeImport) {
         Set<String> excludeImports = getExcludeImports(excludeImport);
-        Set<String> excludedImports = new HashSet<String>();;
+        Set<String> excludedImports = new HashSet<>();
         imports.removeAll(excludeImports);
         excludedImports.addAll(imports);
         for (String importStatement : excludeImports) {
@@ -213,9 +213,7 @@ public class EditorDocOps {
                         excludedImports.remove(nextImport);
                     }
                 }
-            }
-
-           catch (PatternSyntaxException e) {
+            } catch (PatternSyntaxException e) {
                e.printStackTrace();
            }
         }

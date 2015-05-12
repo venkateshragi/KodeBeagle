@@ -37,8 +37,8 @@ public class SettingsPanel implements Configurable {
     private static final String DISTANCE_FROM_CURSOR = "Distance from cursor";
     private static final String EXCLUDE_IMPORT_LIST = "Exclude imports";
     private static final String HELP_TEXT =
-            "Please enter comma separated regex" +
-                    "(e.g. java.util.[A-Z][a-z0-9]*, org.slf4j.Logger)";
+        "Please enter comma separated regex"
+            + "(e.g. java.util.[A-Z][a-z0-9]*, org.slf4j.Logger)";
 
     private JTextField excludeImportsText;
 
@@ -126,7 +126,7 @@ public class SettingsPanel implements Configurable {
         jPanel.add(distanceText, cc.xy(2, 1));
         jPanel.add(excludeImports, cc.xy(1, 4));
         jPanel.add(excludeImportsText, cc.xy(2, 4));
-        jPanel.add(helpText,cc.xy(2, 5));
+        jPanel.add(helpText, cc.xy(2, 5));
 
         return jPanel;
     }

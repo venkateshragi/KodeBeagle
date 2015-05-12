@@ -163,7 +163,7 @@ public class RefreshAction extends AnAction {
     }
 
     protected final void buildCodePane(final Map<String, ArrayList<CodeInfo>> projectNodes) {
-        //Take this from SettignsPanel
+        // Take this from SettignsPanel
         int maxEditors = 10;
         int count = 0;
         JPanel editorPanel = windowObjects.getEditorPanel();
