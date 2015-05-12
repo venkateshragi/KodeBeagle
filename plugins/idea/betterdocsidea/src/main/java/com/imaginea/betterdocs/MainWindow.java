@@ -26,6 +26,7 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.ui.components.JBScrollPane;
@@ -42,7 +43,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 
-public class MainWindow implements ToolWindowFactory, Disposable {
+public class MainWindow implements ToolWindowFactory {
 
     private static final String COLUMN_SPECS = "pref, pref:grow";
     private static final String ROW_SPECS = "pref";
@@ -122,12 +123,11 @@ public class MainWindow implements ToolWindowFactory, Disposable {
         jTabbedPane.add(CODE_PANE, editorScrollPane);
 
         toolWindow.getComponent().getParent().add(jTabbedPane);
-    }
-
-    @Override
-    public final void dispose() {
-        if (windowEditor != null) {
-            EditorFactory.getInstance().releaseEditor(windowEditor);
-        }
+        //Dispose the editor once it's no longer needed
+        Disposer.register(project, new Disposable() {
+            public void dispose() {
+                EditorFactory.getInstance().releaseEditor(windowEditor);
+            }
+        });
     }
 }

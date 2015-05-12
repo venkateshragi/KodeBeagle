@@ -36,9 +36,11 @@ class ExtractImportSuite extends FunSuite with BeforeAndAfterAll {
 
   private val document: Document = new DocumentImpl(fileContents)
 
-  /* Currently we are not getting Project object while executing tests.
-  We need to explore this thing to get the Project object*/
-  // TODO : Explore mocking
+  /*
+   * Currently we are not getting Project object while executing tests.
+   * We need to explore this thing to get the Project object
+   * TODO : Explore mocking
+   */
   ignore("Extracted imports should match the imports in java file.") {
     val project: Project = DummyProject.getInstance()
     val editorDocOps = new EditorDocOps().getImports(document,project)
