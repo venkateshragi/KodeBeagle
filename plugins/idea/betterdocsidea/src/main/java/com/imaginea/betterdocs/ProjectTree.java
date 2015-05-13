@@ -19,6 +19,9 @@ package com.imaginea.betterdocs;
 
 import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.EditorFactory;
+import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.vfs.VirtualFile;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
@@ -43,10 +46,12 @@ import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreeNode;
 
 public class ProjectTree {
+    private static final String OPEN_IN_NEW_TAB = "Open in New Tab";
     private WindowObjects windowObjects = WindowObjects.getInstance();
     private WindowEditorOps windowEditorOps = new WindowEditorOps();
     private ESUtils esUtils = new ESUtils();
     private JSONUtils jsonUtils = new JSONUtils();
+    private EditorDocOps editorDocOps = new EditorDocOps();
     private static final String GITHUB_LINK = "https://github.com/";
     private static final String RIGHT_CLICK_MENU_ITEM_TEXT = "Go to GitHub";
 
@@ -92,8 +97,14 @@ public class ProjectTree {
         for (Map.Entry<String, String> entry : fileTokensMap.entrySet()) {
             String fileName = entry.getKey();
             String tokens = entry.getValue();
+            List<Integer> lineNumbers;
 
-            List<Integer> lineNumbers = jsonUtils.getLineNumbers(imports, tokens);
+            if (!windowObjects.getFileNameNumbersMap().containsKey(fileName)) {
+                lineNumbers = jsonUtils.getLineNumbers(imports, tokens);
+                windowObjects.getFileNameNumbersMap().put(fileName, lineNumbers);
+            } else {
+                lineNumbers = windowObjects.getFileNameNumbersMap().get(fileName);
+            }
             CodeInfo codeInfo = new CodeInfo(fileName, lineNumbers);
 
             //Taking projectName as name till 2nd '/'
@@ -150,6 +161,26 @@ public class ProjectTree {
                     }
                     final String gitUrl = url;
                     JPopupMenu menu = new JPopupMenu();
+
+                    if (selectedNode.isLeaf()) {
+                        final CodeInfo codeInfo = (CodeInfo) selectedNode.getUserObject();
+
+                        menu.add(new JMenuItem(new AbstractAction() {
+                            @Override
+                            public void actionPerformed(final ActionEvent actionEvent) {
+                                VirtualFile virtualFile =
+                                        editorDocOps.getVirtualFile(codeInfo.toString(),
+                                                codeInfo.getContents());
+                                FileEditorManager.getInstance(windowObjects.getProject()).
+                                        openFile(virtualFile, true, true);
+                                Document document =
+                                        EditorFactory.getInstance().createDocument(codeInfo.getContents());
+                                editorDocOps.addHighlighting(codeInfo.getLineNumbers(), document);
+                                editorDocOps.gotoLine(codeInfo.getLineNumbers().get(0), document);
+                            }
+                        })).setText(OPEN_IN_NEW_TAB);
+                    }
+
                     menu.add(new JMenuItem(new AbstractAction() {
                         @Override
                         public void actionPerformed(final ActionEvent actionEvent) {
@@ -158,6 +189,7 @@ public class ProjectTree {
                             }
                         }
                     })).setText(RIGHT_CLICK_MENU_ITEM_TEXT);
+
                     menu.show(mouseEvent.getComponent(), mouseEvent.getX(), mouseEvent.getY());
                 }
             }
@@ -178,8 +210,7 @@ class ToolTipTreeCellRenderer implements TreeCellRenderer {
                                                   final boolean hasFocus) {
         renderer.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
 
-        if (value != null) {
-            if (value instanceof DefaultMutableTreeNode) {
+            if (value != null && value instanceof DefaultMutableTreeNode) {
                 if (!((DefaultMutableTreeNode) value).isLeaf()
                         && !((DefaultMutableTreeNode) value).isRoot()) {
                     String repoName = ((DefaultMutableTreeNode) value).getUserObject().toString();
@@ -197,7 +228,6 @@ class ToolTipTreeCellRenderer implements TreeCellRenderer {
                     renderer.setToolTipText(null);
                 }
             }
-        }
         return renderer;
     }
 }

@@ -22,6 +22,7 @@ import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.FoldRegion;
+import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
 public class WindowEditorOps {
@@ -73,5 +74,14 @@ public class WindowEditorOps {
         for (FoldRegion currentRegion : foldRegions) {
             windowEditor.getFoldingModel().removeFoldRegion(currentRegion);
         }
+    }
+
+    protected final void setWriteStatus(final VirtualFile virtualFile, final boolean status) {
+        new WriteCommandAction(windowObjects.getProject()) {
+            @Override
+            protected void run(@NotNull final Result result) throws Throwable {
+                virtualFile.setWritable(status);
+            }
+        } .execute();
     }
 }

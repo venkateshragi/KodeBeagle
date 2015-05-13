@@ -46,7 +46,7 @@ public class ESUtils {
     private static final String FAILED_HTTP_ERROR_CODE = "Failed : HTTP error code : ";
     private static final String USER_AGENT = "USER-AGENT";
     private static final String IDEA_PLUGIN = "Idea-Plugin";
-    private static final String UTF_8 = "UTF-8";
+    protected static final String UTF_8 = "UTF-8";
     private static final int HTTP_OK_STATUS = 200;
     private static final String REPO_ID = "repoId";
     private static final String STARGAZERS_COUNT = "stargazersCount";
