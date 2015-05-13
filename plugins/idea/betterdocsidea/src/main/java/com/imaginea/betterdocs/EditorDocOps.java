@@ -32,7 +32,6 @@ import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiPackage;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.containers.ContainerUtil;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -41,7 +40,6 @@ import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-
 import org.jetbrains.annotations.NotNull;
 
 public class EditorDocOps {
@@ -201,7 +199,7 @@ public class EditorDocOps {
     public final Set<String> excludeConfiguredImports(final Set<String> imports,
             final String excludeImport) {
         Set<String> excludeImports = getExcludeImports(excludeImport);
-        Set<String> excludedImports = new HashSet<>();
+        Set<String> excludedImports = new HashSet<String>();
         imports.removeAll(excludeImports);
         excludedImports.addAll(imports);
         for (String importStatement : excludeImports) {

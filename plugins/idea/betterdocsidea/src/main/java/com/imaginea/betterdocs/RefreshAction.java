@@ -31,8 +31,6 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.Messages;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,13 +40,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTree;
 import javax.swing.ToolTipManager;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-
-import javax.swing.tree.TreeCellRenderer;
 import org.jetbrains.annotations.NotNull;
 
 public class RefreshAction extends AnAction {
@@ -67,6 +64,9 @@ public class RefreshAction extends AnAction {
     private static final String QUERYING = "Querying";
     private static final String FOR = "for";
     protected static final String EXCLUDE_IMPORT_LIST = "Exclude imports";
+    protected static final String HELP_MESSAGE =
+            "<html><center>No Results to display.<br> Please Select Some code and hit <img src='"
+                    + AllIcons.Actions.Refresh + "'> </center> </html>";
 
     private WindowObjects windowObjects = WindowObjects.getInstance();
     private ProjectTree projectTree = new ProjectTree();
@@ -139,27 +139,36 @@ public class RefreshAction extends AnAction {
                     projectTree.updateProjectNodes(imports, fileTokensMap, projectNodes);
                     projectTree.updateRoot(root, projectNodes);
 
-                    model.reload(root);
-                    jTree.addTreeSelectionListener(projectTree.getTreeSelectionListener(root));
-                    ToolTipManager.sharedInstance().registerComponent(jTree);
-                    TreeCellRenderer renderer = new ToolTipTreeCellRenderer();
-                    jTree.setCellRenderer(renderer);
-                    jTree.addMouseListener(projectTree.getMouseListener(root));
-
                     Notifications.Bus.notify(new Notification(BETTER_DOCS,
                             String.format(FORMAT, QUERYING, windowObjects.getEsURL(), FOR),
                             importsInLines.toString(),
                             NotificationType.INFORMATION));
-                    buildCodePane(projectNodes);
+
+                    if (!projectNodes.isEmpty()) {
+                        model.reload(root);
+                        jTree.addTreeSelectionListener(projectTree.getTreeSelectionListener(root));
+                        ToolTipManager.sharedInstance().registerComponent(jTree);
+                        jTree.setCellRenderer(new ToolTipTreeCellRenderer());
+                        jTree.addMouseListener(projectTree.getMouseListener(root));
+                        windowObjects.getjTreeScrollPane().setViewportView(jTree);
+                        buildCodePane(projectNodes);
+                    } else {
+                        showHelpInfo(HELP_MESSAGE);
+                    }
                 } else {
-                    Messages.showInfoMessage(EMPTY_ES_URL, INFO);
+                    showHelpInfo(EMPTY_ES_URL);
                 }
             } else {
+                showHelpInfo(HELP_MESSAGE);
                 jTree.updateUI();
             }
         } else {
-            Messages.showMessageDialog(EDITOR_ERROR, INFO, Messages.getErrorIcon());
+            showHelpInfo(EDITOR_ERROR);
         }
+    }
+
+    private void showHelpInfo(String info) {
+        windowObjects.getjTreeScrollPane().setViewportView(new JLabel(info));
     }
 
     protected final void buildCodePane(final Map<String, ArrayList<CodeInfo>> projectNodes) {

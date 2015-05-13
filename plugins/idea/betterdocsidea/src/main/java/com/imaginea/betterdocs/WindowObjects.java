@@ -19,6 +19,7 @@ package com.imaginea.betterdocs;
 
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
+import com.intellij.ui.components.JBScrollPane;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.JPanel;
@@ -36,6 +37,12 @@ public final class WindowObjects {
     private Map<String, String> fileNameContentsMap = new HashMap<String, String>();
     private Map<String, String> repoStarsMap = new HashMap<String, String>();
     private Map<String, Integer> repoNameIdMap = new HashMap<String, Integer>();
+
+    public JBScrollPane getjTreeScrollPane() {
+        return jTreeScrollPane;
+    }
+
+    private JBScrollPane jTreeScrollPane;
 
     public Map<String, Integer> getRepoNameIdMap() {
         return repoNameIdMap;
@@ -123,4 +130,7 @@ public final class WindowObjects {
         return editorPanel;
     }
 
+    public void setJTreeScrollPane(final JBScrollPane pJTreeScrollPane) {
+        this.jTreeScrollPane = pJTreeScrollPane;
+    }
 }

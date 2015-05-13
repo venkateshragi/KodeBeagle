@@ -29,7 +29,7 @@ import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
 
 public class SettingsPanel implements Configurable {
-    private static final String BETTER_DOCS_SETTINGS = "BetterDocs Settings";
+    protected static final String BETTER_DOCS_SETTINGS = "BetterDocs Settings";
     private static final String COLUMN_SPECS = "pref, pref:grow";
     private static final String ROW_SPECS = "pref, pref, pref, pref, pref";
     private static final String ELASTIC_SEARCH_URL = "Elastic Search URL";
