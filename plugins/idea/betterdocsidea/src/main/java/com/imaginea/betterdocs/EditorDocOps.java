@@ -59,7 +59,7 @@ public class EditorDocOps {
                 String token = stringTokenizer.nextToken();
                 for (String nextImport : imports) {
                     String shortImportName = nextImport.substring(nextImport.lastIndexOf(DOT) + 1);
-                    if (token.equals(shortImportName)) {
+                    if (token.equalsIgnoreCase(shortImportName)) {
                         importsInLines.add(nextImport);
                     }
                 }
