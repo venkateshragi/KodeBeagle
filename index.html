@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>KodeBeagle</title>
+	<meta name="author" content="Alvaro Trigo Lopez" />
+	<meta name="description" content="fullPage very simple demo." />
+	<meta name="keywords"  content="fullpage,jquery,demo,simple" />
+	<meta name="Resource-type" content="Document" />
+
+	<link type="text/css" rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/fullPage.js/2.6.6/jquery.fullPage.min.css"/>
+	<link type="text/css" rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.4/css/bootstrap.min.css"/>
+	<link href='http://fonts.googleapis.com/css?family=Homenaje' rel='stylesheet' type='text/css'>
+	    
+
+    <link type="text/css" rel="stylesheet" href="library/dist/css/index/index.css"/>
+    
+
+
+	<!--link rel="stylesheet" type="text/css" href="../jquery.fullPage.css" />
+	<link rel="stylesheet" type="text/css" href="examples.css" /-->
+
+
+	<!--script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js"></script-->
+
+	<!--script type="text/javascript" src="../jquery.fullPage.js"></script-->
+
+
+</head>
+<body>
+
+<div id="fullpage">
+	
+	<div class="section search-section">
+		<div class="search-component-wrapper">
+			<h1 class="logo">
+	            KodeBeagle
+	        </h1>
+	        <div search-component>
+	        </div>
+        </div>
+
+	</div>
+	<div class="section about-section">
+		<div class="section-component">
+			<h2 class="section-title">About</h2>
+			<div class="section-data">
+				<p>A tool to assist you when you need code references.</p>
+				<p>As Developers, we tend to hunt for best-practices of using common and uncommon libraries in order to make our code more efficient. Often, a lot of time and energy is spent understanding the pros and cons of different approaches. KodeBeagle aims to solve this problem. It cites common practices from standard code references.</p>
+			</div>
+		</div>
+	</div>
+	<div class="section moreinfo-section">
+		<div class="section-component">
+			<h2 class="section-title">More info</h2>
+			<div class="section-data">
+				<p>
+					It goes through existing popular public projects and gathering required information. When a user searches, it queries the database and fetches relevant results.
+				</p>
+				<p>
+					Currently, the source for code of popular projects is Github
+				</p>
+				<p>
+					<span class="section-label">Technology Stack :</span> Elastic Search, Spark
+				</p>
+				
+				<p>
+					<span class="section-label">Supported Languages:</span> Java
+				</p>
+				<p>
+					Search is enabled only for fully qualified class name
+				</p>
+				<p>
+					<span class="section-label">RoadMap</span>
+				</p>
+				<p>
+					Search by class name or simple text to describe task at hand
+				</p>
+			</div>
+		</div>
+	</div>
+	<div class="section contributors-section">
+		<div class="section-component">
+			<h2 class="section-title">Contributors</h2>
+			<div class="section-data contributor-section" ng-controller="contributorCtrl">
+				<ul class="list">
+					<li ng-repeat="item in list">
+						<a ng-href="{{item.author.html_url}}" target="_blank">
+	    					<img ng-src="{{item.author.avatar_url}}" title="{{item.author.login}}"/>
+	    					<span class="name">{{item.author.login}}</span>
+						</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+
+</div>
+
+<script type="text/ng-template" id="search-component.html">
+    <div class="search-container" name="searchForm" id="search-form"
+    ng-class="{'search-item-present': selectedTexts.length || searchText }"
+    >
+        <span ng-repeat="item in selectedTexts track by $index" class="selected-text" ng-dblclick="handleSelectedText( $event, $index )">
+            {{item}}
+            <i href="#" class="glyphicon glyphicon-remove" ng-click="deleteItem( $event, $index )"></i>
+        </span>
+        <input type="text" name="searchText" id="searchText" ng-model="searchText" ng-keydown="handleSearchText( $event )" placeholder="search here Eg: FileChannel, MappedByteBuffer"
+		/>
+        <a href="#" class="glyphicon glyphicon-remove clear" ng-click="clearAll( $event )" tooltip-placement="bottom" tooltip="Clear text"></a>
+        </a>
+        <a  ng-href="{{getResultsPage()}}" class="glyphicon glyphicon-search search"
+            tooltip-placement="bottom" tooltip="submit"
+            id="search-button"
+        >
+        </a>
+    </div>
+</script>
+
+
+<!-- cdn based scripts starts here -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/fullPage.js/2.6.6/jquery.fullPage.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.9/angular.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/trianglify/0.2.1/trianglify.min.js"></script>
+
+<script src="library/dev/js/factories/http-service.js"></script>
+<script src="library/dev/js/ng-modules/index.js"></script>
+
+
+<script>
+    (function (i, s, o, g, r, a, m) {
+        i['GoogleAnalyticsObject'] = r;
+        i[r] = i[r] || function () {
+            (i[r].q = i[r].q || []).push(arguments)
+        }, i[r].l = 1 * new Date();
+        a = s.createElement(o),
+                m = s.getElementsByTagName(o)[0];
+        a.async = 1;
+        a.src = g;
+        m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+    ga('create', 'UA-60790831-1', 'auto');
+    ga('send', 'pageview');
+</script>
+
+
+</body>
+</html>

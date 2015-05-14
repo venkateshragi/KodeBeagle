@@ -2,7 +2,7 @@
 var app = function () {
 
     "use strict";
-    var esURL = "http://labs.imaginea.com/betterdocs",
+    var esURL = "http://labs.imaginea.com/kodebeagle",
         resultSize = 50,
         analyzedProjContainer = $("#analyzedProj"),
         resultTreeContainer = $("#resultTreeContainer"),
@@ -171,7 +171,7 @@ var app = function () {
 
     function queryES(indexName, queryBody, resultSize, successCallback) {
         $.ajax({
-            url: esURL + "/" + indexName + "/_search?size=" + resultSize+"&source="+JSON.stringify(queryBody),
+            url: esURL + "/" + indexName + "/_search?size=" + resultSize + "&source=" + JSON.stringify(queryBody),
             success: function (result) {
                 successCallback(result.hits.hits);
             },
@@ -347,7 +347,7 @@ var app = function () {
         var correctedQuery = buildSearchString(queryString),
             queryBlock = getQuery(correctedQuery);
 
-        queryES("betterdocs", {
+        queryES("kodebeagle", {
             "query": queryBlock,
             "sort": [
                 {"score": {"order": "desc"}}]

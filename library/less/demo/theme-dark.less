@@ -1,0 +1,125 @@
+@border-color: #000;
+@search-box-text-color: #333;
+@search-box-selected-bg: #333;
+@search-box-selected-text-color: #fff;
+
+@theme-color: #212121;
+@theme-color-rgba-style1: rgba( 0, 0,0, 0.8);
+@theme-off-color: #333;
+@theme-thin-color: #666;
+
+@theme-inverse-color: #fff;
+@theme-inverse-color-rgba-style1:rgba(256, 256, 256, 0.5);
+@theme-off-inverse-color: #ccc;
+@theme-thin-inverse-color: #999;
+@theme-nav-border-color: #080808;
+
+.theme-dark {
+	background: @theme-color url( '../../images/bkg.png' );
+	color: @theme-inverse-color;
+
+	.navbar {
+		background: @theme-off-color;
+		border-color: @theme-nav-border-color;
+	}
+	/*.welcome-component {
+		.logo {
+			color: @theme-inverse-color;
+		}
+	}*/
+	.search-container {
+		border: 1px solid @border-color; 
+		background: @theme-inverse-color;
+		input {
+			color: @search-box-text-color;
+		}
+		.selected-text {
+			background: @search-box-selected-bg;
+			color: @search-box-selected-text-color;
+		}
+		.clear {
+			color: @theme-off-inverse-color;
+			&:hover{
+				color: @theme-color;
+			}
+
+		}
+		.search {
+			background: none;
+			color: @theme-color;
+			border-left: 1px solid @theme-off-inverse-color;
+		}
+	}
+	.suggestions {
+		background: @theme-color-rgba-style1;
+		.item {
+			border-bottom: 1px solid @theme-inverse-color;
+			&:hover,&.active {
+				background: @theme-off-inverse-color;
+				color: @theme-off-color;
+			}
+		}
+	}
+	header .logo {
+		color: @theme-inverse-color;
+	}
+
+	.modal-dialog{
+		color: @theme-color;
+	}
+
+	.editor { 
+		color: @theme-color;
+	}
+	.tab-content{
+		border-color: @theme-off-inverse-color;
+	}
+
+	.page-loader {
+		background: @theme-inverse-color;
+		&>.glyphicon{
+		    color: @theme-color;
+		}
+	}
+	.show{
+		background: @theme-inverse-color-rgba-style1;
+	}
+
+	/* footer styles */
+	/*footer {
+		p {
+			span {
+				color: #ff0000;
+			}
+		}
+	}*/
+
+	/* glyphicons styles */
+	a.glyphicon {
+		color: @theme-thin-inverse-color;
+		&:hover {
+			color: @theme-inverse-color;
+		}
+	}
+	a.disable-icon{
+		&:hover {
+			color: @theme-thin-inverse-color;
+		}
+	}
+	.panel,.modal-dialog {
+		a.glyphicon {
+			&:hover {
+				color: @theme-thin-color;
+			}
+		}
+	}
+
+
+	.nav-tabs > li.active > a, .nav-tabs > li.active > a:hover, .nav-tabs > li.active > a:focus {
+		color: @theme-inverse-color;
+		background-color: transparent;
+	}
+	.nav-tabs.nav-justified > .active > a, .nav-tabs.nav-justified > .active > a:hover, .nav-tabs.nav-justified > .active > a:focus {
+		border-bottom: 0;
+	}
+}

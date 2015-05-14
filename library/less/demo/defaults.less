@@ -1,0 +1,596 @@
+@search-box-selected-default-bg: #ccc;
+@search-box-selected-default-border: #ddd;
+@navbar-default-toggle-border-color:       #ddd;
+
+/*@font-face {
+    font-family: 'homenajeregular';
+    src: url('../../../fonts/homenaje-regular-webfont.eot');
+    src: url('../../../fonts/homenaje-regular-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../../../fonts/homenaje-regular-webfont.woff2') format('woff2'),
+         url('../../../fonts/homenaje-regular-webfont.woff') format('woff'),
+         url('../../../fonts/homenaje-regular-webfont.ttf') format('truetype'),
+         url('../../../fonts/homenaje-regular-webfont.svg#homenajeregular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}*/
+
+.container {
+	width: 100%;
+}
+body>.main-content{
+	padding: 50px 0 0;
+	height: 100vh;
+}
+.logo {
+	font-family: 'Homenaje', sans-serif;
+}
+.welcome-component {
+	height: calc( @welcome-component-height );
+	text-align: center;
+
+	&:before{
+		height: 100%;
+		content: '';
+		margin-left: -0.3em;
+		display: inline-block;
+		width: 0;
+		vertical-align: middle;
+	}
+	
+	.logo {
+		.fonts( 80 );
+		
+	/////color: #fff;
+	}
+
+}
+.welcome-component-content{
+	display: inline-block;
+	width: 100%;
+}
+.search-container {
+	width: 50%;
+	margin: 0 auto;
+	.border-radius( 50px );
+	padding-right: 60px;
+	border: 1px solid @search-box-selected-default-border; 
+	/////background: #fff;
+	white-space: nowrap;
+	text-align: left;
+	position: relative;
+	padding-left: 3px;
+	background: #fff;
+	input {
+		padding: 10px;
+		border: 0;
+		.border-radius( 50px );
+		background: none;
+		/////color: @search-box-text-color;
+		outline: none;
+		width: 100%;
+	}
+	.selected-text+input {
+		.placeholder-color( transparent );
+	}
+	.selected-text {
+		margin-left: 5px;
+		background: @search-box-selected-default-bg;
+		.border-radius( 15px ); 
+		/////color: @search-box-selected-text-color;
+		padding: 5px 5px 5px 10px;
+		cursor: pointer;
+	}
+
+	.clear {
+		position: absolute;
+		right: 60px;
+		////color: #ccc;
+		top: 11px;
+		opacity: 0;
+		.transition();
+		visibility: hidden;
+		&:hover{
+			/////color: #000;
+		}
+
+	}
+	&.search-item-present {
+		.clear {
+			opacity: 1;		
+			visibility: visible;
+		}
+	}
+	.search {
+		position: absolute;
+		right: 0;
+		background: none;
+		border: 0;
+		top: 0px;
+		/*.border-radius( 50% );*/
+		/////color: #000;
+		height: 100%;
+		padding: 0 15px;
+		border-left: 1px solid @search-box-selected-default-border;
+		line-height: 40px;
+		color: #000;
+	}
+	.clear,.search {
+		text-decoration: none;
+		
+  		.fonts( 20 );
+	}
+}
+.suggestions {
+	position: absolute;
+	top: 110%;
+	right: 0;
+	width: 100%;
+	/////background: rgba( 0, 0 , 0, 0.8);
+	.item {
+		/////border-bottom: 1px solid #fff;
+		padding: 3px 10px;
+		margin-top: -1px;
+		&:hover,&.active {
+			cursor: pointer;
+			/////background: #ccc;
+			/////color: #333;
+		}
+	}
+}
+
+.header-search-component {
+	display: inline-block;
+	width: 700px;
+	vertical-align: middle;
+	margin-top: 5px;
+	.search-container {
+		width: 100%;
+		margin: 0;
+		
+	}
+	label{
+		display: block;
+	}
+}
+.feature-nav {
+	margin-top: 13px;
+}
+header .logo {
+	margin: 1rem 1rem 0 0;
+	display: inline-block;
+	.fonts( 20 );
+	/////color: #fff;
+	text-decoration: none;
+}
+.feature {
+	margin-left: 10px;
+}
+
+.modal-dialog{
+	/////color: #000;
+	.close {
+		position: absolute;
+		right: 10px;
+		top: 10px;
+	}
+}
+.all-projects{
+	overflow: auto;
+}
+.page-editor-feature-icons {
+	display: inline;
+}
+/*.result-status {
+	padding: 10px 0;
+	color: #999;
+	background: #fff;
+	.result-count {
+		color: #000;
+	}
+	p{
+		margin-bottom: 0;
+	}
+
+}*/
+.results-container{
+	padding: 10px 0;
+}
+
+.result-content-height {
+	height:calc( @result-content-height ) ;
+}
+
+.editor { 
+	/*padding: 10px;
+	background: #333;
+	margin-top: 10px;*/
+	/////color: #000;
+	
+	.panel-heading {
+		cursor: pointer;
+		/*overflow: hidden;*/
+		height: 31px;
+		position:relative;
+		padding: 5px 45px 5px 10px;
+		a.glyphicon {
+			.fonts( 16 );
+		}
+		.pull-right{
+			position: absolute;
+			top: 8px;
+			right: 8px;
+		}
+	}
+	.panel-body {
+		/*height: calc( @panel-body-height );*/
+		padding: 0;
+		overflow: auto;
+	}
+	.ace_search {
+		color: #333333;
+	} 
+}
+.expanded-view .editor-container {
+	width: 100%;
+	height: calc( @result-content-height );
+	margin-bottom: 0;
+	/*.panel {
+		margin-bottom: 0;
+	}*/
+	.glyphicon-fullscreen:before {
+		content: "\e097";
+	}
+	/*.editor { 
+		height: 100%;
+		.panel-body {
+			height: calc( @panel-body-height );
+			padding: 0;
+			overflow: auto;
+			/*.ace_editor {
+				height: 100% !important;
+			}
+		}
+	}*/
+}
+.editor-container{
+	/*height: 50%;*/
+	width: 100%;
+	margin-bottom: 10px;
+	.panel{
+		/*height: 100%;*/
+	}
+
+}
+.grid-view {
+	.editor-container {
+		width: 50%;
+	}
+
+	.expanded-view {
+		.editor-container {
+			width: 100%;
+		}
+	}
+}
+
+.result-list-panel {
+	height: calc( @result-content-height );
+}
+.ace_editor {
+	height: 100%;
+}
+
+.tab-content{
+	height: calc( @tab-content-height );
+	overflow: auto;
+	border: 1px solid @navbar-default-toggle-border-color;
+	border-top: 0;
+	padding: 10px;
+	margin-right: 1px;
+	.border-radius( 0 0 5px 5px);
+	ul{
+		margin: 0;
+		padding: 0;
+		list-style: none; 
+		ul {
+			margin-left: 10px;
+		}
+	}
+}
+.all-projects{
+	max-height: calc( @all-projects-height )
+}
+.panel-heading {
+	.user-select( none );	
+}
+.no-result{
+	&:before{
+		content: '';
+		margin-left: -10px;
+		display: inline-block;
+		height: 100%;
+		vertical-align: middle;
+	}
+	.message{
+		display: inline-block;
+		width: 100%;
+		text-align: center;
+	}
+}
+.method-info-pop {
+	padding: 10px 20px;
+	&.alert{
+		margin-bottom: 0;
+		padding: 30px 20px;
+	}
+}
+.sticky-panel > div {
+	width:22.7%;
+	position: fixed;
+	top:62px;
+}
+
+.page-loader {
+	position: fixed;
+	width: 0%;
+	/////background: rgba(256, 256, 256, 0);
+	height: 0%;
+	z-index: 10000;
+	-webkit-transition:0.5s ease-in background;
+	-moz-transition:0.5s ease-in background;
+	-o-transition:0.5s ease-in background;
+	transition:0.5s ease-in background;
+	text-align: center;
+	overflow: hidden;
+	&:before{
+		content: '';
+		display: inline-block;
+		height: 100%;
+		width: 0;
+		vertical-align: middle;
+	}
+	&>.glyphicon{
+		display: inline-block;
+		vertical-align:middle;
+		.fonts( 50 );
+		-webkit-animation:spin 1s linear infinite;
+	    -moz-animation:spin 1s linear infinite;
+	    animation:spin 1s linear infinite;
+	    /////color: #000;
+	}
+}
+.show{
+	height: 100%;
+	width: 100%;
+	/////background: rgba(256, 256, 256, 0.5);
+
+}
+
+/* footer styles */
+footer {
+	p {
+		text-align: center;
+		padding: 1rem;
+		margin: 0;
+		span {
+			/////color: #ff0000;
+		}
+	}
+}
+
+/* glyphicons styles */
+a.glyphicon {
+	text-decoration: none;
+	/////color: #999;
+	.transition();
+	.fonts(20);
+	&:hover {
+		/////color: #fff;
+	}
+}
+a.decrease-font {
+	.fonts(12);
+}
+a.disable-icon{
+	cursor: default;
+	&:hover {
+		/////color: #999;
+	}
+}
+.panel,.modal-dialog {
+	a.glyphicon {
+		&:hover {
+			/////color: #555;
+		}
+	}
+}
+.modal-dialog {
+	a.glyphicon {
+		opacity: 1;
+	}
+}
+.panel-body .ace_print-margin {
+	display: none;
+}
+
+
+
+/*
+ *   animations starts here
+ */
+@-moz-keyframes spin { 
+	100% {
+		-moz-transform: rotate(360deg); 
+	}
+}
+@-webkit-keyframes spin { 
+	100% { 
+		-webkit-transform: rotate(360deg); 
+	} 
+}
+@keyframes spin {
+	100% { 
+		-webkit-transform: rotate(360deg); 
+		transform:rotate(360deg); 
+	}
+} 
+
+.welcome-component {
+
+	/*
+	  We're using CSS transitions for when
+	  the enter and move events are triggered
+	  for the element that has the .repeated-item
+	  class
+	*/
+	&.ng-enter, &.ng-move {
+	  -webkit-transition:0.5s ease-in all;
+	  -moz-transition:0.5s ease-in all;
+	  -o-transition:0.5s ease-in all;
+	  transition:0.5s ease-in all;
+	  opacity:0;
+	  max-height: 0px;
+	}
+
+	/*The ng-enter-active and ng-move-active
+	 are where the transition destination properties
+	 are set so that the animation knows what to
+	 animate.
+	*/
+	&.ng-enter.ng-enter-active,
+	&.ng-move.ng-move-active {
+	  opacity:1;
+	  max-height: 1000px;
+	}
+
+
+	/*
+	  We're using CSS keyframe animations for when
+	  the leave event is triggered for the element
+	  that has the .repeated-item class
+	*/
+	&.ng-leave {
+	  -webkit-transition:0.5s ease-out all;
+	  -moz-transition:0.5s ease-out all;
+	  -o-transition:0.5s ease-out all;
+	  transition:0.5s ease-out all;
+	  max-height: 300px;
+	  overflow: hidden;
+	}
+	&.ng-leave.ng-leave-active {
+	  max-height: 0px;
+	  opacity:0;
+	}
+}
+.header-search-component {
+	/*
+	  We're using CSS transitions for when
+	  the enter and move events are triggered
+	  for the element that has the .repeated-item
+	  class
+	*/
+	&.ng-enter, &.ng-move {
+	  -webkit-transition:0.5s ease-in all;
+	  -moz-transition:0.5s ease-in all;
+	  -o-transition:0.5s ease-in all;
+	  transition:0.5s ease-in all;
+	  opacity:0;
+	  max-width: 0;
+	}
+
+	/*The ng-enter-active and ng-move-active
+	 are where the transition destination properties
+	 are set so that the animation knows what to
+	 animate.
+	*/
+	&.ng-enter.ng-enter-active,
+	&.ng-move.ng-move-active {
+	  opacity:1;
+	  max-width: 1000px;
+	}
+
+	&.ng-leave {
+	  -webkit-transition:0.5s ease-out all;
+	  -moz-transition:0.5s ease-out all;
+	  -o-transition:0.5s ease-out all;
+	  transition:0.5s ease-out all;
+	  max-width: 100%;
+	  overflow: hidden;
+	}
+	&.ng-leave.ng-leave-active {
+	  max-width: 0%;
+	  opacity:0;
+	}
+}
+
+
+.suggestions {
+	&.ng-enter, &.ng-move {
+		-webkit-transition:0.5s ease-in all;
+		-moz-transition:0.5s ease-in all;
+		-o-transition:0.5s ease-in all;
+		transition:0.5s ease-in all;
+		opacity:0;
+		max-height: 0px;
+		overflow: hidden;
+	}
+	&.ng-enter.ng-enter-active,
+	&.ng-move.ng-move-active {
+		opacity:1;
+		max-height: 300px;
+	}
+
+	&.ng-leave {
+		-webkit-transition:0.5s ease-out all;
+		-moz-transition:0.5s ease-out all;
+		-o-transition:0.5s ease-out all;
+		transition:0.5s ease-out all;
+		opacity:0;
+		max-height: 1000px;
+		overflow: hidden;
+	}
+	&.ng-leave.ng-leave-active {
+	    opacity:0;
+		max-height: 0px;
+	}
+
+	.item {
+		&.ng-enter, &.ng-move {
+			-webkit-transition:0.5s ease-in all;
+			-moz-transition:0.5s ease-in all;
+			-o-transition:0.5s ease-in all;
+			transition:0.5s ease-in all;
+			opacity:0;
+			max-height: 0px;
+		}
+		&.ng-enter.ng-enter-active,
+		&.ng-move.ng-move-active {
+			opacity:1;
+			max-height: 300px;
+		}
+
+	}
+}
+
+
+.nav-tabs > li.active > a, .nav-tabs > li.active > a:hover, .nav-tabs > li.active > a:focus {
+	/////color: #fff;
+	font-weight: bold;
+}
+
+.panel-body .ace_editor {
+	.transition();
+}
+
+.search-section {
+	background: none;
+}
+.search-section canvas{
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 100%;
+	z-index: -1;
+}

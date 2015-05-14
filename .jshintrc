@@ -1,0 +1,21 @@
+{	
+	"globals" :{
+		"$" : false,
+		"define": false,
+		"require": false,
+		"angular": false,
+		"_": false,
+		"ace": false
+	},
+    "laxcomma": true,       // Suppresses warnings about comma-first coding style http://www.jshint.com/docs/options/#laxcomma
+	"browser": true,        // This option defines globals exposed by modern browsers http://www.jshint.com/docs/options/#browser
+	"devel": true,          // Defines globals that are used for logging: console, alert, etc http://www.jshint.com/docs/options/#devel
+    "quotmark": "single",   // Use single quotes http://www.jshint.com/docs/options/#quotmark
+    "indent": 4,            // This option enforces specific tab width for your code http://www.jshint.com/docs/options/#indent
+	"eqeqeq": true,         // This options prohibits the use of == and != in favor of === and !== http://www.jshint.com/docs/options/#eqeqeq
+	"plusplus": false,      // This option prohibits the use of unary increment and decrement operators http://www.jshint.com/docs/options/#plusplus
+	"noempty": true,        // This option warns when you have an empty block in your code http://www.jshint.com/docs/options/#noempty
+	"unused": "vars",       // This option warns when you define and never use your variables http://www.jshint.com/docs/options/#unused
+	"undef": true          // This option prohibits the use of explicitly undeclared variables http://www.jshint.com/docs/options/#undef
+	
+}

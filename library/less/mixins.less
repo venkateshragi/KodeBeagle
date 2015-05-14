@@ -1,0 +1,54 @@
+.borderbox() {
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+.drop-shadow(@arguments) {
+    box-shadow: @arguments;
+}
+.border-radius(@arguments) {
+    -webkit-border-radius: @arguments;
+    -moz-border-radius: @arguments;
+    border-radius: @arguments;
+}
+.line-height(@value) {
+    @remValue: unit(@value);
+    @pxValue: (unit(@value) * 10);
+    line-height: ~"@{pxValue}px";
+    line-height: ~"@{remValue}rem";
+}
+.fonts(@sizeValue) {
+    @remValue: (@sizeValue / 10);
+    @pxValue: @sizeValue;
+    font-size: ~"@{pxValue}px"; 
+    font-size: ~"@{remValue}rem";
+}
+.placeholder-color( @clr ) {
+    &::-webkit-input-placeholder { color: @clr; }
+    &:-moz-placeholder { color: @clr; opacity: 1; } /* firefox 18- */
+    &::-moz-placeholder { color: @clr; opacity: 1; } /* firefox 19+ */
+    &:-ms-input-placeholder { color: @clr; } /* ie */
+}
+.user-select( @value ){
+    -webkit-user-select: @value; /* Chrome/Safari */        
+    -moz-user-select: @value; /* Firefox */
+    -ms-user-select: @value; /* IE10+ */
+
+    /* Rules below not implemented in browsers yet */
+    -o-user-select: @value;
+    user-select: @value;
+}
+.transition(){
+    -webkit-transition: all 0.5s ease;
+    -moz-transition: all 0.5s ease;
+    -ms-transition: all 0.5s ease;
+    -o-transition: all 0.5s ease;
+    transition: all 0.5s ease;
+}
+.scale(@x, @y) {
+    -webkit-transform: ~"scale(@{x}, @{y})";
+    -moz-transform: ~"scale(@{x}, @{y})";
+    -ms-transform: ~"scale(@{x}, @{y})";
+    -o-transform: ~"scale(@{x}, @{y})";
+    transform: ~"scale(@{x}, @{y})";
+}
