@@ -30,6 +30,7 @@ import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -91,9 +92,9 @@ public class ProjectTree {
         };
     }
 
-    public final void updateProjectNodes(final Collection<String> imports,
-                                         final Map<String, String> fileTokensMap,
-                                         final Map<String, ArrayList<CodeInfo>> projectNodes) {
+    public final Map<String, ArrayList<CodeInfo>> updateProjectNodes(
+            final Collection<String> imports, final Map<String, String> fileTokensMap) {
+        Map<String, ArrayList<CodeInfo>> projectNodes = new HashMap<String, ArrayList<CodeInfo>>();
         for (Map.Entry<String, String> entry : fileTokensMap.entrySet()) {
             String fileName = entry.getKey();
             String tokens = entry.getValue();
@@ -120,6 +121,7 @@ public class ProjectTree {
                                     new ArrayList<CodeInfo>(Collections.singletonList(codeInfo)));
             }
         }
+        return projectNodes;
     }
 
     public final DefaultMutableTreeNode updateRoot(final DefaultMutableTreeNode root,
@@ -174,7 +176,8 @@ public class ProjectTree {
                                 FileEditorManager.getInstance(windowObjects.getProject()).
                                         openFile(virtualFile, true, true);
                                 Document document =
-                                        EditorFactory.getInstance().createDocument(codeInfo.getContents());
+                                        EditorFactory.getInstance().
+                                                createDocument(codeInfo.getContents());
                                 editorDocOps.addHighlighting(codeInfo.getLineNumbers(), document);
                                 editorDocOps.gotoLine(codeInfo.getLineNumbers().get(0), document);
                             }

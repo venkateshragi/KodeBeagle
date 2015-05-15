@@ -24,6 +24,7 @@ import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
@@ -51,6 +52,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -58,7 +64,6 @@ import javax.swing.JTree;
 import javax.swing.ToolTipManager;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeCellRenderer;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -85,6 +90,7 @@ public class RefreshAction extends AnAction {
     private static final String BANNER_FORMAT = "%s %s %s";
     private static final String HTML_U = "<html><u>";
     private static final String U_HTML = "</u></html>";
+    private static final int TIMEOUT = 20;
 
     private WindowObjects windowObjects = WindowObjects.getInstance();
     private ProjectTree projectTree = new ProjectTree();
@@ -99,94 +105,157 @@ public class RefreshAction extends AnAction {
 
     @Override
     public final void actionPerformed(@NotNull final AnActionEvent anActionEvent) {
-        windowObjects.setProject(anActionEvent.getProject());
-
-        windowObjects.setDistance(propertiesComponent.
-                                    getOrInitInt(DISTANCE, DISTANCE_DEFAULT_VALUE));
-        windowObjects.setSize(propertiesComponent.getOrInitInt(SIZE, SIZE_DEFAULT_VALUE));
-        windowObjects.setEsURL(propertiesComponent.getValue(ES_URL, ES_URL_DEFAULT));
-
+        init(anActionEvent);
         try {
-            runAction(anActionEvent);
+            runAction();
         } catch (IOException ioe) {
             ioe.printStackTrace();
+        } catch (InterruptedException ie) {
+            ie.printStackTrace();
+        } catch (ExecutionException ee) {
+            ee.printStackTrace();
         }
     }
-
-    public final void runAction(final AnActionEvent anActionEvent) throws IOException {
+    private void init(@NotNull final AnActionEvent anActionEvent) {
+        windowObjects.setProject(anActionEvent.getProject());
+        windowObjects.setDistance(propertiesComponent.
+                getOrInitInt(DISTANCE, DISTANCE_DEFAULT_VALUE));
+        windowObjects.setSize(propertiesComponent.getOrInitInt(SIZE, SIZE_DEFAULT_VALUE));
+        windowObjects.setEsURL(propertiesComponent.getValue(ES_URL, ES_URL_DEFAULT));
+    }
+    public final void runAction() throws IOException, ExecutionException, InterruptedException {
         Project project = windowObjects.getProject();
         final Editor projectEditor = FileEditorManager.getInstance(project).getSelectedTextEditor();
 
         if (projectEditor != null) {
             windowObjects.getFileNameContentsMap().clear();
             windowObjects.getFileNameNumbersMap().clear();
-            JTree jTree = windowObjects.getjTree();
-
-            Set<String> imports = editorDocOps.getImports(projectEditor.getDocument(), project);
-
-            if (propertiesComponent.isValueSet(EXCLUDE_IMPORT_LIST)) {
-                String excludeImport = propertiesComponent.getValue(EXCLUDE_IMPORT_LIST);
-
-                if (excludeImport != null) {
-                    imports = editorDocOps.excludeConfiguredImports(imports, excludeImport);
-                }
-            }
-
-            Set<String> lines = editorDocOps.getLines(projectEditor, windowObjects.getDistance());
-            Set<String> internalImports = editorDocOps.getInternalImports(project);
-            Set<String> externalImports =
-                            editorDocOps.excludeInternalImports(imports, internalImports);
-            Set<String> importsInLines = editorDocOps.importsInLines(lines, externalImports);
-
-            DefaultTreeModel model = (DefaultTreeModel) jTree.getModel();
-            DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
+            final JTree jTree = windowObjects.getjTree();
+            final DefaultTreeModel model = (DefaultTreeModel) jTree.getModel();
+            final DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
             root.removeAllChildren();
             jTree.setVisible(true);
-
-            if (!importsInLines.isEmpty()) {
-                windowObjects.getEditorPanel().removeAll();
-                String esQueryJson = jsonUtils.getESQueryJson(importsInLines,
-                                        windowObjects.getSize());
-                String esResultJson = esUtils.getESResultJson(esQueryJson,
-                                        windowObjects.getEsURL() + BETTERDOCS_SEARCH);
-
-                if (!esResultJson.equals(EMPTY_ES_URL)) {
-                    Map<String, String> fileTokensMap = esUtils.getFileTokens(esResultJson);
-                    Map<String, ArrayList<CodeInfo>> projectNodes =
-                                    new HashMap<String, ArrayList<CodeInfo>>();
-
-                    projectTree.updateProjectNodes(imports, fileTokensMap, projectNodes);
-                    projectTree.updateRoot(root, projectNodes);
-
-                    Notifications.Bus.notify(new Notification(BETTER_DOCS,
-                            String.format(FORMAT, QUERYING, windowObjects.getEsURL(), FOR),
-                            importsInLines.toString(),
-                            NotificationType.INFORMATION));
-
-                    if (!projectNodes.isEmpty()) {
-                        model.reload(root);
-                        jTree.addTreeSelectionListener(projectTree.getTreeSelectionListener(root));
-                        ToolTipManager.sharedInstance().registerComponent(jTree);
-                        jTree.setCellRenderer(new ToolTipTreeCellRenderer());
-                        jTree.addMouseListener(projectTree.getMouseListener(root));
-                        windowObjects.getjTreeScrollPane().setViewportView(jTree);
-                        buildCodePane(projectNodes);
-                    } else {
-                        showHelpInfo(HELP_MESSAGE);
-                    }
-                } else {
-                    showHelpInfo(EMPTY_ES_URL);
-                }
-            } else {
-                showHelpInfo(HELP_MESSAGE);
-                jTree.updateUI();
-            }
+            Future<Map<String, ArrayList<CodeInfo>>> projectNodes =
+                    getMapFuture(projectEditor, root);
+            initializeProjectNodes(jTree, model, root, projectNodes);
         } else {
             showHelpInfo(EDITOR_ERROR);
         }
+
     }
 
-    private void showHelpInfo(String info) {
+    @NotNull
+    private Future<Map<String, ArrayList<CodeInfo>>> getMapFuture(
+            final Editor projectEditor, final DefaultMutableTreeNode root) {
+        return ApplicationManager.getApplication().executeOnPooledThread(
+                new Callable<Map<String, ArrayList<CodeInfo>>>() {
+                    @Override
+                    public Map<String, ArrayList<CodeInfo>> call() throws Exception {
+                        final Map<String, ArrayList<CodeInfo>> projectNodes =
+                                new HashMap<String, ArrayList<CodeInfo>>();
+                        ApplicationManager.getApplication().
+                                runReadAction(new ProjectNodesWorker(projectNodes,
+                                        projectEditor, root));
+                        return projectNodes;
+                    }
+                });
+    }
+
+    private void initializeProjectNodes(final JTree jTree, final DefaultTreeModel model,
+                                        final DefaultMutableTreeNode root, final Future<Map<String,
+            ArrayList<CodeInfo>>> projectNodes) throws InterruptedException, ExecutionException {
+        try {
+            if (!projectNodes.get(TIMEOUT, TimeUnit.SECONDS).isEmpty()) {
+                setProjectNodes(jTree, model, root, projectNodes);
+            }
+            else {
+                showHelpInfo(HELP_MESSAGE);
+                jTree.updateUI();
+            }
+        } catch (TimeoutException toe) {
+            toe.printStackTrace();
+        }
+    }
+
+    private void setProjectNodes(final JTree jTree, final DefaultTreeModel model,
+                                 final DefaultMutableTreeNode root,
+                                 final Future<Map<String, ArrayList<CodeInfo>>> projectNodes)
+            throws InterruptedException, ExecutionException, TimeoutException {
+        model.reload(root);
+        jTree.addTreeSelectionListener(projectTree.getTreeSelectionListener(root));
+        ToolTipManager.sharedInstance().registerComponent(jTree);
+        jTree.setCellRenderer(new ToolTipTreeCellRenderer());
+        jTree.addMouseListener(projectTree.getMouseListener(root));
+        windowObjects.getjTreeScrollPane().setViewportView(jTree);
+        buildCodePane(projectNodes.get(TIMEOUT, TimeUnit.SECONDS));
+    }
+
+    private Map<String, ArrayList<CodeInfo>>  runWorker(final Editor projectEditor,
+                                                        final DefaultMutableTreeNode root) {
+        Map<String, ArrayList<CodeInfo>> projectNodes =
+                new HashMap<String, ArrayList<CodeInfo>>();
+        Set<String> externalImports = getImports(projectEditor);
+        Set<String> importsInLines = getImportsInLines(projectEditor, externalImports);
+        if (!importsInLines.isEmpty()) {
+            String esResultJson = getResultJson(importsInLines);
+            if (!esResultJson.equals(EMPTY_ES_URL)) {
+                projectNodes = updateRoot(root, externalImports, importsInLines, esResultJson);
+            }
+            else {
+                showHelpInfo(EMPTY_ES_URL);
+            }
+        }
+        return projectNodes;
+    }
+
+    private Map<String, ArrayList<CodeInfo>> updateRoot(final DefaultMutableTreeNode root,
+                                                        final Set<String> externalImports,
+                                                        final Set<String> importsInLines,
+                                                        final String esResultJson) {
+        Map<String, ArrayList<CodeInfo>> projectNodes;
+        Map<String, String> fileTokensMap =
+                esUtils.getFileTokens(esResultJson);
+        projectNodes = projectTree.updateProjectNodes(externalImports, fileTokensMap);
+        projectTree.updateRoot(root, projectNodes);
+        Notifications.Bus.notify(new Notification(BETTER_DOCS,
+                String.format(FORMAT, QUERYING,
+                        windowObjects.getEsURL(), FOR),
+                importsInLines.toString(),
+                NotificationType.INFORMATION));
+        return projectNodes;
+    }
+
+    private Set<String> getImportsInLines(final Editor projectEditor,
+                                          final Set<String> externalImports) {
+        Set<String> lines =
+                editorDocOps.getLines(projectEditor,
+                        windowObjects.getDistance());
+        return editorDocOps.importsInLines(lines, externalImports);
+    }
+
+    private Set<String> getImports(final Editor projectEditor) {
+        Set<String> imports =
+                editorDocOps.getImports(projectEditor.getDocument(), windowObjects.getProject());
+        if (propertiesComponent.isValueSet(EXCLUDE_IMPORT_LIST)) {
+            String excludeImport = propertiesComponent.getValue(EXCLUDE_IMPORT_LIST);
+            if (excludeImport != null) {
+                imports = editorDocOps.excludeConfiguredImports(imports, excludeImport);
+            }
+        }
+        Set<String> internalImports = editorDocOps.getInternalImports(windowObjects.getProject());
+        return editorDocOps.excludeInternalImports(imports, internalImports);
+    }
+
+    private String getResultJson(final Set<String> importsInLines) {
+        windowObjects.getEditorPanel().removeAll();
+        String esQueryJson = jsonUtils.getESQueryJson(importsInLines,
+                windowObjects.getSize());
+        return esUtils.getESResultJson(esQueryJson,
+                windowObjects.getEsURL()
+                        + BETTERDOCS_SEARCH);
+    }
+
+    private void showHelpInfo(final String info) {
         windowObjects.getjTreeScrollPane().setViewportView(new JLabel(info));
     }
 
@@ -195,16 +264,7 @@ public class RefreshAction extends AnAction {
         int maxEditors = 10;
         int count = 0;
         JPanel editorPanel = windowObjects.getEditorPanel();
-        List<CodeInfo> resultList = new ArrayList<CodeInfo>();
-
-        for (Map.Entry<String, ArrayList<CodeInfo>> entry : projectNodes.entrySet()) {
-            List<CodeInfo> codeInfoList = entry.getValue();
-            for (CodeInfo codeInfo : codeInfoList) {
-                if (count++ < maxEditors) {
-                    resultList.add(codeInfo);
-                }
-            }
-        }
+        List<CodeInfo> resultList = getResultList(projectNodes, maxEditors, count);
 
         Collections.sort(resultList, new Comparator<CodeInfo>() {
             @Override
@@ -259,6 +319,22 @@ public class RefreshAction extends AnAction {
         }
     }
 
+    @NotNull
+    private List<CodeInfo> getResultList(final Map<String, ArrayList<CodeInfo>> projectNodes,
+                                         final int maxEditors, int count) {
+        List<CodeInfo> resultList = new ArrayList<CodeInfo>();
+
+        for (Map.Entry<String, ArrayList<CodeInfo>> entry : projectNodes.entrySet()) {
+            List<CodeInfo> codeInfoList = entry.getValue();
+            for (CodeInfo codeInfo : codeInfoList) {
+                if (count++ < maxEditors) {
+                    resultList.add(codeInfo);
+                }
+            }
+        }
+        return resultList;
+    }
+
     private void createEditor(final JPanel editorPanel, final String displayFileName,
                               final String fileName, final String contents) {
         Document tinyEditorDoc;
@@ -293,8 +369,10 @@ public class RefreshAction extends AnAction {
         JLabel infoLabel = new JLabel(String.format(BANNER_FORMAT,
                 projectName, REPO_STARS, stars));
         JButton expandButton = new JButton();
-        expandButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, infoLabel.getMinimumSize().height));
-        //expandButton.setPreferredSize(new Dimension(Integer.MAX_VALUE, infoLabel.getMinimumSize().height));
+        expandButton.setMaximumSize(new Dimension(Integer.MAX_VALUE,
+                infoLabel.getMinimumSize().height));
+        //expandButton.setPreferredSize(new Dimension(Integer.MAX_VALUE,
+        // infoLabel.getMinimumSize().height));
         expandButton.setBorderPainted(false);
         expandButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         expandButton.setText(String.format(BANNER_FORMAT, HTML_U, displayFileName , U_HTML));
@@ -302,21 +380,26 @@ public class RefreshAction extends AnAction {
 
         expandButton.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
                 JButton jButton = (JButton) e.getSource();
-                VirtualFile virtualFile = editorDocOps.getVirtualFile(displayFileName, windowObjects.getFileNameContentsMap().get(jButton.getActionCommand()));
+                VirtualFile virtualFile = editorDocOps.getVirtualFile(displayFileName,
+                        windowObjects.getFileNameContentsMap().get(jButton.getActionCommand()));
                 FileEditorManager.getInstance(windowObjects.getProject()).
                         openFile(virtualFile, true, true);
                 Document document =
-                        EditorFactory.getInstance().createDocument(windowObjects.getFileNameContentsMap().get(jButton.getActionCommand()));
-                editorDocOps.addHighlighting(windowObjects.getFileNameNumbersMap().get(jButton.getActionCommand()), document);
-                editorDocOps.gotoLine(windowObjects.getFileNameNumbersMap().get(jButton.getActionCommand()).get(0), document);
+                        EditorFactory.getInstance().createDocument(windowObjects.
+                                getFileNameContentsMap().get(jButton.getActionCommand()));
+                editorDocOps.addHighlighting(windowObjects.
+                        getFileNameNumbersMap().get(jButton.getActionCommand()), document);
+                editorDocOps.gotoLine(windowObjects.
+                        getFileNameNumbersMap().get(jButton.getActionCommand()).get(0), document);
             }
         });
 
         expandPanel.add(expandButton);
         expandPanel.add(infoLabel);
-        expandPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, expandButton.getMinimumSize().height));
+        expandPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE,
+                expandButton.getMinimumSize().height));
         expandPanel.revalidate();
         expandPanel.repaint();
 
@@ -325,5 +408,21 @@ public class RefreshAction extends AnAction {
         editorPanel.add(tinyEditor.getComponent());
         editorPanel.revalidate();
         editorPanel.repaint();
+    }
+
+    private class ProjectNodesWorker implements Runnable {
+        private final Map<String, ArrayList<CodeInfo>> projectNodes;
+        private final Editor projectEditor;
+        private final DefaultMutableTreeNode root;
+        public ProjectNodesWorker(final Map<String, ArrayList<CodeInfo>> projectNodes,
+                                  final Editor projectEditor,
+                                  final DefaultMutableTreeNode root) {
+            this.projectNodes = projectNodes;
+            this.projectEditor = projectEditor;
+            this.root = root;
+        }
+        public void run() {
+            projectNodes.putAll(runWorker(projectEditor, root));
+        }
     }
 }
