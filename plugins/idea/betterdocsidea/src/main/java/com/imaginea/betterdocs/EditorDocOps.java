@@ -316,7 +316,7 @@ public class EditorDocOps {
                         markupModel.addRangeHighlighter(document.getLineStartOffset(line)
                                         + lineStartOffset,
                                 document.getLineEndOffset(line),
-                                HighlighterLayer.SELECTION,
+                                HighlighterLayer.ERROR,
                                 attributes,
                                 HighlighterTargetArea.EXACT_RANGE);
                     }
