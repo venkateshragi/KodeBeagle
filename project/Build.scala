@@ -77,7 +77,7 @@ object BetterDocsBuild extends Build {
     Defaults.coreDefaultSettings ++ Seq (
       name := "BetterDocs",
       organization := "com.betterdocs",
-      version := "0.0.1-SNAPSHOT",
+      version := "0.0.2",
       scalaVersion := "2.11.6",
       scalacOptions := scalacOptionsList,
       crossPaths := false,
