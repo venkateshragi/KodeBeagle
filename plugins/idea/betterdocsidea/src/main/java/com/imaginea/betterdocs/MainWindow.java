@@ -123,6 +123,7 @@ public class MainWindow implements ToolWindowFactory {
         final JTabbedPane jTabbedPane = new JBTabbedPane();
         jTabbedPane.add(MAIN_PANE, jSplitPane);
         jTabbedPane.add(CODE_PANE, editorScrollPane);
+        refreshAction.setJTabbedPane(jTabbedPane);
 
         final JPanel mainPanel = new JPanel();
         mainPanel.setLayout((new BoxLayout(mainPanel, BoxLayout.Y_AXIS)));
