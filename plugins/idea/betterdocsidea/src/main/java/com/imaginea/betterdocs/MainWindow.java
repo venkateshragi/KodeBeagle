@@ -18,7 +18,6 @@
 package com.imaginea.betterdocs;
 
 import com.intellij.icons.AllIcons;
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.editor.Document;
@@ -26,7 +25,6 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.ui.JBColor;
@@ -48,13 +46,14 @@ public class MainWindow implements ToolWindowFactory {
 
     private static final String PROJECTS = "Projects";
     protected static final String JAVA = "java";
-    private static final double DIVIDER_LOCATION = 0.5;
+    private static final double DIVIDER_LOCATION = 0.2;
     private static final String MAIN_PANE = "Main Pane";
     private static final String CODE_PANE = "Code Pane";
     private static final int EDITOR_SCROLL_PANE_WIDTH = 200;
     private static final int EDITOR_SCROLL_PANE_HEIGHT = 300;
     private static final String BETTERDOCS = "BetterDocs";
     private static final int UNIT_INCREMENT = 16;
+    private WindowEditorOps windowEditorOps = new WindowEditorOps();
     private Editor windowEditor;
 
     @Override
@@ -107,7 +106,7 @@ public class MainWindow implements ToolWindowFactory {
 
         final JSplitPane jSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
                                                         jbScrollPane, jTreeScrollPane);
-        jSplitPane.setDividerLocation(DIVIDER_LOCATION);
+        jSplitPane.setResizeWeight(DIVIDER_LOCATION);
 
         JPanel editorPanel = new JPanel();
         editorPanel.setOpaque(true);
@@ -135,10 +134,6 @@ public class MainWindow implements ToolWindowFactory {
 
         toolWindow.getComponent().getParent().add(mainPanel);
         //Dispose the editor once it's no longer needed
-        Disposer.register(project, new Disposable() {
-            public void dispose() {
-                EditorFactory.getInstance().releaseEditor(windowEditor);
-            }
-        });
+        windowEditorOps.releaseEditor(project, windowEditor);
     }
 }

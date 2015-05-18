@@ -75,18 +75,16 @@ public class ESUtils {
         for (JsonElement hits : hitsArray) {
             JsonObject hitObject = hits.getAsJsonObject();
             JsonObject sourceObject = hitObject.getAsJsonObject(SOURCE);
-            String file = sourceObject.getAsJsonPrimitive(FILE).getAsString();
+            String fileName = sourceObject.getAsJsonPrimitive(FILE).getAsString();
             //Extracting repoIds for future use
             int repoId = sourceObject.getAsJsonPrimitive(REPO_ID).getAsInt();
-            int start = file.indexOf('/');
-            int end = file.indexOf('/', start + 1);
-            String project = file.substring(0, end);
+            String project = getProjectName(fileName);
             if (!windowObjects.getRepoNameIdMap().containsKey(project)) {
                 windowObjects.getRepoNameIdMap().put(project, repoId);
             }
 
             String tokens = sourceObject.get(TOKENS).toString();
-            fileTokenMap.put(file, tokens);
+            fileTokenMap.put(fileName, tokens);
         }
         return fileTokenMap;
     }
@@ -150,6 +148,25 @@ public class ESUtils {
         JsonObject sourceObject = hitObject.getAsJsonObject(SOURCE);
         //Replacing \r as it's treated as bad end of line character
         String stars = sourceObject.getAsJsonPrimitive(STARGAZERS_COUNT).getAsString();
+        return stars;
+    }
+
+    protected final String getProjectName(final String fileName) {
+        //Project name is till 2nd '/'
+        int startIndex = fileName.indexOf('/');
+        int endIndex = fileName.indexOf('/', startIndex + 1);
+        return fileName.substring(0, endIndex);
+    }
+
+    protected final String extractRepoStars(final String repoName,final int repoId) {
+        String stars;
+        if (windowObjects.getRepoStarsMap().containsKey(repoName)) {
+            stars = windowObjects.getRepoStarsMap().get(repoName).toString();
+        } else {
+            String repoStarsJson = jsonUtils.getRepoStarsJSON(repoId);
+            stars = getRepoStars(repoStarsJson);
+            windowObjects.getRepoStarsMap().put(repoName, stars);
+        }
         return stars;
     }
 }

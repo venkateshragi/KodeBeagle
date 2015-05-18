@@ -20,6 +20,7 @@ package com.imaginea.betterdocs;
 import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.LogicalPosition;
 import com.intellij.openapi.editor.ScrollType;
 import com.intellij.openapi.editor.ScrollingModel;
@@ -54,6 +55,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -342,5 +344,36 @@ public class EditorDocOps {
             ScrollingModel scrollingModel = projectEditor.getScrollingModel();
             scrollingModel.scrollToCaret(ScrollType.CENTER);
         }
+    }
+
+    protected final String getContentsInLines(final String fileContents,
+                                              List<Integer> lineNumbersList) {
+        Document document = EditorFactory.getInstance().createDocument(fileContents);
+        Set<Integer> lineNumbersSet = new HashSet<Integer>(lineNumbersList);
+        lineNumbersList = new ArrayList<Integer>(lineNumbersSet);
+        Collections.sort(lineNumbersList);
+
+        StringBuilder stringBuilder = new StringBuilder();
+        int prev = lineNumbersList.get(0);
+
+        for (int line : lineNumbersList) {
+            //Document is 0 indexed
+            line = line - 1;
+            if (line < document.getLineCount() - 1) {
+                if (prev != line - 1) {
+                    stringBuilder.append(System.lineSeparator());
+                    prev = line;
+                }
+                int startOffset = document.getLineStartOffset(line);
+                int endOffset = document.getLineEndOffset(line)
+                        + document.getLineSeparatorLength(line);
+                String code = document.getCharsSequence().
+                        subSequence(startOffset, endOffset).
+                        toString().trim()
+                        + System.lineSeparator();
+                stringBuilder.append(code);
+            }
+        }
+        return stringBuilder.toString();
     }
 }

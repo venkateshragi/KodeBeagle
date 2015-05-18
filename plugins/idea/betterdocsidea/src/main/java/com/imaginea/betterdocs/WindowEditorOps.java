@@ -17,63 +17,30 @@
 
 package com.imaginea.betterdocs;
 
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.Result;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.editor.FoldRegion;
+import com.intellij.openapi.editor.EditorFactory;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
 public class WindowEditorOps {
     private static WindowObjects windowObjects = WindowObjects.getInstance();
 
-    public final void addFoldings(final Document windowEditorDocument,
-                                  final Iterable<Integer> linesForFolding) {
-        final Editor windowEditor = windowObjects.getWindowEditor();
-        windowEditor.getFoldingModel().runBatchFoldingOperation(new Runnable() {
-            @Override
-            public void run() {
-                int prevLine = 0;
-
-                cleanFoldingRegions(windowEditor);
-
-                for (int line : linesForFolding) {
-                    int currentLine = line - 1;
-                    if (prevLine < windowEditorDocument.getLineCount()) {
-
-                        int startOffset = windowEditorDocument.getLineStartOffset(prevLine);
-                        int endOffset = windowEditorDocument.getLineEndOffset(currentLine - 1);
-
-                        if (startOffset < endOffset && windowEditor.getFoldingModel() != null) {
-                            windowEditor.getFoldingModel()
-                                    .addFoldRegion(startOffset, endOffset, "...")
-                                    .setExpanded(false);
-                        }
-                        prevLine = currentLine + 1;
-                    }
-                }
-            }
-        });
-    }
-
-    public final void writeToDocument(final CodeInfo codeInfo,
+    public final void writeToDocument(final String contents,
                                       final Document windowEditorDocument) {
         new WriteCommandAction(windowObjects.getProject()) {
             @Override
             protected void run(@NotNull final Result result) throws Throwable {
                 windowEditorDocument.setReadOnly(false);
-                windowEditorDocument.setText(codeInfo.getContents());
+                windowEditorDocument.setText(contents);
                 windowEditorDocument.setReadOnly(true);
             }
         } .execute();
-    }
-
-    protected final void cleanFoldingRegions(final Editor windowEditor) {
-        FoldRegion[] foldRegions = windowEditor.getFoldingModel().getAllFoldRegions();
-        for (FoldRegion currentRegion : foldRegions) {
-            windowEditor.getFoldingModel().removeFoldRegion(currentRegion);
-        }
     }
 
     protected final void setWriteStatus(final VirtualFile virtualFile, final boolean status) {
@@ -84,4 +51,14 @@ public class WindowEditorOps {
             }
         } .execute();
     }
+
+    protected final void releaseEditor(final Project project, final Editor editor) {
+        if (editor != null) {
+            Disposer.register(project, new Disposable() {
+                public void dispose() {
+                    EditorFactory.getInstance().releaseEditor(editor);
+                }
+            });
+            }
+        }
 }

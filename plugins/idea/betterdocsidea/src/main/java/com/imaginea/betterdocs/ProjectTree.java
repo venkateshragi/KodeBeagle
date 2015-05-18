@@ -65,12 +65,12 @@ public class ProjectTree {
 
                 if (selectedNode != null && selectedNode.isLeaf() && root.getChildCount() > 0) {
                     final CodeInfo codeInfo = (CodeInfo) selectedNode.getUserObject();
-                    final Document windowEditorDocument = windowObjects.getWindowEditor().
-                                                                        getDocument();
+                    final Document windowEditorDocument =
+                            windowObjects.getWindowEditor().getDocument();
                     String fileName = codeInfo.getFileName();
                     String fileContents;
-                    Map<String, String> fileNameContentsMap = windowObjects
-                                                                .getFileNameContentsMap();
+                    Map<String, String> fileNameContentsMap =
+                            windowObjects.getFileNameContentsMap();
 
                     if (!fileNameContentsMap.containsKey(fileName)) {
                         fileContents = esUtils.getContentsForFile(fileName);
@@ -80,13 +80,11 @@ public class ProjectTree {
                     }
 
                     codeInfo.setContents(fileContents);
+                    String contentsInLines =
+                            editorDocOps.getContentsInLines(fileContents,
+                                                            codeInfo.getLineNumbers());
 
-                    windowEditorOps.writeToDocument(codeInfo, windowEditorDocument);
-
-                    final List<Integer> linesForFolding = codeInfo.getLineNumbers();
-                    linesForFolding.add(windowEditorDocument.getLineCount() + 1);
-                    java.util.Collections.sort(linesForFolding);
-                    windowEditorOps.addFoldings(windowEditorDocument, linesForFolding);
+                    windowEditorOps.writeToDocument(contentsInLines, windowEditorDocument);
                 }
             }
         };
@@ -107,12 +105,7 @@ public class ProjectTree {
                 lineNumbers = windowObjects.getFileNameNumbersMap().get(fileName);
             }
             CodeInfo codeInfo = new CodeInfo(fileName, lineNumbers);
-
-            //Taking projectName as name till 2nd '/'
-            int startIndex = fileName.indexOf('/');
-            int endIndex = fileName.indexOf('/', startIndex + 1);
-
-            String projectName = fileName.substring(0, endIndex);
+            String projectName = esUtils.getProjectName(fileName);
 
             if (projectNodes.containsKey(projectName)) {
                 projectNodes.get(projectName).add(codeInfo);
@@ -203,7 +196,6 @@ public class ProjectTree {
 class ToolTipTreeCellRenderer implements TreeCellRenderer {
     private static final String REPO_STARS = "Repo Stars: ";
     private WindowObjects windowObjects = WindowObjects.getInstance();
-    private JSONUtils jsonUtils = new JSONUtils();
     private ESUtils esUtils = new ESUtils();
     private DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer();
 
@@ -218,14 +210,7 @@ class ToolTipTreeCellRenderer implements TreeCellRenderer {
                         && !((DefaultMutableTreeNode) value).isRoot()) {
                     String repoName = ((DefaultMutableTreeNode) value).getUserObject().toString();
                     int repoId = windowObjects.getRepoNameIdMap().get(repoName);
-                    String stars;
-                    if (windowObjects.getRepoStarsMap().containsKey(repoName)) {
-                        stars = windowObjects.getRepoStarsMap().get(repoName).toString();
-                    } else {
-                        String repoStarsJson = jsonUtils.getRepoStarsJSON(repoId);
-                        stars = esUtils.getRepoStars(repoStarsJson);
-                        windowObjects.getRepoStarsMap().put(repoName, stars);
-                    }
+                    String stars = esUtils.extractRepoStars(repoName, repoId);
                     renderer.setToolTipText(REPO_STARS + stars);
                 } else {
                     renderer.setToolTipText(null);

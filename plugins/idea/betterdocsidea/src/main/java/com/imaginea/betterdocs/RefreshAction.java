@@ -32,7 +32,6 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
 
 import java.awt.Cursor;
@@ -69,7 +68,9 @@ import org.jetbrains.annotations.NotNull;
 
 public class RefreshAction extends AnAction {
     private static final String BETTER_DOCS = "BetterDocs";
-    protected static final String EMPTY_ES_URL = "Please set/modify proper esURL in idea settings";
+    protected static final String EMPTY_ES_URL =
+            "<html>Elastic Search URL <br> %s <br> in idea settings is incorrect.<br> See "
+                    + "<img src='" + AllIcons.General.Settings + "'></html>";
     protected static final String ES_URL = "esURL";
     protected static final String DISTANCE = "distance";
     protected static final String SIZE = "size";
@@ -78,7 +79,6 @@ public class RefreshAction extends AnAction {
     protected static final int DISTANCE_DEFAULT_VALUE = 10;
     protected static final int SIZE_DEFAULT_VALUE = 30;
     private static final String EDITOR_ERROR = "Could not get any active editor";
-    private static final String INFO = "info";
     private static final String FORMAT = "%s %s %s";
     private static final String QUERYING = "Querying";
     private static final String FOR = "for";
@@ -93,6 +93,7 @@ public class RefreshAction extends AnAction {
     private static final int TIMEOUT = 20;
 
     private WindowObjects windowObjects = WindowObjects.getInstance();
+    private WindowEditorOps windowEditorOps = new WindowEditorOps();
     private ProjectTree projectTree = new ProjectTree();
     private EditorDocOps editorDocOps = new EditorDocOps();
     private ESUtils esUtils = new ESUtils();
@@ -167,8 +168,7 @@ public class RefreshAction extends AnAction {
         try {
             if (!projectNodes.get(TIMEOUT, TimeUnit.SECONDS).isEmpty()) {
                 setProjectNodes(jTree, model, root, projectNodes);
-            }
-            else {
+            } else {
                 showHelpInfo(HELP_MESSAGE);
                 jTree.updateUI();
             }
@@ -200,9 +200,8 @@ public class RefreshAction extends AnAction {
             String esResultJson = getResultJson(importsInLines);
             if (!esResultJson.equals(EMPTY_ES_URL)) {
                 projectNodes = updateRoot(root, externalImports, importsInLines, esResultJson);
-            }
-            else {
-                showHelpInfo(EMPTY_ES_URL);
+            } else {
+                showHelpInfo(String.format(EMPTY_ES_URL, windowObjects.getEsURL()));
             }
         }
         return projectNodes;
@@ -285,37 +284,10 @@ public class RefreshAction extends AnAction {
                 windowObjects.getFileNameContentsMap().put(fileName, fileContents);
             }
 
-            Document tinyEditorDoc = EditorFactory.getInstance().
-                    createDocument(fileContents);
-            StringBuilder stringBuilder = new StringBuilder();
-            Set<Integer> lineNumbersSet = new HashSet<Integer>(codeInfo.getLineNumbers());
-            List<Integer> lineNumbersList = new ArrayList<Integer>(lineNumbersSet);
-            Collections.sort(lineNumbersList);
-
-            //Storing the prev line Numbers for displaying as blocks
-            int prev = lineNumbersList.get(0);
-
-            for (int line : lineNumbersList) {
-                //Document is 0 indexed
-                line = line - 1;
-                if (line < tinyEditorDoc.getLineCount() - 1) {
-                    if (prev != line - 1) {
-                        stringBuilder.append(System.lineSeparator());
-                        prev = line;
-                    }
-                    int startOffset = tinyEditorDoc.getLineStartOffset(line);
-                    int endOffset = tinyEditorDoc.getLineEndOffset(line)
-                            + tinyEditorDoc.getLineSeparatorLength(line);
-                    String code = tinyEditorDoc.getCharsSequence().
-                            subSequence(startOffset, endOffset).
-                            toString().trim()
-                            + System.lineSeparator();
-                    stringBuilder.append(code);
-                }
-            }
-
+            String contentsInLines =
+                    editorDocOps.getContentsInLines(fileContents, codeInfo.getLineNumbers());
             createEditor(editorPanel, codeInfo.toString(), codeInfo.getFileName(),
-                    stringBuilder.toString());
+                    contentsInLines);
         }
     }
 
@@ -348,6 +320,7 @@ public class RefreshAction extends AnAction {
         Editor tinyEditor =
                 EditorFactory.getInstance().
                         createEditor(tinyEditorDoc, project, fileType, false);
+        windowEditorOps.releaseEditor(project, tinyEditor);
 
         JPanel expandPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
@@ -371,8 +344,6 @@ public class RefreshAction extends AnAction {
         JButton expandButton = new JButton();
         expandButton.setMaximumSize(new Dimension(Integer.MAX_VALUE,
                 infoLabel.getMinimumSize().height));
-        //expandButton.setPreferredSize(new Dimension(Integer.MAX_VALUE,
-        // infoLabel.getMinimumSize().height));
         expandButton.setBorderPainted(false);
         expandButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         expandButton.setText(String.format(BANNER_FORMAT, HTML_U, displayFileName , U_HTML));
@@ -398,8 +369,8 @@ public class RefreshAction extends AnAction {
 
         expandPanel.add(expandButton);
         expandPanel.add(infoLabel);
-        expandPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE,
-                expandButton.getMinimumSize().height));
+        expandPanel.setMaximumSize(
+                new Dimension(Integer.MAX_VALUE, expandButton.getMinimumSize().height));
         expandPanel.revalidate();
         expandPanel.repaint();
 
@@ -414,12 +385,12 @@ public class RefreshAction extends AnAction {
         private final Map<String, ArrayList<CodeInfo>> projectNodes;
         private final Editor projectEditor;
         private final DefaultMutableTreeNode root;
-        public ProjectNodesWorker(final Map<String, ArrayList<CodeInfo>> projectNodes,
-                                  final Editor projectEditor,
-                                  final DefaultMutableTreeNode root) {
-            this.projectNodes = projectNodes;
-            this.projectEditor = projectEditor;
-            this.root = root;
+        public ProjectNodesWorker(final Map<String, ArrayList<CodeInfo>> pProjectNodes,
+                                  final Editor pProjectEditor,
+                                  final DefaultMutableTreeNode pRoot) {
+            this.projectNodes = pProjectNodes;
+            this.projectEditor = pProjectEditor;
+            this.root = pRoot;
         }
         public void run() {
             projectNodes.putAll(runWorker(projectEditor, root));
