@@ -101,11 +101,8 @@ public class MainWindow implements ToolWindowFactory {
         jTreeScrollPane.setBackground(JBColor.white);
         windowObjects.setJTreeScrollPane(jTreeScrollPane);
 
-        JBScrollPane jbScrollPane = new JBScrollPane();
-        jbScrollPane.setViewportView(windowEditor.getComponent());
-
-        final JSplitPane jSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-                                                        jbScrollPane, jTreeScrollPane);
+        final JSplitPane jSplitPane = new JSplitPane(
+                        JSplitPane.VERTICAL_SPLIT, windowEditor.getComponent(), jTreeScrollPane);
         jSplitPane.setResizeWeight(DIVIDER_LOCATION);
 
         JPanel editorPanel = new JPanel();
