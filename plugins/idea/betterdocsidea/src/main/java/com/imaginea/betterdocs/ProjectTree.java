@@ -27,6 +27,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -35,6 +36,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import javax.swing.AbstractAction;
+import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
@@ -54,7 +56,14 @@ public class ProjectTree {
     private JSONUtils jsonUtils = new JSONUtils();
     private EditorDocOps editorDocOps = new EditorDocOps();
     private static final String GITHUB_LINK = "https://github.com/";
-    private static final String RIGHT_CLICK_MENU_ITEM_TEXT = "Go to GitHub";
+    private static final String GITHUB_ICON = "icons/github_icon.png";
+    private static final String RIGHT_CLICK_MENU_ITEM_TEXT =
+            "<html><img src='%s'/>Go to GitHub";
+
+    protected final URL getIconURL() {
+        ClassLoader classLoader = this.getClass().getClassLoader();
+        return classLoader.getResource(GITHUB_ICON);
+    }
 
     public final TreeSelectionListener getTreeSelectionListener(final TreeNode root) {
         return new TreeSelectionListener() {
@@ -184,7 +193,7 @@ public class ProjectTree {
                                 BrowserUtil.browse(GITHUB_LINK + gitUrl);
                             }
                         }
-                    })).setText(RIGHT_CLICK_MENU_ITEM_TEXT);
+                    })).setText(String.format(RIGHT_CLICK_MENU_ITEM_TEXT, getIconURL()));
 
                     menu.show(mouseEvent.getComponent(), mouseEvent.getX(), mouseEvent.getY());
                 }
@@ -193,10 +202,11 @@ public class ProjectTree {
     }
 }
 
-class ToolTipTreeCellRenderer implements TreeCellRenderer {
+class JTreeCellRenderer implements TreeCellRenderer {
     private static final String REPO_STARS = "Repo Stars: ";
     private WindowObjects windowObjects = WindowObjects.getInstance();
     private ESUtils esUtils = new ESUtils();
+    private ProjectTree projectTree = new ProjectTree();
     private DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer();
 
     public Component getTreeCellRendererComponent(final JTree tree, final Object value,
@@ -212,7 +222,9 @@ class ToolTipTreeCellRenderer implements TreeCellRenderer {
                     int repoId = windowObjects.getRepoNameIdMap().get(repoName);
                     String stars = esUtils.extractRepoStars(repoName, repoId);
                     renderer.setToolTipText(REPO_STARS + stars);
+                    renderer.setIcon(new ImageIcon(projectTree.getIconURL()));
                 } else {
+                    renderer.setIcon(null);
                     renderer.setToolTipText(null);
                 }
             }

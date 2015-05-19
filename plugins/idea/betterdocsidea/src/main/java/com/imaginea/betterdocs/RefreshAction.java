@@ -33,15 +33,12 @@ import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import java.io.IOException;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -50,7 +47,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -63,7 +59,6 @@ import javax.swing.JTree;
 import javax.swing.ToolTipManager;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-
 import org.jetbrains.annotations.NotNull;
 
 public class RefreshAction extends AnAction {
@@ -184,7 +179,7 @@ public class RefreshAction extends AnAction {
         model.reload(root);
         jTree.addTreeSelectionListener(projectTree.getTreeSelectionListener(root));
         ToolTipManager.sharedInstance().registerComponent(jTree);
-        jTree.setCellRenderer(new ToolTipTreeCellRenderer());
+        jTree.setCellRenderer(new JTreeCellRenderer());
         jTree.addMouseListener(projectTree.getMouseListener(root));
         windowObjects.getjTreeScrollPane().setViewportView(jTree);
         buildCodePane(projectNodes.get(TIMEOUT, TimeUnit.SECONDS));
