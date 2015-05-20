@@ -1,7 +1,7 @@
 <idea-plugin version="3">
   <id>betterdocsidea</id>
   <name>Better Docs Plugin for Intellij Idea</name>
-  <version>0.0.2</version>
+  <version>0.0.3-SNAPSHOT</version>
 
   <vendor email="betterdocs@googlegroups.com" url="https://github.com/Imaginea/BetterDocs">Imaginea</vendor>
 
@@ -30,7 +30,7 @@
     ]]></description>
 
   <change-notes><![CDATA[
-    See milestone <a href="https://github.com/Imaginea/BetterDocs/milestones/v0.0.2-ideaplugin-release">v0.0.2-ideaplugin-release</a> on github.
+    See milestone <a href="https://github.com/Imaginea/BetterDocs/milestones/v0.0.3-betterdocs-idea-plugin">v0.0.3-betterdocs-idea-plugin</a> on github.
     ]]>
   </change-notes>
 
