@@ -74,6 +74,7 @@ public class EditorDocOps {
     public static final char DOT = '.';
     private static final String IMPORT_LIST = "IMPORT_LIST";
     private static final String IMPORT_STATEMENT = "IMPORT_STATEMENT";
+    private static final String IMPORT_VALUE = "JAVA_CODE_REFERENCE";
 
     public final Set<String> importsInLines(final Iterable<String> lines,
                                             final Iterable<String> imports) {
@@ -151,9 +152,11 @@ public class EditorDocOps {
                                 if (importElement.getNode().getElementType().
                                         toString().equals(IMPORT_STATEMENT)) {
                                     PsiElement[] importsElementList = importElement.getChildren();
-                                    // As second element contains the import value
-                                    if (importsElementList[2] != null) {
-                                        imports.add(importsElementList[2].getNode().getText());
+                                    for (PsiElement importValue : importsElementList) {
+                                        if (importValue.getNode().getElementType().toString()
+                                                .equals(IMPORT_VALUE)) {
+                                            imports.add(importValue.getNode().getText());
+                                        }
                                     }
                                 }
                             }

@@ -158,7 +158,7 @@ public class ESUtils {
         return fileName.substring(0, endIndex);
     }
 
-    protected final String extractRepoStars(final String repoName,final int repoId) {
+    protected final String extractRepoStars(final String repoName, final int repoId) {
         String stars;
         if (windowObjects.getRepoStarsMap().containsKey(repoName)) {
             stars = windowObjects.getRepoStarsMap().get(repoName).toString();

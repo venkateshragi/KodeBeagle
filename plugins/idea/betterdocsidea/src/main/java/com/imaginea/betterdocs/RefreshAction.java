@@ -97,7 +97,7 @@ public class RefreshAction extends AnAction {
     private PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
     private JTabbedPane jTabbedPane;
 
-    public void setJTabbedPane(JTabbedPane pJTabbedPane) {
+    public final void setJTabbedPane(final JTabbedPane pJTabbedPane) {
         this.jTabbedPane = pJTabbedPane;
     }
 
@@ -137,13 +137,13 @@ public class RefreshAction extends AnAction {
             final DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
             root.removeAllChildren();
             jTree.setVisible(true);
+            windowObjects.getEditorPanel().removeAll();
             Future<Map<String, ArrayList<CodeInfo>>> projectNodes =
                     getMapFuture(projectEditor, root);
             initializeProjectNodes(jTree, model, root, projectNodes);
         } else {
             showHelpInfo(EDITOR_ERROR);
         }
-
     }
 
     @NotNull
@@ -251,7 +251,6 @@ public class RefreshAction extends AnAction {
     }
 
     private String getResultJson(final Set<String> importsInLines) {
-        windowObjects.getEditorPanel().removeAll();
         String esQueryJson = jsonUtils.getESQueryJson(importsInLines,
                 windowObjects.getSize());
         return esUtils.getESResultJson(esQueryJson,
