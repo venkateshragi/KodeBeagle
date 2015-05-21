@@ -33,11 +33,12 @@ import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.ui.JBColor;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -52,7 +53,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -345,36 +345,53 @@ public class RefreshAction extends AnAction {
 
         JLabel infoLabel = new JLabel(String.format(BANNER_FORMAT,
                 projectName, REPO_STARS, stars));
-        JButton expandButton = new JButton();
-        expandButton.setMaximumSize(new Dimension(Integer.MAX_VALUE,
-                infoLabel.getMinimumSize().height));
-        expandButton.setBorderPainted(false);
-        expandButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        expandButton.setText(String.format(BANNER_FORMAT, HTML_U, displayFileName , U_HTML));
-        expandButton.setActionCommand(fileName);
 
-        expandButton.addActionListener(new ActionListener() {
+
+        final JLabel expandLabel =
+                new JLabel(String.format(BANNER_FORMAT, HTML_U, displayFileName, U_HTML));
+        expandLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        expandLabel.setForeground(JBColor.BLUE);
+        expandLabel.addMouseListener(new MouseListener() {
             @Override
-            public void actionPerformed(final ActionEvent e) {
-                JButton jButton = (JButton) e.getSource();
+            public void mouseClicked(final MouseEvent e) {
                 VirtualFile virtualFile = editorDocOps.getVirtualFile(displayFileName,
-                        windowObjects.getFileNameContentsMap().get(jButton.getActionCommand()));
+                        windowObjects.getFileNameContentsMap().get(fileName));
                 FileEditorManager.getInstance(windowObjects.getProject()).
                         openFile(virtualFile, true, true);
                 Document document =
                         EditorFactory.getInstance().createDocument(windowObjects.
-                                getFileNameContentsMap().get(jButton.getActionCommand()));
+                                getFileNameContentsMap().get(fileName));
                 editorDocOps.addHighlighting(windowObjects.
-                        getFileNameNumbersMap().get(jButton.getActionCommand()), document);
+                        getFileNameNumbersMap().get(fileName), document);
                 editorDocOps.gotoLine(windowObjects.
-                        getFileNameNumbersMap().get(jButton.getActionCommand()).get(0), document);
+                        getFileNameNumbersMap().get(fileName).get(0), document);
+            }
+
+            @Override
+            public void mousePressed(final MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseReleased(final MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseEntered(final MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseExited(final MouseEvent e) {
+
             }
         });
 
-        expandPanel.add(expandButton);
+        expandPanel.add(expandLabel);
         expandPanel.add(infoLabel);
         expandPanel.setMaximumSize(
-                new Dimension(Integer.MAX_VALUE, expandButton.getMinimumSize().height));
+                new Dimension(Integer.MAX_VALUE, expandLabel.getMinimumSize().height));
         expandPanel.revalidate();
         expandPanel.repaint();
 
