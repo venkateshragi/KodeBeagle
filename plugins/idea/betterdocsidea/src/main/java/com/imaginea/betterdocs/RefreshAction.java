@@ -172,8 +172,6 @@ public class RefreshAction extends AnAction {
                 //1 is index of CodePane in JTabbed Pane
                 jTabbedPane.setSelectedIndex(1);
             } else {
-                //Bringing back focus to Mainpane if no results
-                jTabbedPane.setSelectedIndex(0);
                 showHelpInfo(HELP_MESSAGE);
                 jTree.updateUI();
             }
@@ -259,6 +257,8 @@ public class RefreshAction extends AnAction {
     }
 
     private void showHelpInfo(final String info) {
+        // Bringing back focus to Mainpane to show info message.
+        jTabbedPane.setSelectedIndex(0);
         windowObjects.getjTreeScrollPane().setViewportView(new JLabel(info));
     }
 
