@@ -28,7 +28,10 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -50,21 +53,38 @@ public class ESUtils {
     private static final int HTTP_OK_STATUS = 200;
     private static final String REPO_ID = "repoId";
     private static final String STARGAZERS_COUNT = "stargazersCount";
+    private static final String COULD_NOT_FILE_CONTENTS = "Could not file Contents";
+    private static final String FILE_NAME = "fileName";
 
     private static WindowObjects windowObjects = WindowObjects.getInstance();
     private JSONUtils jsonUtils = new JSONUtils();
 
-    public final String getContentsForFile(final String file) {
-        String esFileQueryJson = jsonUtils.getJsonForFileContent(file);
+    protected final void putContentsForFileInMap(final List<String> fileNames) {
+        String esFileQueryJson = jsonUtils.getJsonForFileContent(fileNames);
         String esFileResultJson = getESResultJson(esFileQueryJson,
-                                    windowObjects.getEsURL() + SOURCEFILE_SEARCH);
+                windowObjects.getEsURL() + SOURCEFILE_SEARCH);
         JsonArray hitsArray = getJsonElements(esFileResultJson);
 
-        JsonObject hitObject = hitsArray.get(0).getAsJsonObject();
-        JsonObject sourceObject = hitObject.getAsJsonObject(SOURCE);
-        //Replacing \r as it's treated as bad end of line character
-        String fileContent = sourceObject.getAsJsonPrimitive(FILE_CONTENT).
-                                getAsString().replaceAll("\r", "");
+        for (JsonElement hits : hitsArray) {
+            JsonObject hitObject = hits.getAsJsonObject();
+            JsonObject sourceObject = hitObject.getAsJsonObject(SOURCE);
+            //Replacing \r as it's treated as bad end of line character
+            String fileContent = sourceObject.getAsJsonPrimitive(FILE_CONTENT).
+                    getAsString().replaceAll("\r", "");
+            String fileName = sourceObject.getAsJsonPrimitive(FILE_NAME).getAsString();
+            windowObjects.getFileNameContentsMap().put(fileName, fileContent);
+        }
+    }
+
+    public final String getContentsForFile(final String fileName) {
+        Map<String, String> fileNameContentsMap =
+                windowObjects.getFileNameContentsMap();
+
+        if (!fileNameContentsMap.containsKey(fileName)) {
+            putContentsForFileInMap(Arrays.asList(fileName));
+        }
+        String fileContent = fileNameContentsMap.get(fileName);
+
         return fileContent;
     }
 

@@ -24,7 +24,6 @@ import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
@@ -34,7 +33,6 @@ import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.JBColor;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.MouseEvent;
@@ -48,11 +46,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -86,7 +79,6 @@ public class RefreshAction extends AnAction {
     private static final String BANNER_FORMAT = "%s %s %s";
     private static final String HTML_U = "<html><u>";
     private static final String U_HTML = "</u></html>";
-    private static final int TIMEOUT = 20;
 
     private WindowObjects windowObjects = WindowObjects.getInstance();
     private WindowEditorOps windowEditorOps = new WindowEditorOps();
@@ -96,10 +88,7 @@ public class RefreshAction extends AnAction {
     private JSONUtils jsonUtils = new JSONUtils();
     private PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
     private JTabbedPane jTabbedPane;
-
-    public final void setJTabbedPane(final JTabbedPane pJTabbedPane) {
-        this.jTabbedPane = pJTabbedPane;
-    }
+    private List<CodeInfo> codePaneTinyEditorsInfoList = new ArrayList<CodeInfo>();
 
     public RefreshAction() {
         super(BETTER_DOCS, BETTER_DOCS, AllIcons.Actions.Refresh);
@@ -112,20 +101,10 @@ public class RefreshAction extends AnAction {
             runAction();
         } catch (IOException ioe) {
             ioe.printStackTrace();
-        } catch (InterruptedException ie) {
-            ie.printStackTrace();
-        } catch (ExecutionException ee) {
-            ee.printStackTrace();
         }
     }
-    private void init(@NotNull final AnActionEvent anActionEvent) {
-        windowObjects.setProject(anActionEvent.getProject());
-        windowObjects.setDistance(propertiesComponent.
-                getOrInitInt(DISTANCE, DISTANCE_DEFAULT_VALUE));
-        windowObjects.setSize(propertiesComponent.getOrInitInt(SIZE, SIZE_DEFAULT_VALUE));
-        windowObjects.setEsURL(propertiesComponent.getValue(ES_URL, ES_URL_DEFAULT));
-    }
-    public final void runAction() throws IOException, ExecutionException, InterruptedException {
+
+    public final void runAction() throws IOException {
         Project project = windowObjects.getProject();
         final Editor projectEditor = FileEditorManager.getInstance(project).getSelectedTextEditor();
 
@@ -137,184 +116,96 @@ public class RefreshAction extends AnAction {
             final DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
             root.removeAllChildren();
             jTree.setVisible(true);
-            windowObjects.getEditorPanel().removeAll();
-            Future<Map<String, ArrayList<CodeInfo>>> projectNodes =
-                    getMapFuture(projectEditor, root);
-            initializeProjectNodes(jTree, model, root, projectNodes);
+            windowObjects.getCodePaneTinyEditorsJPanel().removeAll();
+
+            Set<String> finalImports = getFinalImports(projectEditor.getDocument());
+            Set<String> importsInLines = getImportsInLines(projectEditor, finalImports);
+            if (!importsInLines.isEmpty()) {
+                showQueryTokensNotification(importsInLines);
+                Map<String, ArrayList<CodeInfo>> projectNodes = doBackEndWork(importsInLines, finalImports);
+                if (!projectNodes.isEmpty()) {
+                    doFrontEndWork(jTree, model, root, codePaneTinyEditorsInfoList, projectNodes);
+                    jTabbedPane.setSelectedIndex(1);
+                     } else {
+                         jTabbedPane.setSelectedIndex(0);
+                         showHelpInfo(HELP_MESSAGE);
+                         jTree.updateUI();
+                     }
+
+            } else {
+                showHelpInfo(HELP_MESSAGE);
+                jTabbedPane.setSelectedIndex(0);
+            }
         } else {
             showHelpInfo(EDITOR_ERROR);
         }
     }
 
-    @NotNull
-    private Future<Map<String, ArrayList<CodeInfo>>> getMapFuture(
-            final Editor projectEditor, final DefaultMutableTreeNode root) {
-        return ApplicationManager.getApplication().executeOnPooledThread(
-                new Callable<Map<String, ArrayList<CodeInfo>>>() {
-                    @Override
-                    public Map<String, ArrayList<CodeInfo>> call() throws Exception {
-                        final Map<String, ArrayList<CodeInfo>> projectNodes =
-                                new HashMap<String, ArrayList<CodeInfo>>();
-                        ApplicationManager.getApplication().
-                                runReadAction(new ProjectNodesWorker(projectNodes,
-                                        projectEditor, root));
-                        return projectNodes;
-                    }
-                });
+    private void doFrontEndWork(JTree jTree, DefaultTreeModel model, DefaultMutableTreeNode root, List<CodeInfo> codePaneTinyEditorsInfoList, Map<String, ArrayList<CodeInfo>> projectNodes) {
+        updateMainPaneJTreeUI(jTree, model, root, projectNodes);
+        buildCodePane(codePaneTinyEditorsInfoList);
     }
 
-    private void initializeProjectNodes(final JTree jTree, final DefaultTreeModel model,
-                                        final DefaultMutableTreeNode root, final Future<Map<String,
-            ArrayList<CodeInfo>>> projectNodes) throws InterruptedException, ExecutionException {
-        try {
-            if (!projectNodes.get(TIMEOUT, TimeUnit.SECONDS).isEmpty()) {
-                setProjectNodes(jTree, model, root, projectNodes);
-                //1 is index of CodePane in JTabbed Pane
-                jTabbedPane.setSelectedIndex(1);
-            } else {
-                showHelpInfo(HELP_MESSAGE);
-                jTree.updateUI();
+    private Map<String, ArrayList<CodeInfo>> doBackEndWork(Set<String> importsInLines,
+                                                           Set<String> finalImports) {
+        String esResultJson = getESQueryResultJson(importsInLines);
+        Map<String, ArrayList<CodeInfo>> projectNodes = new HashMap<String, ArrayList<CodeInfo>>();
+        if (!esResultJson.equals(EMPTY_ES_URL)) {
+            projectNodes = getProjectNodes(finalImports, esResultJson);
+            if (!projectNodes.isEmpty()) {
+                codePaneTinyEditorsInfoList = getCodePaneTinyEditorsInfoList(projectNodes);
+                List<String> fileNamesList = getFileNamesListForTinyEditors(codePaneTinyEditorsInfoList);
+                esUtils.putContentsForFileInMap(fileNamesList);
             }
-        } catch (TimeoutException toe) {
-            toe.printStackTrace();
         }
+        return projectNodes;
     }
 
-    private void setProjectNodes(final JTree jTree, final DefaultTreeModel model,
-                                 final DefaultMutableTreeNode root,
-                                 final Future<Map<String, ArrayList<CodeInfo>>> projectNodes)
-            throws InterruptedException, ExecutionException, TimeoutException {
+    @NotNull
+    private List<String> getFileNamesListForTinyEditors(List<CodeInfo> codePaneTinyEditorsInfoList) {
+        List<String> fileNamesList = new ArrayList<String>();
+        for (CodeInfo codePaneTinyEditorInfo : codePaneTinyEditorsInfoList) {
+            fileNamesList.add(codePaneTinyEditorInfo.getFileName());
+        }
+        return fileNamesList;
+    }
+
+    private void updateMainPaneJTreeUI(JTree jTree, DefaultTreeModel model, DefaultMutableTreeNode root, Map<String, ArrayList<CodeInfo>>  projectNodes) {
+        projectTree.updateRoot(root, projectNodes);
         model.reload(root);
         jTree.addTreeSelectionListener(projectTree.getTreeSelectionListener(root));
         ToolTipManager.sharedInstance().registerComponent(jTree);
         jTree.setCellRenderer(new JTreeCellRenderer());
         jTree.addMouseListener(projectTree.getMouseListener(root));
         windowObjects.getjTreeScrollPane().setViewportView(jTree);
-        buildCodePane(projectNodes.get(TIMEOUT, TimeUnit.SECONDS));
     }
 
-    private Map<String, ArrayList<CodeInfo>>  runWorker(final Editor projectEditor,
-                                                        final DefaultMutableTreeNode root) {
-        Map<String, ArrayList<CodeInfo>> projectNodes =
-                new HashMap<String, ArrayList<CodeInfo>>();
-        Set<String> externalImports = getImports(projectEditor);
-        Set<String> importsInLines = getImportsInLines(projectEditor, externalImports);
-        if (!importsInLines.isEmpty()) {
-            String esResultJson = getResultJson(importsInLines);
-            if (!esResultJson.equals(EMPTY_ES_URL)) {
-                projectNodes = updateRoot(root, externalImports, importsInLines, esResultJson);
-            } else {
-                showHelpInfo(String.format(EMPTY_ES_URL, windowObjects.getEsURL()));
-            }
-        }
-        return projectNodes;
+    private String getESQueryResultJson(final Set<String> importsInLines) {
+        String esQueryJson = jsonUtils.getESQueryJson(importsInLines, windowObjects.getSize());
+        String esQueryResultJson =
+            esUtils.getESResultJson(esQueryJson, windowObjects.getEsURL() + BETTERDOCS_SEARCH);
+        return esQueryResultJson;
     }
 
-    private Map<String, ArrayList<CodeInfo>> updateRoot(final DefaultMutableTreeNode root,
-                                                        final Set<String> externalImports,
-                                                        final Set<String> importsInLines,
-                                                        final String esResultJson) {
-        Map<String, ArrayList<CodeInfo>> projectNodes;
-        Map<String, String> fileTokensMap =
-                esUtils.getFileTokens(esResultJson);
-        projectNodes = projectTree.updateProjectNodes(externalImports, fileTokensMap);
-        projectTree.updateRoot(root, projectNodes);
-        Notifications.Bus.notify(new Notification(BETTER_DOCS,
-                String.format(FORMAT, QUERYING,
-                        windowObjects.getEsURL(), FOR),
-                importsInLines.toString(),
-                NotificationType.INFORMATION));
-        return projectNodes;
-    }
+    protected final void buildCodePane(final List<CodeInfo> codePaneTinyEditorsInfoList) {
+        JPanel codePaneTinyEditorsJPanel = windowObjects.getCodePaneTinyEditorsJPanel();
 
-    private Set<String> getImportsInLines(final Editor projectEditor,
-                                          final Set<String> externalImports) {
-        Set<String> lines =
-                editorDocOps.getLines(projectEditor,
-                        windowObjects.getDistance());
-        return editorDocOps.importsInLines(lines, externalImports);
-    }
+        sortCodePaneTinyEditorsInfoList(codePaneTinyEditorsInfoList);
 
-    private Set<String> getImports(final Editor projectEditor) {
-        Set<String> imports =
-                editorDocOps.getImports(projectEditor.getDocument(), windowObjects.getProject());
-        if (propertiesComponent.isValueSet(EXCLUDE_IMPORT_LIST)) {
-            String excludeImport = propertiesComponent.getValue(EXCLUDE_IMPORT_LIST);
-            if (excludeImport != null) {
-                imports = editorDocOps.excludeConfiguredImports(imports, excludeImport);
-            }
-        }
-        Set<String> internalImports = editorDocOps.getInternalImports(windowObjects.getProject());
-        return editorDocOps.excludeInternalImports(imports, internalImports);
-    }
-
-    private String getResultJson(final Set<String> importsInLines) {
-        String esQueryJson = jsonUtils.getESQueryJson(importsInLines,
-                windowObjects.getSize());
-        return esUtils.getESResultJson(esQueryJson,
-                windowObjects.getEsURL()
-                        + BETTERDOCS_SEARCH);
-    }
-
-    private void showHelpInfo(final String info) {
-        // Bringing back focus to Mainpane to show info message.
-        jTabbedPane.setSelectedIndex(0);
-        windowObjects.getjTreeScrollPane().setViewportView(new JLabel(info));
-    }
-
-    protected final void buildCodePane(final Map<String, ArrayList<CodeInfo>> projectNodes) {
-        // Take this from SettignsPanel
-        int maxEditors = 10;
-        int count = 0;
-        JPanel editorPanel = windowObjects.getEditorPanel();
-        List<CodeInfo> resultList = getResultList(projectNodes, maxEditors, count);
-
-        Collections.sort(resultList, new Comparator<CodeInfo>() {
-            @Override
-            public int compare(final CodeInfo o1, final CodeInfo o2) {
-                Set<Integer> o1HashSet = new HashSet<Integer>(o1.getLineNumbers());
-                Set<Integer> o2HashSet = new HashSet<Integer>(o2.getLineNumbers());
-                return o2HashSet.size() - o1HashSet.size();
-            }
-        });
-
-        for (CodeInfo codeInfo : resultList) {
-            String fileContents;
-            String fileName = codeInfo.getFileName();
-            if (windowObjects.getFileNameContentsMap().containsKey(fileName)) {
-                fileContents = windowObjects.getFileNameContentsMap().get(fileName);
-            } else {
-                fileContents = esUtils.getContentsForFile(codeInfo.getFileName());
-                windowObjects.getFileNameContentsMap().put(fileName, fileContents);
-            }
+        for (CodeInfo codePaneTinyEditorInfo : codePaneTinyEditorsInfoList) {
+            String fileName = codePaneTinyEditorInfo.getFileName();
+            String fileContents = esUtils.getContentsForFile(fileName);
 
             String contentsInLines =
-                    editorDocOps.getContentsInLines(fileContents, codeInfo.getLineNumbers());
-            createEditor(editorPanel, codeInfo.toString(), codeInfo.getFileName(),
+                    editorDocOps.getContentsInLines(fileContents, codePaneTinyEditorInfo.getLineNumbers());
+            createCodePaneTinyEditor(codePaneTinyEditorsJPanel, codePaneTinyEditorInfo.toString(), codePaneTinyEditorInfo.getFileName(),
                     contentsInLines);
         }
     }
 
-    @NotNull
-    private List<CodeInfo> getResultList(final Map<String, ArrayList<CodeInfo>> projectNodes,
-                                         final int maxEditors, int count) {
-        List<CodeInfo> resultList = new ArrayList<CodeInfo>();
-
-        for (Map.Entry<String, ArrayList<CodeInfo>> entry : projectNodes.entrySet()) {
-            List<CodeInfo> codeInfoList = entry.getValue();
-            for (CodeInfo codeInfo : codeInfoList) {
-                if (count++ < maxEditors) {
-                    resultList.add(codeInfo);
-                }
-            }
-        }
-        return resultList;
-    }
-
-    private void createEditor(final JPanel editorPanel, final String displayFileName,
-                              final String fileName, final String contents) {
-        Document tinyEditorDoc;
-        tinyEditorDoc =
+    private void createCodePaneTinyEditor(final JPanel codePaneTinyEditorJPanel, final String displayFileName,
+                                          final String fileName, final String contents) {
+        Document tinyEditorDoc =
                 EditorFactory.getInstance().createDocument(contents);
         tinyEditorDoc.setReadOnly(true);
         Project project = windowObjects.getProject();
@@ -328,10 +219,7 @@ public class RefreshAction extends AnAction {
 
         JPanel expandPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
-        int startIndex = fileName.indexOf('/');
-        int endIndex = fileName.indexOf('/', startIndex + 1);
-
-        String projectName = fileName.substring(0, endIndex);
+        String projectName = esUtils.getProjectName(fileName);
 
         int repoId = windowObjects.getRepoNameIdMap().get(projectName);
         String stars;
@@ -349,44 +237,8 @@ public class RefreshAction extends AnAction {
 
         final JLabel expandLabel =
                 new JLabel(String.format(BANNER_FORMAT, HTML_U, displayFileName, U_HTML));
-        expandLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
         expandLabel.setForeground(JBColor.BLUE);
-        expandLabel.addMouseListener(new MouseListener() {
-            @Override
-            public void mouseClicked(final MouseEvent e) {
-                VirtualFile virtualFile = editorDocOps.getVirtualFile(displayFileName,
-                        windowObjects.getFileNameContentsMap().get(fileName));
-                FileEditorManager.getInstance(windowObjects.getProject()).
-                        openFile(virtualFile, true, true);
-                Document document =
-                        EditorFactory.getInstance().createDocument(windowObjects.
-                                getFileNameContentsMap().get(fileName));
-                editorDocOps.addHighlighting(windowObjects.
-                        getFileNameNumbersMap().get(fileName), document);
-                editorDocOps.gotoLine(windowObjects.
-                        getFileNameNumbersMap().get(fileName).get(0), document);
-            }
-
-            @Override
-            public void mousePressed(final MouseEvent e) {
-
-            }
-
-            @Override
-            public void mouseReleased(final MouseEvent e) {
-
-            }
-
-            @Override
-            public void mouseEntered(final MouseEvent e) {
-
-            }
-
-            @Override
-            public void mouseExited(final MouseEvent e) {
-
-            }
-        });
+        expandLabel.addMouseListener(new CodePaneTinyEditorExpandLabelMouseListener(displayFileName, fileName));
 
         expandPanel.add(expandLabel);
         expandPanel.add(infoLabel);
@@ -395,26 +247,141 @@ public class RefreshAction extends AnAction {
         expandPanel.revalidate();
         expandPanel.repaint();
 
-        editorPanel.add(expandPanel);
+        codePaneTinyEditorJPanel.add(expandPanel);
 
-        editorPanel.add(tinyEditor.getComponent());
-        editorPanel.revalidate();
-        editorPanel.repaint();
+        codePaneTinyEditorJPanel.add(tinyEditor.getComponent());
+        codePaneTinyEditorJPanel.revalidate();
+        codePaneTinyEditorJPanel.repaint();
     }
 
-    private class ProjectNodesWorker implements Runnable {
-        private final Map<String, ArrayList<CodeInfo>> projectNodes;
-        private final Editor projectEditor;
-        private final DefaultMutableTreeNode root;
-        public ProjectNodesWorker(final Map<String, ArrayList<CodeInfo>> pProjectNodes,
-                                  final Editor pProjectEditor,
-                                  final DefaultMutableTreeNode pRoot) {
-            this.projectNodes = pProjectNodes;
-            this.projectEditor = pProjectEditor;
-            this.root = pRoot;
+
+    @NotNull
+    private List<CodeInfo> getCodePaneTinyEditorsInfoList(final Map<String, ArrayList<CodeInfo>> projectNodes) {
+        // Take this from SettignsPanel
+        int maxEditors = 10;
+        int count = 0;
+        List<CodeInfo> codePaneTinyEditorsInfoList = new ArrayList<CodeInfo>();
+
+        for (Map.Entry<String, ArrayList<CodeInfo>> entry : projectNodes.entrySet()) {
+            List<CodeInfo> codeInfoList = entry.getValue();
+            for (CodeInfo codeInfo : codeInfoList) {
+                if (count++ < maxEditors) {
+                    codePaneTinyEditorsInfoList.add(codeInfo);
+                }
+            }
         }
-        public void run() {
-            projectNodes.putAll(runWorker(projectEditor, root));
+        return codePaneTinyEditorsInfoList;
+    }
+
+
+    private void showHelpInfo(final String info) {
+        windowObjects.getjTreeScrollPane().setViewportView(new JLabel(info));
+    }
+
+
+    private Map<String, ArrayList<CodeInfo>> getProjectNodes(final Set<String> finalImports,
+                                                             final String esResultJson) {
+
+        Map<String, String> fileTokensMap = esUtils.getFileTokens(esResultJson);
+        Map<String, ArrayList<CodeInfo>> projectNodes =
+                projectTree.updateProjectNodes(finalImports, fileTokensMap);
+        return projectNodes;
+    }
+
+    private Set<String> getFinalImports(final Document document) {
+        Set<String> imports =
+                editorDocOps.getImports(document, windowObjects.getProject());
+        if (propertiesComponent.isValueSet(EXCLUDE_IMPORT_LIST)) {
+            String excludeImport = propertiesComponent.getValue(EXCLUDE_IMPORT_LIST);
+            if (excludeImport != null) {
+                imports = editorDocOps.excludeConfiguredImports(imports, excludeImport);
+            }
+        }
+        Set<String> internalImports = editorDocOps.getInternalImports(windowObjects.getProject());
+        Set<String> finalImports = editorDocOps.excludeInternalImports(imports, internalImports);
+        return finalImports;
+    }
+
+    private Set<String> getImportsInLines(final Editor projectEditor,
+                                          final Set<String> externalImports) {
+        Set<String> lines = editorDocOps.getLines(projectEditor, windowObjects.getDistance());
+        Set<String> importsInLines = editorDocOps.importsInLines(lines, externalImports);
+        return importsInLines;
+    }
+
+    protected final void setJTabbedPane(final JTabbedPane pJTabbedPane) {
+        this.jTabbedPane = pJTabbedPane;
+    }
+
+    private void init(@NotNull final AnActionEvent anActionEvent) {
+        windowObjects.setProject(anActionEvent.getProject());
+        windowObjects.setDistance(propertiesComponent.
+                getOrInitInt(DISTANCE, DISTANCE_DEFAULT_VALUE));
+        windowObjects.setSize(propertiesComponent.getOrInitInt(SIZE, SIZE_DEFAULT_VALUE));
+        windowObjects.setEsURL(propertiesComponent.getValue(ES_URL, ES_URL_DEFAULT));
+    }
+
+    private void sortCodePaneTinyEditorsInfoList(List<CodeInfo> codePaneTinyEditorsInfoList) {
+        Collections.sort(codePaneTinyEditorsInfoList, new Comparator<CodeInfo>() {
+            @Override
+            public int compare(final CodeInfo o1, final CodeInfo o2) {
+                Set<Integer> o1HashSet = new HashSet<Integer>(o1.getLineNumbers());
+                Set<Integer> o2HashSet = new HashSet<Integer>(o2.getLineNumbers());
+                return o2HashSet.size() - o1HashSet.size();
+            }
+        });
+    }
+
+    private void showQueryTokensNotification(Set<String> importsInLines) {
+        Notifications.Bus.notify(new Notification(BETTER_DOCS,
+                String.format(FORMAT, QUERYING,
+                        windowObjects.getEsURL(), FOR),
+                importsInLines.toString(),
+                NotificationType.INFORMATION));
+    }
+
+    private class CodePaneTinyEditorExpandLabelMouseListener implements MouseListener {
+        private final String displayFileName;
+        private final String fileName;
+
+        public CodePaneTinyEditorExpandLabelMouseListener(String displayFileName, String fileName) {
+            this.displayFileName = displayFileName;
+            this.fileName = fileName;
+        }
+
+        @Override
+        public void mouseClicked(final MouseEvent e) {
+            VirtualFile virtualFile = editorDocOps.getVirtualFile(displayFileName,
+                    windowObjects.getFileNameContentsMap().get(fileName));
+            FileEditorManager.getInstance(windowObjects.getProject()).
+                    openFile(virtualFile, true, true);
+            Document document =
+                    EditorFactory.getInstance().createDocument(windowObjects.
+                            getFileNameContentsMap().get(fileName));
+            editorDocOps.addHighlighting(windowObjects.
+                    getFileNameNumbersMap().get(fileName), document);
+            editorDocOps.gotoLine(windowObjects.
+                    getFileNameNumbersMap().get(fileName).get(0), document);
+        }
+
+        @Override
+        public void mousePressed(final MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseReleased(final MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseEntered(final MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseExited(final MouseEvent e) {
+
         }
     }
 }

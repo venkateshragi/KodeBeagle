@@ -71,32 +71,24 @@ public class ProjectTree {
             public void valueChanged(final TreeSelectionEvent treeSelectionEvent) {
                 DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)
                         windowObjects.getjTree().getLastSelectedPathComponent();
-
                 if (selectedNode != null && selectedNode.isLeaf() && root.getChildCount() > 0) {
                     final CodeInfo codeInfo = (CodeInfo) selectedNode.getUserObject();
-                    final Document windowEditorDocument =
-                            windowObjects.getWindowEditor().getDocument();
                     String fileName = codeInfo.getFileName();
-                    String fileContents;
-                    Map<String, String> fileNameContentsMap =
-                            windowObjects.getFileNameContentsMap();
-
-                    if (!fileNameContentsMap.containsKey(fileName)) {
-                        fileContents = esUtils.getContentsForFile(fileName);
-                        fileNameContentsMap.put(fileName, fileContents);
-                    } else {
-                        fileContents = fileNameContentsMap.get(fileName);
-                    }
-
+                    String fileContents = esUtils.getContentsForFile(fileName);
+                    //Setting contents so that we can use that for Open in New Tab
                     codeInfo.setContents(fileContents);
-                    String contentsInLines =
-                            editorDocOps.getContentsInLines(fileContents,
-                                                            codeInfo.getLineNumbers());
-
-                    windowEditorOps.writeToDocument(contentsInLines, windowEditorDocument);
+                    updateMainPanePreviewEditor(codeInfo.getLineNumbers(), fileContents);
                 }
             }
         };
+    }
+
+    private void updateMainPanePreviewEditor(List<Integer> lineNumbers, String fileContents) {
+        final Document mainPanePreviewEditorDocument =
+                windowObjects.getWindowEditor().getDocument();
+        String contentsInLines =
+                editorDocOps.getContentsInLines(fileContents, lineNumbers);
+        windowEditorOps.writeToDocument(contentsInLines, mainPanePreviewEditorDocument);
     }
 
     public final Map<String, ArrayList<CodeInfo>> updateProjectNodes(

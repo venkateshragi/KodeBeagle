@@ -58,7 +58,7 @@ public final class WindowObjects {
         return windowObjects;
     }
 
-    private JPanel editorPanel;
+    private JPanel codePaneTinyEditorsJPanel;
 
     public void setFileNameContentsMap(final Map<String, String> pfileContents) {
         this.fileNameContentsMap = pfileContents;
@@ -124,12 +124,12 @@ public final class WindowObjects {
         return windowObjects;
     }
 
-    public void setPanel(final JPanel pEditorPanel) {
-        this.editorPanel = pEditorPanel;
+    public void setPanel(final JPanel pCodePaneTinyEditorsJPanel) {
+        this.codePaneTinyEditorsJPanel = pCodePaneTinyEditorsJPanel;
     }
 
-    public JPanel getEditorPanel() {
-        return editorPanel;
+    public JPanel getCodePaneTinyEditorsJPanel() {
+        return codePaneTinyEditorsJPanel;
     }
 
     public void setJTreeScrollPane(final JBScrollPane pJTreeScrollPane) {

@@ -17,21 +17,52 @@
 
 package com.imaginea.betterdocs;
 
-public class ESFileContent {
-    public final Query getQuery() {
-        return query;
-    }
+import java.util.List;
 
+public class ESFileContent {
     private Query query;
 
     public static class Query {
+        private Bool bool;
         private Term term;
+
+        public void setBool(Bool bool) {
+            this.bool = bool;
+        }
+
+        public Bool getBool() {
+            return bool;
+        }
 
         public final void setTerm(final Term pterm) {
             this.term = pterm;
         }
 
         public final Term getTerm() {
+            return term;
+        }
+    }
+
+    public static class  Bool {
+        private List<Should> should;
+
+        public final List<Should> getShould() {
+            return should;
+        }
+
+        public final void setShould(final List<Should> pShould) {
+            this.should = pShould;
+        }
+    }
+
+    public static class Should {
+        private Term term;
+
+        public void setTerm(Term term) {
+            this.term = term;
+        }
+
+        public Term getTerm() {
             return term;
         }
     }
@@ -46,6 +77,10 @@ public class ESFileContent {
         public final String getFileName() {
             return fileName;
         }
+    }
+
+    public final Query getQuery() {
+        return query;
     }
 
     public final void setQuery(final Query pquery) {

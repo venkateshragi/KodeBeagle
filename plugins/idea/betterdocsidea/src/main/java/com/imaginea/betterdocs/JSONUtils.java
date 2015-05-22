@@ -36,16 +36,28 @@ public class JSONUtils {
     private static final String SORT_ORDER = "desc";
     private static final String ID = "id";
     private static final String TYPEREPOSITORY_ID = "typerepository.id";
+    private static final String TYPESOURCEFILENAME_FILENAME = "typesourcefile.fileName";
+    private static final String FILE_NAME = "fileName";
 
-    public final String getJsonForFileContent(final String fileName) {
+    public final String getJsonForFileContent(final List<String> fileNameList) {
         ESFileContent esFileContent = new ESFileContent();
         ESFileContent.Query query = new ESFileContent.Query();
         esFileContent.setQuery(query);
-        ESFileContent.Term term = new ESFileContent.Term();
-        query.setTerm(term);
-        term.setFileName(fileName);
+        ESFileContent.Bool bool = new ESFileContent.Bool();
+        query.setBool(bool);
+        List<ESFileContent.Should> shouldList = new ArrayList<ESFileContent.Should>();
+        bool.setShould(shouldList);
+
+        for (String fileName: fileNameList) {
+            ESFileContent.Should should = new ESFileContent.Should();
+            ESFileContent.Term term = new ESFileContent.Term();
+            should.setTerm(term);
+            term.setFileName(fileName);
+            shouldList.add(should);
+        }
+
         Gson gson = new Gson();
-        return gson.toJson(esFileContent);
+        return gson.toJson(esFileContent).replaceAll(FILE_NAME, TYPESOURCEFILENAME_FILENAME);
     }
 
     public final String getRepoStarsJSON(final int repoId) {
