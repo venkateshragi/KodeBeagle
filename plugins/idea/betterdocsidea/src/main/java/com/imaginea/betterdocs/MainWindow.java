@@ -96,10 +96,10 @@ public class MainWindow implements ToolWindowFactory {
 
         JBScrollPane jTreeScrollPane = new JBScrollPane();
         jTreeScrollPane.getViewport().setBackground(JBColor.white);
-        jTreeScrollPane.setViewportView(new JLabel(RefreshAction.HELP_MESSAGE));
         jTreeScrollPane.setAutoscrolls(true);
         jTreeScrollPane.setBackground(JBColor.white);
         windowObjects.setJTreeScrollPane(jTreeScrollPane);
+
 
         final JSplitPane jSplitPane = new JSplitPane(
                         JSplitPane.VERTICAL_SPLIT, windowEditor.getComponent(), jTreeScrollPane);
@@ -124,7 +124,8 @@ public class MainWindow implements ToolWindowFactory {
         jTabbedPane.add(MAIN_PANE, jSplitPane);
         jTabbedPane.add(CODE_PANE, editorScrollPane);
         refreshAction.setJTabbedPane(jTabbedPane);
-
+        // Display initial help information here.
+        refreshAction.showHelpInfo(RefreshAction.HELP_MESSAGE);
         final JPanel mainPanel = new JPanel();
         mainPanel.setLayout((new BoxLayout(mainPanel, BoxLayout.Y_AXIS)));
         mainPanel.add(toolBar);

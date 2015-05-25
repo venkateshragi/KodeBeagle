@@ -278,7 +278,7 @@ public class RefreshAction extends AnAction {
         return codePaneTinyEditorsInfoList;
     }
 
-    private void showHelpInfo(final String info) {
+    void showHelpInfo(final String info) {
         JPanel centerInfoPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         centerInfoPanel.add(new JLabel(info));
         jTabbedPane.setSelectedIndex(0);
