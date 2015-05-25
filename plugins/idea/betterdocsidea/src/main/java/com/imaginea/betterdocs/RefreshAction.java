@@ -73,7 +73,7 @@ public class RefreshAction extends AnAction {
     private static final String FOR = "for";
     protected static final String EXCLUDE_IMPORT_LIST = "Exclude imports";
     protected static final String HELP_MESSAGE =
-            "<html><center>No Results to display.<br> Please Select Some code and hit <img src='"
+            "<html><center>No Results to display.<br> Please select some code and hit <img src='"
                     + AllIcons.Actions.Refresh + "'> </center> </html>";
     private static final String REPO_STARS = "Repo Stars";
     private static final String BANNER_FORMAT = "%s %s %s";
@@ -127,14 +127,12 @@ public class RefreshAction extends AnAction {
                     doFrontEndWork(jTree, model, root, codePaneTinyEditorsInfoList, projectNodes);
                     jTabbedPane.setSelectedIndex(1);
                      } else {
-                         jTabbedPane.setSelectedIndex(0);
                          showHelpInfo(HELP_MESSAGE);
                          jTree.updateUI();
                      }
 
             } else {
                 showHelpInfo(HELP_MESSAGE);
-                jTabbedPane.setSelectedIndex(0);
             }
         } else {
             showHelpInfo(EDITOR_ERROR);
@@ -198,7 +196,8 @@ public class RefreshAction extends AnAction {
 
             String contentsInLines =
                     editorDocOps.getContentsInLines(fileContents, codePaneTinyEditorInfo.getLineNumbers());
-            createCodePaneTinyEditor(codePaneTinyEditorsJPanel, codePaneTinyEditorInfo.toString(), codePaneTinyEditorInfo.getFileName(),
+            createCodePaneTinyEditor(codePaneTinyEditorsJPanel, codePaneTinyEditorInfo.toString(),
+                    codePaneTinyEditorInfo.getFileName(),
                     contentsInLines);
         }
     }
@@ -272,10 +271,12 @@ public class RefreshAction extends AnAction {
         }
         return codePaneTinyEditorsInfoList;
     }
-
-
+    
     private void showHelpInfo(final String info) {
-        windowObjects.getjTreeScrollPane().setViewportView(new JLabel(info));
+        JPanel centerInfoPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        centerInfoPanel.add(new JLabel(info));
+        jTabbedPane.setSelectedIndex(0);
+        windowObjects.getjTreeScrollPane().setViewportView(centerInfoPanel);
     }
 
 
