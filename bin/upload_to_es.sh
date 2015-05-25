@@ -23,6 +23,7 @@ echo "Clearing kodebeagle related indices from elasticsearch."
 curl -XDELETE 'http://localhost:9201/kodebeagle/'
 curl -XDELETE 'http://localhost:9201/sourcefile/'
 curl -XDELETE 'http://localhost:9201/repository/'
+curl -XDELETE 'http://localhost:9201/importsmethods/'
 
 # create a kodebeagle index
 curl -XPUT 'http://localhost:9201/kodebeagle/'
@@ -63,6 +64,52 @@ curl -XPUT 'localhost:9201/sourcefile' -d '{
         }
       }
     }
+}'
+
+curl -XPUT 'http://localhost:9201/importsmethods/' -d '{  
+   "mappings" : {"typeimportsmethods":{  
+      "properties":{  
+         "file":{  
+            "type":"string",
+            "index":"no"
+         },
+         "tokens":{  
+            "type":"nested",
+            "include_in_parent":true,
+            "properties":{  
+               "importName":{  
+                  "type":"string",
+                  "index":"not_analyzed"
+               },
+               "lineNumbers":{  
+                  "type":"long",
+                  "index":"no"
+               },
+               "methodAndLineNumbers":{  
+                  "type":"nested",
+                  "include_in_parent":true,
+                  "properties":{  
+                     "lineNumbers":{  
+                        "type":"long"
+                     },
+                     "methodName":{  
+                        "type":"string",
+                        "index":"not_analyzed"
+                     }
+                  }
+               }
+            }
+         },
+         "repoId":{  
+            "type":"long"
+         },
+         "score":{  
+            "type":"integer",
+            "index" : "not_analyzed"
+         }
+      }
+   }
+}
 }'
 
 
