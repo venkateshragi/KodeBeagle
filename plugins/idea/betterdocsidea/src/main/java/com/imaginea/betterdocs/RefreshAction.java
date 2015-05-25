@@ -139,13 +139,15 @@ public class RefreshAction extends AnAction {
         }
     }
 
-    private void doFrontEndWork(JTree jTree, DefaultTreeModel model, DefaultMutableTreeNode root, List<CodeInfo> codePaneTinyEditorsInfoList, Map<String, ArrayList<CodeInfo>> projectNodes) {
+    private void doFrontEndWork(JTree jTree, DefaultTreeModel model, DefaultMutableTreeNode root,
+                                List<CodeInfo> codePaneTinyEditorsInfoList,
+                                Map<String, ArrayList<CodeInfo>> projectNodes) {
         updateMainPaneJTreeUI(jTree, model, root, projectNodes);
         buildCodePane(codePaneTinyEditorsInfoList);
     }
 
     private Map<String, ArrayList<CodeInfo>> doBackEndWork(Set<String> importsInLines,
-                                                           Set<String> finalImports) {
+            Set<String> finalImports) {
         String esResultJson = getESQueryResultJson(importsInLines);
         Map<String, ArrayList<CodeInfo>> projectNodes = new HashMap<String, ArrayList<CodeInfo>>();
         if (!esResultJson.equals(EMPTY_ES_URL)) {
@@ -168,7 +170,9 @@ public class RefreshAction extends AnAction {
         return fileNamesList;
     }
 
-    private void updateMainPaneJTreeUI(JTree jTree, DefaultTreeModel model, DefaultMutableTreeNode root, Map<String, ArrayList<CodeInfo>>  projectNodes) {
+    private void updateMainPaneJTreeUI(JTree jTree, DefaultTreeModel model,
+            DefaultMutableTreeNode root, Map<String,
+            ArrayList<CodeInfo>>  projectNodes) {
         projectTree.updateRoot(root, projectNodes);
         model.reload(root);
         jTree.addTreeSelectionListener(projectTree.getTreeSelectionListener(root));
@@ -385,4 +389,5 @@ public class RefreshAction extends AnAction {
 
         }
     }
+    
 }

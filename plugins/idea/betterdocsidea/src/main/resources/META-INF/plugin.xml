@@ -16,7 +16,8 @@
 <br/>
   How it works?
 <br/><p>
-  It goes through existing popular public projects and gathering required information. When a user searches, it queries the database and fetches relevant results.
+  It goes through existing popular public projects and gathering required information. When a user searches,
+  it queries the database and fetches relevant results.
 
   Currently, the source for code of popular projects is Github</p>
 <br/><p>
@@ -30,7 +31,8 @@
     ]]></description>
 
   <change-notes><![CDATA[
-    See milestone <a href="https://github.com/Imaginea/BetterDocs/milestones/v0.0.3-betterdocs-idea-plugin">v0.0.3-betterdocs-idea-plugin</a> on github.
+    See milestone <a href="https://github.com/Imaginea/BetterDocs/milestones/v0.0.3-betterdocs-idea-plugin">
+    v0.0.3-betterdocs-idea-plugin</a> on github.
     ]]>
   </change-notes>
 
