@@ -30,6 +30,10 @@ import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
+import com.intellij.openapi.progress.PerformInBackgroundOption;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.JBColor;
@@ -122,14 +126,8 @@ public class RefreshAction extends AnAction {
             Set<String> importsInLines = getImportsInLines(projectEditor, finalImports);
             if (!importsInLines.isEmpty()) {
                 showQueryTokensNotification(importsInLines);
-                Map<String, ArrayList<CodeInfo>> projectNodes = doBackEndWork(importsInLines, finalImports);
-                if (!projectNodes.isEmpty()) {
-                    doFrontEndWork(jTree, model, root, codePaneTinyEditorsInfoList, projectNodes);
-                    jTabbedPane.setSelectedIndex(1);
-                     } else {
-                         showHelpInfo(HELP_MESSAGE);
-                         jTree.updateUI();
-                     }
+                ProgressManager.getInstance().run(new QueryBDServerTask(importsInLines,
+                        finalImports, jTree, model, root));
 
             } else {
                 showHelpInfo(HELP_MESSAGE);
@@ -147,17 +145,21 @@ public class RefreshAction extends AnAction {
     }
 
     private Map<String, ArrayList<CodeInfo>> doBackEndWork(Set<String> importsInLines,
-            Set<String> finalImports) {
+            Set<String> finalImports, ProgressIndicator indicator) {
+        indicator.setText("Fetching projects...");
         String esResultJson = getESQueryResultJson(importsInLines);
         Map<String, ArrayList<CodeInfo>> projectNodes = new HashMap<String, ArrayList<CodeInfo>>();
         if (!esResultJson.equals(EMPTY_ES_URL)) {
             projectNodes = getProjectNodes(finalImports, esResultJson);
+            indicator.setFraction(0.5);
             if (!projectNodes.isEmpty()) {
+                indicator.setText("Fetching file contents...");
                 codePaneTinyEditorsInfoList = getCodePaneTinyEditorsInfoList(projectNodes);
                 List<String> fileNamesList = getFileNamesListForTinyEditors(codePaneTinyEditorsInfoList);
                 esUtils.putContentsForFileInMap(fileNamesList);
             }
         }
+        indicator.setFraction(1.0);
         return projectNodes;
     }
 
@@ -275,7 +277,7 @@ public class RefreshAction extends AnAction {
         }
         return codePaneTinyEditorsInfoList;
     }
-    
+
     private void showHelpInfo(final String info) {
         JPanel centerInfoPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         centerInfoPanel.add(new JLabel(info));
@@ -389,5 +391,39 @@ public class RefreshAction extends AnAction {
 
         }
     }
-    
+
+    private class QueryBDServerTask extends Task.Backgroundable {
+        private final Set<String> importsInLines;
+        private final Set<String> finalImports;
+        private final JTree jTree;
+        private final DefaultTreeModel model;
+        private final DefaultMutableTreeNode root;
+        private Map<String, ArrayList<CodeInfo>> projectNodes;
+
+        QueryBDServerTask(Set<String> importsInLines, Set<String> finalImports,
+                          JTree jTree, DefaultTreeModel model, DefaultMutableTreeNode root) {
+            super(windowObjects.getProject(), "Betterdocs", true, PerformInBackgroundOption.ALWAYS_BACKGROUND);
+            this.importsInLines = importsInLines;
+            this.finalImports = finalImports;
+            this.jTree = jTree;
+            this.model = model;
+            this.root = root;
+        }
+
+        @Override
+        public void run(@NotNull ProgressIndicator indicator) {
+            projectNodes = doBackEndWork(importsInLines, finalImports, indicator);
+        }
+
+        @Override
+        public void onSuccess() {
+            if (!projectNodes.isEmpty()) {
+                doFrontEndWork(jTree, model, root, codePaneTinyEditorsInfoList, projectNodes);
+                jTabbedPane.setSelectedIndex(1);
+            } else {
+                showHelpInfo(HELP_MESSAGE);
+                jTree.updateUI();
+            }
+        }
+    }
 }
