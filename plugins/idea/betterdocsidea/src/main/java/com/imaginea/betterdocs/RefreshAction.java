@@ -77,8 +77,10 @@ public class RefreshAction extends AnAction {
     private static final String FOR = "for";
     protected static final String EXCLUDE_IMPORT_LIST = "Exclude imports";
     protected static final String HELP_MESSAGE =
-            "<html><center>No Results to display.<br /> Please select some code and hit <img src='"
-                    + AllIcons.Actions.Refresh + "' /> </center> </html>";
+            "<html>Got nothing to search. To begin using, <br /> please select some code and hit <img src='"
+                    + AllIcons.Actions.Refresh + "' /> " + "<br/> " +
+                    "<br/><b>Please Note:</b> We ignore import statements <br/>while searching - as part of our " +
+                    "internal optimization. <br/> <i>So selecting import statements has no effect. </i></html>";
     private static final String QUERY_HELP_MESSAGE =
             "<html><body> <p> <i><b>We tried querying our servers with : </b></i> <br /> %s </p>" +
                     "<i><b>but found no results in response.</i></b>" +
@@ -134,7 +136,6 @@ public class RefreshAction extends AnAction {
                 showQueryTokensNotification(importsInLines);
                 ProgressManager.getInstance().run(new QueryBDServerTask(importsInLines,
                         finalImports, jTree, model, root));
-
             } else {
                 showHelpInfo(HELP_MESSAGE);
             }
