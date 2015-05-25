@@ -63,7 +63,7 @@ public class RefreshAction extends AnAction {
     private static final String BETTER_DOCS = "BetterDocs";
     protected static final String EMPTY_ES_URL =
             "<html>Elastic Search URL <br> %s <br> in idea settings is incorrect.<br> See "
-                    + "<img src='" + AllIcons.General.Settings + "'></html>";
+                    + "<img src='" + AllIcons.General.Settings + "'/></html>";
     protected static final String ES_URL = "esURL";
     protected static final String DISTANCE = "distance";
     protected static final String SIZE = "size";
@@ -77,8 +77,14 @@ public class RefreshAction extends AnAction {
     private static final String FOR = "for";
     protected static final String EXCLUDE_IMPORT_LIST = "Exclude imports";
     protected static final String HELP_MESSAGE =
-            "<html><center>No Results to display.<br> Please select some code and hit <img src='"
-                    + AllIcons.Actions.Refresh + "'> </center> </html>";
+            "<html><center>No Results to display.<br /> Please select some code and hit <img src='"
+                    + AllIcons.Actions.Refresh + "' /> </center> </html>";
+    private static final String QUERY_HELP_MESSAGE =
+            "<html><body> <p> <i><b>We tried querying our servers with : </b></i> <br /> %s </p>" +
+                    "<i><b>but found no results in response.</i></b>" +
+                    "<p> <br/><b>Tip:</b> Try narrowing your selection to fewer lines. <br/>Alternatively, " +
+                    "setup \"Exclude imports\" in settings <img src='" + AllIcons.General.Settings + "'/> " +
+                    "</p></body></html>";
     private static final String REPO_STARS = "Repo Stars";
     private static final String BANNER_FORMAT = "%s %s %s";
     private static final String HTML_U = "<html><u>";
@@ -421,7 +427,7 @@ public class RefreshAction extends AnAction {
                 doFrontEndWork(jTree, model, root, codePaneTinyEditorsInfoList, projectNodes);
                 jTabbedPane.setSelectedIndex(1);
             } else {
-                showHelpInfo(HELP_MESSAGE);
+                showHelpInfo(String.format(QUERY_HELP_MESSAGE, importsInLines.toString().replaceAll(",", "<br/>")));
                 jTree.updateUI();
             }
         }
