@@ -137,9 +137,9 @@ public class RefreshAction extends AnAction {
             if(!finalImports.isEmpty()) {
                 Set<String> importsInLines = getImportsInLines(projectEditor, finalImports);
                 if (!importsInLines.isEmpty()) {
-                    showQueryTokensNotification(importsInLines);
+                    Notification notification = showQueryTokensNotification(importsInLines);
                     ProgressManager.getInstance().run(new QueryBDServerTask(importsInLines,
-                            finalImports, jTree, model, root));
+                            finalImports, jTree, model, root, notification));
                 } else {
                     showHelpInfo(HELP_MESSAGE);
                 }
@@ -357,12 +357,14 @@ public class RefreshAction extends AnAction {
         });
     }
 
-    private void showQueryTokensNotification(Set<String> importsInLines) {
-        Notifications.Bus.notify(new Notification(BETTER_DOCS,
+    private Notification showQueryTokensNotification(Set<String> importsInLines) {
+        final Notification notification = new Notification(BETTER_DOCS,
                 String.format(FORMAT, QUERYING,
                         windowObjects.getEsURL(), FOR),
                 importsInLines.toString(),
-                NotificationType.INFORMATION));
+                NotificationType.INFORMATION);
+        Notifications.Bus.notify(notification);
+        return notification;
     }
 
     private class CodePaneTinyEditorExpandLabelMouseListener implements MouseListener {
@@ -416,16 +418,20 @@ public class RefreshAction extends AnAction {
         private final JTree jTree;
         private final DefaultTreeModel model;
         private final DefaultMutableTreeNode root;
+        private final Notification notification;
         private Map<String, ArrayList<CodeInfo>> projectNodes;
 
         QueryBDServerTask(Set<String> importsInLines, Set<String> finalImports,
-                          JTree jTree, DefaultTreeModel model, DefaultMutableTreeNode root) {
-            super(windowObjects.getProject(), "Betterdocs", true, PerformInBackgroundOption.ALWAYS_BACKGROUND);
+                          JTree jTree, DefaultTreeModel model, DefaultMutableTreeNode root,
+                          Notification notification) {
+            super(windowObjects.getProject(), "Betterdocs", true,
+                    PerformInBackgroundOption.ALWAYS_BACKGROUND);
             this.importsInLines = importsInLines;
             this.finalImports = finalImports;
             this.jTree = jTree;
             this.model = model;
             this.root = root;
+            this.notification = notification;
         }
 
         @Override
@@ -441,6 +447,7 @@ public class RefreshAction extends AnAction {
             } else {
                 showHelpInfo(String.format(QUERY_HELP_MESSAGE, importsInLines.toString().replaceAll(",", "<br/>")));
                 jTree.updateUI();
+                notification.expire();
             }
         }
     }
