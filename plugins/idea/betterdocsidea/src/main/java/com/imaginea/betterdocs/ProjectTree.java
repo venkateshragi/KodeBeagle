@@ -21,7 +21,14 @@ import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.progress.PerformInBackgroundOption;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import org.jetbrains.annotations.NotNull;
+
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
@@ -73,11 +80,7 @@ public class ProjectTree {
                         windowObjects.getjTree().getLastSelectedPathComponent();
                 if (selectedNode != null && selectedNode.isLeaf() && root.getChildCount() > 0) {
                     final CodeInfo codeInfo = (CodeInfo) selectedNode.getUserObject();
-                    String fileName = codeInfo.getFileName();
-                    String fileContents = esUtils.getContentsForFile(fileName);
-                    //Setting contents so that we can use that for Open in New Tab
-                    codeInfo.setContents(fileContents);
-                    updateMainPanePreviewEditor(codeInfo.getLineNumbers(), fileContents);
+                    ProgressManager.getInstance().run(new FetchFileContentTask(codeInfo));
                 }
             }
         };
@@ -191,6 +194,34 @@ public class ProjectTree {
                 }
             }
         };
+    }
+
+    private class FetchFileContentTask extends Task.Backgroundable {
+
+        private final CodeInfo codeInfo;
+        private String fileContents;
+
+        public FetchFileContentTask(CodeInfo codeInfo) {
+            super(windowObjects.getProject(),
+                    "BetterDocs", true, PerformInBackgroundOption.ALWAYS_BACKGROUND);
+            this.codeInfo = codeInfo;
+        }
+
+        @Override
+        public void run(@NotNull ProgressIndicator indicator) {
+            indicator.setText("Fetching file content ...");
+            indicator.setFraction(0.0);
+            String fileName = codeInfo.getFileName();
+            fileContents = esUtils.getContentsForFile(fileName);
+            //Setting contents so that we can use that for Open in New Tab
+            codeInfo.setContents(fileContents);
+            indicator.setFraction(1.0);
+        }
+
+        @Override
+        public void onSuccess() {
+            updateMainPanePreviewEditor(codeInfo.getLineNumbers(), fileContents);
+        }
     }
 }
 
