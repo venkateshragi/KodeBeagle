@@ -1,5 +1,7 @@
 # Betterdocs.
 
+[![Join the chat at https://gitter.im/Imaginea/BetterDocs](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Imaginea/BetterDocs?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [![Build](https://travis-ci.org/Imaginea/BetterDocs.svg?branch=master)](https://travis-ci.org/Imaginea/BetterDocs/builds)
 
 [Refer to docs](http://imaginea.github.io/BetterDocs/)
