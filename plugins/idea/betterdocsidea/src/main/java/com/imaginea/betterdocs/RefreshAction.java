@@ -18,6 +18,7 @@
 package com.imaginea.betterdocs;
 
 import com.intellij.icons.AllIcons;
+import com.intellij.ide.BrowserUtil;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
@@ -39,8 +40,8 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.JBColor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -87,12 +88,15 @@ public class RefreshAction extends AnAction {
                     "<p> <br/><b>Tip:</b> Try narrowing your selection to fewer lines. <br/>Alternatively, " +
                     "setup \"Exclude imports\" in settings <img src='" + AllIcons.General.Settings + "'/> " +
                     "</p></body></html>";
-    private static final String REPO_STARS = "Repo Stars";
+    private static final String REPO_SCORE = "Score: ";
     private static final String BANNER_FORMAT = "%s %s %s";
     private static final String HTML_U = "<html><u>";
     private static final String U_HTML = "</u></html>";
     private static final String FILETYPE_HELP = "<html><center>Currently BetterDocs supports " +
             "\"java\" files only.</center></html>";
+    private static final String REPO_BANNER_FORMAT = "%s %s";
+    private static final String GITHUB_LINK = "https://github.com/";
+    private static final String GOTO_GITHUB = "Go to GitHub";
 
     private WindowObjects windowObjects = WindowObjects.getInstance();
     private WindowEditorOps windowEditorOps = new WindowEditorOps();
@@ -238,7 +242,7 @@ public class RefreshAction extends AnAction {
 
         JPanel expandPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
-        String projectName = esUtils.getProjectName(fileName);
+        final String projectName = esUtils.getProjectName(fileName);
 
         int repoId = windowObjects.getRepoNameIdMap().get(projectName);
         String stars;
@@ -250,16 +254,27 @@ public class RefreshAction extends AnAction {
             windowObjects.getRepoStarsMap().put(projectName, stars);
         }
 
-        JLabel infoLabel = new JLabel(String.format(BANNER_FORMAT,
-                projectName, REPO_STARS, stars));
-
+        JLabel infoLabel = new JLabel(String.format(REPO_BANNER_FORMAT, REPO_SCORE, stars));
 
         final JLabel expandLabel =
                 new JLabel(String.format(BANNER_FORMAT, HTML_U, displayFileName, U_HTML));
         expandLabel.setForeground(JBColor.BLUE);
         expandLabel.addMouseListener(new CodePaneTinyEditorExpandLabelMouseListener(displayFileName, fileName));
-
         expandPanel.add(expandLabel);
+
+        final JLabel projectNameLabel =
+                new JLabel(String.format(BANNER_FORMAT, HTML_U, projectName, U_HTML));
+        projectNameLabel.setForeground(JBColor.blue);
+        projectNameLabel.setToolTipText(GOTO_GITHUB);
+        projectNameLabel.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent me) {
+                if (!projectName.isEmpty()) {
+                    BrowserUtil.browse(GITHUB_LINK + projectName);
+                }
+            }
+        });
+
+        expandPanel.add(projectNameLabel);
         expandPanel.add(infoLabel);
         expandPanel.setMaximumSize(
                 new Dimension(Integer.MAX_VALUE, expandLabel.getMinimumSize().height));
@@ -367,7 +382,7 @@ public class RefreshAction extends AnAction {
         return notification;
     }
 
-    private class CodePaneTinyEditorExpandLabelMouseListener implements MouseListener {
+    private class CodePaneTinyEditorExpandLabelMouseListener extends MouseAdapter {
         private final String displayFileName;
         private final String fileName;
 
@@ -389,26 +404,6 @@ public class RefreshAction extends AnAction {
                     getFileNameNumbersMap().get(fileName), document);
             editorDocOps.gotoLine(windowObjects.
                     getFileNameNumbersMap().get(fileName).get(0), document);
-        }
-
-        @Override
-        public void mousePressed(final MouseEvent e) {
-
-        }
-
-        @Override
-        public void mouseReleased(final MouseEvent e) {
-
-        }
-
-        @Override
-        public void mouseEntered(final MouseEvent e) {
-
-        }
-
-        @Override
-        public void mouseExited(final MouseEvent e) {
-
         }
     }
 
