@@ -75,6 +75,7 @@ public class EditorDocOps {
     private static final String IMPORT_LIST = "IMPORT_LIST";
     private static final String IMPORT_STATEMENT = "IMPORT_STATEMENT";
     private static final String IMPORT_VALUE = "JAVA_CODE_REFERENCE";
+    private static final String FILE_EXTENSION = "java";
 
     public final Set<String> importsInLines(final Iterable<String> lines,
                                             final Iterable<String> imports) {
@@ -143,7 +144,7 @@ public class EditorDocOps {
 
         if (psiInstance != null && (psiInstance.getPsiFile(document)) != null) {
             PsiFile psiFile = psiInstance.getPsiFile(document);
-            if (psiFile != null) {
+            if (psiFile != null && psiFile.getFileType().getDefaultExtension().equals(FILE_EXTENSION)) {
                 PsiElement[] psiRootChildren = psiFile.getChildren();
                     for (PsiElement element : psiRootChildren) {
                         if (element.getNode().getElementType().toString().equals(IMPORT_LIST)) {

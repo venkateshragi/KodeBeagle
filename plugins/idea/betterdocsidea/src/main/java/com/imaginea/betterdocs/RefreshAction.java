@@ -91,6 +91,8 @@ public class RefreshAction extends AnAction {
     private static final String BANNER_FORMAT = "%s %s %s";
     private static final String HTML_U = "<html><u>";
     private static final String U_HTML = "</u></html>";
+    private static final String FILETYPE_HELP = "<html><center>Currently BetterDocs supports " +
+            "\"java\" files only.</center></html>";
 
     private WindowObjects windowObjects = WindowObjects.getInstance();
     private WindowEditorOps windowEditorOps = new WindowEditorOps();
@@ -131,13 +133,18 @@ public class RefreshAction extends AnAction {
             windowObjects.getCodePaneTinyEditorsJPanel().removeAll();
 
             Set<String> finalImports = getFinalImports(projectEditor.getDocument());
-            Set<String> importsInLines = getImportsInLines(projectEditor, finalImports);
-            if (!importsInLines.isEmpty()) {
-                showQueryTokensNotification(importsInLines);
-                ProgressManager.getInstance().run(new QueryBDServerTask(importsInLines,
-                        finalImports, jTree, model, root));
+
+            if(!finalImports.isEmpty()) {
+                Set<String> importsInLines = getImportsInLines(projectEditor, finalImports);
+                if (!importsInLines.isEmpty()) {
+                    showQueryTokensNotification(importsInLines);
+                    ProgressManager.getInstance().run(new QueryBDServerTask(importsInLines,
+                            finalImports, jTree, model, root));
+                } else {
+                    showHelpInfo(HELP_MESSAGE);
+                }
             } else {
-                showHelpInfo(HELP_MESSAGE);
+                showHelpInfo(FILETYPE_HELP);
             }
         } else {
             showHelpInfo(EDITOR_ERROR);
@@ -305,15 +312,19 @@ public class RefreshAction extends AnAction {
     private Set<String> getFinalImports(final Document document) {
         Set<String> imports =
                 editorDocOps.getImports(document, windowObjects.getProject());
-        if (propertiesComponent.isValueSet(EXCLUDE_IMPORT_LIST)) {
-            String excludeImport = propertiesComponent.getValue(EXCLUDE_IMPORT_LIST);
-            if (excludeImport != null) {
-                imports = editorDocOps.excludeConfiguredImports(imports, excludeImport);
+
+        if(!imports.isEmpty()) {
+            if (propertiesComponent.isValueSet(EXCLUDE_IMPORT_LIST)) {
+                String excludeImport = propertiesComponent.getValue(EXCLUDE_IMPORT_LIST);
+                if (excludeImport != null) {
+                    imports = editorDocOps.excludeConfiguredImports(imports, excludeImport);
+                }
             }
+            Set<String> internalImports = editorDocOps.getInternalImports(windowObjects.getProject());
+            Set<String> finalImports = editorDocOps.excludeInternalImports(imports, internalImports);
+            return finalImports;
         }
-        Set<String> internalImports = editorDocOps.getInternalImports(windowObjects.getProject());
-        Set<String> finalImports = editorDocOps.excludeInternalImports(imports, internalImports);
-        return finalImports;
+        return imports;
     }
 
     private Set<String> getImportsInLines(final Editor projectEditor,
