@@ -28,7 +28,6 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -46,7 +45,7 @@ public class ESUtils {
     private static final String TOKENS = "tokens";
     private static final String SOURCEFILE_SEARCH = "/sourcefile/_search?source=";
     private static final String REPOSITORY_SEARCH = "/repository/_search?source=";
-    private static final String FAILED_HTTP_ERROR_CODE = "Failed : HTTP error code : ";
+    private static final String FAILED_HTTP_ERROR = "Connection Error: ";
     private static final String USER_AGENT = "USER-AGENT";
     private static final String IDEA_PLUGIN = "Idea-Plugin";
     protected static final String UTF_8 = "UTF-8";
@@ -61,7 +60,8 @@ public class ESUtils {
 
     protected final void putContentsForFileInMap(final List<String> fileNames) {
         String esFileQueryJson = jsonUtils.getJsonForFileContent(fileNames);
-        String esFileResultJson = getESResultJson(esFileQueryJson,
+        String esFileResultJson;
+        esFileResultJson = getESResultJson(esFileQueryJson,
                 windowObjects.getEsURL() + SOURCEFILE_SEARCH);
         JsonArray hitsArray = getJsonElements(esFileResultJson);
 
@@ -131,8 +131,9 @@ public class ESUtils {
 
             HttpResponse response = httpClient.execute(getRequest);
             if (response.getStatusLine().getStatusCode() != HTTP_OK_STATUS) {
-                throw new RuntimeException(FAILED_HTTP_ERROR_CODE + url
-                        + response.getStatusLine().getStatusCode());
+                throw new RuntimeException(FAILED_HTTP_ERROR +
+                        response.getStatusLine().getStatusCode() + "  " +
+                        response.getStatusLine().getReasonPhrase());
             }
 
             BufferedReader bufferedReader = new BufferedReader(
@@ -160,14 +161,16 @@ public class ESUtils {
     }
 
     public final String getRepoStars(final String repoStarsJson) {
-        String repoStarResultJson = getESResultJson(repoStarsJson,
+        String repoStarResultJson;
+        String stars = null;
+        repoStarResultJson = getESResultJson(repoStarsJson,
                 windowObjects.getEsURL() + REPOSITORY_SEARCH);
         JsonArray hitsArray = getJsonElements(repoStarResultJson);
 
         JsonObject hitObject = hitsArray.get(0).getAsJsonObject();
         JsonObject sourceObject = hitObject.getAsJsonObject(SOURCE);
         //Replacing \r as it's treated as bad end of line character
-        String stars = sourceObject.getAsJsonPrimitive(STARGAZERS_COUNT).getAsString();
+        stars = sourceObject.getAsJsonPrimitive(STARGAZERS_COUNT).getAsString();
         return stars;
     }
 

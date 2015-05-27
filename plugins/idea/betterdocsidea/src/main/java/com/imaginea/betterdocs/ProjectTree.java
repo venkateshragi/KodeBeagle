@@ -25,7 +25,6 @@ import com.intellij.openapi.progress.PerformInBackgroundOption;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
@@ -212,7 +211,11 @@ public class ProjectTree {
             indicator.setText("Fetching file content ...");
             indicator.setFraction(0.0);
             String fileName = codeInfo.getFileName();
-            fileContents = esUtils.getContentsForFile(fileName);
+            try {
+                fileContents = esUtils.getContentsForFile(fileName);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             //Setting contents so that we can use that for Open in New Tab
             codeInfo.setContents(fileContents);
             indicator.setFraction(1.0);
@@ -243,7 +246,8 @@ class JTreeCellRenderer implements TreeCellRenderer {
                         && !((DefaultMutableTreeNode) value).isRoot()) {
                     String repoName = ((DefaultMutableTreeNode) value).getUserObject().toString();
                     int repoId = windowObjects.getRepoNameIdMap().get(repoName);
-                    String stars = esUtils.extractRepoStars(repoName, repoId);
+                    String stars = null;
+                    stars = esUtils.extractRepoStars(repoName, repoId);
                     renderer.setToolTipText(REPO_STARS + stars);
                     renderer.setIcon(new ImageIcon(projectTree.getIconURL()));
                 } else {

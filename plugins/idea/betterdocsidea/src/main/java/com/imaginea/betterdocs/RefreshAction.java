@@ -317,7 +317,6 @@ public class RefreshAction extends AnAction {
 
     private Map<String, ArrayList<CodeInfo>> getProjectNodes(final Set<String> finalImports,
                                                              final String esResultJson) {
-
         Map<String, String> fileTokensMap = esUtils.getFileTokens(esResultJson);
         Map<String, ArrayList<CodeInfo>> projectNodes =
                 projectTree.updateProjectNodes(finalImports, fileTokensMap);
@@ -415,6 +414,8 @@ public class RefreshAction extends AnAction {
         private final DefaultMutableTreeNode root;
         private final Notification notification;
         private Map<String, ArrayList<CodeInfo>> projectNodes;
+        private volatile boolean isFailed;
+        private String httpErrorMsg;
 
         QueryBDServerTask(Set<String> importsInLines, Set<String> finalImports,
                           JTree jTree, DefaultTreeModel model, DefaultMutableTreeNode root,
@@ -431,18 +432,34 @@ public class RefreshAction extends AnAction {
 
         @Override
         public void run(@NotNull ProgressIndicator indicator) {
-            projectNodes = doBackEndWork(importsInLines, finalImports, indicator);
+            try {
+                projectNodes = doBackEndWork(importsInLines, finalImports, indicator);
+            } catch (RuntimeException rte) {
+                rte.printStackTrace();
+                httpErrorMsg = rte.getMessage();
+                isFailed = true;
+            }
         }
 
         @Override
         public void onSuccess() {
-            if (!projectNodes.isEmpty()) {
-                doFrontEndWork(jTree, model, root, codePaneTinyEditorsInfoList, projectNodes);
-                jTabbedPane.setSelectedIndex(1);
+            if (!isFailed) {
+                if (!projectNodes.isEmpty()) {
+                    try {
+                        doFrontEndWork(jTree, model, root, codePaneTinyEditorsInfoList,
+                                       projectNodes);
+                        jTabbedPane.setSelectedIndex(1);
+                    } catch (RuntimeException rte) {
+                        rte.printStackTrace();
+                    }
+                } else {
+                    showHelpInfo(String.format(QUERY_HELP_MESSAGE,
+                            importsInLines.toString().replaceAll(",", "<br/>")));
+                    jTree.updateUI();
+                    notification.expire();
+                }
             } else {
-                showHelpInfo(String.format(QUERY_HELP_MESSAGE, importsInLines.toString().replaceAll(",", "<br/>")));
-                jTree.updateUI();
-                notification.expire();
+                showHelpInfo(httpErrorMsg);
             }
         }
     }
