@@ -310,7 +310,7 @@ public class RefreshAction extends AnAction {
     void showHelpInfo(final String info) {
         JPanel centerInfoPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         centerInfoPanel.add(new JLabel(info));
-        jTabbedPane.setSelectedIndex(0);
+        goToAllPane();
         windowObjects.getjTreeScrollPane().setViewportView(centerInfoPanel);
     }
 
@@ -448,7 +448,7 @@ public class RefreshAction extends AnAction {
                     try {
                         doFrontEndWork(jTree, model, root, codePaneTinyEditorsInfoList,
                                        projectNodes);
-                        jTabbedPane.setSelectedIndex(1);
+                        goToFeaturedPane();
                     } catch (RuntimeException rte) {
                         rte.printStackTrace();
                     }
@@ -462,5 +462,13 @@ public class RefreshAction extends AnAction {
                 showHelpInfo(httpErrorMsg);
             }
         }
+    }
+
+    private void goToFeaturedPane() {
+        jTabbedPane.setSelectedIndex(0);
+    }
+
+    private void goToAllPane() {
+        jTabbedPane.setSelectedIndex(1);
     }
 }

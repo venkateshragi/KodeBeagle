@@ -47,8 +47,8 @@ public class MainWindow implements ToolWindowFactory {
     private static final String PROJECTS = "Projects";
     protected static final String JAVA = "java";
     private static final double DIVIDER_LOCATION = 0.2;
-    private static final String MAIN_PANE = "Main Pane";
-    private static final String CODE_PANE = "Code Pane";
+    private static final String ALL_TAB = "All";
+    private static final String FEATURED_TAB = "Featured";
     private static final int EDITOR_SCROLL_PANE_WIDTH = 200;
     private static final int EDITOR_SCROLL_PANE_HEIGHT = 300;
     private static final String BETTERDOCS = "BetterDocs";
@@ -121,8 +121,8 @@ public class MainWindow implements ToolWindowFactory {
         windowObjects.setPanel(editorPanel);
 
         final JTabbedPane jTabbedPane = new JBTabbedPane();
-        jTabbedPane.add(MAIN_PANE, jSplitPane);
-        jTabbedPane.add(CODE_PANE, editorScrollPane);
+        jTabbedPane.add(FEATURED_TAB, editorScrollPane);
+        jTabbedPane.add(ALL_TAB, jSplitPane);
         refreshAction.setJTabbedPane(jTabbedPane);
         // Display initial help information here.
         refreshAction.showHelpInfo(RefreshAction.HELP_MESSAGE);
