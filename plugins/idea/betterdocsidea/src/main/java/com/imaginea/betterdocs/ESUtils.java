@@ -52,7 +52,6 @@ public class ESUtils {
     private static final int HTTP_OK_STATUS = 200;
     private static final String REPO_ID = "repoId";
     private static final String STARGAZERS_COUNT = "stargazersCount";
-    private static final String COULD_NOT_FILE_CONTENTS = "Could not file Contents";
     private static final String FILE_NAME = "fileName";
 
     private static WindowObjects windowObjects = WindowObjects.getInstance();
@@ -131,9 +130,9 @@ public class ESUtils {
 
             HttpResponse response = httpClient.execute(getRequest);
             if (response.getStatusLine().getStatusCode() != HTTP_OK_STATUS) {
-                throw new RuntimeException(FAILED_HTTP_ERROR +
-                        response.getStatusLine().getStatusCode() + "  " +
-                        response.getStatusLine().getReasonPhrase());
+                throw new RuntimeException(FAILED_HTTP_ERROR
+                        + response.getStatusLine().getStatusCode() + "  "
+                        + response.getStatusLine().getReasonPhrase());
             }
 
             BufferedReader bufferedReader = new BufferedReader(

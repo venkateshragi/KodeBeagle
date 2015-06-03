@@ -85,7 +85,8 @@ public class ProjectTree {
         };
     }
 
-    private void updateMainPanePreviewEditor(List<Integer> lineNumbers, String fileContents) {
+    private void updateMainPanePreviewEditor(final List<Integer> lineNumbers,
+                                             final String fileContents) {
         final Document mainPanePreviewEditorDocument =
                 windowObjects.getWindowEditor().getDocument();
         String contentsInLines =
@@ -197,18 +198,20 @@ public class ProjectTree {
 
     private class FetchFileContentTask extends Task.Backgroundable {
 
+        private static final String BETTER_DOCS = "BetterDocs";
+        private static final String FETCHING_FILE_CONTENT = "Fetching file content ...";
         private final CodeInfo codeInfo;
         private String fileContents;
 
-        public FetchFileContentTask(CodeInfo codeInfo) {
+        public FetchFileContentTask(final CodeInfo pCodeInfo) {
             super(windowObjects.getProject(),
-                    "BetterDocs", true, PerformInBackgroundOption.ALWAYS_BACKGROUND);
-            this.codeInfo = codeInfo;
+                    BETTER_DOCS, true, PerformInBackgroundOption.ALWAYS_BACKGROUND);
+            this.codeInfo = pCodeInfo;
         }
 
         @Override
-        public void run(@NotNull ProgressIndicator indicator) {
-            indicator.setText("Fetching file content ...");
+        public void run(@NotNull final ProgressIndicator indicator) {
+            indicator.setText(FETCHING_FILE_CONTENT);
             indicator.setFraction(0.0);
             String fileName = codeInfo.getFileName();
             try {

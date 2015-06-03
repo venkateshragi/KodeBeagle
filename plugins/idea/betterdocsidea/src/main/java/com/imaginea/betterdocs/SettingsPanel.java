@@ -39,6 +39,15 @@ public class SettingsPanel implements Configurable {
     private static final String HELP_TEXT =
         "Please enter comma separated regex"
             + "(e.g. java.util.[A-Z][a-z0-9]*, org.slf4j.Logger)";
+    private static final CellConstraints TOP_LEFT = new CellConstraints().xy(1, 1);
+    private static final CellConstraints TOP_RIGHT = new CellConstraints().xy(2, 1);
+    private static final CellConstraints FIRST_LEFT = new CellConstraints().xy(1, 2);
+    private static final CellConstraints FIRST_RIGHT = new CellConstraints().xy(2, 2);
+    private static final CellConstraints SECOND_LEFT = new CellConstraints().xy(1, 3);
+    private static final CellConstraints SECOND_RIGHT = new CellConstraints().xy(2, 3);
+    private static final CellConstraints THIRD_LEFT = new CellConstraints().xy(1, 4);
+    private static final CellConstraints THIRD_RIGHT = new CellConstraints().xy(2, 4);
+    private static final CellConstraints FOURTH_RIGHT = new CellConstraints().xy(2, 5);
 
     private JTextField excludeImportsText;
 
@@ -118,15 +127,15 @@ public class SettingsPanel implements Configurable {
                                        EXCLUDE_IMPORT_LIST));
         }
         JPanel jPanel = new JPanel(formLayout);
-        jPanel.add(esURL, cc.xy(1, 3));
-        jPanel.add(esURLText, cc.xy(2, 3));
-        jPanel.add(size, cc.xy(1, 2));
-        jPanel.add(sizeText, cc.xy(2, 2));
-        jPanel.add(distance, cc.xy(1, 1));
-        jPanel.add(distanceText, cc.xy(2, 1));
-        jPanel.add(excludeImports, cc.xy(1, 4));
-        jPanel.add(excludeImportsText, cc.xy(2, 4));
-        jPanel.add(helpText, cc.xy(2, 5));
+        jPanel.add(distance, TOP_LEFT);
+        jPanel.add(distanceText, TOP_RIGHT);
+        jPanel.add(size, FIRST_LEFT);
+        jPanel.add(sizeText, FIRST_RIGHT);
+        jPanel.add(esURL, SECOND_LEFT);
+        jPanel.add(esURLText, SECOND_RIGHT);
+        jPanel.add(excludeImports, THIRD_LEFT);
+        jPanel.add(excludeImportsText, THIRD_RIGHT);
+        jPanel.add(helpText, FOURTH_RIGHT);
 
         return jPanel;
     }

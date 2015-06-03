@@ -26,16 +26,16 @@ public class ESFileContent {
         private Bool bool;
         private Term term;
 
-        public void setBool(Bool bool) {
-            this.bool = bool;
+        public final void setBool(final Bool pBool) {
+            this.bool = pBool;
         }
 
-        public Bool getBool() {
+        public final Bool getBool() {
             return bool;
         }
 
-        public final void setTerm(final Term pterm) {
-            this.term = pterm;
+        public final void setTerm(final Term pTerm) {
+            this.term = pTerm;
         }
 
         public final Term getTerm() {
@@ -58,11 +58,11 @@ public class ESFileContent {
     public static class Should {
         private Term term;
 
-        public void setTerm(Term term) {
-            this.term = term;
+        public final void setTerm(final Term pTerm) {
+            this.term = pTerm;
         }
 
-        public Term getTerm() {
+        public final Term getTerm() {
             return term;
         }
     }
@@ -70,8 +70,8 @@ public class ESFileContent {
     public static class Term {
         private String fileName;
 
-        public final void setFileName(final String pfileName) {
-            this.fileName = pfileName;
+        public final void setFileName(final String pFileName) {
+            this.fileName = pFileName;
         }
 
         public final String getFileName() {
@@ -83,7 +83,7 @@ public class ESFileContent {
         return query;
     }
 
-    public final void setQuery(final Query pquery) {
-        this.query = pquery;
+    public final void setQuery(final Query pQuery) {
+        this.query = pQuery;
     }
 }

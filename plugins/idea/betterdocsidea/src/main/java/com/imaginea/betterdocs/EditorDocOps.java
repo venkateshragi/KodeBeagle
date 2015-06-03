@@ -45,25 +45,21 @@ import com.intellij.psi.PsiPackage;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.ui.JBColor;
 import com.intellij.util.containers.ContainerUtil;
-
 import java.awt.Color;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-
 import org.jetbrains.annotations.NotNull;
 
 public class EditorDocOps {
@@ -144,7 +140,8 @@ public class EditorDocOps {
 
         if (psiInstance != null && (psiInstance.getPsiFile(document)) != null) {
             PsiFile psiFile = psiInstance.getPsiFile(document);
-            if (psiFile != null && psiFile.getFileType().getDefaultExtension().equals(FILE_EXTENSION)) {
+            if (psiFile != null
+                    && psiFile.getFileType().getDefaultExtension().equals(FILE_EXTENSION)) {
                 PsiElement[] psiRootChildren = psiFile.getChildren();
                     for (PsiElement element : psiRootChildren) {
                         if (element.getNode().getElementType().toString().equals(IMPORT_LIST)) {
@@ -329,7 +326,8 @@ public class EditorDocOps {
         }
     }
 
-    public final void gotoLine(int lineNumber, final Document document) {
+    public final void gotoLine(final int pLineNumber, final Document document) {
+        int lineNumber = pLineNumber;
         Editor projectEditor =
                 FileEditorManager.getInstance(windowObjects.getProject()).getSelectedTextEditor();
 
@@ -351,16 +349,14 @@ public class EditorDocOps {
     }
 
     protected final String getContentsInLines(final String fileContents,
-                                              List<Integer> lineNumbersList) {
+                                              final List<Integer> lineNumbersList) {
         Document document = EditorFactory.getInstance().createDocument(fileContents);
-        Set<Integer> lineNumbersSet = new HashSet<Integer>(lineNumbersList);
-        lineNumbersList = new ArrayList<Integer>(lineNumbersSet);
-        Collections.sort(lineNumbersList);
+        Set<Integer> lineNumbersSet = new TreeSet<Integer>(lineNumbersList);
 
         StringBuilder stringBuilder = new StringBuilder();
-        int prev = lineNumbersList.get(0);
+        int prev = lineNumbersSet.iterator().next();
 
-        for (int line : lineNumbersList) {
+        for (int line : lineNumbersSet) {
             //Document is 0 indexed
             line = line - 1;
             if (line < document.getLineCount() - 1) {

@@ -78,25 +78,34 @@ public class RefreshAction extends AnAction {
     private static final String FOR = "for";
     protected static final String EXCLUDE_IMPORT_LIST = "Exclude imports";
     protected static final String HELP_MESSAGE =
-            "<html>Got nothing to search. To begin using, <br /> please select some code and hit <img src='"
-                    + AllIcons.Actions.Refresh + "' /> " + "<br/> " +
-                    "<br/><b>Please Note:</b> We ignore import statements <br/>while searching - as part of our " +
-                    "internal optimization. <br/> <i>So selecting import statements has no effect. </i></html>";
+            "<html>Got nothing to search. To begin using, "
+                    + "<br /> please select some code and hit <img src='"
+                    + AllIcons.Actions.Refresh + "' /> <br/> "
+                    + "<br/><b>Please Note:</b> We ignore import statements <br/>"
+                    + "while searching - as part of our "
+                    + "internal optimization. <br/> <i>So "
+                    + "selecting import statements has no effect. </i></html>";
     private static final String QUERY_HELP_MESSAGE =
-            "<html><body> <p> <i><b>We tried querying our servers with : </b></i> <br /> %s </p>" +
-                    "<i><b>but found no results in response.</i></b>" +
-                    "<p> <br/><b>Tip:</b> Try narrowing your selection to fewer lines. <br/>Alternatively, " +
-                    "setup \"Exclude imports\" in settings <img src='" + AllIcons.General.Settings + "'/> " +
-                    "</p></body></html>";
+            "<html><body> <p> <i><b>We tried querying our servers with : </b></i> <br /> %s </p>"
+                    + "<i><b>but found no results in response.</i></b>"
+                    + "<p> <br/><b>Tip:</b> Try narrowing your selection to fewer lines. "
+                    + "<br/>Alternatively, setup \"Exclude imports\" in settings <img src='"
+                    + AllIcons.General.Settings + "'/> "
+                    + "</p></body></html>";
     private static final String REPO_SCORE = "Score: ";
     private static final String BANNER_FORMAT = "%s %s %s";
     private static final String HTML_U = "<html><u>";
     private static final String U_HTML = "</u></html>";
-    private static final String FILETYPE_HELP = "<html><center>Currently BetterDocs supports " +
-            "\"java\" files only.</center></html>";
+    private static final String FILETYPE_HELP = "<html><center>Currently BetterDocs supports "
+            + "\"java\" files only.</center></html>";
     private static final String REPO_BANNER_FORMAT = "%s %s";
     private static final String GITHUB_LINK = "https://github.com/";
     private static final String GOTO_GITHUB = "Go to GitHub";
+    private static final String FETCHING_PROJECTS = "Fetching projects...";
+    private static final String FETCHING_FILE_CONTENTS = "Fetching file contents...";
+    private static final String BETTERDOCS = "Betterdocs";
+    private static final double INDICATOR_FRACTION = 0.5;
+    private static final int MAX_EDITORS_DEFAULT_VALUE = 10;
 
     private WindowObjects windowObjects = WindowObjects.getInstance();
     private WindowEditorOps windowEditorOps = new WindowEditorOps();
@@ -138,7 +147,7 @@ public class RefreshAction extends AnAction {
 
             Set<String> finalImports = getFinalImports(projectEditor.getDocument());
 
-            if(!finalImports.isEmpty()) {
+            if (!finalImports.isEmpty()) {
                 Set<String> importsInLines = getImportsInLines(projectEditor, finalImports);
                 if (!importsInLines.isEmpty()) {
                     Notification notification = showQueryTokensNotification(importsInLines);
@@ -155,25 +164,28 @@ public class RefreshAction extends AnAction {
         }
     }
 
-    private void doFrontEndWork(JTree jTree, DefaultTreeModel model, DefaultMutableTreeNode root,
-                                List<CodeInfo> codePaneTinyEditorsInfoList,
-                                Map<String, ArrayList<CodeInfo>> projectNodes) {
+    private void doFrontEndWork(final JTree jTree, final DefaultTreeModel model,
+                                final DefaultMutableTreeNode root,
+                                final List<CodeInfo> codePaneTinyEditors,
+                                final Map<String, ArrayList<CodeInfo>> projectNodes) {
         updateMainPaneJTreeUI(jTree, model, root, projectNodes);
-        buildCodePane(codePaneTinyEditorsInfoList);
+        buildCodePane(codePaneTinyEditors);
     }
 
-    private Map<String, ArrayList<CodeInfo>> doBackEndWork(Set<String> importsInLines,
-            Set<String> finalImports, ProgressIndicator indicator) {
-        indicator.setText("Fetching projects...");
+    private Map<String, ArrayList<CodeInfo>> doBackEndWork(final Set<String> importsInLines,
+                                                           final Set<String> finalImports,
+                                                           final ProgressIndicator indicator) {
+        indicator.setText(FETCHING_PROJECTS);
         String esResultJson = getESQueryResultJson(importsInLines);
         Map<String, ArrayList<CodeInfo>> projectNodes = new HashMap<String, ArrayList<CodeInfo>>();
         if (!esResultJson.equals(EMPTY_ES_URL)) {
             projectNodes = getProjectNodes(finalImports, esResultJson);
-            indicator.setFraction(0.5);
+            indicator.setFraction(INDICATOR_FRACTION);
             if (!projectNodes.isEmpty()) {
-                indicator.setText("Fetching file contents...");
+                indicator.setText(FETCHING_FILE_CONTENTS);
                 codePaneTinyEditorsInfoList = getCodePaneTinyEditorsInfoList(projectNodes);
-                List<String> fileNamesList = getFileNamesListForTinyEditors(codePaneTinyEditorsInfoList);
+                List<String> fileNamesList =
+                        getFileNamesListForTinyEditors(codePaneTinyEditorsInfoList);
                 esUtils.putContentsForFileInMap(fileNamesList);
             }
         }
@@ -182,17 +194,17 @@ public class RefreshAction extends AnAction {
     }
 
     @NotNull
-    private List<String> getFileNamesListForTinyEditors(List<CodeInfo> codePaneTinyEditorsInfoList) {
+    private List<String> getFileNamesListForTinyEditors(final List<CodeInfo> codePaneTinyEditors) {
         List<String> fileNamesList = new ArrayList<String>();
-        for (CodeInfo codePaneTinyEditorInfo : codePaneTinyEditorsInfoList) {
+        for (CodeInfo codePaneTinyEditorInfo : codePaneTinyEditors) {
             fileNamesList.add(codePaneTinyEditorInfo.getFileName());
         }
         return fileNamesList;
     }
 
-    private void updateMainPaneJTreeUI(JTree jTree, DefaultTreeModel model,
-            DefaultMutableTreeNode root, Map<String,
-            ArrayList<CodeInfo>>  projectNodes) {
+    private void updateMainPaneJTreeUI(final JTree jTree, final DefaultTreeModel model,
+                                       final DefaultMutableTreeNode root,
+                                       final Map<String, ArrayList<CodeInfo>>  projectNodes) {
         projectTree.updateRoot(root, projectNodes);
         model.reload(root);
         jTree.addTreeSelectionListener(projectTree.getTreeSelectionListener(root));
@@ -209,25 +221,25 @@ public class RefreshAction extends AnAction {
         return esQueryResultJson;
     }
 
-    protected final void buildCodePane(final List<CodeInfo> codePaneTinyEditorsInfoList) {
+    protected final void buildCodePane(final List<CodeInfo> codePaneTinyEditors) {
         JPanel codePaneTinyEditorsJPanel = windowObjects.getCodePaneTinyEditorsJPanel();
 
-        sortCodePaneTinyEditorsInfoList(codePaneTinyEditorsInfoList);
+        sortCodePaneTinyEditorsInfoList(codePaneTinyEditors);
 
-        for (CodeInfo codePaneTinyEditorInfo : codePaneTinyEditorsInfoList) {
+        for (CodeInfo codePaneTinyEditorInfo : codePaneTinyEditors) {
             String fileName = codePaneTinyEditorInfo.getFileName();
             String fileContents = esUtils.getContentsForFile(fileName);
+            List<Integer> lineNumbers = codePaneTinyEditorInfo.getLineNumbers();
 
-            String contentsInLines =
-                    editorDocOps.getContentsInLines(fileContents, codePaneTinyEditorInfo.getLineNumbers());
+            String contentsInLines = editorDocOps.getContentsInLines(fileContents, lineNumbers);
             createCodePaneTinyEditor(codePaneTinyEditorsJPanel, codePaneTinyEditorInfo.toString(),
-                    codePaneTinyEditorInfo.getFileName(),
-                    contentsInLines);
+                                     codePaneTinyEditorInfo.getFileName(), contentsInLines);
         }
     }
 
-    private void createCodePaneTinyEditor(final JPanel codePaneTinyEditorJPanel, final String displayFileName,
-                                          final String fileName, final String contents) {
+    private void createCodePaneTinyEditor(final JPanel codePaneTinyEditorJPanel,
+                                          final String displayFileName, final String fileName,
+                                          final String contents) {
         Document tinyEditorDoc =
                 EditorFactory.getInstance().createDocument(contents);
         tinyEditorDoc.setReadOnly(true);
@@ -259,7 +271,8 @@ public class RefreshAction extends AnAction {
         final JLabel expandLabel =
                 new JLabel(String.format(BANNER_FORMAT, HTML_U, displayFileName, U_HTML));
         expandLabel.setForeground(JBColor.BLUE);
-        expandLabel.addMouseListener(new CodePaneTinyEditorExpandLabelMouseListener(displayFileName, fileName));
+        expandLabel.addMouseListener(
+                new CodePaneTinyEditorExpandLabelMouseListener(displayFileName, fileName));
         expandPanel.add(expandLabel);
 
         final JLabel projectNameLabel =
@@ -267,7 +280,7 @@ public class RefreshAction extends AnAction {
         projectNameLabel.setForeground(JBColor.blue);
         projectNameLabel.setToolTipText(GOTO_GITHUB);
         projectNameLabel.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent me) {
+            public void mouseClicked(final MouseEvent me) {
                 if (!projectName.isEmpty()) {
                     BrowserUtil.browse(GITHUB_LINK + projectName);
                 }
@@ -290,24 +303,25 @@ public class RefreshAction extends AnAction {
 
 
     @NotNull
-    private List<CodeInfo> getCodePaneTinyEditorsInfoList(final Map<String, ArrayList<CodeInfo>> projectNodes) {
+    private List<CodeInfo> getCodePaneTinyEditorsInfoList(final Map<String,
+                                                          ArrayList<CodeInfo>> projectNodes) {
         // Take this from SettignsPanel
-        int maxEditors = 10;
+        int maxEditors = MAX_EDITORS_DEFAULT_VALUE;
         int count = 0;
-        List<CodeInfo> codePaneTinyEditorsInfoList = new ArrayList<CodeInfo>();
+        List<CodeInfo> codePaneTinyEditors = new ArrayList<CodeInfo>();
 
         for (Map.Entry<String, ArrayList<CodeInfo>> entry : projectNodes.entrySet()) {
             List<CodeInfo> codeInfoList = entry.getValue();
             for (CodeInfo codeInfo : codeInfoList) {
                 if (count++ < maxEditors) {
-                    codePaneTinyEditorsInfoList.add(codeInfo);
+                    codePaneTinyEditors.add(codeInfo);
                 }
             }
         }
-        return codePaneTinyEditorsInfoList;
+        return codePaneTinyEditors;
     }
 
-    void showHelpInfo(final String info) {
+    protected final void showHelpInfo(final String info) {
         JPanel centerInfoPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         centerInfoPanel.add(new JLabel(info));
         goToAllPane();
@@ -327,15 +341,17 @@ public class RefreshAction extends AnAction {
         Set<String> imports =
                 editorDocOps.getImports(document, windowObjects.getProject());
 
-        if(!imports.isEmpty()) {
+        if (!imports.isEmpty()) {
             if (propertiesComponent.isValueSet(EXCLUDE_IMPORT_LIST)) {
                 String excludeImport = propertiesComponent.getValue(EXCLUDE_IMPORT_LIST);
                 if (excludeImport != null) {
                     imports = editorDocOps.excludeConfiguredImports(imports, excludeImport);
                 }
             }
-            Set<String> internalImports = editorDocOps.getInternalImports(windowObjects.getProject());
-            Set<String> finalImports = editorDocOps.excludeInternalImports(imports, internalImports);
+            Set<String> internalImports =
+                    editorDocOps.getInternalImports(windowObjects.getProject());
+            Set<String> finalImports =
+                    editorDocOps.excludeInternalImports(imports, internalImports);
             return finalImports;
         }
         return imports;
@@ -360,8 +376,8 @@ public class RefreshAction extends AnAction {
         windowObjects.setEsURL(propertiesComponent.getValue(ES_URL, ES_URL_DEFAULT));
     }
 
-    private void sortCodePaneTinyEditorsInfoList(List<CodeInfo> codePaneTinyEditorsInfoList) {
-        Collections.sort(codePaneTinyEditorsInfoList, new Comparator<CodeInfo>() {
+    private void sortCodePaneTinyEditorsInfoList(final List<CodeInfo> codePaneTinyEditorsList) {
+        Collections.sort(codePaneTinyEditorsList, new Comparator<CodeInfo>() {
             @Override
             public int compare(final CodeInfo o1, final CodeInfo o2) {
                 Set<Integer> o1HashSet = new HashSet<Integer>(o1.getLineNumbers());
@@ -371,7 +387,7 @@ public class RefreshAction extends AnAction {
         });
     }
 
-    private Notification showQueryTokensNotification(Set<String> importsInLines) {
+    private Notification showQueryTokensNotification(final Set<String> importsInLines) {
         final Notification notification = new Notification(BETTER_DOCS,
                 String.format(FORMAT, QUERYING,
                         windowObjects.getEsURL(), FOR),
@@ -385,9 +401,10 @@ public class RefreshAction extends AnAction {
         private final String displayFileName;
         private final String fileName;
 
-        public CodePaneTinyEditorExpandLabelMouseListener(String displayFileName, String fileName) {
-            this.displayFileName = displayFileName;
-            this.fileName = fileName;
+        public CodePaneTinyEditorExpandLabelMouseListener(final String pDisplayFileName,
+                                                          final String pFileName) {
+            this.displayFileName = pDisplayFileName;
+            this.fileName = pFileName;
         }
 
         @Override
@@ -417,21 +434,21 @@ public class RefreshAction extends AnAction {
         private volatile boolean isFailed;
         private String httpErrorMsg;
 
-        QueryBDServerTask(Set<String> importsInLines, Set<String> finalImports,
-                          JTree jTree, DefaultTreeModel model, DefaultMutableTreeNode root,
-                          Notification notification) {
-            super(windowObjects.getProject(), "Betterdocs", true,
+        QueryBDServerTask(final Set<String> pImportsInLines, final Set<String> pFinalImports,
+                          final JTree pJTree, final DefaultTreeModel pModel,
+                          final DefaultMutableTreeNode pRoot, final Notification pNotification) {
+            super(windowObjects.getProject(), BETTERDOCS, true,
                     PerformInBackgroundOption.ALWAYS_BACKGROUND);
-            this.importsInLines = importsInLines;
-            this.finalImports = finalImports;
-            this.jTree = jTree;
-            this.model = model;
-            this.root = root;
-            this.notification = notification;
+            this.importsInLines = pImportsInLines;
+            this.finalImports = pFinalImports;
+            this.jTree = pJTree;
+            this.model = pModel;
+            this.root = pRoot;
+            this.notification = pNotification;
         }
 
         @Override
-        public void run(@NotNull ProgressIndicator indicator) {
+        public void run(@NotNull final ProgressIndicator indicator) {
             try {
                 projectNodes = doBackEndWork(importsInLines, finalImports, indicator);
             } catch (RuntimeException rte) {
