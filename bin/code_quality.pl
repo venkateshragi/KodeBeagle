@@ -30,6 +30,11 @@ my $string = "";
 my $count = 0;
 
 while (<FILE>) {
+
+    if(/<file .*/) {
+        $string .= $_;
+    }
+
     if(/<error .*/) {
         $string .= $_;
         $count = $count + 1;
@@ -43,4 +48,31 @@ if ($count > 0) {
 }
 
 print "SUCCESS: No checkstyle violations\n";
+close FILE;
+
+# PMD
+open FILE, "plugins/idea/betterdocsidea/target/pmd.xml" or die "Couldn't open file: $!"; 
+
+my $string = "";
+my $count = 0;
+
+while (<FILE>) {
+
+    if(/<file .*/) {
+        $string .= $_;
+    }
+
+    if(/<violation .*/) {
+        $string .= $_;
+        $count = $count + 1;
+    }
+}
+
+if ($count > 0) {
+    print "ERROR: Found PMD violations.!!\n";
+    print $string;
+    exit(0); # For now we exit 0.
+}
+
+print "SUCCESS: No PMD violations\n";
 close FILE;
