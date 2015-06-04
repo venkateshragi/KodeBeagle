@@ -17,6 +17,8 @@
 
 package com.imaginea.betterdocs
 
+import com.imaginea.betterdocs.`object`.WindowObjects
+import com.imaginea.betterdocs.util.JSONUtils
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 import scala.collection.JavaConversions._
 

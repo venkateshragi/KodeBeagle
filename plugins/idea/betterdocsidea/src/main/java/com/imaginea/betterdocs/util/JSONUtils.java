@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.imaginea.betterdocs;
+package com.imaginea.betterdocs.util;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -23,6 +23,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
+import com.imaginea.betterdocs.model.ESFileContent;
+import com.imaginea.betterdocs.model.ESQuery;
+import com.imaginea.betterdocs.model.RepoStarsJSON;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;

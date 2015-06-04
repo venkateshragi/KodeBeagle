@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.imaginea.betterdocs;
+package com.imaginea.betterdocs.model;
 
 import java.util.List;
 

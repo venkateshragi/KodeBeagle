@@ -15,28 +15,27 @@
  * limitations under the License.
  */
 
-package com.imaginea.betterdocs;
+package com.imaginea.betterdocs.action;
 
+import com.imaginea.betterdocs.ui.SettingsPanel;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import javax.swing.JTree;
+import com.intellij.openapi.actionSystem.PlatformDataKeys;
+import com.intellij.openapi.options.ShowSettingsUtil;
 
-public class CollapseProjectTreeAction extends AnAction {
-    private WindowObjects windowObjects = WindowObjects.getInstance();
-    private static final String COLLAPSE_TREE = "Collapse Tree";
+public class EditSettingsAction extends AnAction {
 
-    public CollapseProjectTreeAction() {
-        super(COLLAPSE_TREE, COLLAPSE_TREE, AllIcons.General.CollapseAll);
+    private static final String OPEN_SETTINGS = "Open Settings";
+
+    public EditSettingsAction() {
+        super(OPEN_SETTINGS, OPEN_SETTINGS, AllIcons.General.Settings);
     }
 
     @Override
     public final void actionPerformed(final AnActionEvent anActionEvent) {
-        JTree jTree = windowObjects.getjTree();
-
-        for (int i = 0; i < jTree.getRowCount(); i++) {
-            jTree.collapsePath(jTree.getPathForRow(i));
-        }
-        jTree.updateUI();
+        ShowSettingsUtil.getInstance().showSettingsDialog(
+                anActionEvent.getData(PlatformDataKeys.PROJECT_CONTEXT),
+                SettingsPanel.BETTER_DOCS_SETTINGS);
     }
 }

@@ -15,15 +15,16 @@
  * limitations under the License.
  */
 
-package com.imaginea.betterdocs;
+package com.imaginea.betterdocs.model;
 
 import java.util.List;
 
-public class ESQuery {
+public class RepoStarsJSON {
     private Query query;
     private int from;
     private int size;
     private List<Sort> sort;
+    private Facets facets;
 
     public final Query getQuery() {
         return query;
@@ -96,39 +97,21 @@ public class ESQuery {
     }
 
     public static class Term {
-        private String importName;
+        private int id;
 
-        public final void setImportName(final String pImportName) {
-            this.importName = pImportName;
+        public final void setId(final int pId) {
+            this.id = pId;
         }
 
-        public final String getImportName() {
-            return importName;
+        public final int getId() {
+            return id;
         }
     }
 
     public static class Sort {
-        private Score score;
-
-        public final void setScore(final Score pScore) {
-            this.score = pScore;
-        }
-
-        public final Score getScore() {
-            return score;
-        }
     }
 
-    public static class Score {
-        private String order;
-
-        public final void setOrder(final String pOrder) {
-            this.order = pOrder;
-        }
-
-        public final String getOrder() {
-            return order;
-        }
+    public static class Facets {
     }
 
     public final void setQuery(final Query pQuery) {
@@ -145,5 +128,13 @@ public class ESQuery {
 
     public final void setSort(final List<Sort> pSort) {
         this.sort = pSort;
+    }
+
+    public final Facets getFacets() {
+        return facets;
+    }
+
+    public final void setFacets(final Facets pFacets) {
+        this.facets = pFacets;
     }
 }

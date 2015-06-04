@@ -15,8 +15,9 @@
 * limitations under the License.
 */
 
-package com.imaginea.betterdocs;
+package com.imaginea.betterdocs.ui;
 
+import com.imaginea.betterdocs.action.RefreshAction;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.options.Configurable;
 import com.jgoodies.forms.layout.CellConstraints;
@@ -29,7 +30,7 @@ import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
 
 public class SettingsPanel implements Configurable {
-    protected static final String BETTER_DOCS_SETTINGS = "BetterDocs Settings";
+    public static final String BETTER_DOCS_SETTINGS = "BetterDocs Settings";
     private static final String COLUMN_SPECS = "pref, pref:grow";
     private static final String ROW_SPECS = "pref, pref, pref, pref, pref";
     private static final String ELASTIC_SEARCH_URL = "Elastic Search URL";
@@ -76,9 +77,6 @@ public class SettingsPanel implements Configurable {
                 ROW_SPECS);
 
         PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
-
-        CellConstraints cc = new CellConstraints();
-
         JLabel esURL = new JLabel(ELASTIC_SEARCH_URL);
         esURL.setVisible(true);
 

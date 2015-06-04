@@ -15,13 +15,15 @@
  * limitations under the License.
  */
 
-package com.imaginea.betterdocs;
+package com.imaginea.betterdocs.util;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
+import com.imaginea.betterdocs.action.RefreshAction;
+import com.imaginea.betterdocs.object.WindowObjects;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -57,7 +59,7 @@ public class ESUtils {
     private static WindowObjects windowObjects = WindowObjects.getInstance();
     private JSONUtils jsonUtils = new JSONUtils();
 
-    protected final void putContentsForFileInMap(final List<String> fileNames) {
+     public final void putContentsForFileInMap(final List<String> fileNames) {
         String esFileQueryJson = jsonUtils.getJsonForFileContent(fileNames);
         String esFileResultJson;
         esFileResultJson = getESResultJson(esFileQueryJson,
@@ -173,14 +175,14 @@ public class ESUtils {
         return stars;
     }
 
-    protected final String getProjectName(final String fileName) {
+    public final String getProjectName(final String fileName) {
         //Project name is till 2nd '/'
         int startIndex = fileName.indexOf('/');
         int endIndex = fileName.indexOf('/', startIndex + 1);
         return fileName.substring(0, endIndex);
     }
 
-    protected final String extractRepoStars(final String repoName, final int repoId) {
+    public final String extractRepoStars(final String repoName, final int repoId) {
         String stars;
         if (windowObjects.getRepoStarsMap().containsKey(repoName)) {
             stars = windowObjects.getRepoStarsMap().get(repoName).toString();

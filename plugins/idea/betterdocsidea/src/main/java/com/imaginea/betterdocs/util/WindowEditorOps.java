@@ -15,8 +15,9 @@
  * limitations under the License.
  */
 
-package com.imaginea.betterdocs;
+package com.imaginea.betterdocs.util;
 
+import com.imaginea.betterdocs.object.WindowObjects;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.Result;
 import com.intellij.openapi.command.WriteCommandAction;
@@ -52,7 +53,7 @@ public class WindowEditorOps {
         } .execute();
     }
 
-    protected final void releaseEditor(final Project project, final Editor editor) {
+    public final void releaseEditor(final Project project, final Editor editor) {
         if (editor != null) {
             Disposer.register(project, new Disposable() {
                 public void dispose() {

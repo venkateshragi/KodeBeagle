@@ -15,26 +15,28 @@
  * limitations under the License.
  */
 
-package com.imaginea.betterdocs;
+package com.imaginea.betterdocs.action;
 
+import com.imaginea.betterdocs.object.WindowObjects;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import javax.swing.JTree;
 
-public class ExpandProjectTreeAction extends AnAction {
+public class CollapseProjectTreeAction extends AnAction {
     private WindowObjects windowObjects = WindowObjects.getInstance();
-    private static final String EXPAND_TREE = "Expand Tree";
+    private static final String COLLAPSE_TREE = "Collapse Tree";
 
-    public ExpandProjectTreeAction() {
-        super(EXPAND_TREE, EXPAND_TREE, AllIcons.General.ExpandAll);
+    public CollapseProjectTreeAction() {
+        super(COLLAPSE_TREE, COLLAPSE_TREE, AllIcons.General.CollapseAll);
     }
 
     @Override
     public final void actionPerformed(final AnActionEvent anActionEvent) {
         JTree jTree = windowObjects.getjTree();
+
         for (int i = 0; i < jTree.getRowCount(); i++) {
-            jTree.expandRow(i);
+            jTree.collapsePath(jTree.getPathForRow(i));
         }
         jTree.updateUI();
     }

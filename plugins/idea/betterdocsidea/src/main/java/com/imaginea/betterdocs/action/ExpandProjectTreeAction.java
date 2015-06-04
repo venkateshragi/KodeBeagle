@@ -15,26 +15,28 @@
  * limitations under the License.
  */
 
-package com.imaginea.betterdocs;
+package com.imaginea.betterdocs.action;
 
+import com.imaginea.betterdocs.object.WindowObjects;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.PlatformDataKeys;
-import com.intellij.openapi.options.ShowSettingsUtil;
+import javax.swing.JTree;
 
-public class EditSettingsAction extends AnAction {
+public class ExpandProjectTreeAction extends AnAction {
+    private WindowObjects windowObjects = WindowObjects.getInstance();
+    private static final String EXPAND_TREE = "Expand Tree";
 
-    private static final String OPEN_SETTINGS = "Open Settings";
-
-    public EditSettingsAction() {
-        super(OPEN_SETTINGS, OPEN_SETTINGS, AllIcons.General.Settings);
+    public ExpandProjectTreeAction() {
+        super(EXPAND_TREE, EXPAND_TREE, AllIcons.General.ExpandAll);
     }
 
     @Override
     public final void actionPerformed(final AnActionEvent anActionEvent) {
-        ShowSettingsUtil.getInstance().showSettingsDialog(
-                anActionEvent.getData(PlatformDataKeys.PROJECT_CONTEXT),
-                SettingsPanel.BETTER_DOCS_SETTINGS);
+        JTree jTree = windowObjects.getjTree();
+        for (int i = 0; i < jTree.getRowCount(); i++) {
+            jTree.expandRow(i);
+        }
+        jTree.updateUI();
     }
 }

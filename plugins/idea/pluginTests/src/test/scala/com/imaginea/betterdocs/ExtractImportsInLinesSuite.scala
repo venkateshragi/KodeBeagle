@@ -17,6 +17,7 @@
 
 package com.imaginea.betterdocs
 
+import com.imaginea.betterdocs.util.EditorDocOps
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 
 import scala.collection.JavaConversions._

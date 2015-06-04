@@ -15,8 +15,14 @@
  * limitations under the License.
  */
 
-package com.imaginea.betterdocs;
+package com.imaginea.betterdocs.ui;
 
+import com.imaginea.betterdocs.util.WindowEditorOps;
+import com.imaginea.betterdocs.model.CodeInfo;
+import com.imaginea.betterdocs.object.WindowObjects;
+import com.imaginea.betterdocs.util.ESUtils;
+import com.imaginea.betterdocs.util.EditorDocOps;
+import com.imaginea.betterdocs.util.JSONUtils;
 import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorFactory;
@@ -152,33 +158,14 @@ public class ProjectTree {
                 String url = "";
                 if (mouseEvent.isMetaDown() && selectedNode != null
                         && selectedNode.getParent() != null) {
-                    if (!selectedNode.isLeaf()) {
-                        url = selectedNode.getUserObject().toString(); // getting project name
-                    } else if (root.getChildCount() > 0) {
-                        final CodeInfo codeInfo = (CodeInfo) selectedNode.getUserObject();
-                        url = codeInfo.getFileName();
-                    }
-                    final String gitUrl = url;
+                    final String gitUrl = getGitUrl(selectedNode, url, root);
                     JPopupMenu menu = new JPopupMenu();
 
                     if (selectedNode.isLeaf()) {
                         final CodeInfo codeInfo = (CodeInfo) selectedNode.getUserObject();
 
-                        menu.add(new JMenuItem(new AbstractAction() {
-                            @Override
-                            public void actionPerformed(final ActionEvent actionEvent) {
-                                VirtualFile virtualFile =
-                                        editorDocOps.getVirtualFile(codeInfo.toString(),
-                                                codeInfo.getContents());
-                                FileEditorManager.getInstance(windowObjects.getProject()).
-                                        openFile(virtualFile, true, true);
-                                Document document =
-                                        EditorFactory.getInstance().
-                                                createDocument(codeInfo.getContents());
-                                editorDocOps.addHighlighting(codeInfo.getLineNumbers(), document);
-                                editorDocOps.gotoLine(codeInfo.getLineNumbers().get(0), document);
-                            }
-                        })).setText(OPEN_IN_NEW_TAB);
+                        menu.add(new JMenuItem(addOpenInNewTabMenuItem(codeInfo))).
+                                setText(OPEN_IN_NEW_TAB);
                     }
 
                     menu.add(new JMenuItem(new AbstractAction() {
@@ -192,6 +179,38 @@ public class ProjectTree {
 
                     menu.show(mouseEvent.getComponent(), mouseEvent.getX(), mouseEvent.getY());
                 }
+            }
+        };
+    }
+
+    private String getGitUrl(final DefaultMutableTreeNode selectedNode,
+                             final String pUrl,
+                             final TreeNode root) {
+        String url = pUrl;
+        if (!selectedNode.isLeaf()) {
+            url = selectedNode.getUserObject().toString(); // getting project name
+        } else if (root.getChildCount() > 0) {
+            final CodeInfo codeInfo = (CodeInfo) selectedNode.getUserObject();
+            url = codeInfo.getFileName();
+        }
+        return url;
+    }
+
+    @NotNull
+    private AbstractAction addOpenInNewTabMenuItem(final CodeInfo codeInfo) {
+        return new AbstractAction() {
+            @Override
+            public void actionPerformed(final ActionEvent actionEvent) {
+                VirtualFile virtualFile =
+                        editorDocOps.getVirtualFile(codeInfo.toString(),
+                                codeInfo.getContents());
+                FileEditorManager.getInstance(windowObjects.getProject()).
+                        openFile(virtualFile, true, true);
+                Document document =
+                        EditorFactory.getInstance().
+                                createDocument(codeInfo.getContents());
+                editorDocOps.addHighlighting(codeInfo.getLineNumbers(), document);
+                editorDocOps.gotoLine(codeInfo.getLineNumbers().get(0), document);
             }
         };
     }
@@ -214,11 +233,8 @@ public class ProjectTree {
             indicator.setText(FETCHING_FILE_CONTENT);
             indicator.setFraction(0.0);
             String fileName = codeInfo.getFileName();
-            try {
-                fileContents = esUtils.getContentsForFile(fileName);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            fileContents = esUtils.getContentsForFile(fileName);
+
             //Setting contents so that we can use that for Open in New Tab
             codeInfo.setContents(fileContents);
             indicator.setFraction(1.0);
@@ -229,6 +245,10 @@ public class ProjectTree {
             updateMainPanePreviewEditor(codeInfo.getLineNumbers(), fileContents);
         }
     }
+
+    public final JTreeCellRenderer getJTreeCellRenderer() {
+        return new JTreeCellRenderer();
+    }
 }
 
 class JTreeCellRenderer implements TreeCellRenderer {
@@ -238,7 +258,7 @@ class JTreeCellRenderer implements TreeCellRenderer {
     private ProjectTree projectTree = new ProjectTree();
     private DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer();
 
-    public Component getTreeCellRendererComponent(final JTree tree, final Object value,
+    public final Component getTreeCellRendererComponent(final JTree tree, final Object value,
                                                   final boolean selected, final boolean expanded,
                                                   final boolean leaf, final int row,
                                                   final boolean hasFocus) {
@@ -249,8 +269,7 @@ class JTreeCellRenderer implements TreeCellRenderer {
                         && !((DefaultMutableTreeNode) value).isRoot()) {
                     String repoName = ((DefaultMutableTreeNode) value).getUserObject().toString();
                     int repoId = windowObjects.getRepoNameIdMap().get(repoName);
-                    String stars = null;
-                    stars = esUtils.extractRepoStars(repoName, repoId);
+                    String stars = esUtils.extractRepoStars(repoName, repoId);
                     renderer.setToolTipText(REPO_STARS + stars);
                     renderer.setIcon(new ImageIcon(projectTree.getIconURL()));
                 } else {
@@ -260,4 +279,4 @@ class JTreeCellRenderer implements TreeCellRenderer {
             }
         return renderer;
     }
-}
+ }

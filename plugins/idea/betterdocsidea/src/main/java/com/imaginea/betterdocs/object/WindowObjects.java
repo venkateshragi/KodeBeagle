@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.imaginea.betterdocs;
+package com.imaginea.betterdocs.object;
 
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;

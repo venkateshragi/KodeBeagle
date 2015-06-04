@@ -19,6 +19,7 @@ package com.imaginea.betterdocs
 
 import java.io.InputStream
 
+import com.imaginea.betterdocs.util.EditorDocOps
 import com.intellij.openapi.command.impl.DummyProject
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.impl.DocumentImpl

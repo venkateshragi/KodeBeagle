@@ -15,8 +15,9 @@
  * limitations under the License.
  */
 
-package com.imaginea.betterdocs;
+package com.imaginea.betterdocs.util;
 
+import com.imaginea.betterdocs.object.WindowObjects;
 import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
@@ -143,23 +144,16 @@ public class EditorDocOps {
             if (psiFile != null
                     && psiFile.getFileType().getDefaultExtension().equals(FILE_EXTENSION)) {
                 PsiElement[] psiRootChildren = psiFile.getChildren();
-                    for (PsiElement element : psiRootChildren) {
-                        if (element.getNode().getElementType().toString().equals(IMPORT_LIST)) {
-                            PsiElement[] importListChildren = element.getChildren();
-                            for (PsiElement importElement : importListChildren) {
-                                if (importElement.getNode().getElementType().
-                                        toString().equals(IMPORT_STATEMENT)) {
-                                    PsiElement[] importsElementList = importElement.getChildren();
-                                    for (PsiElement importValue : importsElementList) {
-                                        if (importValue.getNode().getElementType().toString()
-                                                .equals(IMPORT_VALUE)) {
-                                            imports.add(importValue.getNode().getText());
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                PsiElement element = null;
+                for (PsiElement elem : psiRootChildren) {
+                    if (elem.getNode().getElementType().toString().equals(IMPORT_LIST)) {
+                        element = elem;
+                        break;
                     }
+                }
+                if (element != null) {
+                    imports = getImportsSet(element);
+                }
             }
         }
         return imports;
@@ -348,7 +342,7 @@ public class EditorDocOps {
         }
     }
 
-    protected final String getContentsInLines(final String fileContents,
+    public final String getContentsInLines(final String fileContents,
                                               final List<Integer> lineNumbersList) {
         Document document = EditorFactory.getInstance().createDocument(fileContents);
         Set<Integer> lineNumbersSet = new TreeSet<Integer>(lineNumbersList);
@@ -375,5 +369,23 @@ public class EditorDocOps {
             }
         }
         return stringBuilder.toString();
+    }
+
+    private Set<String> getImportsSet(final PsiElement element) {
+        Set<String> imports = new HashSet<String>();
+        PsiElement[] importListChildren = element.getChildren();
+        for (PsiElement importElement : importListChildren) {
+            if (importElement.getNode().getElementType().
+                    toString().equals(IMPORT_STATEMENT)) {
+                PsiElement[] importsElementList = importElement.getChildren();
+                for (PsiElement importValue : importsElementList) {
+                    if (importValue.getNode().getElementType().toString()
+                            .equals(IMPORT_VALUE)) {
+                        imports.add(importValue.getNode().getText());
+                    }
+                }
+            }
+        }
+        return imports;
     }
 }

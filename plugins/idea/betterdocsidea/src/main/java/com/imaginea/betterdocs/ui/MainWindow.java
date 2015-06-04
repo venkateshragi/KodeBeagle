@@ -15,8 +15,14 @@
  * limitations under the License.
  */
 
-package com.imaginea.betterdocs;
+package com.imaginea.betterdocs.ui;
 
+import com.imaginea.betterdocs.util.WindowEditorOps;
+import com.imaginea.betterdocs.action.CollapseProjectTreeAction;
+import com.imaginea.betterdocs.action.EditSettingsAction;
+import com.imaginea.betterdocs.action.ExpandProjectTreeAction;
+import com.imaginea.betterdocs.action.RefreshAction;
+import com.imaginea.betterdocs.object.WindowObjects;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
@@ -44,7 +50,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 public class MainWindow implements ToolWindowFactory {
 
     private static final String PROJECTS = "Projects";
-    protected static final String JAVA = "java";
+    public static final String JAVA = "java";
     private static final double DIVIDER_LOCATION = 0.2;
     private static final String ALL_TAB = "All";
     private static final String FEATURED_TAB = "Featured";

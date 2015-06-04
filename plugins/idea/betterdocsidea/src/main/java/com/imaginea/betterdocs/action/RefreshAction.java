@@ -15,8 +15,16 @@
  * limitations under the License.
  */
 
-package com.imaginea.betterdocs;
+package com.imaginea.betterdocs.action;
 
+import com.imaginea.betterdocs.model.CodeInfo;
+import com.imaginea.betterdocs.util.ESUtils;
+import com.imaginea.betterdocs.util.EditorDocOps;
+import com.imaginea.betterdocs.util.JSONUtils;
+import com.imaginea.betterdocs.ui.MainWindow;
+import com.imaginea.betterdocs.ui.ProjectTree;
+import com.imaginea.betterdocs.util.WindowEditorOps;
+import com.imaginea.betterdocs.object.WindowObjects;
 import com.intellij.icons.AllIcons;
 import com.intellij.ide.BrowserUtil;
 import com.intellij.ide.util.PropertiesComponent;
@@ -62,22 +70,22 @@ import org.jetbrains.annotations.NotNull;
 
 public class RefreshAction extends AnAction {
     private static final String BETTER_DOCS = "BetterDocs";
-    protected static final String EMPTY_ES_URL =
+    public static final String EMPTY_ES_URL =
             "<html>Elastic Search URL <br> %s <br> in idea settings is incorrect.<br> See "
                     + "<img src='" + AllIcons.General.Settings + "'/></html>";
-    protected static final String ES_URL = "esURL";
-    protected static final String DISTANCE = "distance";
-    protected static final String SIZE = "size";
+    public static final String ES_URL = "esURL";
+    public static final String DISTANCE = "distance";
+    public static final String SIZE = "size";
     private static final String BETTERDOCS_SEARCH = "/betterdocs/_search?source=";
-    protected static final String ES_URL_DEFAULT = "http://labs.imaginea.com/betterdocs";
-    protected static final int DISTANCE_DEFAULT_VALUE = 10;
-    protected static final int SIZE_DEFAULT_VALUE = 30;
+    public static final String ES_URL_DEFAULT = "http://labs.imaginea.com/betterdocs";
+    public static final int DISTANCE_DEFAULT_VALUE = 10;
+    public static final int SIZE_DEFAULT_VALUE = 30;
     private static final String EDITOR_ERROR = "Could not get any active editor";
     private static final String FORMAT = "%s %s %s";
     private static final String QUERYING = "Querying";
     private static final String FOR = "for";
-    protected static final String EXCLUDE_IMPORT_LIST = "Exclude imports";
-    protected static final String HELP_MESSAGE =
+    public static final String EXCLUDE_IMPORT_LIST = "Exclude imports";
+    public static final String HELP_MESSAGE =
             "<html>Got nothing to search. To begin using, "
                     + "<br /> please select some code and hit <img src='"
                     + AllIcons.Actions.Refresh + "' /> <br/> "
@@ -209,7 +217,7 @@ public class RefreshAction extends AnAction {
         model.reload(root);
         jTree.addTreeSelectionListener(projectTree.getTreeSelectionListener(root));
         ToolTipManager.sharedInstance().registerComponent(jTree);
-        jTree.setCellRenderer(new JTreeCellRenderer());
+        jTree.setCellRenderer(projectTree.getJTreeCellRenderer());
         jTree.addMouseListener(projectTree.getMouseListener(root));
         windowObjects.getjTreeScrollPane().setViewportView(jTree);
     }
@@ -321,7 +329,7 @@ public class RefreshAction extends AnAction {
         return codePaneTinyEditors;
     }
 
-    protected final void showHelpInfo(final String info) {
+    public final void showHelpInfo(final String info) {
         JPanel centerInfoPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         centerInfoPanel.add(new JLabel(info));
         goToAllPane();
@@ -364,7 +372,7 @@ public class RefreshAction extends AnAction {
         return importsInLines;
     }
 
-    protected final void setJTabbedPane(final JTabbedPane pJTabbedPane) {
+    public final void setJTabbedPane(final JTabbedPane pJTabbedPane) {
         this.jTabbedPane = pJTabbedPane;
     }
 
