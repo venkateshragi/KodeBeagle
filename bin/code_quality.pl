@@ -68,10 +68,10 @@ while (<FILE>) {
     }
 }
 
-if ($count > 0) {
-    print "ERROR: Found PMD violations.!!\n";
+if ($count > 9) { # allowing 9 violations
+    print "ERROR: Your code adds PMD violations.!!\n";
     print $string;
-    exit(0); # For now we exit 0.
+    exit(1);
 }
 
 print "SUCCESS: No PMD violations\n";
