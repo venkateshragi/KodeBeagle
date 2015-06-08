@@ -1,7 +1,7 @@
 <idea-plugin version="3">
   <id>betterdocsidea</id>
   <name>Better Docs Plugin for Intellij Idea</name>
-  <version>0.0.3-SNAPSHOT</version>
+  <version>VERSION_STRING</version> <!-- This gets auto updated by SBT during package -->
 
   <vendor email="betterdocs@googlegroups.com" url="https://github.com/Imaginea/BetterDocs">Imaginea</vendor>
 
@@ -31,8 +31,8 @@
     ]]></description>
 
   <change-notes><![CDATA[
-    See milestone <a href="https://github.com/Imaginea/BetterDocs/milestones/v0.0.3-betterdocs-idea-plugin">
-    v0.0.3-betterdocs-idea-plugin</a> on github.
+    See milestone for this version(VERSION_STRING) at: <a href="https://github.com/Imaginea/BetterDocs/milestones">
+    Milestones</a> on github.
     ]]>
   </change-notes>
 

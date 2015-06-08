@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+import com.typesafe.sbt.SbtGit.git
+import com.typesafe.sbt.{GitBranchPrompt, GitVersioning}
 import sbt._
 import sbt.Keys._
 import de.johoop.findbugs4sbt.FindBugs._
@@ -28,12 +30,12 @@ object BetterDocsBuild extends Build {
     base = file("."),
     settings = betterDocsSettings,
     aggregate = aggregatedProjects
-  )
+  ).enablePlugins(GitVersioning).enablePlugins(GitBranchPrompt)
 
   lazy val core = Project("core", file("core"), settings = coreSettings)
 
   lazy val ideaPlugin = Project("ideaPlugin", file("plugins/idea/betterdocsidea"), settings =
-    pluginSettings ++ findbugsSettings ++ codequality.CodeQualityPlugin.Settings)
+    pluginSettingsFull ++ findbugsSettings ++ codequality.CodeQualityPlugin.Settings)
 
   lazy val pluginTests = Project("pluginTests", file("plugins/idea/pluginTests"), settings =
     pluginTestSettings) dependsOn ideaPlugin
@@ -54,7 +56,7 @@ object BetterDocsBuild extends Build {
     }
   }
 
-  def pluginSettings = betterDocsSettings ++ (if (!ideaLib.isDefined) Seq() else 
+  def pluginSettings = betterDocsSettings ++ (if (ideaLib.isEmpty) Seq() else
     cpdSettings ++ Seq(
     name := "BetterDocsIdeaPlugin",
     libraryDependencies ++= Dependencies.ideaPlugin,
@@ -63,6 +65,15 @@ object BetterDocsBuild extends Build {
     cpdMinimumTokens := 30,
     unmanagedBase := file(ideaLib.get)
     ))
+
+  def pluginSettingsFull = pluginSettings ++ (if (ideaLib.isEmpty) Seq() else Seq(
+    resourceGenerators in Compile <+=
+      (resourceDirectory in Compile, version, git.gitCurrentTags) map { (dir, v, tags) =>
+        val file = dir / "META-INF" / "plugin.xml"
+        IO.write(file, IO.read(file).replaceAll("VERSION_STRING", v))
+        Seq(file)
+      }
+  ))
 
   def pluginTestSettings = pluginSettings ++ Seq (
     name := "plugin-test",
@@ -77,9 +88,12 @@ object BetterDocsBuild extends Build {
     Defaults.coreDefaultSettings ++ Seq (
       name := "BetterDocs",
       organization := "com.betterdocs",
-      version := "0.0.3-SNAPSHOT",
+      git.baseVersion := "0.1.0",
       scalaVersion := "2.11.6",
+      git.useGitDescribe := true,
       scalacOptions := scalacOptionsList,
+      updateOptions := updateOptions.value.withCachedResolution(true),
+      updateOptions := updateOptions.value.withLatestSnapshots(false),
       crossPaths := false,
       fork := true,
       javacOptions ++= Seq("-source", "1.7"),
