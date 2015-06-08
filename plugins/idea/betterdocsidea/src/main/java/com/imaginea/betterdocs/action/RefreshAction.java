@@ -113,7 +113,8 @@ public class RefreshAction extends AnAction {
     private static final String FETCHING_FILE_CONTENTS = "Fetching file contents...";
     private static final String BETTERDOCS = "Betterdocs";
     private static final double INDICATOR_FRACTION = 0.5;
-    private static final int MAX_EDITORS_DEFAULT_VALUE = 10;
+    public static final int MAX_EDITORS_DEFAULT_VALUE = 10;
+    public static final String MAX_TINY_EDITORS = "maxTinyEditors";
 
     private WindowObjects windowObjects = WindowObjects.getInstance();
     private WindowEditorOps windowEditorOps = new WindowEditorOps();
@@ -124,6 +125,7 @@ public class RefreshAction extends AnAction {
     private PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
     private JTabbedPane jTabbedPane;
     private List<CodeInfo> codePaneTinyEditorsInfoList = new ArrayList<CodeInfo>();
+    private int maxTinyEditors;
 
     public RefreshAction() {
         super(BETTER_DOCS, BETTER_DOCS, AllIcons.Actions.Refresh);
@@ -313,8 +315,7 @@ public class RefreshAction extends AnAction {
     @NotNull
     private List<CodeInfo> getCodePaneTinyEditorsInfoList(final Map<String,
                                                           ArrayList<CodeInfo>> projectNodes) {
-        // Take this from SettignsPanel
-        int maxEditors = MAX_EDITORS_DEFAULT_VALUE;
+        int maxEditors = maxTinyEditors;
         int count = 0;
         List<CodeInfo> codePaneTinyEditors = new ArrayList<CodeInfo>();
 
@@ -382,6 +383,8 @@ public class RefreshAction extends AnAction {
                 getOrInitInt(DISTANCE, DISTANCE_DEFAULT_VALUE));
         windowObjects.setSize(propertiesComponent.getOrInitInt(SIZE, SIZE_DEFAULT_VALUE));
         windowObjects.setEsURL(propertiesComponent.getValue(ES_URL, ES_URL_DEFAULT));
+        maxTinyEditors =
+                propertiesComponent.getOrInitInt(MAX_TINY_EDITORS, MAX_EDITORS_DEFAULT_VALUE);
     }
 
     private void sortCodePaneTinyEditorsInfoList(final List<CodeInfo> codePaneTinyEditorsList) {

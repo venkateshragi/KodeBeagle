@@ -32,7 +32,7 @@ import org.jetbrains.annotations.Nullable;
 public class SettingsPanel implements Configurable {
     public static final String BETTER_DOCS_SETTINGS = "BetterDocs Settings";
     private static final String COLUMN_SPECS = "pref, pref:grow";
-    private static final String ROW_SPECS = "pref, pref, pref, pref, pref";
+    private static final String ROW_SPECS = "pref, pref, pref, pref, pref, pref";
     private static final String ELASTIC_SEARCH_URL = "Elastic Search URL";
     private static final String RESULTS_SIZE = "Results size";
     private static final String DISTANCE_FROM_CURSOR = "Distance from cursor";
@@ -40,6 +40,7 @@ public class SettingsPanel implements Configurable {
     private static final String HELP_TEXT =
         "Please enter comma separated regex"
             + "(e.g. java.util.[A-Z][a-z0-9]*, org.slf4j.Logger)";
+    private static final String MAX_TINY_EDITORS = "Featured Count";
     private static final CellConstraints TOP_LEFT = new CellConstraints().xy(1, 1);
     private static final CellConstraints TOP_RIGHT = new CellConstraints().xy(2, 1);
     private static final CellConstraints FIRST_LEFT = new CellConstraints().xy(1, 2);
@@ -49,12 +50,15 @@ public class SettingsPanel implements Configurable {
     private static final CellConstraints THIRD_LEFT = new CellConstraints().xy(1, 4);
     private static final CellConstraints THIRD_RIGHT = new CellConstraints().xy(2, 4);
     private static final CellConstraints FOURTH_RIGHT = new CellConstraints().xy(2, 5);
+    private static final CellConstraints FIFTH_LEFT = new CellConstraints().xy(1, 6);
+    private static final CellConstraints FIFTH_RIGHT = new CellConstraints().xy(2, 6);
 
     private JTextField excludeImportsText;
 
     private JTextField sizeText;
     private JTextField distanceText;
     private JTextField esURLText;
+    private JTextField maxTinyEditorsText;
 
     @Nls
     @Override
@@ -92,6 +96,9 @@ public class SettingsPanel implements Configurable {
         JLabel helpText = new JLabel(HELP_TEXT);
         helpText.setVisible(true);
 
+        JLabel maxTinyEditors = new JLabel(MAX_TINY_EDITORS);
+        maxTinyEditors.setVisible(true);
+
         esURLText = new JTextField();
         esURLText.setEditable(true);
         esURLText.setVisible(true);
@@ -124,6 +131,13 @@ public class SettingsPanel implements Configurable {
             excludeImportsText.setText(propertiesComponent.getValue(RefreshAction.
                                        EXCLUDE_IMPORT_LIST));
         }
+
+        maxTinyEditorsText = new JTextField();
+        maxTinyEditorsText.setEditable(true);
+        maxTinyEditorsText.setVisible(true);
+        maxTinyEditorsText.setText(propertiesComponent.getValue(RefreshAction.MAX_TINY_EDITORS,
+                                    String.valueOf(RefreshAction.MAX_EDITORS_DEFAULT_VALUE)));
+
         JPanel jPanel = new JPanel(formLayout);
         jPanel.add(distance, TOP_LEFT);
         jPanel.add(distanceText, TOP_RIGHT);
@@ -134,6 +148,8 @@ public class SettingsPanel implements Configurable {
         jPanel.add(excludeImports, THIRD_LEFT);
         jPanel.add(excludeImportsText, THIRD_RIGHT);
         jPanel.add(helpText, FOURTH_RIGHT);
+        jPanel.add(maxTinyEditors, FIFTH_LEFT);
+        jPanel.add(maxTinyEditorsText, FIFTH_RIGHT);
 
         return jPanel;
     }
@@ -150,11 +166,14 @@ public class SettingsPanel implements Configurable {
         String sizeValue = sizeText.getText();
         String distanceValue = distanceText.getText();
         String excludeImportsValues = excludeImportsText.getText();
+        String maxTinyEditorsValue = maxTinyEditorsText.getText();
         propertiesComponent.setValue(RefreshAction.ES_URL, esURLValue);
         propertiesComponent.setValue(RefreshAction.SIZE, sizeValue);
         propertiesComponent.setValue(RefreshAction.DISTANCE, distanceValue);
         propertiesComponent.setValue(RefreshAction.EXCLUDE_IMPORT_LIST,
                                       excludeImportsValues);
+        propertiesComponent.setValue(RefreshAction.MAX_TINY_EDITORS,
+                                      maxTinyEditorsValue);
     }
 
     @Override
@@ -174,6 +193,10 @@ public class SettingsPanel implements Configurable {
             excludeImportsText.setText(propertiesComponent.getValue(RefreshAction.
                                        EXCLUDE_IMPORT_LIST));
         }
+
+        maxTinyEditorsText.setText(propertiesComponent.
+                            getValue(RefreshAction.MAX_TINY_EDITORS,
+                                    String.valueOf(RefreshAction.MAX_EDITORS_DEFAULT_VALUE)));
     }
 
     @Override
