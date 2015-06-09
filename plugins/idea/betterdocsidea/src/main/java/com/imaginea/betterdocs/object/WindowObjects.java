@@ -27,6 +27,7 @@ import javax.swing.JPanel;
 import javax.swing.JTree;
 
 public final class WindowObjects {
+
     private static WindowObjects windowObjects = new WindowObjects();
 
     private Project project;
@@ -42,6 +43,12 @@ public final class WindowObjects {
     private String osInfo;
     private String applicationVersion;
     private String pluginVersion;
+    private String beagleId;
+    private JPanel codePaneTinyEditorsJPanel;
+
+    private WindowObjects() {
+
+    }
 
     public String getPluginVersion() {
         return pluginVersion;
@@ -68,6 +75,14 @@ public final class WindowObjects {
         this.pluginVersion = ppluginVersion;
     }
 
+    public void setBeagleId(final String pbeagleId) {
+        this.beagleId = pbeagleId;
+    }
+
+    public String getBeagleId() {
+        return beagleId;
+    }
+
     public JBScrollPane getjTreeScrollPane() {
         return jTreeScrollPane;
     }
@@ -86,18 +101,12 @@ public final class WindowObjects {
         return windowObjects;
     }
 
-    private JPanel codePaneTinyEditorsJPanel;
-
     public void setFileNameContentsMap(final Map<String, String> pfileContents) {
         this.fileNameContentsMap = pfileContents;
     }
 
     public Map<String, String> getFileNameContentsMap() {
         return fileNameContentsMap;
-    }
-
-    private WindowObjects() {
-
     }
 
     public void setProject(final Project pproject) {
@@ -163,6 +172,7 @@ public final class WindowObjects {
     public void setJTreeScrollPane(final JBScrollPane pJTreeScrollPane) {
         this.jTreeScrollPane = pJTreeScrollPane;
     }
+
     public Map<String, List<Integer>> getFileNameNumbersMap() {
         return fileNameNumbersMap;
     }

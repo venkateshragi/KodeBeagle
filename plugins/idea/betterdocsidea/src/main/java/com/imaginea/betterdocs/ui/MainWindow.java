@@ -26,6 +26,7 @@ import com.imaginea.betterdocs.object.WindowObjects;
 
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.ide.plugins.PluginManager;
+import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.application.ApplicationInfo;
@@ -45,6 +46,8 @@ import java.awt.Dimension;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import java.util.UUID;
+
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JComponent;
@@ -71,6 +74,7 @@ public class MainWindow implements ToolWindowFactory {
     private static final int UNIT_INCREMENT = 16;
     private WindowEditorOps windowEditorOps = new WindowEditorOps();
     private WindowObjects windowObjects = WindowObjects.getInstance();
+    private PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
 
     @Override
     public final void createToolWindowContent(final Project project, final ToolWindow toolWindow) {
@@ -81,6 +85,13 @@ public class MainWindow implements ToolWindowFactory {
         JTree jTree = new Tree(root);
         jTree.setRootVisible(false);
         jTree.setAutoscrolls(true);
+
+        if (!propertiesComponent.isValueSet(SettingsPanel.BEAGLE_ID)) {
+            windowObjects.setBeagleId(UUID.randomUUID().toString());
+            propertiesComponent.setValue(SettingsPanel.BEAGLE_ID, windowObjects.getBeagleId());
+        } else {
+            windowObjects.setBeagleId(propertiesComponent.getValue(SettingsPanel.BEAGLE_ID));
+        }
 
         Document document = EditorFactory.getInstance().createDocument("");
         Editor windowEditor = EditorFactory.getInstance().

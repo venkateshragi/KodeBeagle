@@ -54,6 +54,7 @@ public class ESUtils {
     private static final String REPO_ID = "repoId";
     private static final String STARGAZERS_COUNT = "stargazersCount";
     private static final String FILE_NAME = "fileName";
+    private static final String UID = "&uid=";
 
     private static WindowObjects windowObjects = WindowObjects.getInstance();
     private JSONUtils jsonUtils = new JSONUtils();
@@ -124,7 +125,8 @@ public class ESUtils {
         try {
             HttpClient httpClient = new DefaultHttpClient();
             String encodedJson = URLEncoder.encode(esQueryJson, UTF_8);
-            String esGetURL = url + encodedJson;
+
+            String esGetURL = url + encodedJson + UID + windowObjects.getBeagleId();
             String versionInfo = windowObjects.getOsInfo() + "  "
                     + windowObjects.getApplicationVersion() + "  "
                     + windowObjects.getPluginVersion();

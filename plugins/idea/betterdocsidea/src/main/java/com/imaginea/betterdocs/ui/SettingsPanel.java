@@ -18,10 +18,13 @@
 package com.imaginea.betterdocs.ui;
 
 import com.imaginea.betterdocs.action.RefreshAction;
+import com.imaginea.betterdocs.object.WindowObjects;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.options.Configurable;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
+import java.awt.Font;
+import java.util.UUID;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -32,7 +35,7 @@ import org.jetbrains.annotations.Nullable;
 public class SettingsPanel implements Configurable {
     public static final String BETTER_DOCS_SETTINGS = "BetterDocs Settings";
     private static final String COLUMN_SPECS = "pref, pref:grow";
-    private static final String ROW_SPECS = "pref, pref, pref, pref, pref, pref";
+    private static final String ROW_SPECS = "pref, pref, pref, pref, pref, pref, pref";
     private static final String ELASTIC_SEARCH_URL = "Elastic Search URL";
     private static final String RESULTS_SIZE = "Results size";
     private static final String DISTANCE_FROM_CURSOR = "Distance from cursor";
@@ -41,6 +44,7 @@ public class SettingsPanel implements Configurable {
         "Please enter comma separated regex"
             + "(e.g. java.util.[A-Z][a-z0-9]*, org.slf4j.Logger)";
     private static final String MAX_TINY_EDITORS = "Featured Count";
+    protected static final String BEAGLE_ID = "Beagle Id";
     private static final CellConstraints TOP_LEFT = new CellConstraints().xy(1, 1);
     private static final CellConstraints TOP_RIGHT = new CellConstraints().xy(2, 1);
     private static final CellConstraints FIRST_LEFT = new CellConstraints().xy(1, 2);
@@ -49,16 +53,19 @@ public class SettingsPanel implements Configurable {
     private static final CellConstraints SECOND_RIGHT = new CellConstraints().xy(2, 3);
     private static final CellConstraints THIRD_LEFT = new CellConstraints().xy(1, 4);
     private static final CellConstraints THIRD_RIGHT = new CellConstraints().xy(2, 4);
+    private static final CellConstraints FOURTH_LEFT = new CellConstraints().xy(1, 5);
     private static final CellConstraints FOURTH_RIGHT = new CellConstraints().xy(2, 5);
     private static final CellConstraints FIFTH_LEFT = new CellConstraints().xy(1, 6);
     private static final CellConstraints FIFTH_RIGHT = new CellConstraints().xy(2, 6);
+    private static final CellConstraints SIXTH_RIGHT = new CellConstraints().xy(2, 7);
+    private static final Integer HELPTEXT_FONTSIZE = 12;
 
     private JTextField excludeImportsText;
-
     private JTextField sizeText;
     private JTextField distanceText;
     private JTextField esURLText;
     private JTextField maxTinyEditorsText;
+    private WindowObjects windowObjects = WindowObjects.getWindowObjects();
 
     @Nls
     @Override
@@ -95,9 +102,13 @@ public class SettingsPanel implements Configurable {
 
         JLabel helpText = new JLabel(HELP_TEXT);
         helpText.setVisible(true);
+        helpText.setFont(new Font("Plain", Font.PLAIN, HELPTEXT_FONTSIZE));
 
         JLabel maxTinyEditors = new JLabel(MAX_TINY_EDITORS);
         maxTinyEditors.setVisible(true);
+
+        JLabel beagleId = new JLabel(BEAGLE_ID);
+        beagleId.setVisible(true);
 
         esURLText = new JTextField();
         esURLText.setEditable(true);
@@ -114,14 +125,14 @@ public class SettingsPanel implements Configurable {
         sizeText.setVisible(true);
 
         sizeText.setText(propertiesComponent.getValue(RefreshAction.SIZE,
-                            String.valueOf(RefreshAction.SIZE_DEFAULT_VALUE)));
+                String.valueOf(RefreshAction.SIZE_DEFAULT_VALUE)));
 
         distanceText = new JTextField();
         distanceText.setEditable(true);
         distanceText.setVisible(true);
 
         distanceText.setText(propertiesComponent.getValue(RefreshAction.DISTANCE,
-                            String.valueOf(RefreshAction.DISTANCE_DEFAULT_VALUE)));
+                String.valueOf(RefreshAction.DISTANCE_DEFAULT_VALUE)));
 
         excludeImportsText = new JTextField();
         excludeImportsText.setEditable(true);
@@ -136,20 +147,32 @@ public class SettingsPanel implements Configurable {
         maxTinyEditorsText.setEditable(true);
         maxTinyEditorsText.setVisible(true);
         maxTinyEditorsText.setText(propertiesComponent.getValue(RefreshAction.MAX_TINY_EDITORS,
-                                    String.valueOf(RefreshAction.MAX_EDITORS_DEFAULT_VALUE)));
+                String.valueOf(RefreshAction.MAX_EDITORS_DEFAULT_VALUE)));
+
+        JLabel beagleIdValue = new JLabel();
+        beagleIdValue.setVisible(true);
+
+        if (!propertiesComponent.isValueSet(BEAGLE_ID)) {
+            windowObjects.setBeagleId(UUID.randomUUID().toString());
+            beagleIdValue.setText(windowObjects.getBeagleId());
+        } else {
+            beagleIdValue.setText(propertiesComponent.getValue(BEAGLE_ID));
+        }
 
         JPanel jPanel = new JPanel(formLayout);
-        jPanel.add(distance, TOP_LEFT);
-        jPanel.add(distanceText, TOP_RIGHT);
-        jPanel.add(size, FIRST_LEFT);
-        jPanel.add(sizeText, FIRST_RIGHT);
-        jPanel.add(esURL, SECOND_LEFT);
-        jPanel.add(esURLText, SECOND_RIGHT);
-        jPanel.add(excludeImports, THIRD_LEFT);
-        jPanel.add(excludeImportsText, THIRD_RIGHT);
-        jPanel.add(helpText, FOURTH_RIGHT);
-        jPanel.add(maxTinyEditors, FIFTH_LEFT);
-        jPanel.add(maxTinyEditorsText, FIFTH_RIGHT);
+        jPanel.add(beagleId, TOP_LEFT);
+        jPanel.add(beagleIdValue, TOP_RIGHT);
+        jPanel.add(distance, FIRST_LEFT);
+        jPanel.add(distanceText, FIRST_RIGHT);
+        jPanel.add(size, SECOND_LEFT);
+        jPanel.add(sizeText, SECOND_RIGHT);
+        jPanel.add(esURL, THIRD_LEFT);
+        jPanel.add(esURLText, THIRD_RIGHT);
+        jPanel.add(maxTinyEditors, FOURTH_LEFT);
+        jPanel.add(maxTinyEditorsText, FOURTH_RIGHT);
+        jPanel.add(excludeImports, FIFTH_LEFT);
+        jPanel.add(excludeImportsText, FIFTH_RIGHT);
+        jPanel.add(helpText, SIXTH_RIGHT);
 
         return jPanel;
     }
