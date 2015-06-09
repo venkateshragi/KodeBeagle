@@ -27,12 +27,15 @@ import com.imaginea.betterdocs.util.WindowEditorOps;
 import com.imaginea.betterdocs.object.WindowObjects;
 import com.intellij.icons.AllIcons;
 import com.intellij.ide.BrowserUtil;
+import com.intellij.ide.DataManager;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.DataConstants;
+import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
@@ -115,6 +118,7 @@ public class RefreshAction extends AnAction {
     private static final double INDICATOR_FRACTION = 0.5;
     public static final int MAX_EDITORS_DEFAULT_VALUE = 10;
     public static final String MAX_TINY_EDITORS = "maxTinyEditors";
+    private static final String PROJECT_ERROR = "Unable to get Project. Please Try again";
 
     private WindowObjects windowObjects = WindowObjects.getInstance();
     private WindowEditorOps windowEditorOps = new WindowEditorOps();
@@ -133,9 +137,8 @@ public class RefreshAction extends AnAction {
 
     @Override
     public final void actionPerformed(@NotNull final AnActionEvent anActionEvent) {
-        init(anActionEvent);
         try {
-            runAction();
+            init();
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
@@ -374,14 +377,22 @@ public class RefreshAction extends AnAction {
         this.jTabbedPane = pJTabbedPane;
     }
 
-    private void init(@NotNull final AnActionEvent anActionEvent) {
-        windowObjects.setProject(anActionEvent.getProject());
-        windowObjects.setDistance(propertiesComponent.
-                getOrInitInt(DISTANCE, DISTANCE_DEFAULT_VALUE));
-        windowObjects.setSize(propertiesComponent.getOrInitInt(SIZE, SIZE_DEFAULT_VALUE));
-        windowObjects.setEsURL(propertiesComponent.getValue(ES_URL, ES_URL_DEFAULT));
-        maxTinyEditors =
-                propertiesComponent.getOrInitInt(MAX_TINY_EDITORS, MAX_EDITORS_DEFAULT_VALUE);
+    public final void init() throws IOException {
+        DataContext dataContext = DataManager.getInstance().getDataContext();
+        Project project = (Project) dataContext.getData(DataConstants.PROJECT);
+        if (project != null) {
+            windowObjects.setProject(project);
+            windowObjects.setDistance(propertiesComponent.
+                    getOrInitInt(DISTANCE, DISTANCE_DEFAULT_VALUE));
+            windowObjects.setSize(propertiesComponent.getOrInitInt(SIZE, SIZE_DEFAULT_VALUE));
+            windowObjects.setEsURL(propertiesComponent.getValue(ES_URL, ES_URL_DEFAULT));
+            maxTinyEditors =
+                    propertiesComponent.getOrInitInt(MAX_TINY_EDITORS, MAX_EDITORS_DEFAULT_VALUE);
+            runAction();
+        } else {
+            showHelpInfo(PROJECT_ERROR);
+            goToAllPane();
+        }
     }
 
     private void sortCodePaneTinyEditorsInfoList(final List<CodeInfo> codePaneTinyEditorsList) {

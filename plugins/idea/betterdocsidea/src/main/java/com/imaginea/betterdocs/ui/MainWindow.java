@@ -42,6 +42,9 @@ import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.components.JBTabbedPane;
 import com.intellij.ui.treeStructure.Tree;
 import java.awt.Dimension;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.IOException;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JComponent;
@@ -84,7 +87,7 @@ public class MainWindow implements ToolWindowFactory {
                 createEditor(document, project, FileTypeManager.getInstance().
                         getFileTypeByExtension(JAVA), false);
 
-        RefreshAction refreshAction = new RefreshAction();
+        final RefreshAction refreshAction = new RefreshAction();
         EditSettingsAction editSettingsAction = new EditSettingsAction();
         ExpandProjectTreeAction expandProjectTreeAction = new ExpandProjectTreeAction();
         CollapseProjectTreeAction collapseProjectTreeAction = new CollapseProjectTreeAction();
@@ -99,12 +102,25 @@ public class MainWindow implements ToolWindowFactory {
         group.add(collapseProjectTreeAction);
         group.addSeparator();
         group.add(editSettingsAction);
-        JComponent toolBar = ActionManager.getInstance().
+        final JComponent toolBar = ActionManager.getInstance().
                 createActionToolbar(BETTERDOCS, group, true).
                 getComponent();
         toolBar.setBorder(BorderFactory.createCompoundBorder());
 
         toolBar.setMaximumSize(new Dimension(Integer.MAX_VALUE, toolBar.getMinimumSize().height));
+        toolBar.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(final PropertyChangeEvent evt) {
+                if (toolBar.isShowing()) {
+                    try {
+                        refreshAction.init();
+                    } catch (IOException ioe) {
+                        ioe.printStackTrace();
+                    }
+                }
+            }
+        });
+
 
 
         JBScrollPane jTreeScrollPane = new JBScrollPane();
