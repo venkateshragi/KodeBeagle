@@ -57,7 +57,7 @@
     </actions>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="Better Docs" anchor="right" factoryClass="com.imaginea.betterdocs.ui.MainWindow"/>
+        <toolWindow id="Better Docs" icon="AllIcons.Toolwindows.Documentation" anchor="right" factoryClass="com.imaginea.betterdocs.ui.MainWindow"/>
         <applicationConfigurable instance="com.imaginea.betterdocs.ui.SettingsPanel"/>
     </extensions>
 </idea-plugin>

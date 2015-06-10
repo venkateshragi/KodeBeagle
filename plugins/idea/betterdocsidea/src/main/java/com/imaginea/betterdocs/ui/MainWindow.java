@@ -23,7 +23,7 @@ import com.imaginea.betterdocs.action.EditSettingsAction;
 import com.imaginea.betterdocs.action.ExpandProjectTreeAction;
 import com.imaginea.betterdocs.action.RefreshAction;
 import com.imaginea.betterdocs.object.WindowObjects;
-import com.intellij.icons.AllIcons;
+
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.ide.plugins.PluginManager;
 import com.intellij.openapi.actionSystem.ActionManager;
@@ -71,8 +71,8 @@ public class MainWindow implements ToolWindowFactory {
 
     @Override
     public final void createToolWindowContent(final Project project, final ToolWindow toolWindow) {
+
         initSystemInfo();
-        toolWindow.setIcon(AllIcons.Toolwindows.Documentation);
         DefaultMutableTreeNode root = new DefaultMutableTreeNode(PROJECTS);
 
         JTree jTree = new Tree(root);
