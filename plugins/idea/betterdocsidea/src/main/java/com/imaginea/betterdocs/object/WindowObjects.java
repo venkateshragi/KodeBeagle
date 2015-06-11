@@ -39,6 +39,34 @@ public final class WindowObjects {
     private Map<String, List<Integer>> fileNameNumbersMap = new HashMap<String, List<Integer>>();
     private Map<String, String> repoStarsMap = new HashMap<String, String>();
     private Map<String, Integer> repoNameIdMap = new HashMap<String, Integer>();
+    private String osInfo;
+    private String applicationVersion;
+    private String pluginVersion;
+
+    public String getPluginVersion() {
+        return pluginVersion;
+    }
+
+    public String getOsInfo() {
+        return osInfo;
+    }
+
+    public String getApplicationVersion() {
+        return applicationVersion;
+    }
+
+    public void setOsInfo(final String posInfo) {
+
+        this.osInfo = posInfo;
+    }
+
+    public void setApplicationVersion(final String papplicationVersion) {
+        this.applicationVersion = papplicationVersion;
+    }
+
+    public void setPluginVersion(final String ppluginVersion) {
+        this.pluginVersion = ppluginVersion;
+    }
 
     public JBScrollPane getjTreeScrollPane() {
         return jTreeScrollPane;

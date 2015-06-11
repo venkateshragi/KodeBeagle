@@ -196,7 +196,6 @@ public class ProjectTree {
         return url;
     }
 
-    @NotNull
     private AbstractAction addOpenInNewTabMenuItem(final CodeInfo codeInfo) {
         return new AbstractAction() {
             @Override

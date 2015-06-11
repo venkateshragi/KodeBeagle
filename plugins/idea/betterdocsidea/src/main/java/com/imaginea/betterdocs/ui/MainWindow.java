@@ -24,11 +24,15 @@ import com.imaginea.betterdocs.action.ExpandProjectTreeAction;
 import com.imaginea.betterdocs.action.RefreshAction;
 import com.imaginea.betterdocs.object.WindowObjects;
 import com.intellij.icons.AllIcons;
+import com.intellij.ide.plugins.IdeaPluginDescriptor;
+import com.intellij.ide.plugins.PluginManager;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.application.ApplicationInfo;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
+import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
@@ -57,12 +61,17 @@ public class MainWindow implements ToolWindowFactory {
     private static final int EDITOR_SCROLL_PANE_WIDTH = 200;
     private static final int EDITOR_SCROLL_PANE_HEIGHT = 300;
     private static final String BETTERDOCS = "BetterDocs";
+    private static final String IDEA_PLUGIN = "Idea-Plugin";
+    private static final String PLUGIN_ID = "betterdocsidea";
+    private static final String OS_NAME = "os.name";
+    private static final String OS_VERSION = "os.version";
     private static final int UNIT_INCREMENT = 16;
     private WindowEditorOps windowEditorOps = new WindowEditorOps();
-    private Editor windowEditor;
+    private WindowObjects windowObjects = WindowObjects.getInstance();
 
     @Override
     public final void createToolWindowContent(final Project project, final ToolWindow toolWindow) {
+        initSystemInfo();
         toolWindow.setIcon(AllIcons.Toolwindows.Documentation);
         DefaultMutableTreeNode root = new DefaultMutableTreeNode(PROJECTS);
 
@@ -71,15 +80,14 @@ public class MainWindow implements ToolWindowFactory {
         jTree.setAutoscrolls(true);
 
         Document document = EditorFactory.getInstance().createDocument("");
-        windowEditor = EditorFactory.getInstance().
-                        createEditor(document, project, FileTypeManager.getInstance().
-                                getFileTypeByExtension(JAVA), false);
+        Editor windowEditor = EditorFactory.getInstance().
+                createEditor(document, project, FileTypeManager.getInstance().
+                        getFileTypeByExtension(JAVA), false);
 
         RefreshAction refreshAction = new RefreshAction();
         EditSettingsAction editSettingsAction = new EditSettingsAction();
         ExpandProjectTreeAction expandProjectTreeAction = new ExpandProjectTreeAction();
         CollapseProjectTreeAction collapseProjectTreeAction = new CollapseProjectTreeAction();
-        WindowObjects windowObjects = WindowObjects.getInstance();
 
         windowObjects.setTree(jTree);
         windowObjects.setWindowEditor(windowEditor);
@@ -139,5 +147,18 @@ public class MainWindow implements ToolWindowFactory {
         toolWindow.getComponent().getParent().add(mainPanel);
         //Dispose the editor once it's no longer needed
         windowEditorOps.releaseEditor(project, windowEditor);
+    }
+
+    private void initSystemInfo() {
+        windowObjects.setOsInfo(System.getProperty(OS_NAME) + "/"
+                + System.getProperty(OS_VERSION));
+        windowObjects.setApplicationVersion(ApplicationInfo.getInstance().getVersionName()
+                + "/" + ApplicationInfo.getInstance().getBuild().toString());
+        IdeaPluginDescriptor codeBeagleVersion =
+                            PluginManager.getPlugin(PluginId.getId(PLUGIN_ID));
+
+        if (codeBeagleVersion != null) {
+            windowObjects.setPluginVersion(IDEA_PLUGIN + "/" + codeBeagleVersion.getVersion());
+        }
     }
 }

@@ -203,7 +203,6 @@ public class RefreshAction extends AnAction {
         return projectNodes;
     }
 
-    @NotNull
     private List<String> getFileNamesListForTinyEditors(final List<CodeInfo> codePaneTinyEditors) {
         List<String> fileNamesList = new ArrayList<String>();
         for (CodeInfo codePaneTinyEditorInfo : codePaneTinyEditors) {
@@ -311,8 +310,6 @@ public class RefreshAction extends AnAction {
         codePaneTinyEditorJPanel.repaint();
     }
 
-
-    @NotNull
     private List<CodeInfo> getCodePaneTinyEditorsInfoList(final Map<String,
                                                           ArrayList<CodeInfo>> projectNodes) {
         int maxEditors = maxTinyEditors;
