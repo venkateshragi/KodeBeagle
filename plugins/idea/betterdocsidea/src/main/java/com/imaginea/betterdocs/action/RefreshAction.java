@@ -389,6 +389,7 @@ public class RefreshAction extends AnAction {
             windowObjects.setEsURL(propertiesComponent.getValue(ES_URL, ES_URL_DEFAULT));
             maxTinyEditors =
                     propertiesComponent.getOrInitInt(MAX_TINY_EDITORS, MAX_EDITORS_DEFAULT_VALUE);
+            windowEditorOps.writeToDocument("", windowObjects.getWindowEditor().getDocument());
             runAction();
         } else {
             showHelpInfo(PROJECT_ERROR);
