@@ -6,4 +6,5 @@
 
 <suppressions>
     <suppress files="src/main/resources/icons/*" checks="[a-zA-Z0-9]*"/>
+	<suppress files="src/main/java/com/imaginea/betterdocs/ui/WrapLayout.java" checks="[a-zA-Z0-9]*"/>
 </suppressions>

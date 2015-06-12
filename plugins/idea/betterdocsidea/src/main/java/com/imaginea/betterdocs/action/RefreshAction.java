@@ -18,6 +18,7 @@
 package com.imaginea.betterdocs.action;
 
 import com.imaginea.betterdocs.model.CodeInfo;
+import com.imaginea.betterdocs.ui.WrapLayout;
 import com.imaginea.betterdocs.util.ESUtils;
 import com.imaginea.betterdocs.util.EditorDocOps;
 import com.imaginea.betterdocs.util.JSONUtils;
@@ -264,7 +265,7 @@ public class RefreshAction extends AnAction {
                         createEditor(tinyEditorDoc, project, fileType, false);
         windowEditorOps.releaseEditor(project, tinyEditor);
 
-        JPanel expandPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel expandPanel = new JPanel(new WrapLayout());
 
         final String projectName = esUtils.getProjectName(fileName);
 

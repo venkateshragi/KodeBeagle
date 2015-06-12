@@ -157,6 +157,7 @@ public class MainWindow implements ToolWindowFactory {
         editorScrollPane.setPreferredSize(new Dimension(EDITOR_SCROLL_PANE_WIDTH,
                 EDITOR_SCROLL_PANE_HEIGHT));
         editorScrollPane.getVerticalScrollBar().setUnitIncrement(UNIT_INCREMENT);
+        editorScrollPane.setHorizontalScrollBarPolicy(JBScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
         windowObjects.setPanel(editorPanel);
 
