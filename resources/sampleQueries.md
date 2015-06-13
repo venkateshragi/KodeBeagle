@@ -7,13 +7,13 @@ curl 'http://172.16.12.201:9201/repository/_search?size=750' --data '{"query":{"
 #Search by import
 
 ```
-curl 'http://172.16.12.201:9201/betterdocs/_search?size=50' --data '{"query":{"bool":{"must":[{"term":{"custom.tokens.importName":"java.nio.MappedByteBuffer"}}],"must_not":[],"should":[]}},"sort":[{"score":{"order":"desc"}}]}'
+curl 'http://172.16.12.201:9201/kodebeagle/_search?size=50' --data '{"query":{"bool":{"must":[{"term":{"custom.tokens.importName":"java.nio.MappedByteBuffer"}}],"must_not":[],"should":[]}},"sort":[{"score":{"order":"desc"}}]}'
 ```
 
 #Search by import - with wildcard
 
 ```
-curl 'http://172.16.12.201:9201/betterdocs/_search?size=50' --data '{"query":{"bool":{"must":[{"wildcard":{"custom.tokens.importName":"*FileChannel"}},{"wildcard":{"custom.tokens.importName":"*MappedByteBuffer"}}],"must_not":[],"should":[]}},"sort":[{"score":{"order":"desc"}}]}'
+curl 'http://172.16.12.201:9201/kodebeagle/_search?size=50' --data '{"query":{"bool":{"must":[{"wildcard":{"custom.tokens.importName":"*FileChannel"}},{"wildcard":{"custom.tokens.importName":"*MappedByteBuffer"}}],"must_not":[],"should":[]}},"sort":[{"score":{"order":"desc"}}]}'
 ```
 
 #Query to fetch file

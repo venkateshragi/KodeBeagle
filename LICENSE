@@ -214,7 +214,7 @@ licenses.
 =======================================================================
 
 For the WrapLayout.java file 
-(plugins/idea/betterdocsidea/src/main/java/com/imaginea/betterdocs/ui/WrapLayout.java):
+(plugins/idea/kodebeagleidea/src/main/java/com/imaginea/kodebeagle/ui/WrapLayout.java):
 
 LGPL-2.1 License from project SwingX (https://java.net/projects/swingx).
 =======================================================================

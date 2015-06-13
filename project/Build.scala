@@ -23,18 +23,18 @@ import de.johoop.findbugs4sbt.FindBugs._
 import de.johoop.cpd4sbt.CopyPasteDetector._
 import de.johoop.cpd4sbt.Language
 
-object BetterDocsBuild extends Build {
+object KodeBeagleBuild extends Build {
 
   lazy val root = Project(
-    id = "betterdocs",
+    id = "kodebeagle",
     base = file("."),
-    settings = betterDocsSettings,
+    settings = kodebeagleSettings,
     aggregate = aggregatedProjects
   ).enablePlugins(GitVersioning).enablePlugins(GitBranchPrompt)
 
   lazy val core = Project("core", file("core"), settings = coreSettings)
 
-  lazy val ideaPlugin = Project("ideaPlugin", file("plugins/idea/betterdocsidea"), settings =
+  lazy val ideaPlugin = Project("ideaPlugin", file("plugins/idea/kodebeagleidea"), settings =
     pluginSettingsFull ++ findbugsSettings ++ codequality.CodeQualityPlugin.Settings)
 
   lazy val pluginTests = Project("pluginTests", file("plugins/idea/pluginTests"), settings =
@@ -56,9 +56,9 @@ object BetterDocsBuild extends Build {
     }
   }
 
-  def pluginSettings = betterDocsSettings ++ (if (ideaLib.isEmpty) Seq() else
+  def pluginSettings = kodebeagleSettings ++ (if (ideaLib.isEmpty) Seq() else
     cpdSettings ++ Seq(
-    name := "BetterDocsIdeaPlugin",
+    name := "KodeBeagleIdeaPlugin",
     libraryDependencies ++= Dependencies.ideaPlugin,
     autoScalaLibrary := false,
     cpdLanguage := Language.Java,
@@ -82,12 +82,12 @@ object BetterDocsBuild extends Build {
     scalaVersion := "2.11.6"
     )
 
-  def coreSettings = betterDocsSettings ++ Seq(libraryDependencies ++= Dependencies.betterDocs)
+  def coreSettings = kodebeagleSettings ++ Seq(libraryDependencies ++= Dependencies.kodebeagle)
 
-  def betterDocsSettings =
+  def kodebeagleSettings =
     Defaults.coreDefaultSettings ++ Seq (
-      name := "BetterDocs",
-      organization := "com.betterdocs",
+      name := "KodeBeagle",
+      organization := "com.kodebeagle",
       git.baseVersion := "0.1.0",
       scalaVersion := "2.11.6",
       git.useGitDescribe := true,
@@ -117,7 +117,7 @@ object Dependencies {
   val jgit = "org.eclipse.jgit" % "org.eclipse.jgit" % "3.7.0.201502260915-r"
   val commonsIO = "commons-io" % "commons-io" % "2.4"
 
-  val betterDocs = Seq(spark, parserCombinator, scalaTest, slf4j, javaparser, json4s, config,
+  val kodebeagle = Seq(spark, parserCombinator, scalaTest, slf4j, javaparser, json4s, config,
     json4sJackson, jgit, commonsIO)
   val ideaPluginTest = Seq(scalaTest, commonsIO)
   val ideaPlugin = Seq()

@@ -3,7 +3,7 @@
 use strict;
 
 
-open FILE, "plugins/idea/betterdocsidea/target/findbugs/report.xml" or die "Couldn't open file: $!"; 
+open FILE, "plugins/idea/kodebeagleidea/target/findbugs/report.xml" or die "Couldn't open file: $!"; 
 
 my $string = "";
 my $count = -1;
@@ -24,7 +24,7 @@ print "SUCCESS: No findbug violations\n";
 close FILE;
 
 # Checkstyle
-open FILE, "plugins/idea/betterdocsidea/target/checkstyle-result.xml" or die "Couldn't open file: $!"; 
+open FILE, "plugins/idea/kodebeagleidea/target/checkstyle-result.xml" or die "Couldn't open file: $!"; 
 
 my $string = "";
 my $count = 0;
@@ -51,7 +51,7 @@ print "SUCCESS: No checkstyle violations\n";
 close FILE;
 
 # PMD
-open FILE, "plugins/idea/betterdocsidea/target/pmd.xml" or die "Couldn't open file: $!"; 
+open FILE, "plugins/idea/kodebeagleidea/target/pmd.xml" or die "Couldn't open file: $!"; 
 
 my $string = "";
 my $count = 0;

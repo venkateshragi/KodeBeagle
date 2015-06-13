@@ -1,6 +1,6 @@
 http.cors.enabled: true
 discovery.zen.ping.multicast.enabled: false
-cluster.name: betterdocs
+cluster.name: kodebeagle
 transport.tcp.port: 9301
 transport.tcp.compress: true
 http.port: 9201

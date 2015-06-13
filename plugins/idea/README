@@ -1,6 +1,6 @@
-To make intellij plugin for betterdocs recognized as a plugin project in idea, follow these steps.
+To make intellij plugin for kodebeagle recognized as a plugin project in idea, follow these steps.
 
-Step 1. Import Betterdocs as Top level project into intelliJ.
+Step 1. Import Kodebeagle as Top level project into intelliJ.
 
 * Install scala plugin, incase it is not already installed.
 

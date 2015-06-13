@@ -1,0 +1,64 @@
+<idea-plugin version="3">
+  <id>kodebeagleidea</id>
+  <name>Kode Beagle</name>
+  <version>VERSION_STRING</version> <!-- This gets auto updated by SBT during package -->
+
+  <vendor email="kodebeagle@googlegroups.com" url="https://github.com/Imaginea/KodeBeagle">Imaginea</vendor>
+
+  <description><![CDATA[
+    <strong><i>Kodebeagle</i></strong>
+<br/>
+  <p>  A tool to assist you when you need code references.
+  As Developers, we tend to hunt for best-practices of using common and uncommon libraries in order to make our code
+  more efficient. Often, a lot of time and energy is spent understanding the pros and cons of different approaches.
+  KodeBeagle aims to solve this problem. It cites common practices from standard code references.
+  </p>
+<br/>
+  How it works?
+<br/><p>
+  It goes through existing popular public projects and gathering required information. When a user searches,
+  it queries the database and fetches relevant results.
+
+  Currently, the source for code of popular projects is Github</p>
+<br/><p>
+  Technology Stack : Elastic Search, Spark</p>
+<br/><p>
+  <b>Current Status:</b> Beta</p>
+<br/><p>
+  <b>Supported Languages:</b> Java</p>
+  <b>Report issues:</b> <a href="https://github.com/Imaginea/KodeBeagle/issues">Kodebeagle issue tracker</a>
+
+    ]]></description>
+
+  <change-notes><![CDATA[
+    See milestone for this version(VERSION_STRING) at: <a href="https://github.com/Imaginea/KodeBeagle/milestones">
+    Milestones</a> on github.
+    ]]>
+  </change-notes>
+
+  <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
+  <idea-version since-build="135"/>
+
+  <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Plugin+Compatibility+with+IntelliJ+Platform+Products
+       on how to target different products -->
+  <!-- uncomment to enable plugin in all products
+  <depends>com.intellij.modules.lang</depends>
+  -->
+
+  <application-components>
+    <!-- Add your application components here -->
+  </application-components>
+
+  <project-components>
+    <!-- Add your project components here -->
+  </project-components>
+    <actions>
+
+    </actions>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow id="Kode Beagle" icon="AllIcons.Toolwindows.Documentation" anchor="right" factoryClass="com.imaginea.kodebeagle.ui.MainWindow"/>
+        <applicationConfigurable instance="com.imaginea.kodebeagle.ui.SettingsPanel"/>
+    </extensions>
+</idea-plugin>
+

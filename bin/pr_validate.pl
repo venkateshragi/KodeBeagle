@@ -3,7 +3,7 @@
 use strict;
 
 
-open FILE, "plugins/idea/betterdocsidea/src/main/resources/META-INF/plugin.xml" or die "Couldn't open file: $!"; 
+open FILE, "plugins/idea/kodebeagleidea/src/main/resources/META-INF/plugin.xml" or die "Couldn't open file: $!"; 
 
 my $string = "";
 my $count = 0;
@@ -25,5 +25,6 @@ if ($count < 2) {
     exit(1);
 }
 
-print "SUCCESS: PR validations.\n";
 close FILE;
+
+print "SUCCESS: PR validations.\n";

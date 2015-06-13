@@ -19,17 +19,17 @@
 # This script is a helper script to upload spark generated output to elasticSearch.
 # DISCLAIMER: There are no defensive checks please use it carefully.
 
-echo "Clearing betterdocs related indices from elasticsearch."
-curl -XDELETE 'http://localhost:9201/betterdocs/'
+echo "Clearing kodebeagle related indices from elasticsearch."
+curl -XDELETE 'http://localhost:9201/kodebeagle/'
 curl -XDELETE 'http://localhost:9201/sourcefile/'
 curl -XDELETE 'http://localhost:9201/repository/'
 
-# create a betterdocs index
-curl -XPUT 'http://localhost:9201/betterdocs/'
+# create a kodebeagle index
+curl -XPUT 'http://localhost:9201/kodebeagle/'
 
-# Updating mappings and types for betterdocs index.
+# Updating mappings and types for kodebeagle index.
 
-curl -XPUT 'localhost:9201/betterdocs/custom/_mapping' -d '
+curl -XPUT 'localhost:9201/kodebeagle/custom/_mapping' -d '
 {
     "custom" : {
         "properties" : {
