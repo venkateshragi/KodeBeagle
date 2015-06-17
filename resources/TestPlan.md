@@ -165,3 +165,10 @@
 <img src = 'screenshots/before-reset.png'/>
 5. Click on 'Reset' Button which should reset all the values to previously set values.<br>
 <img src = 'screenshots/after-reset.png'/>
+
+#### 27. [idea] #200 Show correct help message when no imports are present in java file
+##### fixes <a href='https://github.com/Imaginea/KodeBeagle/issues/200> #200 </a>
+1. Open KodeBeagle plugin, select code from any java file (with no imports present) and hit refresh action.
+2. All pane should have message "Got nothing to search".<br>
+<img src='screenshots/150.png'/>
+

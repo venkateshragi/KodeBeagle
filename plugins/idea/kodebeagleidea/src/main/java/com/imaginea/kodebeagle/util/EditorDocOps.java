@@ -41,6 +41,7 @@ import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiPackage;
 import com.intellij.psi.search.GlobalSearchScope;
@@ -387,5 +388,16 @@ public class EditorDocOps {
             }
         }
         return imports;
+    }
+
+    public final boolean isJavaFile(final Document document) {
+        PsiDocumentManager psiInstance = PsiDocumentManager.getInstance(windowObjects.getProject());
+        if (psiInstance != null && (psiInstance.getPsiFile(document)) != null) {
+            PsiFile psiFile = psiInstance.getPsiFile(document);
+            if (psiFile instanceof PsiJavaFile) {
+                return true;
+            }
+        }
+        return false;
     }
 }

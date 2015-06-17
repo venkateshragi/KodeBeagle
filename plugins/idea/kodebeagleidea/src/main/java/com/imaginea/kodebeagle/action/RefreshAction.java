@@ -160,14 +160,17 @@ public class RefreshAction extends AnAction {
             jTree.setVisible(true);
             windowObjects.getCodePaneTinyEditorsJPanel().removeAll();
 
-            Set<String> finalImports = getFinalImports(projectEditor.getDocument());
-
-            if (!finalImports.isEmpty()) {
-                Set<String> importsInLines = getImportsInLines(projectEditor, finalImports);
-                if (!importsInLines.isEmpty()) {
-                    Notification notification = showQueryTokensNotification(importsInLines);
-                    ProgressManager.getInstance().run(new QueryBDServerTask(importsInLines,
-                            finalImports, jTree, model, root, notification));
+            if (editorDocOps.isJavaFile(projectEditor.getDocument())) {
+                Set<String> finalImports = getFinalImports(projectEditor.getDocument());
+                if (!finalImports.isEmpty()) {
+                    Set<String> importsInLines = getImportsInLines(projectEditor, finalImports);
+                    if (!importsInLines.isEmpty()) {
+                        Notification notification = showQueryTokensNotification(importsInLines);
+                        ProgressManager.getInstance().run(new QueryBDServerTask(importsInLines,
+                                finalImports, jTree, model, root, notification));
+                    } else {
+                        showHelpInfo(HELP_MESSAGE);
+                    }
                 } else {
                     showHelpInfo(HELP_MESSAGE);
                 }
