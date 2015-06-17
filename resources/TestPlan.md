@@ -64,12 +64,12 @@
 
 #### 11. [ideaplugin] Registered window editor with disposer to release after it's usage.
 ##### fixes <a href='https://github.com/Imaginea/KodeBeagle/issues/67'> #67 </a>
-1. No 'Editor has not been released..' Exception after closing the plugin in idea.log/console.
+1. No 'Editor has not been released..' Exception after closing the plugin in idea.log/console.<br>
 <img src='screenshots/107.png'/> 
 
 #### 12. [ideaplugin] Taking number of tiny editors in featured pane through settings panel.
 ##### fixes <a href='https://github.com/Imaginea/KodeBeagle/issues/174'> #174 </a>
-1. Click on settings in toolbar. This should open Settings panel.
+1. Click on settings in toolbar. This should open Settings panel.<br>
 <img src='screenshots/174.png'/>
 2. Change Featured Count to 10 and click on 'Apply' button followed by 'Ok' button
 3. Hit refresh button.
@@ -77,30 +77,30 @@
 
 #### 13. [ideaplugin] Tabbed UI alterations.
 ##### fixes <a href='https://github.com/Imaginea/KodeBeagle/issues/150'> #150 </a>
-1. Open the Kodebeagle plugin, it should have two panes named Featured and all from left to right.
+1. Open the Kodebeagle plugin, it should have two panes named Featured and all from left to right.<br>
 <img src='screenshots/150.png'/>
 2. Hit refresh button to check search results in both panes.
 
 #### 14. [ideaplugin] Plugin throwing exception if HTTP response code from elastic search is not 200.
 ##### fixes <a href='https://github.com/Imaginea/KodeBeagle/issues/139'> #139 </a>
-1. Open Settings Panel, change 'Elastic Search URL' to labs.imaginea.com.
+1. Open Settings Panel, change 'Elastic Search URL' to labs.imaginea.com.<br>
 <img src='screenshots/139.png'/>
 2. Apply and click 'Ok'.
 3. Hit refresh button.
-4. All Pane Should have message "Connection Error: 404 Not Found".
+4. All Pane Should have message "Connection Error: 404 Not Found".<br>
 <img src='screenshots/connection_error.png'/>
 5. No Exception after closing the plugin in idea.log/console.
 
 #### 15. [ideaplugin] Rename "Repo Stars" in Code Pane to "Score:" and make "Repo Name" clickable.
 ##### fixes <a href='https://github.com/Imaginea/KodeBeagle/issues/151'> #151 </a>
 1. Open Kodebeagle plugin, select code and hit refresh action.
-2. Check the featured pane tiny editors header, clicking on the project name should open project repo in github.com.
+2. Check the featured pane tiny editors header, clicking on the project name should open project repo in github.com.<br>
 <img src='screenshots/151.png'/>
 
 #### 16. [ideaplugin] Expire notification bubble in 3 or 4 seconds.
 ##### fixes <a href='https://github.com/Imaginea/KodeBeagle/issues/157'> #157 </a>
 1. Open Kodebeagle plugin, select code and hit refresh action.
-2. If ES Result returns no results notification should expire.
+2. If ES Result returns no results notification should expire.<br>
 <img src='screenshots/157.png'/>
 
 #### 17. [ideaplugin] NPE while using the plugin.
@@ -110,7 +110,7 @@
 
 #### 18. [ideaplugin] Add UUID to request context and settins panel.
 ##### fixes <a href='https://github.com/Imaginea/KodeBeagle/issues/168'> #168 </a>
-1. Open Kodebeagle plugin, click on settings and check the generated plugin ID.
+1. Open Kodebeagle plugin, click on settings and check the generated plugin ID.<br>
 <img src='screenshots/168.png'/>
 2. Plugin ID added to request context as well.
 
@@ -121,9 +121,9 @@
 #### 20. [ideaplugin] TinyEditors are not honoring soft wrap of intellij.
 ##### fixes <a href='https://github.com/Imaginea/KodeBeagle/issues/126'> #126 </a>
 1. Open Kodebeagle plugin, select code and hit refresh action.
-2. Make sure soft wrap is checked in intellij editor settings.
+2. Make sure soft wrap is checked in intellij editor settings.<br>
 <img src='screenshots/soft_wrap.png'/>
-3. Check the featured pane tiny editors, try to resizing them.Tiny editors should honor intellij soft wrap.
+3. Check the featured pane tiny editors, try to resizing them.Tiny editors should honor intellij soft wrap.<br>
 <img src='screenshots/126.png'/>
 
 #### 21. [idea] #191 Added icon to plugin tool window in plugin.xml instead of setting it in MainWindow
@@ -140,18 +140,19 @@
 <img src='screenshots/legalNotice.png'/>
 
 #### 23. [idea] #180 clearing all pane preview editor before every new request
-##### fixes <a href='https://github.com/Imaginea/KodeBeagle/issues/180> #180 </a>
+##### fixes <a href='https://github.com/Imaginea/KodeBeagle/issues/180'> #180 </a>
 1. After every new request(clicking refresh action button) contents of main window preview editor should be cleared.<br>
 <img src='screenshots/clearMainPanePreviewEditor.png'/>
 
 #### 24. [idea] #83 added keyboard shortcut to plugin
-##### fixes <a href='https://github.com/Imaginea/KodeBeagle/issues/83> #83 </a>
+##### fixes <a href='https://github.com/Imaginea/KodeBeagle/issues/83'> #83 </a>
 1. KodeBeagle idea plugin can be shown/hidden by hitting "alt" + 8
 
 #### 25. [idea] #50 results will be updated on opening plugin window 
-##### fixes <a href='https://github.com/Imaginea/KodeBeagle/issues/50> #50 </a>
+##### fixes <a href='https://github.com/Imaginea/KodeBeagle/issues/50'> #50 </a>
 1. Every time plugin is opened(if previously it's hidden) results get automatically refreshed.
 
+<<<<<<< HEAD
 #### 26. [idea] #184 Fixed functionality of reset button in Settings Panel,
 #### 'Reset' and 'Apply' buttons appear when values are changed.
 ##### fixes <a href='https://github.com/Imaginea/KodeBeagle/issues/184'> #184 </a>
@@ -171,4 +172,25 @@
 1. Open KodeBeagle plugin, select code from any java file (with no imports present) and hit refresh action.
 2. All pane should have message "Got nothing to search".<br>
 <img src='screenshots/150.png'/>
+
+#### 28. [idea] #203 Validation of User Input in Settings Panel 
+##### fixes <a href='https://github.com/Imaginea/KodeBeagle/issues/203'> #203 </a>
+1. Open Settings Panel from Main Window.
+2. Type in a negative value in any of fields which accept integer input. Eg- Distance from Cursor,
+Result Size or Featured Count. It should indicate saying that only digits from [0-9]
+are allowed.<br>
+<img src = 'screenshots/distance-negative.png'/>
+3. Leave any of the text boxes empty. It should indicate saying that no empty field
+is allowed.<br>
+<img src = 'screenshots/distance-null.png'/>
+4. Enter any random value in the Elastic URL text box. It should indicate saying that the URL is
+not well formed.<br>
+<img src = 'screenshots/url-deformed.png'/>
+5. Enter more than three digits in the Result Size box. It should not allow you to enter any more
+i.e the maximum result size can be 999.<br>
+<img src = 'screenshots/result-digit-limit.png'/>
+6. Enter more than two digits in the Featured Count box. It should not allow you to enter any more
+i.e 99 can be the maximum featured count.<br>
+<img src = 'screenshots/featured-count-digit-limit.png'/>
+
 

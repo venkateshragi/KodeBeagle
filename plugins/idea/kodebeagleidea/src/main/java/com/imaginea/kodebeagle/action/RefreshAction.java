@@ -82,7 +82,7 @@ public class RefreshAction extends AnAction {
     public static final String SIZE = "size";
     private static final String KODEBEAGLE_SEARCH = "/kodebeagle/_search?source=";
     public static final String ES_URL_DEFAULT = "http://labs.imaginea.com/kodebeagle";
-    public static final int DISTANCE_DEFAULT_VALUE = 10;
+    public static final int DISTANCE_DEFAULT_VALUE = 0;
     public static final int SIZE_DEFAULT_VALUE = 30;
     private static final String EDITOR_ERROR = "Could not get any active editor";
     private static final String FORMAT = "%s %s %s";
