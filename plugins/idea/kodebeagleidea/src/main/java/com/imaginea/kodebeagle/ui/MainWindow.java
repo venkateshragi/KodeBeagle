@@ -104,6 +104,8 @@ public class MainWindow implements ToolWindowFactory {
         Editor windowEditor = EditorFactory.getInstance().
                 createEditor(document, project, FileTypeManager.getInstance().
                         getFileTypeByExtension(JAVA), false);
+        //Dispose the editor once it's no longer needed
+        windowEditorOps.releaseEditor(project, windowEditor);
 
         final RefreshAction refreshAction = new RefreshAction();
 
@@ -188,9 +190,11 @@ public class MainWindow implements ToolWindowFactory {
         mainPanel.add(toolBar);
         mainPanel.add(jTabbedPane);
 
+        if (!LegalNotice.isLegalNoticeAccepted()) {
+            new LegalNotice(project).showLegalNotice();
+        }
+
         toolWindow.getComponent().getParent().add(mainPanel);
-        //Dispose the editor once it's no longer needed
-        windowEditorOps.releaseEditor(project, windowEditor);
     }
 
     private void initSystemInfo() {
