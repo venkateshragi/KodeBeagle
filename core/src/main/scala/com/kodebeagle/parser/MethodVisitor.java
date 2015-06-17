@@ -40,7 +40,7 @@ import java.util.Map;
 public class MethodVisitor extends VoidVisitorAdapter {
 
     private List<ImportDeclaration> imports;
-    private Map<String, String> importDeclMap;
+    private Map<String, String> importDeclMap = new HashMap<String, String>();
     private Map<String, String> fieldVariableMap = new HashMap<String, String>();
     private String className = null;
     private Map<String, List<String>> methodCallStack = new HashMap<String, List<String>>();
