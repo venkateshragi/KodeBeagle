@@ -279,8 +279,6 @@ public class RefreshAction extends AnAction {
             windowObjects.getRepoStarsMap().put(projectName, stars);
         }
 
-        JLabel infoLabel = new JLabel(String.format(REPO_BANNER_FORMAT, REPO_SCORE, stars));
-
         final JLabel expandLabel =
                 new JLabel(String.format(BANNER_FORMAT, HTML_U, displayFileName, U_HTML));
         expandLabel.setForeground(JBColor.BLUE);
@@ -301,9 +299,9 @@ public class RefreshAction extends AnAction {
         });
 
         expandPanel.add(projectNameLabel);
-        expandPanel.add(infoLabel);
         expandPanel.setMaximumSize(
                 new Dimension(Integer.MAX_VALUE, expandLabel.getMinimumSize().height));
+        expandPanel.setToolTipText(String.format(REPO_BANNER_FORMAT, REPO_SCORE, stars));
         expandPanel.revalidate();
         expandPanel.repaint();
 
