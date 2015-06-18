@@ -57,16 +57,14 @@ public class MethodVisitor extends VoidVisitorAdapter {
     public void parse(String classcontent, String filename) throws Throwable {
         if (classcontent == null || classcontent.isEmpty()) {
             System.err.println("No class content to parse... " + filename);
+            return;
         }
         try {
             parse(new ByteArrayInputStream(classcontent.getBytes()));
         } catch (Throwable e) {
             System.err.println("Could not parse. Skipping file: " + filename + ", exception: " +
                     e.getMessage());
-//            throw e;
         }
-
-//        System.out.println("Parsed file : " + filename);
     }
 
     @SuppressWarnings("unchecked")
