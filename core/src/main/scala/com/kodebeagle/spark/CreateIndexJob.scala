@@ -37,7 +37,7 @@ object CreateIndexJob {
 
     val sc: SparkContext = createSparkContext(conf)
 
-    val zipFileExtractedRDD: RDD[(ArrayBuffer[(String, String)],
+    val zipFileExtractedRDD: RDD[(List[(String, String)],
       Option[Repository], List[String])] = makeZipFileExtractedRDD(sc)
 
     // Create indexes for elastic search.

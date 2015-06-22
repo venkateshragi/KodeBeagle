@@ -53,6 +53,12 @@ class ParserSuite extends FunSuite with BeforeAndAfterAll {
     assert(r == Some(Repository("apache", 160999, "zookeeper", false, "Java", "master", 789)))
   }
 
+  test("Hdfs url.") {
+    val r = RepoFileNameParser(
+      "/172.16.13.179:9000/user/data/github3/repo~apache~zookeeper~160999~false~Java~789.zip")
+    assert(r == Some(Repository("apache", 160999, "zookeeper", false, "Java", "master", 789)))
+  }
+
   test("Multiple valid repo names.") {
     val stream =
       Thread.currentThread().getContextClassLoader.getResourceAsStream("repo_names")

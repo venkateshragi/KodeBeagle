@@ -17,21 +17,22 @@
 
 package com.kodebeagle.spark
 
+import java.util.zip.ZipInputStream
+
 import com.kodebeagle.configuration.KodeBeagleConfig
 import com.kodebeagle.crawler.{Repository, ZipBasicParser}
 import com.kodebeagle.parser.RepoFileNameParser
 import com.kodebeagle.spark.CreateIndexJob.SourceFile
-import org.apache.commons.compress.archivers.zip.ZipFile
+
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
 
-import scala.collection.mutable.ArrayBuffer
 import scala.util.Try
 
 object SparkIndexJobHelper {
 
   def mapToSourceFiles(repo: Option[Repository],
-                       map: ArrayBuffer[(String, String)]): Set[SourceFile] = {
+                       map: List[(String, String)]): Set[SourceFile] = {
     val repo2 = repo.getOrElse(Repository.invalid)
     import com.kodebeagle.indexer.JavaFileIndexerHelper._
 
@@ -41,17 +42,14 @@ object SparkIndexJobHelper {
   def createSparkContext(conf: SparkConf): SparkContext = new SparkContext(conf)
 
   def makeZipFileExtractedRDD(sc: SparkContext):
-  RDD[(ArrayBuffer[(String, String)], Option[Repository], List[String])] = {
-    val zipFileNameRDD = sc.binaryFiles(KodeBeagleConfig.githubDir).map { case (zipFile, _) =>
-      zipFile.stripPrefix("file:")
+  RDD[(List[(String, String)], Option[Repository], List[String])] = {
+    val zipFileNameRDD = sc.binaryFiles(KodeBeagleConfig.githubDir).map { case (zipFile, stream) =>
+      (zipFile.stripPrefix("file:").stripPrefix("hdfs:"), stream)
     }
-    val zipFileExtractedRDD = zipFileNameRDD.flatMap { zipFileName =>
-      // Ignoring exclude packages.
-      val zipFileOpt = Try(new ZipFile(zipFileName)).toOption
-      zipFileOpt.map { zipFile =>
-        val (filesMap, packages) = ZipBasicParser.readFilesAndPackages(zipFile)
+    val zipFileExtractedRDD = zipFileNameRDD.map { case (zipFileName, stream) =>
+        val (filesMap, packages) =
+          ZipBasicParser.readFilesAndPackages(new ZipInputStream(stream.open()))
         (filesMap, RepoFileNameParser(zipFileName), packages)
-      }
     }
     zipFileExtractedRDD
   }

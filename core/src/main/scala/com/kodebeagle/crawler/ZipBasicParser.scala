@@ -17,10 +17,11 @@
 
 package com.kodebeagle.crawler
 
-import java.io.{ BufferedInputStream, File }
-import org.apache.commons.compress.archivers.zip.ZipFile
+import java.io.{ByteArrayOutputStream, File}
+import java.util.zip.{ZipEntry, ZipInputStream}
+
 import org.apache.commons.io.IOUtils
-import scala.collection.JavaConversions._
+
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Try
@@ -37,19 +38,35 @@ object ZipBasicParser {
     packageN.stripPrefix("/").stripSuffix("/").replace('/', '.').stripPrefix("src.main.java.")
   }
 
-  def readFilesAndPackages(zip: ZipFile): (ArrayBuffer[(String, String)], List[String]) = {
+  def readFilesAndPackages(zipStream: ZipInputStream): (List[(String, String)], List[String]) = {
     val list = mutable.ArrayBuffer[(String, String)]()
-    val zipArchiveEntries = zip.getEntries.toList
-    val allJavaFiles = zipArchiveEntries.filter(x => x.getName.endsWith("java") && !x.isDirectory)
-    val allPackages = zipArchiveEntries
-      .filter(x => x.isDirectory && x.getName.toLowerCase.matches(".*src/main/java.*"))
-      .map(f => fileNameToPackageName(f.getName))
-    val files = allJavaFiles.map(x => x.getName -> zip.getInputStream(x))
-    for ((name, f) <- files) {
-      val b = new Array[Byte](bufferSize)
-      Try(IOUtils.read(f, b)).toOption.foreach(x => list += (name -> new String(b).trim))
-    }
-    (list, allPackages)
+    val allPackages =  mutable.ArrayBuffer[String]()
+    var ze: Option[ZipEntry] = None
+    do {
+      ze = Option(zipStream.getNextEntry)
+      ze.foreach {
+        ze => if (ze.getName.endsWith("java") && !ze.isDirectory) {
+          val fileName = ze.getName
+          val fileContent = readContent(zipStream)
+          list += (fileName -> fileContent)
+        } else if (ze.isDirectory && ze.getName.toLowerCase.matches(".*src/main/java.*")){
+          allPackages += fileNameToPackageName(ze.getName)
+        }
+      }
+    } while (ze.isDefined)
+    (list.toList, allPackages.toList)
+  }
+
+  def readContent(stream: ZipInputStream): String = {
+    val output = new ByteArrayOutputStream()
+    var data: Int = 0
+    do {
+      data = stream.read()
+      if (data != -1) output.write(data)
+    } while (data != -1)
+    val kmlBytes = output.toByteArray
+    output.close()
+    new String(kmlBytes, "utf-8").trim
   }
 
   def listAllFiles(dir: String): Array[File] = new File(dir).listFiles
