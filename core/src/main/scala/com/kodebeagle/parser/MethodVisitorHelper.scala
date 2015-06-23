@@ -20,7 +20,7 @@ package com.kodebeagle.parser
 import java.util.{ArrayList, HashMap}
 
 import scala.collection.immutable.Map
-import com.kodebeagle.indexer.Token
+import com.kodebeagle.indexer.{MethodAndLines, MethodToken, Token}
 
 object MethodVisitorHelper {
 
@@ -77,10 +77,3 @@ object MethodVisitorHelper {
   }.toSet
 
 }
-
-
-case class MethodToken(importName: String, lineNumbers: List[Int],
-    methodAndLineNumbers: Set[MethodAndLines])
-
-case class MethodAndLines(methodName: String, lineNumbers: List[Int])
-

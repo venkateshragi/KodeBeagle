@@ -18,9 +18,8 @@
 
 package com.kodebeagle.indexer
 
-import com.kodebeagle.crawler.Repository
 import com.kodebeagle.indexer.JavaFileIndexerHelper._
-import com.kodebeagle.parser.{MethodToken, MethodVisitor}
+import com.kodebeagle.parser.MethodVisitor
 
 import scala.collection.immutable
 

@@ -17,8 +17,8 @@
 
 package com.kodebeagle.parser
 
-import com.kodebeagle.crawler.Repository
 import com.kodebeagle.logging.Logger
+import com.kodebeagle.indexer.Repository
 
 import scala.util.Try
 import scala.util.parsing.combinator._

@@ -17,7 +17,6 @@
 
 package com.kodebeagle.indexer
 
-import com.kodebeagle.crawler.Repository
 import com.kodebeagle.logging.Logger
 import com.kodebeagle.parser.MethodVisitor
 

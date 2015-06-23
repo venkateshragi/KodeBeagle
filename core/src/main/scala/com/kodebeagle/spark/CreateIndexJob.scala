@@ -18,17 +18,12 @@
 package com.kodebeagle.spark
 
 import com.kodebeagle.configuration.KodeBeagleConfig
-import com.kodebeagle.crawler.Repository
-import com.kodebeagle.indexer.JavaASTBasedIndexer
+import com.kodebeagle.indexer.{Repository, JavaASTBasedIndexer}
 import com.kodebeagle.spark.SparkIndexJobHelper._
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
 
-import scala.collection.mutable.ArrayBuffer
-
 object CreateIndexJob {
-
-  case class SourceFile(repoId: Int, fileName: String, fileContent: String)
 
   def main(args: Array[String]): Unit = {
     val conf = new SparkConf()

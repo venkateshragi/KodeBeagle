@@ -18,8 +18,7 @@
 package com.kodebeagle.spark
 
 import com.kodebeagle.configuration.KodeBeagleConfig
-import com.kodebeagle.crawler.Repository
-import com.kodebeagle.indexer.JavaASTBasedIndexerForMethods
+import com.kodebeagle.indexer.{Repository, JavaASTBasedIndexerForMethods}
 import com.kodebeagle.spark.SparkIndexJobHelper._
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}

@@ -23,17 +23,6 @@ import scala.collection.{immutable, mutable}
 import scala.util.Try
 
 import com.kodebeagle.configuration.KodeBeagleConfig
-import com.kodebeagle.crawler.Repository
-import com.kodebeagle.parser.MethodToken
-
-
-case class IndexEntry(repoId: Int, file: String, tokens: Set[Token], score: Int)
-
-case class ImportsMethods(repoId: Int, file: String,
-    tokens: Set[MethodToken], score: Int)
-
-/* Since our tokens are fully qualified import names. */
-case class Token(importName: String, lineNumbers: immutable.Set[Int])
 
 trait BasicIndexer extends Serializable {
 

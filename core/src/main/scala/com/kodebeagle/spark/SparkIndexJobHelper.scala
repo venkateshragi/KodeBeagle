@@ -20,9 +20,9 @@ package com.kodebeagle.spark
 import java.util.zip.ZipInputStream
 
 import com.kodebeagle.configuration.KodeBeagleConfig
-import com.kodebeagle.crawler.{Repository, ZipBasicParser}
+import com.kodebeagle.crawler.ZipBasicParser
+import com.kodebeagle.indexer.{SourceFile, Repository}
 import com.kodebeagle.parser.RepoFileNameParser
-import com.kodebeagle.spark.CreateIndexJob.SourceFile
 
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}

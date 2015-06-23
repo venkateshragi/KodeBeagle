@@ -22,6 +22,7 @@ import java.net.URL
 
 import com.kodebeagle.configuration.KodeBeagleConfig
 import com.kodebeagle.crawler.GitHubRepoDownloader._
+import com.kodebeagle.indexer.Repository
 import com.kodebeagle.logging.Logger
 import org.apache.commons.httpclient.HttpClient
 import org.apache.commons.httpclient.methods.GetMethod
@@ -31,14 +32,6 @@ import org.json4s._
 import org.json4s.jackson.JsonMethods._
 
 import scala.util.{Failure, Success, Try}
-
-case class Repository(login: String, id: Int, name: String, fork: Boolean, language: String,
-    defaultBranch: String, stargazersCount: Int)
-
-/** For testing */
-object Repository {
-  def invalid: Repository = Repository("n-a", -1, "n-a", fork = false, "Java", "n-a", 0)
-}
 
 /**
  * This class relies on Github's {https://developer.github.com/v3/} Api.

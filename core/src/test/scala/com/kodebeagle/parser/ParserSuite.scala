@@ -19,7 +19,7 @@ package com.kodebeagle.parser
 
 import java.io.{InputStream, StringWriter}
 
-import com.kodebeagle.crawler.Repository
+import com.kodebeagle.indexer.Repository
 import org.apache.commons.io.IOUtils
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 

@@ -19,8 +19,6 @@ package com.kodebeagle.indexer
 
 import java.io.StringWriter
 
-import com.kodebeagle.crawler.Repository
-import com.kodebeagle.parser.{MethodAndLines, MethodToken}
 import org.apache.commons.io.IOUtils
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 
