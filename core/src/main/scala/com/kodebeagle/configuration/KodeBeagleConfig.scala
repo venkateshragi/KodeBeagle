@@ -17,8 +17,6 @@
 
 package com.kodebeagle.configuration
 
-import java.util.concurrent.ConcurrentHashMap
-
 import com.typesafe.config.ConfigFactory
 
 import scala.collection.JavaConversions._
@@ -27,7 +25,7 @@ object KodeBeagleConfig {
   val config = ConfigFactory.load()
   var lastIndex=0
 
-  private val settings = new ConcurrentHashMap[String, String]()
+  private val settings = scala.collection.mutable.HashMap[String, String]()
 
   for (c <- config.entrySet())
     yield settings.put(c.getKey, c.getValue.unwrapped.toString)
@@ -39,7 +37,7 @@ object KodeBeagleConfig {
 
   private[kodebeagle] val linesOfContext = get("kodebeagle.indexing.linesOfContext").get
   // This is required to use GithubAPIHelper
-  private[kodebeagle] val githubTokens: Array[String] = 
+  private[kodebeagle] val githubTokens: Array[String] =
     get("kodebeagle.spark.githubTokens").get.split(",")
   // This is required to use GithubAPIHelper
   private[kodebeagle] val githubDir: String = get("kodebeagle.github.crawlDir").get
@@ -55,7 +53,7 @@ object KodeBeagleConfig {
     }
   }
 
-  def get(key: String): Option[String] = Option(settings.get(key))
+  def get(key: String): Option[String] = settings.get(key)
 
   def set(key: String, value: String) {
     if (Option(key) == None || Option(value) == None) {
