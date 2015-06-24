@@ -165,74 +165,91 @@ class JavaASTBasedIndexerForMethodsSuite extends FunSuite with BeforeAndAfterAll
 
     assert(methodTokens.size === 7)
 
-    val testMethodTokens = Set(ImportsMethods(-1,"n-a/n-a/blob/n-a/Sample.java",
-      Set(MethodToken("io.netty.channel.Channel",List(204),
-        Set(MethodAndLines("remoteAddress",List(204)))),
-        MethodToken("com.google.common.base.Objects",List(203),
-          Set(MethodAndLines("toStringHelper",List(203))))),0),
+    val importChannel: String = "io.netty.channel.Channel"
+    val importObjects: String = "com.google.common.base.Objects"
+    val importLogger: String = "org.slf4j.Logger"
+    val importNettyUtils: String = "org.apache.spark.network.util.NettyUtils"
+    val importIOE: String = "java.io.IOException"
+    val importUUID: String = "java.util.UUID"
+    val importTimeUnit: String = "java.util.concurrent.TimeUnit"
+    val importRpcReq: String = "org.apache.spark.network.protocol.RpcRequest"
+    val importEE: String = "java.util.concurrent.ExecutionException"
+    val importThrowables: String = "com.google.common.base.Throwables"
+    val importSFuture: String = "com.google.common.util.concurrent.SettableFuture"
+    val importPrecon: String = "com.google.common.base.Preconditions"
+    val importSCId: String = "org.apache.spark.network.protocol.StreamChunkId"
+    val importCFReq: String = "org.apache.spark.network.protocol.ChunkFetchRequest"
+    val testMethodTokens = Set(ImportsMethods(-1, "n-a/n-a/blob/n-a/Sample.java",
+      Set(MethodToken(importChannel.toLowerCase, importChannel, List(204),
+        Set(MethodAndLines("remoteAddress", List(204)))),
+        MethodToken(importObjects.toLowerCase, importObjects, List(203),
+          Set(MethodAndLines("toStringHelper", List(203))))), 0),
 
-      ImportsMethods(-1,"n-a/n-a/blob/n-a/Sample.java",
-        Set(MethodToken("io.netty.channel.Channel",List(79),
-          Set(MethodAndLines("isOpen",List(79)),
-          MethodAndLines("isActive",List(79))))),0),
+      ImportsMethods(-1, "n-a/n-a/blob/n-a/Sample.java",
+        Set(MethodToken(importChannel.toLowerCase, importChannel, List(79),
+          Set(MethodAndLines("isOpen", List(79)),
+            MethodAndLines("isActive", List(79))))), 0),
 
-      ImportsMethods(-1,"n-a/n-a/blob/n-a/Sample.java",
-        Set(MethodToken("org.slf4j.Logger",List(139, 150, 154, 160),
-          Set(MethodAndLines("trace",List(139, 150)),
-          MethodAndLines("error",List(154, 160)))),
-          MethodToken("org.apache.spark.network.util.NettyUtils",List(137),
-            Set(MethodAndLines("getRemoteAddress",List(137)))),
-          MethodToken("io.netty.channel.ChannelFutureListener",List(145),Set()),
-          MethodToken("io.netty.channel.ChannelFuture",List(148, 153, 154, 158),
-            Set(MethodAndLines("cause",List(153, 154, 158)),
-              MethodAndLines("isSuccess",List(148)))),
-          MethodToken("io.netty.channel.Channel",List(137, 156, 144),
-            Set(MethodAndLines("close",List(156)),
-            MethodAndLines("writeAndFlush",List(144)))),
-          MethodToken("java.io.IOException",List(158),Set()),
-          MethodToken("java.util.UUID",List(141),
-            Set(MethodAndLines("randomUUID",List(141)))),
-          MethodToken("org.apache.spark.network.protocol.RpcRequest",List(144),Set())),0),
+      ImportsMethods(-1, "n-a/n-a/blob/n-a/Sample.java",
+        Set(MethodToken(importLogger.toLowerCase, importLogger, List(139, 150, 154, 160),
+          Set(MethodAndLines("trace", List(139, 150)),
+            MethodAndLines("error", List(154, 160)))),
+          MethodToken(importNettyUtils.toLowerCase, importNettyUtils, List(137),
+            Set(MethodAndLines("getRemoteAddress", List(137)))),
+          MethodToken(importChannel.toLowerCase + "futurelistener",
+            importChannel + "FutureListener", List(145), Set()),
+          MethodToken(importChannel.toLowerCase + "future", importChannel + "Future",
+            List(148, 153, 154, 158),
+            Set(MethodAndLines("cause", List(153, 154, 158)),
+              MethodAndLines("isSuccess", List(148)))),
+          MethodToken(importChannel.toLowerCase, importChannel, List(137, 156, 144),
+            Set(MethodAndLines("close", List(156)),
+              MethodAndLines("writeAndFlush", List(144)))),
+          MethodToken(importIOE.toLowerCase, importIOE, List(158), Set()),
+          MethodToken(importUUID.toLowerCase, importUUID, List(141),
+            Set(MethodAndLines("randomUUID", List(141)))),
+          MethodToken(importRpcReq.toLowerCase, importRpcReq, List(144), Set())), 0),
 
-      ImportsMethods(-1,"n-a/n-a/blob/n-a/Sample.java",
-        Set(MethodToken("java.util.concurrent.TimeUnit",List(198),Set()),
-          MethodToken("io.netty.channel.Channel",List(198),
-            Set(MethodAndLines("close",List(198))))),0),
+      ImportsMethods(-1, "n-a/n-a/blob/n-a/Sample.java",
+        Set(MethodToken(importTimeUnit.toLowerCase, importTimeUnit, List(198), Set()),
+          MethodToken(importChannel.toLowerCase, importChannel, List(198),
+            Set(MethodAndLines("close", List(198))))), 0),
 
-      ImportsMethods(-1,"n-a/n-a/blob/n-a/Sample.java",
-        Set(MethodToken("java.util.concurrent.TimeUnit",List(187),Set()),
-          MethodToken("java.util.concurrent.ExecutionException",List(188, 189),
-            Set(MethodAndLines("getCause",List(189)))),
-          MethodToken("com.google.common.base.Throwables",List(189, 191),
-            Set(MethodAndLines("propagate",List(189, 191)))),
-          MethodToken("com.google.common.util.concurrent.SettableFuture",List(172, 177, 182, 187),
-            Set(MethodAndLines("set",List(177)), MethodAndLines("get",List(187)),
-              MethodAndLines("create",List(172)),
-              MethodAndLines("setException",List(182))))),0),
+      ImportsMethods(-1, "n-a/n-a/blob/n-a/Sample.java",
+        Set(MethodToken(importTimeUnit.toLowerCase, importTimeUnit, List(187), Set()),
+          MethodToken(importEE.toLowerCase, importEE, List(188, 189),
+            Set(MethodAndLines("getCause", List(189)))),
+          MethodToken(importThrowables.toLowerCase, importThrowables, List(189, 191),
+            Set(MethodAndLines("propagate", List(189, 191)))),
+          MethodToken(importSFuture.toLowerCase, importSFuture, List(172, 177, 182, 187),
+            Set(MethodAndLines("set", List(177)), MethodAndLines("get", List(187)),
+              MethodAndLines("create", List(172)),
+              MethodAndLines("setException", List(182))))), 0),
 
-      ImportsMethods(-1,"n-a/n-a/blob/n-a/Sample.java",
-        Set(MethodToken("io.netty.channel.Channel",List(74),Set()),
-          MethodToken("com.google.common.base.Preconditions",List(74, 75),
-            Set(MethodAndLines("checkNotNull",List(74, 75))))),0),
+      ImportsMethods(-1, "n-a/n-a/blob/n-a/Sample.java",
+        Set(MethodToken(importChannel.toLowerCase, importChannel, List(74), Set()),
+          MethodToken(importPrecon.toLowerCase, importPrecon, List(74, 75),
+            Set(MethodAndLines("checkNotNull", List(74, 75))))), 0),
 
-      ImportsMethods(-1,"n-a/n-a/blob/n-a/Sample.java",
-        Set(MethodToken("org.apache.spark.network.protocol.StreamChunkId",
-          List(120, 106, 117, 105, 108, 114),Set()),
-          MethodToken("java.io.IOException",List(123),Set()),
-          MethodToken("io.netty.channel.ChannelFuture",List(112, 118, 119, 123),
-            Set(MethodAndLines("cause",List(118, 119, 123)),
-              MethodAndLines("isSuccess",List(112)))),
-          MethodToken("org.apache.spark.network.util.NettyUtils",List(101),
-            Set(MethodAndLines("getRemoteAddress",List(101)))),
-          MethodToken("org.slf4j.Logger",List(103, 114, 119, 125),
-            Set(MethodAndLines("trace",List(114)), MethodAndLines("debug",List(103)),
-              MethodAndLines("error",List(119, 125)))),
-          MethodToken("org.apache.spark.network.protocol.ChunkFetchRequest",List(108),Set()),
-          MethodToken("io.netty.channel.ChannelFutureListener",List(109),Set()),
-          MethodToken("io.netty.channel.Channel",List(101, 121, 108),
-            Set(MethodAndLines("close",List(121)),
-              MethodAndLines("writeAndFlush",List(108))))),0))
-
+      ImportsMethods(-1, "n-a/n-a/blob/n-a/Sample.java",
+        Set(MethodToken(importSCId.toLowerCase, importSCId,
+          List(120, 106, 117, 105, 108, 114), Set()),
+          MethodToken(importIOE.toLowerCase, importIOE, List(123), Set()),
+          MethodToken(importChannel.toLowerCase + "future", importChannel + "Future",
+            List(112, 118, 119, 123),
+            Set(MethodAndLines("cause", List(118, 119, 123)),
+              MethodAndLines("isSuccess", List(112)))),
+          MethodToken(importNettyUtils.toLowerCase, importNettyUtils, List(101),
+            Set(MethodAndLines("getRemoteAddress", List(101)))),
+          MethodToken(importLogger.toLowerCase, importLogger, List(103, 114, 119, 125),
+            Set(MethodAndLines("trace", List(114)), MethodAndLines("debug", List(103)),
+              MethodAndLines("error", List(119, 125)))),
+          MethodToken(importCFReq.toLowerCase, importCFReq, List(108), Set()),
+          MethodToken(importChannel.toLowerCase + "futurelistener",
+            importChannel + "FutureListener", List(109), Set()),
+          MethodToken(importChannel.toLowerCase, importChannel, List(101, 121, 108),
+            Set(MethodAndLines("close", List(121)),
+              MethodAndLines("writeAndFlush", List(108))))), 0))
 
     assert(methodTokens === testMethodTokens)
   }

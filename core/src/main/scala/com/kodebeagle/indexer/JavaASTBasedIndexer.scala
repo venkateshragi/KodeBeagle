@@ -33,13 +33,19 @@ class JavaASTBasedIndexer extends BasicIndexer with Logger {
     val parser = new MethodVisitor()
     parser.parse(fileContent, fileName)
     import scala.collection.JavaConversions._
-    val imports = parser.getImportDeclMap.toIterator.map(x => (x._2.stripSuffix(s".${x._1}"),
-      x._1)).filterNot { case (left, right) => excludePackages.contains(left) }.toSet
-    val importsSet = imports.map(tuple2ToImportString)
 
+    val imports = parser.getImportDeclMap.toIterator.map { x =>
+      (x._2.stripSuffix(s".${x._1}"), x._1)
+    }.filterNot {
+      case (left, right) => excludePackages.contains(left)
+    }.toSet
+
+    val importsSet = imports.map(tuple2ToImportString)
     (imports,
-      parser.getListOflineNumbersMap.map(x => x.map(y => Token(y._1, y._2.map(_.toInt).toSet))
-      .filter(x => importsSet.contains(x.importName)).toSet).toSet)
+      parser.getListOflineNumbersMap.map { x =>
+        x.map(y => Token(y._1.toLowerCase, y._1, y._2.map(_.toInt).toSet))
+          .filter(x => importsSet.contains(x.importExactName)).toSet
+      }.toSet)
   }
 
   override def generateTokens(files: Map[String, String], excludePackages: List[String],

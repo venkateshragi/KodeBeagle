@@ -43,6 +43,10 @@ curl -XPUT 'localhost:9201/kodebeagle/custom/_mapping' -d '
                                 "type": "string",
                                 "index" : "not_analyzed"
                             },
+                            "importExactName": {
+                                "type": "string",
+                                "index" : "no"
+                            },
                             "lineNumbers": {
                                 "type": "long",
                                 "index" : "no"
@@ -80,6 +84,10 @@ curl -XPUT 'http://localhost:9201/importsmethods/' -d '{
                "importName":{  
                   "type":"string",
                   "index":"not_analyzed"
+               },
+               "importExactName":{  
+                  "type":"string",
+                  "index":"no"
                },
                "lineNumbers":{  
                   "type":"long",

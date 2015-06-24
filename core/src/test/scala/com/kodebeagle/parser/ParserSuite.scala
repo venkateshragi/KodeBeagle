@@ -133,12 +133,10 @@ class MethodVisitorSuite extends FunSuite with BeforeAndAfterAll {
         Map("remoteAddress" -> List(204)),
         "com.google.common.base.Objects" -> Map("toStringHelper" -> List(203))))
 
-    val imports = getImports(parser,Set()).map(importName => importName._1 + "." + importName._2)
-
-    val resultTokens = getImportsWithMethodAndLineNumbers(parser,
-      getTokenMap(parser,imports)).map(_._1)
-
-    for(i <- 0 to resultTokens.size -1) {
+    val imports = getImports(parser, Set()).map(importName => importName._1 + "." + importName._2)
+    val tokenMap: List[Map[String, List[Int]]] = getTokenMap(parser, imports)
+    val resultTokens = getImportsWithMethodAndLineNumbers(parser, tokenMap).map(_._1)
+    for(i <- resultTokens.indices) {
       val resultToken = resultTokens(i)
       val testToken =  testMap(i)
       assert(resultToken.size === testToken.size)
