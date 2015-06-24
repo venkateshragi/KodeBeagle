@@ -86,7 +86,7 @@ public class RefreshAction extends AnAction {
     public static final int SIZE_DEFAULT_VALUE = 30;
     private static final String EDITOR_ERROR = "Could not get any active editor";
     private static final String FORMAT = "%s %s %s";
-    private static final String QUERYING = "Querying";
+    private static final String QUERIED = "Queried";
     private static final String FOR = "for";
     public static final String EXCLUDE_IMPORT_LIST = "Exclude imports";
     public static final String EXCLUDE_IMPORT_LIST_DEFAULT = "";
@@ -122,6 +122,9 @@ public class RefreshAction extends AnAction {
     public static final String MAX_TINY_EDITORS = "maxTinyEditors";
     private static final String PROJECT_ERROR = "Unable to get Project. Please Try again";
     private static final int CHUNK_SIZE = 5;
+    private static final double CONVERT_TO_SECONDS = 1000000000.0;
+    private static final String RESULT_NOTIFICATION_FORMAT =
+            "<br/> Showing %d of %d results (%.2f seconds)";
 
     private WindowObjects windowObjects = WindowObjects.getInstance();
     private WindowEditorOps windowEditorOps = new WindowEditorOps();
@@ -166,9 +169,8 @@ public class RefreshAction extends AnAction {
                 if (!finalImports.isEmpty()) {
                     Set<String> importsInLines = getImportsInLines(projectEditor, finalImports);
                     if (!importsInLines.isEmpty()) {
-                        Notification notification = showQueryTokensNotification(importsInLines);
                         ProgressManager.getInstance().run(new QueryBDServerTask(importsInLines,
-                                finalImports, jTree, model, root, notification));
+                                finalImports, jTree, model, root));
                     } else {
                         showHelpInfo(HELP_MESSAGE);
                     }
@@ -424,13 +426,11 @@ public class RefreshAction extends AnAction {
         });
     }
 
-    private Notification showQueryTokensNotification(final Set<String> importsInLines) {
+    private Notification getNotification(final String title, final String content,
+                                         final NotificationType notificationType) {
+
         final Notification notification = new Notification(KODE_BEAGLE,
-                String.format(FORMAT, QUERYING,
-                        windowObjects.getEsURL(), FOR),
-                importsInLines.toString(),
-                NotificationType.INFORMATION);
-        Notifications.Bus.notify(notification);
+                title, content, notificationType);
         return notification;
     }
 
@@ -466,14 +466,14 @@ public class RefreshAction extends AnAction {
         private final JTree jTree;
         private final DefaultTreeModel model;
         private final DefaultMutableTreeNode root;
-        private final Notification notification;
+        private Notification notification;
         private Map<String, ArrayList<CodeInfo>> projectNodes;
         private volatile boolean isFailed;
         private String httpErrorMsg;
 
         QueryBDServerTask(final Set<String> pImportsInLines, final Set<String> pFinalImports,
                           final JTree pJTree, final DefaultTreeModel pModel,
-                          final DefaultMutableTreeNode pRoot, final Notification pNotification) {
+                          final DefaultMutableTreeNode pRoot) {
             super(windowObjects.getProject(), KODEBEAGLE, true,
                     PerformInBackgroundOption.ALWAYS_BACKGROUND);
             this.importsInLines = pImportsInLines;
@@ -481,18 +481,38 @@ public class RefreshAction extends AnAction {
             this.jTree = pJTree;
             this.model = pModel;
             this.root = pRoot;
-            this.notification = pNotification;
         }
 
         @Override
         public void run(@NotNull final ProgressIndicator indicator) {
             try {
+                long startTime = System.nanoTime();
                 projectNodes = doBackEndWork(importsInLines, finalImports, indicator);
+                long endTime = System.nanoTime();
+                double timeToFetchResults = (endTime - startTime) / CONVERT_TO_SECONDS;
+                String notificationTitle = String.format(FORMAT, QUERIED,
+                        windowObjects.getEsURL(), FOR);
+                String notificationContent =
+                        getResultNotificationMessage(esUtils.getResultCount(),
+                                esUtils.getTotalHitsCount(), timeToFetchResults);
+                notification =
+                        getNotification(notificationTitle, notificationContent,
+                                        NotificationType.INFORMATION);
+                Notifications.Bus.notify(notification);
             } catch (RuntimeException rte) {
                 rte.printStackTrace();
                 httpErrorMsg = rte.getMessage();
                 isFailed = true;
             }
+        }
+
+        private String getResultNotificationMessage(final int resultCount, final long totalCount,
+                                                    final double timeToFetchResults)
+        {
+            String resultNotification =
+                    importsInLines.toString() + String.format(RESULT_NOTIFICATION_FORMAT,
+                                    resultCount, totalCount, timeToFetchResults);
+            return resultNotification;
         }
 
         @Override

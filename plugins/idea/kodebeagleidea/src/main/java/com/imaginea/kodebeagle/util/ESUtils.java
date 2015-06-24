@@ -42,6 +42,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 public class ESUtils {
     private static final String FILE_CONTENT = "fileContent";
     private static final String HITS = "hits";
+    private static final String TOTAL_COUNT = "total";
     private static final String SOURCE = "_source";
     private static final String FILE = "file";
     private static final String TOKENS = "tokens";
@@ -58,13 +59,23 @@ public class ESUtils {
 
     private static WindowObjects windowObjects = WindowObjects.getInstance();
     private JSONUtils jsonUtils = new JSONUtils();
+    private int resultCount;
+    private long totalHitsCount;
 
-     public final void putContentsForFileInMap(final List<String> fileNames) {
+    public final long getTotalHitsCount() {
+        return totalHitsCount;
+    }
+
+    public final int getResultCount() {
+        return resultCount;
+    }
+
+    public final void putContentsForFileInMap(final List<String> fileNames) {
         String esFileQueryJson = jsonUtils.getJsonForFileContent(fileNames);
         String esFileResultJson;
         esFileResultJson = getESResultJson(esFileQueryJson,
                 windowObjects.getEsURL() + SOURCEFILE_SEARCH);
-        JsonArray hitsArray = getJsonElements(esFileResultJson);
+        JsonArray hitsArray = getJsonHitsArray(getJsonElements(esFileResultJson));
 
         for (JsonElement hits : hitsArray) {
             JsonObject hitObject = hits.getAsJsonObject();
@@ -91,8 +102,10 @@ public class ESUtils {
 
     public final Map<String, String> getFileTokens(final String esResultJson) {
         Map<String, String> fileTokenMap = new HashMap<String, String>();
-        JsonArray hitsArray = getJsonElements(esResultJson);
-
+        final JsonObject hitsObject = getJsonElements(esResultJson);
+        JsonArray hitsArray = getJsonHitsArray(hitsObject);
+        resultCount = hitsArray.size();
+        totalHitsCount = getTotalHits(hitsObject);
         for (JsonElement hits : hitsArray) {
             JsonObject hitObject = hits.getAsJsonObject();
             JsonObject sourceObject = hitObject.getAsJsonObject(SOURCE);
@@ -110,12 +123,18 @@ public class ESUtils {
         return fileTokenMap;
     }
 
-    protected final JsonArray getJsonElements(final String esResultJson) {
+    protected final JsonObject getJsonElements(final String esResultJson) {
         JsonReader reader = new JsonReader(new StringReader(esResultJson));
         reader.setLenient(true);
         JsonElement jsonElement = new JsonParser().parse(reader);
-        JsonObject jsonObject = jsonElement.getAsJsonObject();
-        JsonObject hitsObject = jsonObject.getAsJsonObject(HITS);
+        return jsonElement.getAsJsonObject().getAsJsonObject(HITS);
+    }
+
+    private Long getTotalHits(final JsonObject hitsObject) {
+        return hitsObject.get(TOTAL_COUNT).getAsLong();
+    }
+
+    private JsonArray getJsonHitsArray(final JsonObject hitsObject) {
         return hitsObject.getAsJsonArray(HITS);
     }
 
@@ -170,7 +189,7 @@ public class ESUtils {
         String stars = null;
         repoStarResultJson = getESResultJson(repoStarsJson,
                 windowObjects.getEsURL() + REPOSITORY_SEARCH);
-        JsonArray hitsArray = getJsonElements(repoStarResultJson);
+        JsonArray hitsArray = getJsonHitsArray(getJsonElements(repoStarResultJson));
 
         JsonObject hitObject = hitsArray.get(0).getAsJsonObject();
         JsonObject sourceObject = hitObject.getAsJsonObject(SOURCE);
@@ -197,4 +216,5 @@ public class ESUtils {
         }
         return stars;
     }
+
 }

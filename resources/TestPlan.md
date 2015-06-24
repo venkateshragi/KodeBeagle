@@ -196,3 +196,11 @@ these values can't be applied.<br>
 2. Type in a value greater than 30 for featured count.
 3. Results will be fetched without a Bad Request or Bad Gateway error.
 4. Verify the count of fetched results is same as expected.
+
+#### 30. [idea] #167 Notification balloon shows time taken and number of results fetched.
+##### fixes <a href='https://github.com/Imaginea/KodeBeagle/issues/167'> #167 </a>
+1. Open Settings Panel From Main Window.
+2. Select some code and hit the 'Refresh' button in the main window.
+3. The notification balloon will show the time taken and number of results fetched.<br/>
+<img src = 'screenshots/notification.png' /><br/>
+
