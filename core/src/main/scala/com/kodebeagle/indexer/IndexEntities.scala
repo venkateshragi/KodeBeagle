@@ -37,6 +37,8 @@ case class SourceFile(repoId: Int, fileName: String, fileContent: String)
 case class Repository(login: String, id: Int, name: String, fork: Boolean, language: String,
                       defaultBranch: String, stargazersCount: Int)
 
+case class Statistics(repoId: Int, sloc: Int, fileCount: Int, size: Long)
+
 /** For testing */
 object Repository {
   def invalid: Repository = Repository("n-a", -1, "n-a", fork = false, "Java", "n-a", 0)

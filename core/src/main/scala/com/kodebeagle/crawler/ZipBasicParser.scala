@@ -20,6 +20,7 @@ package com.kodebeagle.crawler
 import java.io.{ByteArrayOutputStream, File}
 import java.util.zip.{ZipEntry, ZipInputStream}
 
+import com.kodebeagle.indexer.Statistics
 import org.apache.commons.io.IOUtils
 
 import scala.collection.mutable
@@ -38,9 +39,13 @@ object ZipBasicParser {
     packageN.stripPrefix("/").stripSuffix("/").replace('/', '.').stripPrefix("src.main.java.")
   }
 
-  def readFilesAndPackages(zipStream: ZipInputStream): (List[(String, String)], List[String]) = {
+  def readFilesAndPackages(repoId: Int, zipStream: ZipInputStream): (List[(String, String)],
+    List[String], Statistics) = {
     val list = mutable.ArrayBuffer[(String, String)]()
     val allPackages =  mutable.ArrayBuffer[String]()
+    var size: Long = 0
+    var fileCount: Int = 0
+    var sloc: Int = 0
     var ze: Option[ZipEntry] = None
     do {
       ze = Option(zipStream.getNextEntry)
@@ -48,13 +53,16 @@ object ZipBasicParser {
         ze => if (ze.getName.endsWith("java") && !ze.isDirectory) {
           val fileName = ze.getName
           val fileContent = readContent(zipStream)
+          size += fileContent.length
           list += (fileName -> fileContent)
+          fileCount += 1
+          sloc += fileContent.split("\n").size
         } else if (ze.isDirectory && ze.getName.toLowerCase.matches(".*src/main/java.*")){
           allPackages += fileNameToPackageName(ze.getName)
         }
       }
     } while (ze.isDefined)
-    (list.toList, allPackages.toList)
+    (list.toList, allPackages.toList, Statistics(repoId, sloc, fileCount, size / 1024))
   }
 
   def readContent(stream: ZipInputStream): String = {

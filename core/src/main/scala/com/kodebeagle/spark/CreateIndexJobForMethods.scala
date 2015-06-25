@@ -18,7 +18,7 @@
 package com.kodebeagle.spark
 
 import com.kodebeagle.configuration.KodeBeagleConfig
-import com.kodebeagle.indexer.{Repository, JavaASTBasedIndexerForMethods}
+import com.kodebeagle.indexer.{Statistics, Repository, JavaASTBasedIndexerForMethods}
 import com.kodebeagle.spark.SparkIndexJobHelper._
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
@@ -36,16 +36,18 @@ object CreateIndexJobForMethods  {
     val sc: SparkContext = createSparkContext(conf)
 
     val zipFileExtractedRDD: RDD[(List[(String, String)],
-      Option[Repository], List[String])] = makeZipFileExtractedRDD(sc)
+      Option[Repository], List[String], Statistics)] = makeZipFileExtractedRDD(sc)
 
     // Create indexes for elastic search.
 
     zipFileExtractedRDD.map { f =>
-      val (files, repo, packages) = f
+      val (files, repo, packages, stats) = f
       (repo, new JavaASTBasedIndexerForMethods()
-        .generateTokensWithMethods(files.toMap, packages, repo), mapToSourceFiles(repo, files))
-    }.flatMap { case (Some(a), b, c) =>
-      Seq(toJson(a, isToken = false), toJson(b, isToken = false), toJson(c, isToken = false))
+        .generateTokensWithMethods(files.toMap, packages, repo), mapToSourceFiles(repo, files),
+        stats)
+    }.flatMap { case (Some(a), b, c, d) =>
+      Seq(toJson(a, isToken = false), toJson(b, isToken = false), toJson(c, isToken = false),
+      toJson(d, isToken = false))
     case _ => Seq()
     }.saveAsTextFile(KodeBeagleConfig.sparkIndexOutput)
   }

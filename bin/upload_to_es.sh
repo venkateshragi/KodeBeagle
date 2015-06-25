@@ -24,6 +24,7 @@ curl -XDELETE 'http://localhost:9201/kodebeagle/'
 curl -XDELETE 'http://localhost:9201/sourcefile/'
 curl -XDELETE 'http://localhost:9201/repository/'
 curl -XDELETE 'http://localhost:9201/importsmethods/'
+curl -XDELETE 'http://localhost:9201/statistics/'
 
 # create a kodebeagle index
 curl -XPUT 'http://localhost:9201/kodebeagle/'

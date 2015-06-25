@@ -21,7 +21,7 @@ import java.util.zip.ZipInputStream
 
 import com.kodebeagle.configuration.KodeBeagleConfig
 import com.kodebeagle.crawler.ZipBasicParser
-import com.kodebeagle.indexer.{SourceFile, Repository}
+import com.kodebeagle.indexer.{Statistics, SourceFile, Repository}
 import com.kodebeagle.parser.RepoFileNameParser
 
 import org.apache.spark.rdd.RDD
@@ -42,14 +42,16 @@ object SparkIndexJobHelper {
   def createSparkContext(conf: SparkConf): SparkContext = new SparkContext(conf)
 
   def makeZipFileExtractedRDD(sc: SparkContext):
-  RDD[(List[(String, String)], Option[Repository], List[String])] = {
+  RDD[(List[(String, String)], Option[Repository], List[String], Statistics)] = {
     val zipFileNameRDD = sc.binaryFiles(KodeBeagleConfig.githubDir).map { case (zipFile, stream) =>
       (zipFile.stripPrefix("file:").stripPrefix("hdfs:"), stream)
     }
     val zipFileExtractedRDD = zipFileNameRDD.map { case (zipFileName, stream) =>
-        val (filesMap, packages) =
-          ZipBasicParser.readFilesAndPackages(new ZipInputStream(stream.open()))
-        (filesMap, RepoFileNameParser(zipFileName), packages)
+      val repo: Option[Repository] = RepoFileNameParser(zipFileName)
+      val (filesMap, packages, stats) =
+        ZipBasicParser.readFilesAndPackages(
+          repo.getOrElse(Repository.invalid).id, new ZipInputStream(stream.open()))
+      (filesMap, repo, packages, stats)
     }
     zipFileExtractedRDD
   }
