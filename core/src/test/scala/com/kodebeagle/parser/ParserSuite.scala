@@ -19,7 +19,7 @@ package com.kodebeagle.parser
 
 import java.io.{InputStream, StringWriter}
 
-import com.kodebeagle.indexer.Repository
+import com.kodebeagle.indexer.{HighLighter, Repository}
 import org.apache.commons.io.IOUtils
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 
@@ -100,43 +100,58 @@ class MethodVisitorSuite extends FunSuite with BeforeAndAfterAll {
     import com.kodebeagle.parser.MethodVisitorHelper._
 
     val testMap = List(Map("io.netty.channel.Channel" -> Map(),
-      "com.google.common.base.Preconditions" ->
-        Map("checkNotNull" -> List(74, 75))),
-      Map("io.netty.channel.Channel" -> Map("isOpen" -> List(79),
-        "isActive" -> List(79)), "javax.xml.bind.annotation.XmlAnyAttribute" -> Map()),
-      Map("org.slf4j.Logger" ->
-        Map("trace" -> List(114), "debug" -> List(103), "error" -> List(119, 125)),
+      "com.google.common.base.Preconditions" -> Map("checkNotNull" ->
+        List(HighLighter(74,20,54), HighLighter(75,20,54)))),
+
+      Map("io.netty.channel.Channel" -> Map("isOpen" -> List(HighLighter(79,12,27)),
+        "isActive" -> List(HighLighter(79,32,49))),
+        "javax.xml.bind.annotation.XmlAnyAttribute" -> Map()),
+
+      Map("org.slf4j.Logger" -> Map("trace" -> List(HighLighter(114,13,24)),
+        "debug" -> List(HighLighter(103,5,80)),
+        "error" -> List(HighLighter(119,13,50), HighLighter(125,15,85))),
         "org.apache.spark.network.protocol.ChunkFetchRequest" -> Map(),
-        "io.netty.channel.ChannelFutureListener" -> Map(),
-        "java.io.IOException" -> Map(),
-        "org.apache.spark.network.util.NettyUtils" ->
-          Map("getRemoteAddress" -> List(101)),
-        "io.netty.channel.ChannelFuture" ->
-          Map("cause" -> List(118, 119, 123), "isSuccess" -> List(112)),
-        "io.netty.channel.Channel" -> Map("close" -> List(121), "writeAndFlush" -> List(108)),
-        "org.apache.spark.network.protocol.StreamChunkId" -> Map()), Map("org.slf4j.Logger" ->
-        Map("trace" -> List(139, 150), "error" -> List(154, 160)),
         "io.netty.channel.ChannelFutureListener" -> Map(), "java.io.IOException" -> Map(),
-        "java.util.UUID" -> Map("randomUUID" -> List(141)),
-        "org.apache.spark.network.util.NettyUtils" -> Map("getRemoteAddress" -> List(137)),
-        "io.netty.channel.ChannelFuture" ->
-          Map("cause" -> List(153, 154, 158), "isSuccess" -> List(148)),
-        "io.netty.channel.Channel" -> Map("close" -> List(156), "writeAndFlush" -> List(144)),
+        "org.apache.spark.network.util.NettyUtils" -> Map("getRemoteAddress" ->
+          List(HighLighter(101,31,66))), "io.netty.channel.ChannelFuture" ->
+          Map("cause" -> List(HighLighter(118,27,40), HighLighter(119,36,49),
+            HighLighter(123,72,85)), "isSuccess" -> List(HighLighter(112,15,32))),
+        "io.netty.channel.Channel" -> Map("close" -> List(HighLighter(121,13,27)),
+          "writeAndFlush" -> List(HighLighter(108,5,63))),
+        "org.apache.spark.network.protocol.StreamChunkId" -> Map()),
+
+      Map("org.slf4j.Logger" -> Map("trace" -> List(HighLighter(139,5,49), HighLighter(150,13,97)),
+        "error" -> List(HighLighter(154,13,50), HighLighter(160,15,85))),
+        "io.netty.channel.ChannelFutureListener" -> Map(),
+        "java.io.IOException" -> Map(), "java.util.UUID" ->
+          Map("randomUUID" -> List(HighLighter(141,37,53))),
+        "org.apache.spark.network.util.NettyUtils" ->
+          Map("getRemoteAddress" -> List(HighLighter(137,31,66))),
+        "io.netty.channel.ChannelFuture" -> Map("cause" -> List(HighLighter(153,27,40),
+          HighLighter(154,36,49), HighLighter(158,60,73)), "isSuccess" ->
+          List(HighLighter(148,15,32))), "io.netty.channel.Channel" -> Map("close" ->
+          List(HighLighter(156,13,27)), "writeAndFlush" -> List(HighLighter(144,5,61))),
         "org.apache.spark.network.protocol.RpcRequest" -> Map()),
-      Map("java.util.concurrent.TimeUnit" -> Map(),
-        "java.util.concurrent.ExecutionException" -> Map("getCause" -> List(189)),
-        "com.google.common.base.Throwables" -> Map("propagate" -> List(189, 191)),
-        "com.google.common.util.concurrent.SettableFuture" ->
-          Map("set" -> List(177), "get" -> List(187), "create" -> List(172),
-            "setException" -> List(182))), Map("java.util.concurrent.TimeUnit" -> Map(),
-        "io.netty.channel.Channel" ->
-        Map("close" -> List(198))), Map("io.netty.channel.Channel" ->
-        Map("remoteAddress" -> List(204)),
-        "com.google.common.base.Objects" -> Map("toStringHelper" -> List(203))))
+
+        Map("java.util.concurrent.TimeUnit" -> Map(), "java.util.concurrent.ExecutionException" ->
+        Map("getCause" -> List(HighLighter(189,34,45))), "com.google.common.base.Throwables" ->
+        Map("propagate" -> List(HighLighter(189,13,46), HighLighter(191,13,35))),
+        "com.google.common.util.concurrent.SettableFuture" -> Map("set" ->
+          List(HighLighter(177,9,28)), "get" -> List(HighLighter(187,14,57)),
+          "create" -> List(HighLighter(172,43,65)),
+          "setException" -> List(HighLighter(182,9,30)))),
+
+      Map("java.util.concurrent.TimeUnit" -> Map(), "io.netty.channel.Channel" ->
+        Map("close" -> List(HighLighter(198,5,19)))),
+
+      Map("io.netty.channel.Channel" -> Map("remoteAddress" -> List(HighLighter(204,28,50))),
+        "com.google.common.base.Objects" -> Map("toStringHelper" -> List(HighLighter(203,12,39))))
+    )
 
     val imports = getImports(parser, Set()).map(importName => importName._1 + "." + importName._2)
-    val tokenMap: List[Map[String, List[Int]]] = getTokenMap(parser, imports)
+    val tokenMap: List[Map[String, List[HighLighter]]] = getTokenMap(parser, imports)
     val resultTokens = getImportsWithMethodAndLineNumbers(parser, tokenMap).map(_._1)
+
     for(i <- resultTokens.indices) {
       val resultToken = resultTokens(i)
       val testToken =  testMap(i)

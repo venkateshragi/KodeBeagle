@@ -71,54 +71,74 @@ curl -XPUT 'localhost:9201/sourcefile' -d '{
     }
 }'
 
-curl -XPUT 'http://localhost:9201/importsmethods/' -d '{  
-   "mappings" : {"typeimportsmethods":{  
-      "properties":{  
-         "file":{  
-            "type":"string",
-            "index":"no"
-         },
-         "tokens":{  
-            "type":"nested",
-            "include_in_parent":true,
-            "properties":{  
-               "importName":{  
-                  "type":"string",
-                  "index":"not_analyzed"
-               },
-               "importExactName":{  
-                  "type":"string",
-                  "index":"no"
-               },
-               "lineNumbers":{  
-                  "type":"long",
-                  "index":"no"
-               },
-               "methodAndLineNumbers":{  
-                  "type":"nested",
-                  "include_in_parent":true,
-                  "properties":{  
-                     "lineNumbers":{  
-                        "type":"long"
-                     },
-                     "methodName":{  
-                        "type":"string",
-                        "index":"not_analyzed"
-                     }
-                  }
-               }
+curl -XPUT 'http://localhost:9201/importsmethods/' -d '{
+    "mappings": {
+        "typeimportsmethods": {
+            "properties": {
+                "file": {
+                    "type": "string",
+                    "index": "no"
+                },
+                "tokens": {
+                    "type": "nested",
+                    "include_in_parent": true,
+                    "properties": {
+                        "importName": {
+                            "type": "string",
+                            "index": "not_analyzed"
+                        },
+                        "importExactName": {
+                            "type": "string",
+                            "index": "no"
+                        },
+                        "lineNumbers": {
+                            "properties": {
+                                "endColumn": {
+                                    "type": "long"
+                                },
+                                "lineNumber": {
+                                    "type": "long"
+                                },
+                                "startColumn": {
+                                    "type": "long"
+                                }
+                            }
+                        },
+                        "methodAndLineNumbers": {
+                            "type": "nested",
+                            "include_in_parent": true,
+                            "properties": {
+                                "lineNumbers": {
+                                    "properties": {
+                                        "endColumn": {
+                                            "type": "long"
+                                        },
+                                        "lineNumber": {
+                                            "type": "long"
+                                        },
+                                        "startColumn": {
+                                            "type": "long"
+                                        }
+                                    }
+                                },
+                                "methodName": {
+                                    "type": "string",
+                                    "index": "not_analyzed"
+                                }
+                            }
+                        }
+                    }
+                },
+                "repoId": {
+                    "type": "long"
+                },
+                "score": {
+                    "type": "integer",
+                    "index": "not_analyzed"
+                }
             }
-         },
-         "repoId":{  
-            "type":"long"
-         },
-         "score":{  
-            "type":"integer",
-            "index" : "not_analyzed"
-         }
-      }
-   }
-}
+        }
+    }
 }'
 
 

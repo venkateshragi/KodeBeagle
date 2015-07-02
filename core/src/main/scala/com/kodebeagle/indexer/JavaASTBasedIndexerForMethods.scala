@@ -33,7 +33,7 @@ class JavaASTBasedIndexerForMethods extends JavaASTBasedIndexer {
     import com.kodebeagle.parser.MethodVisitorHelper._
     val imports: Set[(String, String)] = getImports(parser,excludePackages)
     val importsSet = imports.map(tuple2ToImportString)
-    val tokensMap: List[Map[String, List[Int]]] = getTokenMap(parser, importsSet)
+    val tokensMap: List[Map[String, List[HighLighter]]] = getTokenMap(parser, importsSet)
     (imports, createMethodIndexEntries(parser, tokensMap))
   }
 

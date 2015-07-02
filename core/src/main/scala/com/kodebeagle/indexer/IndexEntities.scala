@@ -19,10 +19,10 @@ package com.kodebeagle.indexer
 
 import scala.collection.immutable
 
-case class MethodToken(importName: String, importExactName: String, lineNumbers: List[Int],
-                       methodAndLineNumbers: Set[MethodAndLines])
+case class MethodToken(importName: String, importExactName: String, lineNumbers: List[HighLighter],
+  methodAndLineNumbers: Set[MethodAndLines])
 
-case class MethodAndLines(methodName: String, lineNumbers: List[Int])
+case class MethodAndLines(methodName: String, lineNumbers: List[HighLighter])
 
 case class IndexEntry(repoId: Int, file: String, tokens: Set[Token], score: Int)
 
@@ -31,6 +31,11 @@ case class ImportsMethods(repoId: Int, file: String,
 
 /* Since our tokens are fully qualified import names. */
 case class Token(importName: String, importExactName: String, lineNumbers: immutable.Set[Int])
+
+case class Token2(importName: String, importExactName: String,
+    lineNumbers: immutable.Set[HighLighter])
+
+case class HighLighter(lineNumber: Int, startColumn: Int, endColumn: Int)
 
 case class SourceFile(repoId: Int, fileName: String, fileContent: String)
 

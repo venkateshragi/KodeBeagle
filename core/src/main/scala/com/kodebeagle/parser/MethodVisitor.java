@@ -28,6 +28,7 @@ import com.github.javaparser.ast.stmt.CatchClause;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
+import scala.Tuple3;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -49,10 +50,21 @@ public class MethodVisitor extends VoidVisitorAdapter {
     private HashMap<String, ArrayList<Integer>> lineNumbersMap = new HashMap<String, ArrayList<Integer>>();
     private ArrayList<HashMap<String, ArrayList<Integer>>> listOflineNumbersMap = new
             ArrayList<HashMap<String, ArrayList<Integer>>>();
-    private HashMap<String, HashMap<String, ArrayList<Integer>>> importsMethodsAndLineNumbers =
-            new HashMap<String, HashMap<String, ArrayList<Integer>>>();
-    private ArrayList<HashMap<String, HashMap<String, ArrayList<Integer>>>> importsMethodsAndLineNumbersList =
-            new ArrayList<HashMap<String, HashMap<String, ArrayList<Integer>>>>();
+
+    public ArrayList<HashMap<String, ArrayList<Tuple3<Integer,Integer,Integer>>>> lineAndColumnsNumbers =
+            new ArrayList<HashMap<String, ArrayList<Tuple3<Integer,Integer,Integer>>>>();
+
+    private HashMap<String, ArrayList<Tuple3<Integer,Integer,Integer>>> lineAndColumsNumbersMap =
+            new HashMap<String, ArrayList<Tuple3<Integer,Integer,Integer>>>();
+
+    private HashMap<String, HashMap<String, ArrayList<Tuple3<Integer,Integer,Integer>>>>
+            importsMethodsAndLineColumnNumbers = new HashMap<String, HashMap<String,
+            ArrayList<Tuple3<Integer,Integer,Integer>>>>();
+
+    public ArrayList<HashMap<String, HashMap<String, ArrayList<Tuple3<Integer,Integer,Integer>>>>>
+            importsMethodsAndLineColumnNumbersList =
+            new ArrayList<HashMap<String, HashMap<String, ArrayList<Tuple3<Integer,Integer,Integer>>>>>();
+
 
     public void parse(String classcontent, String filename) throws Throwable {
         if (classcontent == null || classcontent.isEmpty()) {
@@ -130,10 +142,13 @@ public class MethodVisitor extends VoidVisitorAdapter {
             visit(body, nameVsTypeMap);
         }
         // On each method encountered we store their imports as map.
-        importsMethodsAndLineNumbersList.add(importsMethodsAndLineNumbers);
-        importsMethodsAndLineNumbers = new HashMap<String, HashMap<String, ArrayList<Integer>>>();
         listOflineNumbersMap.add(lineNumbersMap);
         lineNumbersMap = new HashMap<String, ArrayList<Integer>>();
+        lineAndColumnsNumbers.add(lineAndColumsNumbersMap);
+        lineAndColumsNumbersMap = new HashMap<String, ArrayList<Tuple3<Integer,Integer,Integer>>>();
+        importsMethodsAndLineColumnNumbersList.add(importsMethodsAndLineColumnNumbers);
+        importsMethodsAndLineColumnNumbers = new HashMap<String, HashMap<String,
+                ArrayList<Tuple3<Integer,Integer,Integer>>>>();
     }
 
     @SuppressWarnings("unchecked")
@@ -159,10 +174,13 @@ public class MethodVisitor extends VoidVisitorAdapter {
             visit(body, nameVsTypeMap);
         }
         // On each method encountered we store their imports as map.
-        importsMethodsAndLineNumbersList.add(importsMethodsAndLineNumbers);
-        importsMethodsAndLineNumbers = new HashMap<String, HashMap<String, ArrayList<Integer>>>();
         listOflineNumbersMap.add(lineNumbersMap);
         lineNumbersMap = new HashMap<String, ArrayList<Integer>>();
+        lineAndColumnsNumbers.add(lineAndColumsNumbersMap);
+        lineAndColumsNumbersMap = new HashMap<String, ArrayList<Tuple3<Integer,Integer,Integer>>>();
+        importsMethodsAndLineColumnNumbersList.add(importsMethodsAndLineColumnNumbers);
+        importsMethodsAndLineColumnNumbers = new HashMap<String, HashMap<String,
+                ArrayList<Tuple3<Integer,Integer,Integer>>>>();
     }
 
     public void fancyVisit(Expression exp, Object arg) {
@@ -182,6 +200,8 @@ public class MethodVisitor extends VoidVisitorAdapter {
             visit((FieldAccessExpr) exp, arg);
         } else if (exp != null && !getFullScope(exp).equals(exp.toString())) {
             updateLineNumbersMap(getFullScope(exp), exp.getBeginLine());
+            updateLineAndColumnsNumbersMap(getFullScope(exp), exp.getBeginLine(),
+                    exp.getBeginColumn(), exp.getEndColumn());
         }
     }
 
@@ -226,6 +246,16 @@ public class MethodVisitor extends VoidVisitorAdapter {
         lineNumbersMap.put(targetScope, lineNumbers);
     }
 
+    private void updateLineAndColumnsNumbersMap(String targetScope, Integer line,
+                                                Integer begin, Integer end) {
+        ArrayList<Tuple3<Integer, Integer, Integer>> lineNumbers = lineAndColumsNumbersMap.get(targetScope);
+        if (lineNumbers == null) {
+            lineNumbers = new ArrayList<Tuple3<Integer, Integer, Integer>>();
+        }
+        lineNumbers.add(new Tuple3(line, begin, end));
+        lineAndColumsNumbersMap.put(targetScope, lineNumbers);
+    }
+
     @Override
     public void visit(ObjectCreationExpr n, Object arg1) {
 
@@ -237,7 +267,10 @@ public class MethodVisitor extends VoidVisitorAdapter {
                         fancyVisit(arg, arg1);
                     }
                 }
+
                 updateLineNumbersMap(fullTypeName, n.getBeginLine());
+                updateLineAndColumnsNumbersMap(fullTypeName, n.getBeginLine(),
+                        n.getBeginColumn(), n.getEndColumn());
 
                 // Process anonymous class body.
                 if (n.getAnonymousClassBody() != null) {
@@ -290,17 +323,18 @@ public class MethodVisitor extends VoidVisitorAdapter {
         Expression s = n.getScope();
         String fullScope = getFullScope(s);
 
-        if (importsMethodsAndLineNumbers.containsKey(fullScope)) {
-            HashMap<String, ArrayList<Integer>> methodAndLineNumbers = importsMethodsAndLineNumbers
-                    .get(fullScope);
-            updateImportWithMethodAndLineNumbers(n, fullScope,
-                    methodAndLineNumbers);
+        if (importsMethodsAndLineColumnNumbers.containsKey(fullScope)) {
+            HashMap<String, ArrayList<Tuple3<Integer, Integer, Integer>>> methodAndLineColumnNumbers =
+                    importsMethodsAndLineColumnNumbers.get(fullScope);
+            updateImportWithMethodAndLineColumnsNumbers(n, fullScope,
+                    methodAndLineColumnNumbers);
         } else {
-            HashMap<String, ArrayList<Integer>> methodAndLineNumbers = new HashMap<String, ArrayList<Integer>>();
-            ArrayList<Integer> arr = new ArrayList<Integer>();
-            arr.add(n.getBeginLine());
-            methodAndLineNumbers.put(n.getName(), arr);
-            importsMethodsAndLineNumbers.put(fullScope, methodAndLineNumbers);
+            HashMap<String, ArrayList<Tuple3<Integer, Integer, Integer>>> methodAndLineColumnNumbers =
+                    new HashMap<String, ArrayList<Tuple3<Integer, Integer, Integer>>>();
+            ArrayList<Tuple3<Integer, Integer, Integer>> arr = new ArrayList<Tuple3<Integer, Integer, Integer>>();
+            arr.add(new Tuple3(n.getBeginLine(), n.getBeginColumn(), n.getEndColumn()));
+            methodAndLineColumnNumbers.put(n.getName(), arr);
+            importsMethodsAndLineColumnNumbers.put(fullScope, methodAndLineColumnNumbers);
         }
 
         List<Expression> args = n.getArgs();
@@ -317,6 +351,8 @@ public class MethodVisitor extends VoidVisitorAdapter {
         String fullscope = getFullScope(s);
         if (s != null) {
             updateLineNumbersMap(fullscope, s.getBeginLine());
+            updateLineAndColumnsNumbersMap(fullscope, s.getBeginLine(),
+                    s.getBeginColumn(), s.getEndColumn());
         }
         List<String> stack = methodCallStack.get(currentMethod);
         if (stack == null) {
@@ -359,6 +395,8 @@ public class MethodVisitor extends VoidVisitorAdapter {
             String type = n.getType().toString();
             nameVsTypeMap.put(id, fullType(type));
             updateLineNumbersMap(fullType(type), n.getBeginLine());
+            updateLineAndColumnsNumbersMap(fullType(type), n.getBeginLine(),
+                    n.getBeginColumn(), n.getEndColumn());
         }
 
     }
@@ -366,6 +404,8 @@ public class MethodVisitor extends VoidVisitorAdapter {
     @Override
     public void visit(CastExpr n, Object arg) {
         updateLineNumbersMap(fullType(n.getType().toString()), n.getBeginLine());
+        updateLineAndColumnsNumbersMap(fullType(n.getType().toString()), n.getBeginLine(),
+                n.getBeginColumn(), n.getEndColumn());
         if (n.getExpr() != null) fancyVisit(n.getExpr(), arg);
     }
 
@@ -401,23 +441,24 @@ public class MethodVisitor extends VoidVisitorAdapter {
         }
     }
 
-    private void updateImportWithMethodAndLineNumbers(
-            MethodCallExpr n,
-            String fullScope,
-            HashMap<String, ArrayList<Integer>> methodAndLineNumbers) {
+    private void updateImportWithMethodAndLineColumnsNumbers(MethodCallExpr n,
+                                                      String fullScope,
+                                                      HashMap<String, ArrayList<Tuple3<Integer, Integer, Integer>>>
+                                                                     methodAndLineNumbers) {
 
         if (methodAndLineNumbers.containsKey(n.getName())) {
-            ArrayList<Integer> arr = methodAndLineNumbers.get(n.getName());
-            arr.add(n.getBeginLine());
+            ArrayList<Tuple3<Integer, Integer, Integer>> arr = methodAndLineNumbers.get(n.getName());
+            arr.add(new Tuple3(n.getBeginLine(), n.getBeginColumn(),n.getEndColumn()));
             methodAndLineNumbers.put(n.getName(), arr);
         } else {
-            ArrayList<Integer> arr = new ArrayList<Integer>();
-            arr.add(n.getBeginLine());
+            ArrayList<Tuple3<Integer, Integer, Integer>> arr = new ArrayList<Tuple3<Integer, Integer, Integer>>();
+            arr.add(new Tuple3(n.getBeginLine(), n.getBeginColumn(),n.getEndColumn()));
             methodAndLineNumbers.put(n.getName(), arr);
         }
 
-        importsMethodsAndLineNumbers.put(fullScope, methodAndLineNumbers);
+        importsMethodsAndLineColumnNumbers.put(fullScope, methodAndLineNumbers);
     }
+
 
     @SuppressWarnings("unchecked")
     @Override
@@ -429,6 +470,8 @@ public class MethodVisitor extends VoidVisitorAdapter {
         for (Type t : exception.getTypes()) {
             nameVsTypeMap.put(name, fullType(t.toString()));
             updateLineNumbersMap(fullType(t.toString()), exception.getBeginLine());
+            updateLineAndColumnsNumbersMap(fullType(t.toString()), exception.getBeginLine(),
+                    exception.getBeginColumn(), exception.getEndColumn());
         }
 
         if (n != null) {
@@ -448,7 +491,7 @@ public class MethodVisitor extends VoidVisitorAdapter {
         return importDeclMap;
     }
 
-    public ArrayList<HashMap<String, HashMap<String, ArrayList<Integer>>>> getImportsWithMethodAndLineNumber() {
-        return importsMethodsAndLineNumbersList;
-    }
+//    public ArrayList<HashMap<String, HashMap<String, ArrayList<Integer>>>> getImportsWithMethodAndLineNumber() {
+//        return importsMethodsAndLineNumbersList;
+//    }
 }

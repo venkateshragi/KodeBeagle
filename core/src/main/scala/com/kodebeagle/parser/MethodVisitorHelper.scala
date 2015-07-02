@@ -17,27 +17,27 @@
 
 package com.kodebeagle.parser
 
-import java.util
 import java.util.{ArrayList, HashMap}
 
 import scala.collection.immutable.Map
-import com.kodebeagle.indexer.{MethodAndLines, MethodToken, Token}
+import com.kodebeagle.indexer._
 
 object MethodVisitorHelper {
 
   def getImportsWithMethodAndLineNumbers(parser: MethodVisitor, tokens: List[Map[String,
-    List[Int]]]): List[(Map[String, Map[String, List[Int]]], Map[String, List[Int]])] = {
-      import scala.collection.JavaConversions._
-      val zippedMethodsWithTokens = parser.getImportsWithMethodAndLineNumber.toList zip tokens
-      zippedMethodsWithTokens.map { methodsAndTokens => val (methods, tokens) = methodsAndTokens
-          (tokens map { token =>
-              val (importName, _) = token
-              if (methods.containsKey(importName)) {
-                      importName -> javaToScalaMap(methods)(importName)
-                  }
-              else importName -> Map[String, List[Int]]()
-          }, tokens)
-      }
+    List[HighLighter]]]): List[(Map[String, Map[String, List[HighLighter]]],
+    Map[String, List[HighLighter]])] = {
+    import scala.collection.JavaConversions._
+    val zippedMethodsWithTokens = parser.importsMethodsAndLineColumnNumbersList.toList zip tokens
+    zippedMethodsWithTokens.map { methodsAndTokens => val (methods, tokens) = methodsAndTokens
+      (tokens map { token =>
+        val (importName, _) = token
+        if (methods.containsKey(importName)) {
+          importName -> javaToScalaMap(methods)(importName)
+        }
+        else importName -> Map[String, List[HighLighter]]()
+      }, tokens)
+    }
   }
 
   def getImports(parser: MethodVisitor, excludePackages: Set[String]): Set[(String, String)] = {
@@ -46,39 +46,40 @@ object MethodVisitorHelper {
       x._1)).filterNot { case (left, right) => excludePackages.contains(left) }.toSet
   }
 
-  def getTokenMap(parser: MethodVisitor, importsSet: Set[String]): List[Map[String, List[Int]]] = {
+  def getTokenMap(parser: MethodVisitor, importsSet: Set[String]):
+  List[Map[String, List[HighLighter]]] = {
     import scala.collection.JavaConversions._
-    val listOflineNumbersMap: util.ArrayList[util.HashMap[String, util.ArrayList[Integer]]] =
-      parser.getListOflineNumbersMap
-    listOflineNumbersMap.map { x =>
-        x.map(y => Token(y._1.toLowerCase, y._1, y._2.map(_.toInt).toSet))
-      .filter{ x => importsSet.contains(x.importExactName)}.toSet
+    parser.lineAndColumnsNumbers.map { x =>
+      x.map(y =>
+        Token2(y._1.toLowerCase, y._1, y._2.map(a =>
+          HighLighter(a._1.toInt, a._2.toInt, a._3.toInt)).toSet)).filter
+        { x => importsSet.contains(x.importExactName) }.toSet
     }.toList.map { a =>
       a.map { a => a.importExactName -> a.lineNumbers.toList }.toMap
     }
   }
 
   def javaToScalaMap(
-      javaHashMap:
-      HashMap[String, HashMap[String, ArrayList[Integer]]]):
-  Map[String, Map[String, List[Int]]] = {
+    javaHashMap:
+    HashMap[String, HashMap[String, ArrayList[(Integer,Integer,Integer)]]]):
+  Map[String, Map[String, List[HighLighter]]] = {
     import scala.collection.JavaConversions._
     (javaHashMap map { case (k, v) =>
       k -> v.toMap.map {
-        case (k, v) => k -> v.toList.distinct.map(_.toInt)
+        case (k, v) => k -> v.toList.map(a => HighLighter(a._1, a._2, a._3))
       }
     }).toMap
   }
 
   def createMethodIndexEntries(parser: MethodVisitor,
-                               tokens: List[Map[String, List[Int]]]): List[Set[MethodToken]] =
-      getImportsWithMethodAndLineNumbers(parser, tokens).map { methodTokens =>
-        val (method, tokens) = methodTokens
+    tokens: List[Map[String, List[HighLighter]]]): List[Set[MethodToken]] =
+    getImportsWithMethodAndLineNumbers(parser, tokens).map { methodTokens =>
+      val (method, tokens) = methodTokens
       createMethodIndexEntry(method, tokens)
     }
 
-  def createMethodIndexEntry(importWithMethods: Map[String, Map[String, List[Int]]],
-                             tokens: Map[String, List[Int]]): Set[MethodToken] = {
+  def createMethodIndexEntry(importWithMethods: Map[String, Map[String, List[HighLighter]]],
+                             tokens: Map[String, List[HighLighter]]): Set[MethodToken] = {
     importWithMethods.map { case (importName, methodAndLineNumbers) =>
       MethodToken(importName.toLowerCase, importName, tokens(importName),
         methodAndLineNumbers.map {
