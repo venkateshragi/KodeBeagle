@@ -18,6 +18,7 @@
 package com.imaginea.kodebeagle.util;
 
 import com.imaginea.kodebeagle.object.WindowObjects;
+import com.intellij.codeInsight.highlighting.HighlightUsagesHandler;
 import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
@@ -296,6 +297,9 @@ public class EditorDocOps {
         Editor projectEditor =
                 FileEditorManager.getInstance(windowObjects.getProject()).getSelectedTextEditor();
         if (projectEditor != null) {
+            PsiFile psiFile =
+                    PsiDocumentManager.getInstance(windowObjects.getProject()).
+                            getPsiFile(projectEditor.getDocument());
             MarkupModel markupModel = projectEditor.getMarkupModel();
             if (markupModel != null) {
                 markupModel.removeAllHighlighters();
@@ -308,13 +312,16 @@ public class EditorDocOps {
                         String lineText =
                                 document.getCharsSequence().
                                         subSequence(startOffset, endOffset).toString();
-                        int lineStartOffset = lineText.length() - lineText.trim().length();
-                        markupModel.addRangeHighlighter(document.getLineStartOffset(line)
-                                        + lineStartOffset,
-                                document.getLineEndOffset(line),
-                                HighlighterLayer.ERROR,
-                                attributes,
+                        int lineStartOffset =
+                                startOffset + lineText.length() - lineText.trim().length();
+                        markupModel.addRangeHighlighter(lineStartOffset, endOffset,
+                                HighlighterLayer.ERROR, attributes,
                                 HighlighterTargetArea.EXACT_RANGE);
+                        if (psiFile != null && psiFile.findElementAt(lineStartOffset) != null) {
+                            HighlightUsagesHandler.doHighlightElements(projectEditor,
+                                    new PsiElement[]{psiFile.findElementAt(lineStartOffset)},
+                                    attributes, false);
+                        }
                     }
                 }
             }

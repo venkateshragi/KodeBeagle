@@ -204,3 +204,8 @@ these values can't be applied.<br>
 3. The notification balloon will show the time taken and number of results fetched.<br/>
 <img src = 'screenshots/notification.png' /><br/>
 
+#### 31. [idea] #104 Add line markers for #56
+##### fixes <a href='https://github.com/Imaginea/KodeBeagle/issues/104'> #104 </a>
+1. After opening the results file in new tab in editor you should see markers on the vertical markup bar of editor.<br>
+<img src = 'screenshots/line-markers.png'/><br>
+
