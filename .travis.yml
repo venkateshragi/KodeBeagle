@@ -25,11 +25,11 @@ install:
 services:
  
 env:
-  global:
-    - IDEA_LIB="$(pwd)/idea-IC/lib"
+  - PR_VALIDATE=1
+  - PR_VALIDATE=0
+
 script:
--  bin/pr_validate.pl
--  sbt scalastyle test:scalastyle test findbugs checkstyle cpd pmd | grep -v -e "info.*Resolving" -e "downloading"
--  bin/code_quality.pl
+  - IDEA_LIB="$(pwd)/idea-IC/lib" bin/run_tests.sh
+
 notifications:
   email: true
