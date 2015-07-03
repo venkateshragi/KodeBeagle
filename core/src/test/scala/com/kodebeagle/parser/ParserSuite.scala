@@ -86,8 +86,8 @@ class MethodVisitorSuite extends FunSuite with BeforeAndAfterAll {
     val lines = parser.getListOflineNumbersMap.flatMap(x => x.flatMap(_._2)).map(_.toInt)
       .toList.sorted.distinct
 
-    assert(lines === List(74, 75, 79, 101, 102, 103, 105, 106, 108, 109, 112, 113, 114, 115, 117,
-      118, 119, 120, 121, 123, 124, 125, 137, 138, 139, 141, 142, 144, 145, 148, 149, 150, 152,
+    assert(lines === List(74, 75, 78, 79, 101, 102, 103, 105, 106, 108, 109, 112, 113, 114, 115,
+      117, 118, 119, 120, 121, 123, 124, 125, 137, 138, 139, 141, 142, 144, 145, 148, 149, 150, 152,
       153, 154, 155, 156, 158, 159, 160, 172, 174, 177, 182, 187, 188, 189, 190, 191, 198, 203,
       204))
   }
@@ -103,7 +103,8 @@ class MethodVisitorSuite extends FunSuite with BeforeAndAfterAll {
       "com.google.common.base.Preconditions" ->
         Map("checkNotNull" -> List(74, 75))),
       Map("io.netty.channel.Channel" -> Map("isOpen" -> List(79),
-        "isActive" -> List(79))), Map("org.slf4j.Logger" ->
+        "isActive" -> List(79)), "javax.xml.bind.annotation.XmlAnyAttribute" -> Map()),
+      Map("org.slf4j.Logger" ->
         Map("trace" -> List(114), "debug" -> List(103), "error" -> List(119, 125)),
         "org.apache.spark.network.protocol.ChunkFetchRequest" -> Map(),
         "io.netty.channel.ChannelFutureListener" -> Map(),

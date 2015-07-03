@@ -37,7 +37,7 @@ import org.apache.spark.network.protocol.ChunkFetchRequest;
 import org.apache.spark.network.protocol.RpcRequest;
 import org.apache.spark.network.protocol.StreamChunkId;
 import org.apache.spark.network.util.NettyUtils;
-
+import javax.xml.bind.annotation.XmlAnyAttribute;
 /**
  * Client for fetching consecutive chunks of a pre-negotiated stream. This API is intended to allow
  * efficient transfer of a large amount of data, broken up into chunks with size ranging from
@@ -75,7 +75,7 @@ public class TransportClient implements Closeable {
     this.handler = Preconditions.checkNotNull(handler);
   }
 // Channel
-  public boolean isActive() {
+  @XmlAnyAttribute public boolean isActive() {
     return channel.isOpen() || channel.isActive();
   }
 
@@ -94,7 +94,7 @@ public class TransportClient implements Closeable {
    * @param chunkIndex 0-based index of the chunk to fetch
    * @param callback Callback invoked upon successful receipt of chunk, or upon any failure.
    */
-  public void fetchChunk(
+  @Deprecated public void fetchChunk(
       long streamId,
       final int chunkIndex,
       final ChunkReceivedCallback callback) {

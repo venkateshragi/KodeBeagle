@@ -26,8 +26,9 @@ class JavaFileIndexerSuite extends FunSuite with BeforeAndAfterAll {
   val stream =
     Thread.currentThread().getContextClassLoader.getResourceAsStream("TransportClient.java")
   val writer = new StringWriter()
-  val allOccurrences = List(74, 75, 79, 101, 103, 105, 106, 108, 109, 114, 117, 119, 120, 121, 123,
-    125, 137, 139, 141, 144, 145, 150, 154, 156, 158, 160, 172, 187, 188, 189, 191, 198, 203, 204)
+  val allOccurrences = List(74, 75, 78, 79, 101, 103, 105, 106, 108, 109, 114, 117, 119, 120, 121,
+    123, 125, 137, 139, 141, 144, 145, 150, 154, 156, 158, 160, 172, 187, 188, 189, 191, 198, 203,
+    204)
   val sampleRepo = Repository("sample", 0, "sample", false, "Java", "master", 0)
 
   override def beforeAll() {
@@ -53,7 +54,7 @@ class JavaFileIndexerSuite extends FunSuite with BeforeAndAfterAll {
       Map("sample-master/Sample.java" -> writer.toString), List(), Some(Repository.invalid))
     val occurrences = result.flatMap(x => x.tokens.map(_.lineNumbers)).reduce(_ ++ _)
     assert(occurrences.toList === allOccurrences)
-    assert(result.size == 58)
+    assert(result.size == 60)
   }
 
   test("Excluded imports should not be part of Tokens") {
@@ -98,9 +99,9 @@ class JavaASTBasedIndexerSuite extends FunSuite with BeforeAndAfterAll {
   val stream =
     Thread.currentThread().getContextClassLoader.getResourceAsStream("TransportClient.java")
   val writer = new StringWriter()
-  val allOccurrences = List(74, 75, 79, 101, 103, 105, 106, 108, 109, 112, 114, 117, 118, 119, 120,
-    121, 123, 125, 137, 139, 141, 144, 145, 148, 150, 153, 154, 156, 158, 160, 172, 177, 182, 187,
-    188, 189, 191, 198, 203, 204)
+  val allOccurrences = List(74, 75, 78, 79, 101, 103, 105, 106, 108, 109, 112, 114, 117, 118, 119,
+    120, 121, 123, 125, 137, 139, 141, 144, 145, 148, 150, 153, 154, 156, 158, 160, 172, 177, 182,
+    187, 188, 189, 191, 198, 203, 204)
   val sampleRepo = Repository("sample", 0, "sample", false, "Java", "master", 0)
 
   override def beforeAll() {
@@ -179,18 +180,22 @@ class JavaASTBasedIndexerForMethodsSuite extends FunSuite with BeforeAndAfterAll
     val importPrecon: String = "com.google.common.base.Preconditions"
     val importSCId: String = "org.apache.spark.network.protocol.StreamChunkId"
     val importCFReq: String = "org.apache.spark.network.protocol.ChunkFetchRequest"
-    val testMethodTokens = Set(ImportsMethods(-1, "n-a/n-a/blob/n-a/Sample.java",
+    val importXMLAnnotation: String = "javax.xml.bind.annotation.XmlAnyAttribute"
+    val sampleFile: String = "n-a/n-a/blob/n-a/Sample.java"
+    
+    val testMethodTokens = Set(ImportsMethods(-1, sampleFile,
       Set(MethodToken(importChannel.toLowerCase, importChannel, List(204),
         Set(MethodAndLines("remoteAddress", List(204)))),
         MethodToken(importObjects.toLowerCase, importObjects, List(203),
           Set(MethodAndLines("toStringHelper", List(203))))), 0),
 
-      ImportsMethods(-1, "n-a/n-a/blob/n-a/Sample.java",
-        Set(MethodToken(importChannel.toLowerCase, importChannel, List(79),
+      ImportsMethods(-1, sampleFile,
+      Set(MethodToken(importXMLAnnotation.toLowerCase, importXMLAnnotation, List(78), Set()),
+        MethodToken(importChannel.toLowerCase, importChannel, List(79),
           Set(MethodAndLines("isOpen", List(79)),
             MethodAndLines("isActive", List(79))))), 0),
 
-      ImportsMethods(-1, "n-a/n-a/blob/n-a/Sample.java",
+      ImportsMethods(-1, sampleFile,
         Set(MethodToken(importLogger.toLowerCase, importLogger, List(139, 150, 154, 160),
           Set(MethodAndLines("trace", List(139, 150)),
             MethodAndLines("error", List(154, 160)))),
@@ -210,12 +215,12 @@ class JavaASTBasedIndexerForMethodsSuite extends FunSuite with BeforeAndAfterAll
             Set(MethodAndLines("randomUUID", List(141)))),
           MethodToken(importRpcReq.toLowerCase, importRpcReq, List(144), Set())), 0),
 
-      ImportsMethods(-1, "n-a/n-a/blob/n-a/Sample.java",
+      ImportsMethods(-1, sampleFile,
         Set(MethodToken(importTimeUnit.toLowerCase, importTimeUnit, List(198), Set()),
           MethodToken(importChannel.toLowerCase, importChannel, List(198),
             Set(MethodAndLines("close", List(198))))), 0),
 
-      ImportsMethods(-1, "n-a/n-a/blob/n-a/Sample.java",
+      ImportsMethods(-1, sampleFile,
         Set(MethodToken(importTimeUnit.toLowerCase, importTimeUnit, List(187), Set()),
           MethodToken(importEE.toLowerCase, importEE, List(188, 189),
             Set(MethodAndLines("getCause", List(189)))),
@@ -226,12 +231,12 @@ class JavaASTBasedIndexerForMethodsSuite extends FunSuite with BeforeAndAfterAll
               MethodAndLines("create", List(172)),
               MethodAndLines("setException", List(182))))), 0),
 
-      ImportsMethods(-1, "n-a/n-a/blob/n-a/Sample.java",
+      ImportsMethods(-1, sampleFile,
         Set(MethodToken(importChannel.toLowerCase, importChannel, List(74), Set()),
           MethodToken(importPrecon.toLowerCase, importPrecon, List(74, 75),
             Set(MethodAndLines("checkNotNull", List(74, 75))))), 0),
 
-      ImportsMethods(-1, "n-a/n-a/blob/n-a/Sample.java",
+      ImportsMethods(-1, sampleFile,
         Set(MethodToken(importSCId.toLowerCase, importSCId,
           List(120, 106, 117, 105, 108, 114), Set()),
           MethodToken(importIOE.toLowerCase, importIOE, List(123), Set()),

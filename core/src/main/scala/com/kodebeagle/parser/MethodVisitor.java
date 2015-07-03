@@ -110,6 +110,10 @@ public class MethodVisitor extends VoidVisitorAdapter {
 
     @Override
     public void visit(ConstructorDeclaration n, Object arg) {
+        List<AnnotationExpr> annotations = n.getAnnotations();
+        for (AnnotationExpr v : annotations) {
+            fancyVisit(v.getName(), arg);
+        }
         nameVsTypeMap = new HashMap<String, String>();
         List<Parameter> parameters = n.getParameters();
         if (parameters != null) {
@@ -135,6 +139,10 @@ public class MethodVisitor extends VoidVisitorAdapter {
     @SuppressWarnings("unchecked")
     @Override
     public void visit(MethodDeclaration n, Object arg) {
+        List<AnnotationExpr> annotations = n.getAnnotations();
+        for (AnnotationExpr v : annotations) {
+            fancyVisit(v.getName(), arg);
+        }
         nameVsTypeMap = new HashMap<String, String>();
         List<Parameter> parameters = n.getParameters();
         if (parameters != null) {
@@ -393,9 +401,11 @@ public class MethodVisitor extends VoidVisitorAdapter {
         }
     }
 
-    private void updateImportWithMethodAndLineNumbers(MethodCallExpr n,
-                                                      String fullScope,
-                                                      HashMap<String, ArrayList<Integer>> methodAndLineNumbers) {
+    private void updateImportWithMethodAndLineNumbers(
+            MethodCallExpr n,
+            String fullScope,
+            HashMap<String, ArrayList<Integer>> methodAndLineNumbers) {
+
         if (methodAndLineNumbers.containsKey(n.getName())) {
             ArrayList<Integer> arr = methodAndLineNumbers.get(n.getName());
             arr.add(n.getBeginLine());
