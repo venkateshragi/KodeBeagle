@@ -3,7 +3,7 @@
   <name>Kode Beagle</name>
   <version>VERSION_STRING</version> <!-- This gets auto updated by SBT during package -->
 
-  <vendor email="kodebeagle@googlegroups.com" url="https://github.com/Imaginea/KodeBeagle">Imaginea</vendor>
+  <vendor email="kodebeagle@googlegroups.com" url="http://imaginea.com/">Imaginea</vendor>
 
   <description><![CDATA[
     <strong><i>Kodebeagle</i></strong>
