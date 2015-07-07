@@ -209,3 +209,11 @@ these values can't be applied.<br>
 1. After opening the results file in new tab in editor you should see markers on the vertical markup bar of editor.<br>
 <img src = 'screenshots/line-markers.png'/><br>
 
+#### 32. [idea] #255 Renaming labels in idea plugin
+##### fixes <a href='https://github.com/Imaginea/KodeBeagle/issues/255'> #255 </a>
+1. In Settings panel "Distance from cursor" should be renamed to "Lines from Cursor".
+2. Featured tab in Main Window should be renamed to "Top"
+3. In Main Window project tree should be followed by preview editor.
+4. In Project Tree instead of "Go to Github" "Open in Browser" should be present when right clicked on any of the node.<br>
+<img src = 'screenshots/renameLabels_SwapProjectTreePreviewEditor.png'/><br>
+<img src = 'screenshots/linesFromCursor.png'/><br>

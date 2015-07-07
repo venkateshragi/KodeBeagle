@@ -66,9 +66,9 @@ public class MainWindow implements ToolWindowFactory {
 
     private static final String PROJECTS = "Projects";
     public static final String JAVA = "java";
-    private static final double DIVIDER_LOCATION = 0.2;
+    private static final double DIVIDER_LOCATION = 0.8;
     private static final String ALL_TAB = "All";
-    private static final String FEATURED_TAB = "Featured";
+    private static final String FEATURED_TAB = "Top";
     private static final int EDITOR_SCROLL_PANE_WIDTH = 200;
     private static final int EDITOR_SCROLL_PANE_HEIGHT = 300;
     private static final String KODEBEAGLE = "KodeBeagle";
@@ -160,7 +160,7 @@ public class MainWindow implements ToolWindowFactory {
 
 
         final JSplitPane jSplitPane = new JSplitPane(
-                        JSplitPane.VERTICAL_SPLIT, windowEditor.getComponent(), jTreeScrollPane);
+                        JSplitPane.VERTICAL_SPLIT, jTreeScrollPane, windowEditor.getComponent());
         jSplitPane.setResizeWeight(DIVIDER_LOCATION);
 
         JPanel editorPanel = new JPanel();

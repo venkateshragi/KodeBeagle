@@ -69,8 +69,7 @@ public class ProjectTree {
     private EditorDocOps editorDocOps = new EditorDocOps();
     private static final String GITHUB_LINK = "https://github.com/";
     private static final String GITHUB_ICON = "icons/github_icon.png";
-    private static final String RIGHT_CLICK_MENU_ITEM_TEXT =
-            "<html><img src='%s'/>Go to GitHub";
+    private static final String RIGHT_CLICK_MENU_ITEM_TEXT = "Open in Browser";
 
     protected final URL getIconURL() {
         ClassLoader classLoader = this.getClass().getClassLoader();
@@ -175,7 +174,7 @@ public class ProjectTree {
                                 BrowserUtil.browse(GITHUB_LINK + gitUrl);
                             }
                         }
-                    })).setText(String.format(RIGHT_CLICK_MENU_ITEM_TEXT, getIconURL()));
+                    })).setText(RIGHT_CLICK_MENU_ITEM_TEXT);
 
                     menu.show(mouseEvent.getComponent(), mouseEvent.getX(), mouseEvent.getY());
                 }

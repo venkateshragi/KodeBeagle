@@ -49,7 +49,7 @@ public class SettingsPanel implements Configurable {
             "pref, pref, pref, pref, pref, pref, pref, pref, pref, pref, pref";
     private static final String ELASTIC_SEARCH_URL = "Elastic Search URL";
     private static final String RESULTS_SIZE = "Results size";
-    private static final String DISTANCE_FROM_CURSOR = "Distance from cursor";
+    private static final String DISTANCE_FROM_CURSOR = "Lines from cursor";
     private static final String EXCLUDE_IMPORT_LIST = "Exclude imports";
     private static final String HELP_TEXT =
             "Please enter comma separated regex"
