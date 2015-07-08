@@ -67,6 +67,13 @@
        <property name="message" value="Line has trailing spaces."/>
     </module>
 
+    <module name="RegexpSingleline">
+          <property name="format" value="System\.out\.println"/>
+          <property name="minimum" value="0"/>
+          <property name="maximum" value="0"/>
+          <property name="message" value="System.out.println found.."/>
+    </module>
+
 	<module name="SuppressionFilter">
 		<property name="file" value="https://raw.githubusercontent.com/Imaginea/KodeBeagle/master/plugins/idea/kodebeagleidea/checkstyle-supressions.xml" />
 	</module>
