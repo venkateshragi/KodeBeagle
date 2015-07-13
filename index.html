@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
-
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<title>KodeBeagle</title>
@@ -10,136 +9,178 @@
 	<meta name="Resource-type" content="Document" />
 
 	<link type="text/css" rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/fullPage.js/2.6.6/jquery.fullPage.min.css"/>
-	<link type="text/css" rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.4/css/bootstrap.min.css"/>
+	<link type="text/css" rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/css/bootstrap.min.css"/>
 	<link href='http://fonts.googleapis.com/css?family=Homenaje' rel='stylesheet' type='text/css'>
-	    
 
-    <link type="text/css" rel="stylesheet" href="library/dist/css/index/index.css"/>
-    
-
-
+  <link type="text/css" rel="stylesheet" href="library/dist/css/index/index.css"/>
 	<!--link rel="stylesheet" type="text/css" href="../jquery.fullPage.css" />
 	<link rel="stylesheet" type="text/css" href="examples.css" /-->
-
 
 	<!--script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
 	<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js"></script-->
 
 	<!--script type="text/javascript" src="../jquery.fullPage.js"></script-->
-
-
 </head>
 <body>
+	<header>
+        <nav class="navbar navbar-default" id="header-nav">
+            <div class="container">
+                <div class="logo-section pull-left">
+                    <a href="#" class="logo logo1" title="KodeBeagle" >
+                        KodeBeagle
+                    </a>
+                </div>
+                <div class="pull-right links">
+                    <a href="about">
+                    	About</a>
+                    <a href="http://blog.imaginea.com/category/kodebeagle/">
+                    	Blog</a>
 
-<div id="fullpage">
+                </div>
+            </div>
+        </nav>
+    </header>
+	<div id="fullpage">
+		<a href="https://github.com/Imaginea/KodeBeagle"><img style="position: absolute; top: 0; right: 0; border: 0;z-index: 1030" src="https://camo.githubusercontent.com/e7bbb0521b397edbd5fe43e7f760759336b5e05f/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677265656e5f3030373230302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png"></a>
+		<div class="section search-section">
+			<div class="search-component-wrapper">
+				<div class="table-cell">
+					<div>
+						<span style="display: inline-block;">
+							<h1 class="logo">KodeBeagle</h1>
+							<p>Contextual code search by <a href="http://www.imaginea.com" target="_blank">Imaginea</a></p>
+						</span>
+						<sup>beta</sup>
+					</div>
+			  	<div search-component>
+						<div class="search-container" name="searchForm" id="search-form" ng-class="{'search-item-present': selectedTexts.length || searchText, 'search-focused': searchFocused}">
+								<span ng-repeat="item in selectedTexts track by $index" ng-show="selectedTexts.length" class="selected-text" ng-dblclick="handleSelectedText( $event, $index )">
+										{{item}}
+										<i href="#" class="glyphicon glyphicon-remove" ng-click="deleteItem( $event, $index )"></i>
+								</span>
+								<input type="text" name="searchText" id="searchText" ng-model="searchText" ng-focus="searchFocused=true" ng-blur="searchFocused=false" ng-keydown="handleSearchText( $event )" placeholder="Type your search query. eg: FileChannel, MappedByteBuffer"/>
+
+								<a href="#" class="glyphicon glyphicon-remove clear" ng-click="clearAll( $event )" tooltip-placement="bottom" tooltip="Clear all"></a>
+								<a ng-href="{{getResultsPage()}}" class="glyphicon glyphicon-search search" ng-class="{'search-item-present': selectedTexts.length || searchText}" tooltip-placement="bottom" tooltip="Submit" id="search-button"></a>
+						</div>
+						<!--div ng-if="isCode" class="search-container" name="searchForm">
+								<textarea name="searchCodeBlockText" ng-blur="searchFocused=false" placeholder="Past Code block here"></textarea>
+
+								<a href="#" class="glyphicon glyphicon-remove clear" ng-click="clearAll( $event )" tooltip-placement="bottom" tooltip="Clear all"></a>
+								<a ng-href="{{getResultsPage()}}" class="glyphicon glyphicon-search search" ng-class="{'search-item-present': selectedTexts.length || searchText}" tooltip-placement="bottom" tooltip="Submit" id="search-button"></a>
+						</div>
+						<p>
+							Search with 
+							<a href="#" ng-click="isCode = !isCode" >
+								<span ng-if="isCode">
+									Terms
+								</span>
+								<span ng-if="!isCode">
+									Code block
+								</span>
+							</a>
+						</p-->
+					</div>
+				</div>
+	    </div>
+		</div>
+		<!--
+		<div class="section about-section">
+			<div class="section-component">
+				<h2 class="section-title">About</h2>
+				<div class="section-data">
+					<p>A tool to assist you when you need code references.</p>
+					<p>As Developers, we tend to hunt for best-practices of using common and uncommon libraries in order to make our code more efficient. Often, a lot of time and energy is spent understanding the pros and cons of different approaches. KodeBeagle aims to solve this problem. It cites common practices from standard code references.</p>
+				</div>
+			</div>
+		</div>
+		<div class="section moreinfo-section">
+			<div class="section-component">
+				<h2 class="section-title">More info</h2>
+				<div class="section-data">
+					<p>
+						It goes through existing popular public projects and gathering required information. When a user searches, it queries the database and fetches relevant results.
+					</p>
+					<p>
+						Currently, the source for code of popular projects is Github
+					</p>
+					<p>
+						<span class="section-label">Technology Stack :</span> ElasticSearch, Spark
+					</p>
+					<p>
+						<span class="section-label">Supported Languages:</span> Java
+					</p>
+					<p>
+						Search is enabled only for fully qualified class name
+					</p>
+					<p>
+						<span class="section-label">RoadMap</span>
+					</p>
+					<p>
+						Search by class name or simple text to describe task at hand
+					</p>
+				</div>
+			</div>
+		</div>
+		<div class="section contributors-section">
+			<div class="section-component">
+				<h2 class="section-title">Contributors</h2>
+				<div class="section-data contributor-section" ng-controller="contributorCtrl">
+					<ul class="list">
+						<li ng-repeat="item in list">
+							<a ng-href="{{item.author.html_url}}" target="_blank">
+		    					<img ng-src="{{item.author.avatar_url}}" title="{{item.author.login}}"/>
+		    					<span class="name">{{item.author.login}}</span>
+							</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		-->
+	</div>
 	
-	<div class="section search-section">
-		<div class="search-component-wrapper">
-			<h1 class="logo">
-	            KodeBeagle
-	        </h1>
-	        <div search-component>
-	        </div>
-        </div>
-
-	</div>
-	<div class="section about-section">
-		<div class="section-component">
-			<h2 class="section-title">About</h2>
-			<div class="section-data">
-				<p>A tool to assist you when you need code references.</p>
-				<p>As Developers, we tend to hunt for best-practices of using common and uncommon libraries in order to make our code more efficient. Often, a lot of time and energy is spent understanding the pros and cons of different approaches. KodeBeagle aims to solve this problem. It cites common practices from standard code references.</p>
-			</div>
-		</div>
-	</div>
-	<div class="section moreinfo-section">
-		<div class="section-component">
-			<h2 class="section-title">More info</h2>
-			<div class="section-data">
-				<p>
-					It goes through existing popular public projects and gathering required information. When a user searches, it queries the database and fetches relevant results.
-				</p>
-				<p>
-					Currently, the source for code of popular projects is Github
-				</p>
-				<p>
-					<span class="section-label">Technology Stack :</span> Elastic Search, Spark
-				</p>
-				
-				<p>
-					<span class="section-label">Supported Languages:</span> Java
-				</p>
-				<p>
-					Search is enabled only for fully qualified class name
-				</p>
-				<p>
-					<span class="section-label">RoadMap</span>
-				</p>
-				<p>
-					Search by class name or simple text to describe task at hand
-				</p>
-			</div>
-		</div>
-	</div>
-	<div class="section contributors-section">
-		<div class="section-component">
-			<h2 class="section-title">Contributors</h2>
-			<div class="section-data contributor-section" ng-controller="contributorCtrl">
-				<ul class="list">
-					<li ng-repeat="item in list">
-						<a ng-href="{{item.author.html_url}}" target="_blank">
-	    					<img ng-src="{{item.author.avatar_url}}" title="{{item.author.login}}"/>
-	    					<span class="name">{{item.author.login}}</span>
-						</a>
-					</li>
-				</ul>
-			</div>
-		</div>
-	</div>
-
-</div>
-
-<script type="text/ng-template" id="search-component.html">
-    <div class="search-container" name="searchForm" id="search-form"
-    ng-class="{'search-item-present': selectedTexts.length || searchText }"
-    >
-        <span ng-repeat="item in selectedTexts track by $index" class="selected-text" ng-dblclick="handleSelectedText( $event, $index )">
-            {{item}}
-            <i href="#" class="glyphicon glyphicon-remove" ng-click="deleteItem( $event, $index )"></i>
-        </span>
-        <input type="text" name="searchText" id="searchText" ng-model="searchText" ng-keydown="handleSearchText( $event )" placeholder="search here Eg: FileChannel, MappedByteBuffer"
-		/>
-        <a href="#" class="glyphicon glyphicon-remove clear" ng-click="clearAll( $event )" tooltip-placement="bottom" tooltip="Clear text"></a>
-        </a>
-        <a  ng-href="{{getResultsPage()}}" class="glyphicon glyphicon-search search"
-            tooltip-placement="bottom" tooltip="submit"
-            id="search-button"
-        >
-        </a>
+	<div class="welcome-loader" ng-hide="true">
+        <div class="loader"></div>
     </div>
-</script>
 
+	<script type="text/ng-template" id="search-component.html">
 
-<!-- cdn based scripts starts here -->
-<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/fullPage.js/2.6.6/jquery.fullPage.min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.9/angular.min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/trianglify/0.2.1/trianglify.min.js"></script>
+	</script>
+	<!-- cdn based scripts starts here -->
+	<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/fullPage.js/2.6.6/jquery.fullPage.min.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.9/angular.min.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/trianglify/0.2.1/trianglify.min.js"></script>
+	<script src="library/dev/js/factories/http-service.js"></script>
+	<script src="library/dev/js/ng-modules/index.js"></script>
+	<script>
+	    (function (i, s, o, g, r, a, m) {
+	        i['GoogleAnalyticsObject'] = r;
+	        i[r] = i[r] || function () {
+	            (i[r].q = i[r].q || []).push(arguments)
+	        }, i[r].l = 1 * new Date();
+	        a = s.createElement(o),
+	                m = s.getElementsByTagName(o)[0];
+	        a.async = 1;
+	        a.src = g;
+	        m.parentNode.insertBefore(a, m)
+	    })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
 
-<script src="library/dev/js/factories/http-service.js"></script>
-<script src="library/dev/js/ng-modules/index.js"></script>
+	    ga('create', 'UA-60790831-1', 'auto');
+	    ga('send', 'pageview');
+	</script>
+	<style type="text/css">
+		header .container{
+			max-width: 900px;
+		}
+		header .pull-right {
+			margin-top: 16px;
+		}
+		.links a {
+			margin-left: 10px;
+		}
 
-<script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-  ga('create', 'UA-7516685-8', 'auto');
-  ga('send', 'pageview');
-
-</script>
-
-
+	</style>
 </body>
 </html>

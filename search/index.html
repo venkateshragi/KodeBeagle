@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>KodeBeagle</title>
+    <link type="text/css" rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.4/css/bootstrap.min.css"/>
+    <link href='http://fonts.googleapis.com/css?family=Homenaje' rel='stylesheet' type='text/css'>
+    <link type="text/css" rel="stylesheet" href="../library/dist/css/demo/index.css"/>
+    <link type="text/css" rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/intro.js/1.0.0/introjs.min.css"/>
+    <link rel="icon" type="image/png" href="http://www.imaginea.com/images/favicon.ico">
+    
+
+
+
+    <!-- production usage-->
+    <!--link type="text/css" rel="stylesheet" href="library/dist/css/index.css"/-->
+    <style type="text/css">@charset "UTF-8";[ng\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}ng\:form{display:block;}</style>
+</head>
+<body>
+    <span init-model></span>
+    <div page-loader class="page-loader" id="page-loader">
+        <div class="loader">Loading...</div>
+    </div>
+    <header>
+
+        <nav class="navbar navbar-default" id="header-nav">
+            <div class="container">
+                <div class="logo-section pull-left">
+                    <a href="../" class="logo logo1" ng-cloak title="KodeBeagle" >
+                        KodeBeagle
+                    </a>
+                    <div class="header-search-component" ng-if="editorView" >
+                        <label class="header-search-content" for="searchText" ng-cloak>
+                            <div search-component data-step="1" data-intro="Search Bar">
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                <div class="pull-right feature-nav" >
+                    <!--div ng-if="editorView" class="page-editor-feature-icons" style="display:none;">
+
+                        <a href="#" class="feature glyphicon  glyphicon-text-size" ng-click="adjustFont( $event, 20 )" ng-class="{'disable-icon':currentSize===18}"
+                        tooltip-placement="bottom" tooltip="Increase Font"
+                        >
+                        </a><style>
+                            .panel-body .ace_editor {
+                                font-size: {{currentSize}}px;
+                            }
+                        </style><a href="#" class="feature glyphicon glyphicon-text-size medium-font" ng-click="adjustFont( $event, 16 )" ng-class="{'disable-icon':currentSize===15}"
+                            tooltip-placement="bottom" tooltip="Rest Font"
+                        >
+                        </a><a href="#" class="feature glyphicon glyphicon-text-size small-font" ng-click="adjustFont( $event, 12 )" ng-class="{'disable-icon':currentSize===12}"
+                            tooltip-placement="bottom" tooltip="Decrease Font"
+                        >
+                        </a><a href="#" class="feature glyphicon glyphicon-th-large" ng-click="model.gridView=true; $event.preventDefault()" ng-class="{'disable-icon':model.gridView}"
+                            tooltip-placement="bottom" tooltip="Gridview"
+                        >
+                        </a><a href="#" class="feature glyphicon glyphicon-th-list" ng-click="model.gridView=false;$event.preventDefault()"
+                            tooltip-placement="bottom" tooltip="Listview"
+                            ng-class="{'disable-icon':!model.gridView}" >
+                        </a>
+                    </div-->
+
+                    <!--a href="#" class="feature glyphicon glyphicon-list-alt" open-popup data-size="lg" data-template="analyzed-projects.html" data-ctrl="analyzedProjectsCtrl" data-id="projects" tooltip-placement="bottom" tooltip="Analyzed Projects">
+                    </a-->
+
+                    <a href="#" ng-show="model.showConfig" class="feature glyphicon glyphicon-cog" open-popup data-template="user-settings.html" id="config" data-ctrl="userSettingsCtrl" tooltip-placement="bottom" tooltip="Configuartions">
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+    </header>
+    <div class="main-content">
+        <div class="container">
+            <div class="search-component-wrapper" ng-if="!editorView" >
+                <div class="table-cell">
+                    <div>
+                        <span style="display: inline-block;">
+                            <h1 class="logo">KodeBeagle</h1>
+                            <p>Contextual code search by <a href="http://www.imaginea.com" target="_blank">Imaginea</a></p>
+                        </span>
+                        <sup>beta</sup>
+                    </div>
+
+
+                    <div search-component>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+        <div class="result-wrapper" ng-controller="editorCtroller" ng-if="editorView && !model.emptyResponse && model.showPageResponse && !model.showErrorMsg" ng-cloak >
+
+
+
+            <div class="results-container" ng-class="{ 'grid-view':model.gridView }">
+                <div class="container">
+                    <div class="row">
+                    <div class="result-statistics col-sm-12" ng-if="!hideLeftPanel" data-step="2" data-intro="result statistics">
+                            <div class="">
+                                Results shown for: <strong>{{model.searchedData}}</strong>
+                            </div>
+                            <tabset class="result-tabs">
+                                <tab>
+                                    <tab-heading>
+                                        Files <span class="badge">{{model.totalFiles}}</span>
+                                    </tab-heading>
+                                </tab>
+                                <!--tab>
+                                    <tab-heading>
+                                        Projects <span class="badge">20</span>
+                                    </tab-heading>
+                                </tab>
+                                <tab>
+                                    <tab-heading>
+                                        References <span class="badge">20</span>
+                                    </tab-heading>
+                                </tab-->
+                            </tabset>
+                            <div>
+                                Showing files from <strong>{{model.currentPageNo*model.pageResultSize + 1}}</strong> to
+                                <strong>
+                                <span ng-show="model.currentPageNo*model.pageResultSize + model.pageResultSize<model.totalFiles">
+                                    {{model.currentPageNo*model.pageResultSize + model.pageResultSize}}
+                                </span>
+                                <span ng-show="model.currentPageNo*model.pageResultSize + model.pageResultSize>=model.totalFiles">
+                                    {{model.totalFiles}}
+                                </span>
+                                </strong>
+                                out of <strong>{{model.totalFiles}}</strong> files
+                                <span ng-if="model.totalHitCount !== model.hitCount">
+                                <!--( from first
+                                <strong>{{model.hitCount}}</strong> best matches and  total matches <strong>{{model.totalHitCount}}</strong> in all projects)
+                                </span>
+                                <span ng-if="model.totalHitCount === model.hitCount">
+                                    ( Total matches found <strong>{{model.totalHitCount}}</strong>  in   <strong>{{model.totalFiles}}</strong> files)
+                                </span> -->
+                                ( total matches <strong>{{model.totalHitCount}}</strong>  )
+                            </div>
+
+                            <div>
+                                <div class="btn-group" role="group">
+                                  <button type="button" ng-click="toggleCodeSnippets($event)" class="btn btn-default" ng-class="{'active' : model.toggelSnippet}">show code snippets</button>
+                                  <button type="button" ng-click="toggleCodeSnippets($event)" class="btn btn-default" ng-class="{'active' : !model.toggelSnippet}">hide code snippets</button>
+                                </div>
+                            </div>
+                        </div>
+                        <!--div class="sticky-panel" ng-class="{ 'col-sm-3': !hideLeftPanel, 'hide': hideLeftPanel  }" id="sidebar-container">
+                            <div>
+                                <div class="files-content">
+                                    <p>
+                                        Files
+                                    </p>
+                                    <ul>
+                                        <li ng-repeat="project in model.projects | limitTo : expand.fileLimit" >
+                                            <div >
+                                                <a ng-href="{{project | githubLink}}" target="_blank" >
+                                                    <span class="glyphicon glyphicon-book"></span>
+                                                    {{project.name}}
+                                                </a>
+                                            </div>
+                                            <ul>
+                                                <li ng-repeat="item in project.files">
+                                                    <a ng-href="https://github.com/{{item.path}}" ng-click="fileEleClick( $event, item )">
+                                                        <span class="glyphicon glyphicon-file"></span>
+
+                                                        {{item.name}}
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                    <a href="#" class="show-toggle" ng-if="model.projects.length>2" ng-click="showToggle( $event, 'files' )">
+                                        <span ng-show="!expand.files"> Show More</span>
+                                        <span ng-show="expand.files"> Show Less</span>
+                                    </a>
+                                </div>
+                                <div class="methods-content"  ng-class="{'expanded':expand.methods || model.groupedMethods.length > 2 }" >
+                                    <p>
+                                        Methods
+                                    </p>
+                                    <ul>
+                                        <li ng-repeat="method in model.groupedMethods | limitTo: expand.methodLimit" >
+                                            <div>{{method.className}}
+                                            <a class="pull-right" target="_blank" ng-href="http://docs.oracle.com/javase/7/docs/api/{{method.url}}" class="pull-right">Doc</a>
+                                            </div>
+                                            <ul>
+                                                <li ng-repeat="item in method.methods">
+                                                    <a ng-href="http://docs.oracle.com/javase/7/docs/api/{{method.url}}" open-method-popup data-info="item.methodDoc">
+                                                       {{item.method}}
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                    <a href="#" class="show-toggle" ng-if="model.groupedMethods.length> 2" ng-click="showToggle( $event, 'methods' )">
+                                        <span ng-show="!expand.methods"> Show More</span>
+                                        <span ng-show="expand.methods"> Show Less</span>
+                                    </a>
+                                </div>
+                                </div>
+                        </div-->
+                        <div class="result-editors-container" ng-class="{ 'col-sm-9': !hideLeftPanel,'col-sm-12': hideLeftPanel }">
+                            <div ng-if="model.editors && model.editors.length>0" data-step="3" data-intro="Results">
+                                <div  class="row" ng-class="{'expanded-view': model.expandedItem, 'file-list-view': !model.toggelSnippet }">
+                                
+                                    <div ng-repeat="item in model.editors" class="col-sm-6 editor-container" ng-class="{'hide':model.expandedItem && model.expandedItem != item }">
+
+                                        <div  class="panel panel-default editor"  >
+
+                                            <div class="panel-heading"  ng-dblclick="fullExpandView( $event, item, $index )">
+                                                <div class="pull-left">
+                                                    <a  ng-click="toggleExpand( $event, $index, item );" target="_blank"  tooltip-placement="top" tooltip="{{item.collapsed&&'Collapse' || 'Expand'}}">
+                                                        <span class="glyphicon glyphicon-expand" ng-class=
+                                                    "{'glyphicon-collapse-down':item.collapsed}">
+                                                        </span>
+                                                        {{item.fileInfo.repo}}/{{item.fileInfo.name}}
+
+                                                    </a>
+                                                </div>
+                                                <div class="pull-right" >
+
+
+                                                    <a href="#" ng-click="fullExpandView( $event, item, $index )" class="glyphicon glyphicon-fullscreen"
+                                                        tooltip-placement="top" tooltip="{{'Resize'}}"
+                                                    >
+                                                    </a>
+
+                                                    <a ng-href="http://github.com/{{item.fileInfo.path}}" target="_blank" class="glyphicon glyphicon-new-window"
+                                                    >
+                                                    </a>
+
+                                                </div>
+                                            </div>
+                                            <div class="panel-body" ng-show="item.showBody || model.toggelSnippet" >
+                                                <div ng-show="item.collapsed" id="editor-{{$index}}-repeat-ace" ui-ace="getAceOptions( item )" ></div>
+                                                <div ng-show="!item.collapsed" class="snippet-wraper">
+                                                    <!--div hljs language="java" source="item.linesData" >
+                                                    </div-->
+                                                    <!--pre prism data-line="69" data-start="{{item.fileInfo.lines[0].lineNumber}}"  language="language-markup" class="lang-java line-numbers" >{{item.linesData}}</pre-->
+
+                                                    <div ng-repeat="snipp in item.linesData" class="snipp">
+                                                        <div ng-repeat="( key, value ) in snipp track by $index" ng-class="{'active':snipp.active == key}"ng-if="key != 'active' ">
+                                                            <code-mirror  lang="java" line-numbers="key" model="value" >
+                                                            </code-mirror>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+                                    </div>
+                             
+                                    <div class="page-nation col-sm-12" >
+                                        <ul class="pagination" ng-controller="pageNationCtrl" data-step="5" data-intro="page nation">
+                                            <li ng-class="{'disabled':model.currentPageNo === 0}">
+                                                <a href="#" ng-click="loadPrev( $event, model.currentPageNo !== 0 )">
+                                                    <<
+                                                </a>
+                                            </li>
+
+                                            <li ng-repeat="i in getRange()" ng-class="{'current': model.currentPageNo+1 === i}">
+                                                <a href="#" ng-click="loadPageResult( $event, i )">
+                                                    {{i}}
+                                                </a>
+                                            </li>
+
+                                            <li ng-class="{'disabled':model.currentPageNo+1 === model.totalPages }">
+                                                <a href="#" ng-click="loadNext( $event, model.currentPageNo+1 !== model.totalPages )">
+                                                    >>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+
+                            </div>
+
+
+                        </div>
+                        <div ng-class="{ 'col-sm-3': !hideLeftPanel, 'hide': hideLeftPanel  }" id="sidebar-container" data-step="4" data-intro="Results for methods">
+                            <div>
+
+                                <div class="methods-content"  >
+                                    <button class="btn" type="button" ng-click="refineSearch( $event )"> Refine search</button>
+                                    <p>
+                                        Methods
+                                    </p>
+                                    <ul>
+                                        <li ng-repeat="method in model.groupedMethods" >
+                                            <div class="panel-group">
+                                                <div class="panel panel-default" ng-init="method.status = $first || $index == $first + 1">
+                                                    <div class="panel-heading" >
+                                                        <div class="panel-title">
+                                                            <input 
+                                                                type="checkbox" 
+                                                                name="packages" 
+                                                                ng-model="model.packages[ method.className ].status"/>
+                                                            <a ng-click="method.status = !method.status">{{method.className}}</a>
+                                                        </div>
+                                                    </div>
+                                                    <div class="panel-collapse" ng-class="{'open': method.status}">
+                                                        <div class="panel-body">
+                                                            <ul>
+                                                                <li ng-repeat="item in method.methods">
+                                                                    <input  type="checkbox" name="method" ng-model="model.packages[ method.className ].methods[item.method]">
+                                                                    <a ng-href="#" ng-click="addToSearch( $event, item, method.className )">
+                                                                       {{item.method}}
+                                                                    </a>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!--div class="panel-group" >
+                                                <div class="panel panel-default" ng-init="method.open = $first || $index == $first + 1" is-open="method.open">
+                                                    <div class="panel-heading">
+                                                        <h4 class="panel-title">
+                                                            <a href="javascript:void(0)" 
+                                                            tabindex="0" 
+                                                            class="accordion-toggle"
+                                                            ng-click="toggleOpen()">
+                                                                
+
+                                                                {{method.className}}
+                                                            </a>
+                                                        </h4>
+                                                    </div>
+                                                    <div class="panel-collapse" collapse="!isOpen">
+                                                        <div class="panel-body">
+                                                            <ul>
+                                                                <li ng-repeat="item in method.methods">
+                                                                    <input  type="checkbox" name="method" ng-model="method">
+                                                                    <a ng-href="#" ng-click="addToSearch( $event, item, method.className )">
+                                                                       {{item.method}}
+                                                                    </a>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div-->
+
+
+                                        </li>
+                                    </ul>
+                                </div>
+                                </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+        <div class="container" ng-if="model.showErrorMsg">
+
+            <div class="col-sm-12" >
+                <div class="alert alert-danger" role="alert">
+                  <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                  Error: {{model.errorMsg}}
+                </div>
+            </div>
+        </div>
+        <div ng-if="model.emptyResponse" class="no-result result-content-height">
+            <div class="message">Ooops.... did not find any thing</div>
+        </div>
+
+    </div>
+
+   <!-- <footer>
+    <p>Built with <span>&hearts;</span></p>
+   </footer> -->
+<div class="welcome-loader" ng-hide="true">
+    <div class="loader"></div>
+</div>
+<div id="back-to-top">
+    <span class="top-arrow">
+    </span>
+</div>
+
+<script type="text/ng-template" id="analyzed-projects.html">
+  <a href="#" ng-click="dismiss( $event )" class="glyphicon glyphicon-remove close"></a>
+  <div class="modal-header">
+      <h3 class="modal-title">
+        Analyzed projects
+      </h3>
+  </div>
+  <div class="modal-body">
+    <div class="all-projects">
+        <div ng-repeat="item in data.projects track by $index" class="col-sm-6">
+            {{item._source.login}}/{{item._source.name}}
+        </div>
+    </div>
+  </div>
+</script>
+
+<script type="text/ng-template" id="user-settings.html">
+    <a href="#" ng-click="dismiss( $event )" class="glyphicon glyphicon-remove close"></a>
+    <div class="modal-header">
+        <h3 class="modal-title">
+            Configuration an preview
+        </h3>
+    </div>
+    <div class="modal-body">
+        <div class="form-horizontal">
+            <div class="form-group">
+              <div class="col-sm-4">
+                Kode Beagle Url
+              </div>
+              <div class="col-sm-8">
+                <input class="form-control" ng-model="model.config.esURL" >
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="col-sm-4">
+                Result size
+              </div>
+              <div class="col-sm-8">
+                <input class="form-control" type="number" ng-model="model.config.resultSize" >
+              </div>
+            </div>
+
+
+            <div class="form-group">
+              <div class="col-sm-4">
+                Page Theme
+              </div>
+              <div class="col-sm-8">
+                <select class="form-control" ng-model="model.config.selectedTheme" >
+                    <option value="theme-dark">dark</option>
+                    <option value="theme-light">light</option>
+                </select>
+              </div>
+            </div>
+            <!--div class="form-group">
+              <div class="col-sm-4">
+                Ace Editor theme
+              </div>
+              <div class="col-sm-8">
+                <select class="form-control" ng-model="model.config.editorTheme" >
+                     <optgroup label="Bright">
+                        <option value="chrome">Chrome</option>
+                        <option value="clouds">Clouds</option>
+                        <option value="crimson_editor">Crimson Editor</option>
+                        <option value="dawn">Dawn</option>
+                        <option value="dreamweaver">Dreamweaver</option>
+                        <option value="eclipse">Eclipse</option>
+                        <option value="github">GitHub</option>
+                        <option value="solarized_light">Solarized Light</option>
+                        <option value="textmate">TextMate</option>
+                        <option value="tomorrow">Tomorrow</option>
+                        <option value="xcode">XCode</option>
+                        <option value="kuroir">Kuroir</option>
+                        <option value="katzenmilch">KatzenMilch</option>
+                    </optgroup>
+                    <optgroup label="Dark">
+                        <option value="ambiance">Ambiance</option>
+                        <option value="chaos">Chaos</option>
+                        <option value="clouds_midnight">Clouds Midnight</option>
+                        <option value="cobalt">Cobalt</option>
+                        <option value="idle_fingers">idle Fingers</option>
+                        <option value="kr_theme">krTheme</option>
+                        <option value="merbivore">Merbivore</option>
+                        <option value="merbivore_soft">Merbivore Soft</option>
+                        <option value="mono_industrial">Mono Industrial</option>
+                        <option value="monokai">Monokai</option>
+                        <option value="pastel_on_dark">Pastel on dark</option>
+                        <option value="solarized_dark">Solarized Dark</option>
+                        <option value="terminal">Terminal</option>
+                        <option value="tomorrow_night">Tomorrow Night</option>
+                        <option value="tomorrow_night_blue">Tomorrow Night Blue</option>
+                        <option value="tomorrow_night_bright">Tomorrow Night Bright</option>
+                        <option value="tomorrow_night_eighties">Tomorrow Night 80s</option>
+                        <option value="twilight">Twilight</option>
+                        <option value="vibrant_ink">Vibrant Ink</option>
+                    </optgroup>
+                <select>
+              </div-->
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn  btn-lg btn-warning" ng-click="dismiss( $event )">
+            Cancel
+        </button>
+        <button class="btn btn-lg btn-success" ng-click="ok( $event )">
+            Save
+        </button>
+    </div>
+</script>
+
+<script type="text/ng-template" id="method-popup.html">
+    <div class="method-info-pop" ng-class="{'alert alert-danger':!data.info}">
+        <div class="close glyphicon glyphicon-remove" ng-click="dismiss( $event )"></div>
+        <div ng-bind-html="data.info | trust"></div>
+        <div ng-show="!data.info" >
+            <h4>Unable to get the method info</h4>
+        </div>
+    </div>
+</script>
+<script type="text/ng-template" id="search-component.html">
+    <form class="search-container" name="searchForm" ng-submit="formSubmit()"
+    id="search-form"
+    ng-class="{'search-item-present': model.selectedTexts.length || model.searchText }"
+    >
+        <input type="submit" class="hide"/>
+        <span ng-repeat="item in model.selectedTexts track by $index" class="selected-text" ng-dblclick="handleSelectedText( $event, $index )">
+            {{item}}
+            <i href="#" class="glyphicon glyphicon-remove" ng-click="deleteItem( $event, $index )"></i>
+        </span>
+        <input type="text" name="searchText" id="searchText" ng-model="model.searchText" ng-keydown="handleSearchText( $event )"  ng-focusout="searchTextFocusout()" placeholder="search here Eg: FileChannel, MappedByteBuffer"
+
+        />
+        <a href="#" class="glyphicon glyphicon-remove clear" ng-click="clearAll( $event )" tooltip-placement="bottom" tooltip="Clear Text"></a>
+        </a>
+        <button type="button" ng-click="formSubmit( true )" class="glyphicon glyphicon-search search"
+            tooltip-placement="bottom" tooltip="Submit"
+            ng-class="{'search-item-present': model.selectedTexts.length || model.searchText}"
+        >
+
+        </button>
+        <!--div class="suggestions" ng-if="suggestionTerm" id="suggestion-result">
+            <div href="#" class="item" ng-class="{'active' : arrowIndex === $index }" ng-click="selectSuggestion( item )" ng-repeat="item in filteredSuggestions track by $index ">
+                {{item.suggested}}
+            </div>
+        </div-->
+    </form>
+</script>
+
+
+
+<!-- cdn based scripts starts here -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/3.9.3/lodash.min.js" type="text/javascript"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.9/angular.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.9/angular-animate.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/ace/1.1.9/ace.js" type="text/javascript" ></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.13.0/ui-bootstrap.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.13.0/ui-bootstrap-tpls.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/highlight.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/intro.js/1.0.0/intro.min.js"></script>
+<script src="https://code.jquery.com/jquery-2.1.4.js"></script>
+
+
+<script src="../library/dev/js/vendors/angular-code-mirror.js"></script>
+<script src="../library/dev/js/vendors/ui-ace.js" type="text/javascript"></script>
+<script src="../library/dev/js/factories/http-service.js"></script>
+
+
+<script src="../library/dev/js/ng-modules/demo.js"></script>
+<script src="../library/dev/js/modules/session-storage.js"></script>
+<script src="../library/dev/js/factories/docs-service-factory.js"></script>
+<script src="../library/dev/js/factories/model-factory.js"></script>
+
+<script src="../library/dev/js/directives/init-model-driective.js"></script>
+<script src="../library/dev/js/directives/open-popup-directive.js"></script>
+<script src="../library/dev/js/directives/search-component-directive.js"></script>
+<script src="../library/dev/js/directives/ui-ace-directive.js"></script>
+
+<script src="../library/dev/js/controller/editors-controller.js"></script>
+<script src="../library/dev/js/controller/page-nation-controller.js"></script>
+<script src="../library/dev/js/controller/settings-controller.js"></script>
+
+<script>
+    angular.bootstrap( document, [ 'KodeBeagle' ] );
+</script>
+
+
+<script>
+    (function (i, s, o, g, r, a, m) {
+        i['GoogleAnalyticsObject'] = r;
+        i[r] = i[r] || function () {
+            (i[r].q = i[r].q || []).push(arguments)
+        }, i[r].l = 1 * new Date();
+        a = s.createElement(o),
+                m = s.getElementsByTagName(o)[0];
+        a.async = 1;
+        a.src = g;
+        m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+    ga('create', 'UA-60790831-1', 'auto');
+    ga('send', 'pageview');
+</script>
+<style type="text/css">
+    .ace-markers {
+        position: absolute;
+        top: 0;
+        right: 0;
+        height: 100%;
+        width: 10px;
+    }
+    .ace-mark {
+        position: absolute;
+        top: 0;
+        right: 0;
+        height: 2px;
+        width: 10px;
+        background: #000;
+    }
+    .container {
+        width: 90%;
+        max-width: 1024px;
+    }
+    .alert-danger {
+        margin-top: 50px;
+    }
+    .panel-body .active {
+        background: #eee
+    }
+    .prettyprint .linenums li {
+        padding-left: 5px;
+    }
+    .snippet-wraper {
+        margin: 10px;
+    }
+    .snipp {
+        box-shadow: 0px -1px 1px #eee;
+    }
+    .snippet-wraper .snipp:first-child {
+        box-shadow: none;
+    }
+    .methods-content .panel-title {
+        white-space: nowrap;
+    }
+    .methods-content .panel-collapse{
+        display: none;
+    }
+    .methods-content .panel-collapse.open {
+        display: block;
+    }
+    .search-container input {
+        width: auto;
+    }
+    .methods-content button {
+        margin-bottom: 10px;
+        display: block;
+        width: 100%;
+    }
+</style>
+</body>
+</html>
+
+
+

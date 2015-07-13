@@ -55,7 +55,7 @@ var stylish = require('jshint-stylish');
 var jshint = require('gulp-jshint');
 var gulp   = require('gulp');
 gulp.task('jshint', function() {
-  return gulp.src(['./library/dev/js/ng-modules/better-docs.js'] )
+  return gulp.src(['./library/dev/js/ng-modules/demo.js'] )
     .pipe(jshint())
     .pipe(jshint.reporter(stylish));
 });

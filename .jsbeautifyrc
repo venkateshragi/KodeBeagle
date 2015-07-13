@@ -5,15 +5,15 @@
     "evalCode": false,
     "indentChar": " ",
     "indentLevel": 0,
-    "indentSize": 4,
+    "indentSize": 2,
     "indentWithTabs": false,
     "jslintHappy": false,
     "keepArrayIndentation": false,
     "keepFunctionIndentation": false,
-    "maxPreserveNewlines": 10,
+    "maxPreserveNewlines": 1,
     "preserveNewlines": true,
     "spaceBeforeConditional": true,
-    "spaceInParen": true,
+    "spaceInParen": false,
     "unescapeStrings": false,
     "wrapLineLength": 0
 }

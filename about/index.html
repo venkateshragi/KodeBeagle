@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>KodeBeagle</title>
+    <link type="text/css" rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.4/css/bootstrap.min.css"/>
+    <link href='http://fonts.googleapis.com/css?family=Homenaje' rel='stylesheet' type='text/css'>
+    <link type="text/css" rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/fullPage.js/2.6.6/jquery.fullPage.min.css"/>
+    
+    <link type="text/css" rel="stylesheet" href="../library/dist/css/index/index.css"/>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-default" id="header-nav">
+            <div class="container">
+                <div class="logo-section pull-left">
+                    <a href="../" class="logo logo1" title="KodeBeagle" >
+                        KodeBeagle
+                    </a>
+                </div>
+                <div class="pull-right links" id="menu">
+                    <a href="#" data-menuanchor="1">
+                        About</a>
+                    <!--a href="#" data-menuanchor="2">
+                        More Info</a-->
+                    <a href="#" data-menuanchor="2">
+                        Sample Screens</a>
+                    <a href="#" data-menuanchor="3">
+                        Contributors</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div id="main-content" class="main-content">
+        <div class="section about-section" >
+             <div class="section-component">
+                <h2 class="section-title">About</h2>
+                <div class="section-data">
+                    <p>A tool to assist you when you need code references.</p>
+                    <p>As Developers, we tend to hunt for best-practices of using common and uncommon libraries in order to make our code more efficient. Often, a lot of time and energy is spent understanding the pros and cons of different approaches. KodeBeagle aims to solve this problem. It cites common practices from standard code references.</p>
+                </div>
+            </div>
+        </div>
+        <!--div class="section moreinfo-section">
+            <div class="section-component">
+                <h2 class="section-title">More info</h2>
+                <div class="section-data">
+                    <p>
+                        It goes through existing popular public projects and gathering required information. When a user searches, it queries the database and fetches relevant results.
+                    </p>
+                    <p>
+                        Currently, the source for code of popular projects is Github
+                    </p>
+                    <p>
+                        <span class="section-label">Technology Stack :</span> Elastic Search, Spark
+                    </p>
+                    
+                    <p>
+                        <span class="section-label">Supported Languages:</span> Java
+                    </p>
+                    <p>
+                        Search is enabled only for fully qualified class name
+                    </p>
+                    <p>
+                        <span class="section-label">RoadMap</span>
+                    </p>
+                    <p>
+                        Search by class name or simple text to describe task at hand
+                    </p>
+                </div>
+            </div>
+        </div-->
+        <div class="section" >
+            <div class="section-component">
+                
+                <div class="section-data">
+                    <div class="slide slide1">
+                        <div class="slide-data">
+                             <div class="tool-tip">
+                                <p>type the search word here</p>
+                            </div>
+                            <img src="../images/homepage.png"/>
+                        </div>
+                    </div>
+                    <div class="slide slide2">
+                        <div class="slide-data">
+                            <div class="tool-tip">
+                                <p>matched methods here </p>
+                            </div>
+                            <div class="tool-tip tip2">
+                                <p>matched files here </p>
+                            </div>
+                            <img src="../images/files-methods.png"/>
+                        </div>
+                    </div>
+                    <div class="slide slide3">
+                        <div class="slide-data">
+                            <div class="tool-tip">
+                                 <p>Expanded view of the source code editor  </p>
+                                
+                            </div>
+                            <img src="../images/expand.png"/>
+                        </div>
+                    </div>
+                    <div class="slide slide4">
+                        <div class="slide-data">
+                            <div class="tool-tip">
+                               <p>more results can be found here</p>
+                            </div>
+                            <img src="../images/page-nation.png"/>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div class="section contributors-section">
+            <div class="section-component">
+                <h2 class="section-title">Contributors</h2>
+                <div class="section-data contributor-section" ng-controller="contributorCtrl">
+                    <ul class="list">
+                        <li ng-repeat="item in list">
+                            <a ng-href="{{item.author.html_url}}" target="_blank">
+                                <img ng-src="{{item.author.avatar_url}}" title="{{item.author.login}}"/>
+                                <span class="name">{{item.author.login}}</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/fullPage.js/2.6.6/jquery.fullPage.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.9/angular.min.js"></script>
+    <script src="../library/dev/js/factories/http-service.js"></script>
+    <script src="../library/dev/js/ng-modules/about.js"></script>
+<style type="text/css">
+    .section-component img {
+        max-width: 100%
+    }
+    .navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 1;
+    }
+    .section-component {
+        padding: 0 30px;
+    }
+    .tool-tip {
+        position: absolute; 
+        top: -50px;
+        left: -100px;
+        padding: 10px;
+        background: rgba( 0, 0, 0, 0.8 );
+        color: #fff;
+        border-radius: 10px;
+        border: 1px solid #ccc;
+        opacity: 0;
+        -webkit-transition: all 1s ;
+        -moz-transition: all 1s ;
+        -ms-transition: all 1s ;
+        -o-transition: all 1s ;
+        transition: all 1s ;
+        font-size: 14px;
+        min-width: 200px;
+        text-align: center;
+    }
+
+    .slide1 .tool-tip{
+        left: 120%;
+        top: 0%;
+    }
+    .slide2 .tool-tip{
+        left: 20%;
+        top: -30%;
+    }
+    .slide2 .tip2 {
+        left: 110%;
+        top: 110%;
+    }
+
+    .slide3 .tool-tip{
+        left: 110%;
+        top: 110%;
+    }
+    .slide-data {
+        overflow: hidden;
+    }
+    .slide4 .tool-tip{
+        left: 0%;
+        top: 110%;
+    }
+    .tool-tip p {
+        margin: 0;
+    } 
+    .tool-tip:after {
+        content: '';
+        width: 0;
+        height: 0;
+        border-left: 10px solid transparent;
+        border-right: 10px solid transparent;
+        border-top: 10px solid rgba( 0, 0, 0, 0.8 );
+        position: absolute;
+        bottom: -10px;
+        right: calc(50% - 10px);
+    }
+    .slide.active .tool-tip {
+        opacity: 1;
+    }
+    .slide1.active .tool-tip {
+        top: 43%;
+        left: 36%;
+    }
+    .slide2.active .tool-tip {
+        top: 24%;
+        left: 70%;
+    }
+    .slide2.active .tip2 {
+        top: 19%;
+        left: 10%;
+        -webkit-transition-delay: 0.25s;
+    }
+    
+    .slide3.active .tool-tip {
+        top: 2%;
+        left: 33%;
+    }
+    .slide4.active .tool-tip {
+        top: 75%;
+        left: 27%;
+    }
+    .contributors-section {
+        background: #EEEEEE;
+        color: #5F5F5F;
+    }
+
+    .slide-data {
+        position: relative;
+    }
+    .moreinfo-section {
+        background: #c0c0c0;
+        color: #333;    
+    }
+
+    #fp-nav .active+.fp-tooltip {
+        -webkit-animation: myfirst 2s;
+        -moz-animation: myfirst 2s;
+        animation: myfirst 2s;
+        width: auto;
+        
+    } 
+    @-webkit-keyframes myfirst {
+        0%   {
+            opacity: 0;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
+    @-moz-keyframes myfirst {
+        0%   {
+            opacity: 0;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
+    @keyframes myfirst {
+        0%   {
+            opacity: 0;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
+    .links {
+        margin-top: 16px;
+    }
+    .links a{
+        margin-left: 10px;
+    }
+    header .container {
+        max-width: 900px;
+    }
+    #menu .active {
+        text-decoration: underline;
+    }
+    .fp-controlArrow.fp-prev {
+        border-width: 15px 15px 15px 0;
+        border-color: transparent #c1c1c1 transparent transparent;
+        left: 15%;
+    }
+    .fp-controlArrow.fp-next {
+      border-width: 15px 0px 15px 15px;
+      border-color: transparent transparent transparent #c1c1c1;
+      right: 15%;
+    }
+
+</style>
+</body>
+</html>
+
+

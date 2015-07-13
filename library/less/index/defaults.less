@@ -12,28 +12,20 @@
 @footer-color: #333;
 @footer-border-color: #e7e7e7;
 
-
 .logo {
 	font-family: 'Homenaje', sans-serif;
 }
 .search-section {
-	background: url( '../../../images/pattern.svg' ) no-repeat;
-	background-size: cover; 
+	background-color: #fafcff;
+	background-size: cover;
 }
-.search-component-wrapper {
-	text-align: center;
-	font-weight: bold;
-	.logo {
-		.fonts( 80 );
-		margin-top: 0;
-	}
-}
+
 header {
 	.logo {
 		display: inline-block;
 		line-height: @nav-line-height;
 		text-decoration: none;
-		.fonts( 25 ); 
+		.fonts( 25 );
 	}
 
 	.links-section {
@@ -47,7 +39,7 @@ header {
 				color: @nav-link-hover-color;
 			}
 		}
-		
+
 	}
 }
 footer {
@@ -152,11 +144,11 @@ footer {
 	border-radius: 3px;
 	margin-top: -4px;
 	position: relative;
-	
+
 	&:after{
 		content: '';
-		width: 0; 
-	    height: 0; 
+		width: 0;
+	    height: 0;
 	    border-top: 5px solid transparent;
 	    border-bottom: 5px solid transparent;
 	    border-left: 5px solid rgba(0,0,0,0.7);
