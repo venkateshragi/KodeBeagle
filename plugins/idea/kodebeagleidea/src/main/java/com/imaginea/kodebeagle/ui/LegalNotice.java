@@ -31,11 +31,16 @@ import com.intellij.util.ui.UIUtil;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JPanel;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -47,27 +52,9 @@ public class LegalNotice extends DialogWrapper {
     private static final String DECLINE = "Decline";
     private static final String LEGAL_NOTICE_TITLE = "KodeBeagle";
     private static final String ACCEPT = "Accept";
-    private static final String LEGAL_NOTICE_MESSAGE =
-            String.format("%n  <b>IMPORTANT: BY ACCESSING AND USING KODEBEAGLE IDEA PLUGIN, "
-                    + "YOU AGREE TO THE CERTAIN TERMS AND CONDITIONS %n  "
-                    + "SET FORTH IN THE END-USER LICENSE AGREEMENT AND QUOTED BELOW. "
-                    + "IF YOU DO NOT AGREE WITH THESE TERMS OR CONDITIONS, %n  "
-                    + "DO NOT ACCESS OR USE KODEBEAGLE.</b>%n  <br><br> %n%n"
-                    + "  The Software includes code crawling functionality (\"KodeBeagle\") <br>"
-                    + "that enables searching source code from the open source github projects"
-                    + "Licensee acknowledges source code might be protected by copyright and "
-                    + "trademark laws. %n Before using KodeBeagle, Licensee should make sure that "
-                    + "copying of souce code is not prohibited by the applicable license agreement"
-                    + "  (except to the extent that Licensee may be expressly permitted under "
-                    + "applicable law) %n   or that Licensee has obtained permission to copy the "
-                    + "souce code from the copyright owner.%n%n"
-                    + "  Using KodeBeagle is entirely optional. Licensor does neither encourage "
-                    + "nor condone %n the use of KodeBeagle, and disclaims any liability for"
-                    + "Licensee's use of KodeBeagle %n in violation of applicable laws.%n"
-                    + "<br><br><b>Declining/Cancelling this will disable KodeBeagle "
-                    + "and restart Idea</b>");
     private static final String DIV_STYLE_MARGIN_5PX = "<div style='margin:5px;'>";
     private static final String DIV = "</div>";
+    private static final String KODEBEAGLE_NOTICE_FILENAME = "KODEBEAGLE_NOTICE";
     private static final Dimension MESSAGE_EDITOR_PANE_PREFERRED_SIZE = new Dimension(500, 100);
     private static final BorderLayout LEGAL_NOTICE_LAYOUT = new BorderLayout(10, 0);
     private static boolean legalNoticeAccepted =
@@ -109,7 +96,7 @@ public class LegalNotice extends DialogWrapper {
         messageEditorPane.setEditable(false);
         messageEditorPane.setPreferredSize(MESSAGE_EDITOR_PANE_PREFERRED_SIZE);
         messageEditorPane.setBorder(BorderFactory.createLineBorder(Gray._200));
-        String text = DIV_STYLE_MARGIN_5PX + LEGAL_NOTICE_MESSAGE + DIV;
+        String text = DIV_STYLE_MARGIN_5PX + getLegalNoticeMessage() + DIV;
         messageEditorPane.setText(text);
 
         JPanel legalNoticePanel = new JPanel(LEGAL_NOTICE_LAYOUT);
@@ -143,5 +130,29 @@ public class LegalNotice extends DialogWrapper {
         super.doCancelAction();
         PluginManagerCore.disablePlugin(KODEBEAGLEIDEA);
         ApplicationManagerEx.getApplicationEx().restart(true);
+    }
+
+    private String getLegalNoticeMessage() {
+        ClassLoader classLoader = this.getClass().getClassLoader();
+        InputStream stream = classLoader.getResourceAsStream(KODEBEAGLE_NOTICE_FILENAME);
+        StringBuilder legalNoticeMessage = new StringBuilder();
+        try {
+            String line;
+            BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+            if (stream != null) {
+                while ((line = reader.readLine()) != null) {
+                    legalNoticeMessage.append(line);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                stream.close();
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
+        }
+        return String.format(legalNoticeMessage.toString());
     }
 }
