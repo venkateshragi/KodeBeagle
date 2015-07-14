@@ -135,7 +135,7 @@
 ##### fixes <a href='https://github.com/Imaginea/KodeBeagle/issues/153'> #153 </a>
 1. Using KodeBeagle for the first time should produce a Legal Notice dialog.
 2. It should have two options "Accept" and "Decline"
-3. On clicking "Accept" that dialog should disappear and allows you to use kode beagle.
+3. On clicking "Accept" that dialog should disappear and allows you to use KodeBeagle.
 4. On clicking "Decline" IDE should restart and kodebeagle is disabled.<br>
 <img src='screenshots/legalNotice.png'/>
 
@@ -217,3 +217,7 @@ these values can't be applied.<br>
 4. In Project Tree instead of "Go to Github" "Open in Browser" should be present when right clicked on any of the node.<br>
 <img src = 'screenshots/renameLabels_SwapProjectTreePreviewEditor.png'/><br>
 <img src = 'screenshots/linesFromCursor.png'/><br>
+
+#### 33. [idea] #250 Name display needs to be consistent
+##### fixes <a href='https://github.com/Imaginea/KodeBeagle/issues/250'> #250 </a>
+1. KodeBeagle name should be consistent across the plugin.

@@ -45,26 +45,26 @@ public class LegalNotice extends DialogWrapper {
     protected static final String KODE_BEAGLE_IDEA_LEGAL_NOTICE = "KodeBeagleIdeaLegalNotice";
     private static final String KODEBEAGLEIDEA = "kodebeagleidea";
     private static final String DECLINE = "Decline";
-    private static final String LEGAL_NOTICE_TITLE = "Kode Beagle";
+    private static final String LEGAL_NOTICE_TITLE = "KodeBeagle";
     private static final String ACCEPT = "Accept";
     private static final String LEGAL_NOTICE_MESSAGE =
-            String.format("%n  <b>IMPORTANT: BY ACCESSING AND USING KODE BEAGLE IDEA PLUGIN, "
+            String.format("%n  <b>IMPORTANT: BY ACCESSING AND USING KODEBEAGLE IDEA PLUGIN, "
                     + "YOU AGREE TO THE CERTAIN TERMS AND CONDITIONS %n  "
                     + "SET FORTH IN THE END-USER LICENSE AGREEMENT AND QUOTED BELOW. "
                     + "IF YOU DO NOT AGREE WITH THESE TERMS OR CONDITIONS, %n  "
-                    + "DO NOT ACCESS OR USE KODE BEAGLE.</b>%n  <br><br> %n%n"
-                    + "  The Software includes code crawling functionality (\"Kode Beagle\") <br>"
+                    + "DO NOT ACCESS OR USE KODEBEAGLE.</b>%n  <br><br> %n%n"
+                    + "  The Software includes code crawling functionality (\"KodeBeagle\") <br>"
                     + "that enables searching source code from the open source github projects"
                     + "Licensee acknowledges source code might be protected by copyright and "
-                    + "trademark laws. %n Before using Kode Beagle, Licensee should make sure that "
+                    + "trademark laws. %n Before using KodeBeagle, Licensee should make sure that "
                     + "copying of souce code is not prohibited by the applicable license agreement"
                     + "  (except to the extent that Licensee may be expressly permitted under "
                     + "applicable law) %n   or that Licensee has obtained permission to copy the "
                     + "souce code from the copyright owner.%n%n"
-                    + "  Using Kode Beagle is entirely optional. Licensor does neither encourage "
-                    + "nor condone %n the use of Kode Beagle, and disclaims any liability for"
-                    + "Licensee's use of Kode Beagle %n in violation of applicable laws.%n"
-                    + "<br><br><b>Declining/Cancelling this will disable Kode Beagle "
+                    + "  Using KodeBeagle is entirely optional. Licensor does neither encourage "
+                    + "nor condone %n the use of KodeBeagle, and disclaims any liability for"
+                    + "Licensee's use of KodeBeagle %n in violation of applicable laws.%n"
+                    + "<br><br><b>Declining/Cancelling this will disable KodeBeagle "
                     + "and restart Idea</b>");
     private static final String DIV_STYLE_MARGIN_5PX = "<div style='margin:5px;'>";
     private static final String DIV = "</div>";

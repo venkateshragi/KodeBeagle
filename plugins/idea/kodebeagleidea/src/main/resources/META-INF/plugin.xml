@@ -1,6 +1,6 @@
 <idea-plugin version="3">
   <id>kodebeagleidea</id>
-  <name>Kode Beagle</name>
+  <name>KodeBeagle</name>
   <version>VERSION_STRING</version> <!-- This gets auto updated by SBT during package -->
 
   <vendor email="kodebeagle@googlegroups.com" url="http://imaginea.com/">Imaginea</vendor>
@@ -57,7 +57,7 @@
     </actions>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="Kode Beagle" icon="AllIcons.Toolwindows.Documentation" anchor="right" factoryClass="com.imaginea.kodebeagle.ui.MainWindow"/>
+        <toolWindow id="KodeBeagle" icon="AllIcons.Toolwindows.Documentation" anchor="right" factoryClass="com.imaginea.kodebeagle.ui.MainWindow"/>
         <applicationConfigurable instance="com.imaginea.kodebeagle.ui.SettingsPanel"/>
     </extensions>
 </idea-plugin>
