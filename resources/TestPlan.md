@@ -77,7 +77,7 @@
 
 #### 13. [ideaplugin] Tabbed UI alterations.
 ##### fixes <a href='https://github.com/Imaginea/KodeBeagle/issues/150'> #150 </a>
-1. Open the Kodebeagle plugin, it should have two panes named Featured and all from left to right.<br>
+1. Open the KodeBeagle plugin, it should have two panes named Featured and all from left to right.<br>
 <img src='screenshots/150.png'/>
 2. Hit refresh button to check search results in both panes.
 
@@ -93,24 +93,24 @@
 
 #### 15. [ideaplugin] Rename "Repo Stars" in Code Pane to "Score:" and make "Repo Name" clickable.
 ##### fixes <a href='https://github.com/Imaginea/KodeBeagle/issues/151'> #151 </a>
-1. Open Kodebeagle plugin, select code and hit refresh action.
+1. Open KodeBeagle plugin, select code and hit refresh action.
 2. Check the featured pane tiny editors header, clicking on the project name should open project repo in github.com.<br>
 <img src='screenshots/151.png'/>
 
 #### 16. [ideaplugin] Expire notification bubble in 3 or 4 seconds.
 ##### fixes <a href='https://github.com/Imaginea/KodeBeagle/issues/157'> #157 </a>
-1. Open Kodebeagle plugin, select code and hit refresh action.
+1. Open KodeBeagle plugin, select code and hit refresh action.
 2. If ES Result returns no results notification should expire.<br>
 <img src='screenshots/157.png'/>
 
 #### 17. [ideaplugin] NPE while using the plugin.
 ##### fixes <a href='https://github.com/Imaginea/KodeBeagle/issues/135'> #135 </a>
-1. Open Kodebeagle plugin, select code from any non java file and hit refresh action.
+1. Open KodeBeagle plugin, select code from any non java file and hit refresh action.
 2. No NullPointerException after closing the plugin in idea.log/console.
 
 #### 18. [ideaplugin] Add UUID to request context and settins panel.
 ##### fixes <a href='https://github.com/Imaginea/KodeBeagle/issues/168'> #168 </a>
-1. Open Kodebeagle plugin, click on settings and check the generated plugin ID.<br>
+1. Open KodeBeagle plugin, click on settings and check the generated plugin ID.<br>
 <img src='screenshots/168.png'/>
 2. Plugin ID added to request context as well.
 
@@ -120,7 +120,7 @@
 
 #### 20. [ideaplugin] TinyEditors are not honoring soft wrap of intellij.
 ##### fixes <a href='https://github.com/Imaginea/KodeBeagle/issues/126'> #126 </a>
-1. Open Kodebeagle plugin, select code and hit refresh action.
+1. Open KodeBeagle plugin, select code and hit refresh action.
 2. Make sure soft wrap is checked in intellij editor settings.<br>
 <img src='screenshots/soft_wrap.png'/>
 3. Check the featured pane tiny editors, try to resizing them.Tiny editors should honor intellij soft wrap.<br>

@@ -73,7 +73,6 @@ import javax.swing.tree.DefaultTreeModel;
 import org.jetbrains.annotations.NotNull;
 
 public class RefreshAction extends AnAction {
-    private static final String KODE_BEAGLE = "KodeBeagle";
     public static final String EMPTY_ES_URL =
             "<html>Elastic Search URL <br> %s <br> in idea settings is incorrect.<br> See "
                     + "<img src='" + AllIcons.General.Settings + "'/></html>";
@@ -116,7 +115,7 @@ public class RefreshAction extends AnAction {
     private static final String GOTO_GITHUB = "Go to GitHub";
     private static final String FETCHING_PROJECTS = "Fetching projects...";
     private static final String FETCHING_FILE_CONTENTS = "Fetching file contents...";
-    private static final String KODEBEAGLE = "Kodebeagle";
+    public static final String KODEBEAGLE = "KodeBeagle";
     private static final double INDICATOR_FRACTION = 0.5;
     public static final int MAX_EDITORS_DEFAULT_VALUE = 10;
     public static final String MAX_TINY_EDITORS = "maxTinyEditors";
@@ -138,7 +137,7 @@ public class RefreshAction extends AnAction {
     private int maxTinyEditors;
 
     public RefreshAction() {
-        super(KODE_BEAGLE, KODE_BEAGLE, AllIcons.Actions.Refresh);
+        super(KODEBEAGLE, KODEBEAGLE, AllIcons.Actions.Refresh);
     }
 
     @Override
@@ -429,7 +428,7 @@ public class RefreshAction extends AnAction {
     private Notification getNotification(final String title, final String content,
                                          final NotificationType notificationType) {
 
-        final Notification notification = new Notification(KODE_BEAGLE,
+        final Notification notification = new Notification(KODEBEAGLE,
                 title, content, notificationType);
         return notification;
     }
