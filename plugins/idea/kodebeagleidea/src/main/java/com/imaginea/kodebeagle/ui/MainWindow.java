@@ -47,9 +47,6 @@ import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.components.JBTabbedPane;
 import com.intellij.ui.treeStructure.Tree;
 import java.awt.Dimension;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.io.IOException;
 import java.util.UUID;
 
 import javax.swing.BorderFactory;
@@ -137,20 +134,6 @@ public class MainWindow implements ToolWindowFactory {
         toolBar.setBorder(BorderFactory.createCompoundBorder());
 
         toolBar.setMaximumSize(new Dimension(Integer.MAX_VALUE, toolBar.getMinimumSize().height));
-        toolBar.addPropertyChangeListener(new PropertyChangeListener() {
-            @Override
-            public void propertyChange(final PropertyChangeEvent evt) {
-                if (toolBar.isShowing()) {
-                    try {
-                        refreshAction.init();
-                    } catch (IOException ioe) {
-                        ioe.printStackTrace();
-                    }
-                }
-            }
-        });
-
-
 
         JBScrollPane jTreeScrollPane = new JBScrollPane();
         jTreeScrollPane.getViewport().setBackground(JBColor.white);
