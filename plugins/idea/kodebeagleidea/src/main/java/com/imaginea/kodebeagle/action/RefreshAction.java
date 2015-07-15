@@ -98,8 +98,8 @@ public class RefreshAction extends AnAction {
     private static final String QUERY_HELP_MESSAGE =
             "<html><body> <p> <i><b>We tried querying our servers with : </b></i> <br /> %s </p>"
                     + "<i><b>but found no results in response.</i></b>";
-
-    private static final String PRO_TIP = "<p> <br/><b>Tip:</b> Try narrowing your selection to fewer lines. "
+    private static final String PRO_TIP =
+            "<p> <br/><b>Tip:</b> Try narrowing your selection to fewer lines. "
             + "<br/>Alternatively, setup \"Exclude imports\" in settings <img src='"
             + AllIcons.General.Settings + "'/> "
             + "</p></body></html>";
@@ -107,6 +107,8 @@ public class RefreshAction extends AnAction {
     private static final String BANNER_FORMAT = "%s %s %s";
     private static final String HTML_U = "<html><u>";
     private static final String U_HTML = "</u></html>";
+    private static final String HTML_U_B = "<html><u><b>";
+    private static final String B_U_HTML = "</b></u></html>";
     private static final String FILETYPE_HELP = "<html><center>Currently KodeBeagle supports "
             + "\"java\" files only.</center></html>";
     private static final String REPO_BANNER_FORMAT = "%s %s";
@@ -301,7 +303,9 @@ public class RefreshAction extends AnAction {
                 new JLabel(String.format(BANNER_FORMAT, HTML_U, displayFileName, U_HTML));
         expandLabel.setForeground(JBColor.BLUE);
         expandLabel.addMouseListener(
-                new CodePaneTinyEditorExpandLabelMouseListener(displayFileName, fileName));
+                new CodePaneTinyEditorExpandLabelMouseListener(displayFileName,
+                                                               fileName,
+                                                               expandLabel));
         expandPanel.add(expandLabel);
 
         final JLabel projectNameLabel =
@@ -313,6 +317,17 @@ public class RefreshAction extends AnAction {
                 if (!projectName.isEmpty()) {
                     BrowserUtil.browse(GITHUB_LINK + projectName);
                 }
+            }
+            public void mouseEntered(final MouseEvent me) {
+                projectNameLabel.setText(
+                        String.format(BANNER_FORMAT, HTML_U_B, projectName, B_U_HTML));
+                projectNameLabel.updateUI();
+            }
+
+            public void mouseExited(final MouseEvent me) {
+                projectNameLabel.setText(
+                        String.format(BANNER_FORMAT, HTML_U, projectName, U_HTML));
+                projectNameLabel.updateUI();
             }
         });
 
@@ -435,11 +450,14 @@ public class RefreshAction extends AnAction {
     private class CodePaneTinyEditorExpandLabelMouseListener extends MouseAdapter {
         private final String displayFileName;
         private final String fileName;
+        private final JLabel expandLabel;
 
         public CodePaneTinyEditorExpandLabelMouseListener(final String pDisplayFileName,
-                                                          final String pFileName) {
+                                                          final String pFileName,
+                                                          final JLabel pExpandLabel) {
             this.displayFileName = pDisplayFileName;
             this.fileName = pFileName;
+            this.expandLabel = pExpandLabel;
         }
 
         @Override
@@ -456,9 +474,25 @@ public class RefreshAction extends AnAction {
             editorDocOps.gotoLine(windowObjects.
                     getFileNameNumbersMap().get(fileName).get(0), document);
         }
+        @Override
+        public void mouseEntered(final MouseEvent e) {
+            expandLabel.setText(
+                    String.format(BANNER_FORMAT, HTML_U_B, displayFileName, B_U_HTML));
+            expandLabel.updateUI();
+
+        }
+
+        @Override
+        public void mouseExited(final MouseEvent e) {
+            expandLabel.setText(
+                    String.format(BANNER_FORMAT, HTML_U, displayFileName, U_HTML));
+            expandLabel.updateUI();
+
+        }
     }
 
     private class QueryBDServerTask extends Task.Backgroundable {
+        public static final int MIN_IMPORT_SIZE = 3;
         private final Set<String> importsInLines;
         private final Set<String> finalImports;
         private final JTree jTree;
@@ -526,7 +560,9 @@ public class RefreshAction extends AnAction {
                 } else {
                     String helpMsg = String.format(QUERY_HELP_MESSAGE,
                             importsInLines.toString().replaceAll(",", "<br/>"));
-                    if (importsInLines.size() > 3) helpMsg = helpMsg + PRO_TIP;
+                    if (importsInLines.size() > MIN_IMPORT_SIZE) {
+                        helpMsg = helpMsg + PRO_TIP;
+                    }
                     showHelpInfo(helpMsg);
                     jTree.updateUI();
                     notification.expire();

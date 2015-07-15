@@ -221,3 +221,9 @@ these values can't be applied.<br>
 #### 33. [idea] #250 Name display needs to be consistent
 ##### fixes <a href='https://github.com/Imaginea/KodeBeagle/issues/250'> #250 </a>
 1. KodeBeagle name should be consistent across the plugin.
+
+#### 34. [idea] #267 Make labels in header panel of tiny code editors in Top pane bold on mouse over.
+##### fixes <a href='https://github.com/Imaginea/KodeBeagle/issues/267'> #267 </a>
+1. Labels which displays filename and project name in header panels of tiny code editors should be
+   bold when mouse over and should be normal on mouse exit. <br>
+<img src = 'screenshots/beBold.png'/><br>
