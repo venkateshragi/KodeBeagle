@@ -50,6 +50,7 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.JBColor;
+
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.MouseAdapter;
@@ -70,6 +71,7 @@ import javax.swing.JTree;
 import javax.swing.ToolTipManager;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+
 import org.jetbrains.annotations.NotNull;
 
 public class RefreshAction extends AnAction {
@@ -92,18 +94,15 @@ public class RefreshAction extends AnAction {
     public static final String HELP_MESSAGE =
             "<html>Got nothing to search. To begin using, "
                     + "<br /> please select some code and hit <img src='"
-                    + AllIcons.Actions.Refresh + "' /> <br/> "
-                    + "<br/><b>Please Note:</b> We ignore import statements <br/>"
-                    + "while searching - as part of our "
-                    + "internal optimization. <br/> <i>So "
-                    + "selecting import statements has no effect. </i></html>";
+                    + AllIcons.Actions.Refresh + "' /> <br/> ";
     private static final String QUERY_HELP_MESSAGE =
             "<html><body> <p> <i><b>We tried querying our servers with : </b></i> <br /> %s </p>"
-                    + "<i><b>but found no results in response.</i></b>"
-                    + "<p> <br/><b>Tip:</b> Try narrowing your selection to fewer lines. "
-                    + "<br/>Alternatively, setup \"Exclude imports\" in settings <img src='"
-                    + AllIcons.General.Settings + "'/> "
-                    + "</p></body></html>";
+                    + "<i><b>but found no results in response.</i></b>";
+
+    private static final String PRO_TIP = "<p> <br/><b>Tip:</b> Try narrowing your selection to fewer lines. "
+            + "<br/>Alternatively, setup \"Exclude imports\" in settings <img src='"
+            + AllIcons.General.Settings + "'/> "
+            + "</p></body></html>";
     private static final String REPO_SCORE = "Score: ";
     private static final String BANNER_FORMAT = "%s %s %s";
     private static final String HTML_U = "<html><u>";
@@ -236,7 +235,7 @@ public class RefreshAction extends AnAction {
 
     private void updateMainPaneJTreeUI(final JTree jTree, final DefaultTreeModel model,
                                        final DefaultMutableTreeNode root,
-                                       final Map<String, ArrayList<CodeInfo>>  projectNodes) {
+                                       final Map<String, ArrayList<CodeInfo>> projectNodes) {
         projectTree.updateRoot(root, projectNodes);
         model.reload(root);
         jTree.addTreeSelectionListener(projectTree.getTreeSelectionListener(root));
@@ -249,7 +248,7 @@ public class RefreshAction extends AnAction {
     private String getESQueryResultJson(final Set<String> importsInLines) {
         String esQueryJson = jsonUtils.getESQueryJson(importsInLines, windowObjects.getSize());
         String esQueryResultJson =
-            esUtils.getESResultJson(esQueryJson, windowObjects.getEsURL() + KODEBEAGLE_SEARCH);
+                esUtils.getESResultJson(esQueryJson, windowObjects.getEsURL() + KODEBEAGLE_SEARCH);
         return esQueryResultJson;
     }
 
@@ -265,7 +264,7 @@ public class RefreshAction extends AnAction {
 
             String contentsInLines = editorDocOps.getContentsInLines(fileContents, lineNumbers);
             createCodePaneTinyEditor(codePaneTinyEditorsJPanel, codePaneTinyEditorInfo.toString(),
-                                     codePaneTinyEditorInfo.getFileName(), contentsInLines);
+                    codePaneTinyEditorInfo.getFileName(), contentsInLines);
         }
     }
 
@@ -332,7 +331,7 @@ public class RefreshAction extends AnAction {
     }
 
     private List<CodeInfo> getCodePaneTinyEditorsInfoList(final Map<String,
-                                                          ArrayList<CodeInfo>> projectNodes) {
+            ArrayList<CodeInfo>> projectNodes) {
         int maxEditors = maxTinyEditors;
         int count = 0;
         List<CodeInfo> codePaneTinyEditors = new ArrayList<CodeInfo>();
@@ -496,7 +495,7 @@ public class RefreshAction extends AnAction {
                                 esUtils.getTotalHitsCount(), timeToFetchResults);
                 notification =
                         getNotification(notificationTitle, notificationContent,
-                                        NotificationType.INFORMATION);
+                                NotificationType.INFORMATION);
                 Notifications.Bus.notify(notification);
             } catch (RuntimeException rte) {
                 rte.printStackTrace();
@@ -506,11 +505,10 @@ public class RefreshAction extends AnAction {
         }
 
         private String getResultNotificationMessage(final int resultCount, final long totalCount,
-                                                    final double timeToFetchResults)
-        {
+                                                    final double timeToFetchResults) {
             String resultNotification =
                     importsInLines.toString() + String.format(RESULT_NOTIFICATION_FORMAT,
-                                    resultCount, totalCount, timeToFetchResults);
+                            resultCount, totalCount, timeToFetchResults);
             return resultNotification;
         }
 
@@ -520,14 +518,16 @@ public class RefreshAction extends AnAction {
                 if (!projectNodes.isEmpty()) {
                     try {
                         doFrontEndWork(jTree, model, root, codePaneTinyEditorsInfoList,
-                                       projectNodes);
+                                projectNodes);
                         goToFeaturedPane();
                     } catch (RuntimeException rte) {
                         rte.printStackTrace();
                     }
                 } else {
-                    showHelpInfo(String.format(QUERY_HELP_MESSAGE,
-                            importsInLines.toString().replaceAll(",", "<br/>")));
+                    String helpMsg = String.format(QUERY_HELP_MESSAGE,
+                            importsInLines.toString().replaceAll(",", "<br/>"));
+                    if (importsInLines.size() > 3) helpMsg = helpMsg + PRO_TIP;
+                    showHelpInfo(helpMsg);
                     jTree.updateUI();
                     notification.expire();
                 }
