@@ -46,6 +46,7 @@ import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiPackage;
 import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.ui.Gray;
 import com.intellij.ui.JBColor;
 import com.intellij.util.containers.ContainerUtil;
 import java.awt.Color;
@@ -69,7 +70,8 @@ public class EditorDocOps {
     private WindowObjects windowObjects = WindowObjects.getInstance();
     private WindowEditorOps windowEditorOps = new WindowEditorOps();
     private static final String JAVA_IO_TMP_DIR = "java.io.tmpdir";
-    private static final Color HIGHLIGHTING_COLOR = new Color(255, 250, 205);
+    private static final Color HIGHLIGHTING_COLOR =
+            new JBColor(new Color(255, 250, 205), Gray._100);
     public static final char DOT = '.';
     private static final String IMPORT_LIST = "IMPORT_LIST";
     private static final String IMPORT_STATEMENT = "IMPORT_STATEMENT";
