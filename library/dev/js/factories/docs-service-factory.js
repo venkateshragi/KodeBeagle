@@ -1,5 +1,5 @@
 (function( module ) {
-	
+
 	module.factory('docsService', [
       'model',
       'http',
@@ -38,7 +38,7 @@
           }
 
 
-          
+
           queryES('importsmethods', {
             'query': queryBlock,
             'sort': [{
@@ -77,7 +77,7 @@
           http.get(url)
             .then(function(result) {
               if( indexName === 'importsmethods' ) {
-                model.totalHitCount = result.hits.total; 
+                model.totalHitCount = result.hits.total;
                 model.hitCount = result.hits.hits.length;
               }
               successCallback(result.hits.hits);
@@ -145,12 +145,12 @@
                 if (next_occurrence === -1) {
                     return -1;
                 } else {
-                    return length_up_to_first_index + next_occurrence;  
+                    return length_up_to_first_index + next_occurrence;
                 }
             }
         }
           queryES('sourcefile', fetchFileQuery(files), 50, function(result) {
-            
+
             files = files.sort( function( a, b) {
               return b.lines.length - a.lines.length;
             } );
@@ -174,19 +174,19 @@
                         }
                         count++;
                         if( k == 0 ) {
-                          l1 = file.lines[k].lineNumber - 3;  
+                          l1 = file.lines[k].lineNumber - 3;
                         } else {
-                          l1 = file.lines[k].lineNumber - 2;  
+                          l1 = file.lines[k].lineNumber - 2;
                         }
 
                         if( k==3 || file.lines.length === k + 1 ) {
-                          l2 = file.lines[k].lineNumber + 2;  
+                          l2 = file.lines[k].lineNumber + 2;
                         } else {
                           l2 = file.lines[k].lineNumber + 1;
                         }
-                        
-                        
-                        
+
+
+
                         var i1 = nth_occurrence( result[i]._source.fileContent, '\n', l1 );
 
                         var i2;
@@ -194,15 +194,15 @@
                           i2 = result[i]._source.fileContent.indexOf( '\n', i1+1 );
                           if( i2 !=-1 ) {
                             x[ l1 + 1 ] = result[i]._source.fileContent.substring( i1, i2 );
-                            i1 = i2;  
+                            i1 = i2;
                           }
-                          
+
                         }
                         x.active = file.lines[k].lineNumber;
                         obj.push( x );
 
                       }
-                      
+
                       return obj;
                     })()
                   }
@@ -212,8 +212,8 @@
 
             setTimeout( function() {
               if( !localStorage.getItem( 'intro' ) ){
-                introJs().start();
-                localStorage.setItem( 'intro', true );    
+                //introJs().start();
+                localStorage.setItem( 'intro', true );
               }
             }, 1000 );
           });
@@ -263,7 +263,7 @@
               break;
             }
           }
-          
+
           intermediateResult = _.map(groupedData, function(files, fileName) {
             //console.log( groupedData );
             var labels = getFileName(fileName),
@@ -274,14 +274,14 @@
 
                 /*if method name present then heilight the method name portion by picking from method.linenumbers*/
                 if( methodName ) {
-                  
+
                   matchingTokens.map( function( x ) {
                     if( x.methodAndLineNumbers ) {
                       x.methodAndLineNumbers.map( function(method) {
                         if( method.methodName === methodName ) {
                           possibleLines[0] = possibleLines[0].concat(method.lineNumbers);
                         }
-                      } )  
+                      } )
                     }
                   } );
                 }
@@ -328,7 +328,7 @@
           };
         }
 
-        
+
         function displayCommonMethods() {
           var groupedMethods = _.map(_.groupBy(commonMethods, 'className'), function(matches, className) {
             return {
