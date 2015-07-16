@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 import javax.swing.JTree;
 
 @SuppressWarnings("PMD")
@@ -46,6 +47,7 @@ public final class WindowObjects {
     private String pluginVersion;
     private String beagleId;
     private JPanel codePaneTinyEditorsJPanel;
+    private JTabbedPane jTabbedPane;
 
     private WindowObjects() {
 
@@ -180,6 +182,14 @@ public final class WindowObjects {
 
     public void setFileNameNumbersMap(final Map<String, List<Integer>> pFileNameNumbersMap) {
         this.fileNameNumbersMap = pFileNameNumbersMap;
+    }
+
+    public JTabbedPane getjTabbedPane() {
+        return jTabbedPane;
+    }
+
+    public void setjTabbedPane(final JTabbedPane pJTabbedPane) {
+        this.jTabbedPane = pJTabbedPane;
     }
 
 }

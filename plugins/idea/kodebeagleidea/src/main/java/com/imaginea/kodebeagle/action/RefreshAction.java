@@ -18,14 +18,14 @@
 package com.imaginea.kodebeagle.action;
 
 import com.imaginea.kodebeagle.model.CodeInfo;
+import com.imaginea.kodebeagle.object.WindowObjects;
+import com.imaginea.kodebeagle.ui.MainWindow;
+import com.imaginea.kodebeagle.ui.ProjectTree;
 import com.imaginea.kodebeagle.ui.WrapLayout;
 import com.imaginea.kodebeagle.util.ESUtils;
 import com.imaginea.kodebeagle.util.EditorDocOps;
 import com.imaginea.kodebeagle.util.JSONUtils;
-import com.imaginea.kodebeagle.ui.MainWindow;
-import com.imaginea.kodebeagle.ui.ProjectTree;
 import com.imaginea.kodebeagle.util.WindowEditorOps;
-import com.imaginea.kodebeagle.object.WindowObjects;
 import com.intellij.icons.AllIcons;
 import com.intellij.ide.BrowserUtil;
 import com.intellij.ide.DataManager;
@@ -50,7 +50,6 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.JBColor;
-
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.MouseAdapter;
@@ -66,12 +65,10 @@ import java.util.Map;
 import java.util.Set;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
 import javax.swing.JTree;
 import javax.swing.ToolTipManager;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-
 import org.jetbrains.annotations.NotNull;
 
 public class RefreshAction extends AnAction {
@@ -133,7 +130,6 @@ public class RefreshAction extends AnAction {
     private ESUtils esUtils = new ESUtils();
     private JSONUtils jsonUtils = new JSONUtils();
     private PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
-    private JTabbedPane jTabbedPane;
     private List<CodeInfo> codePaneTinyEditorsInfoList = new ArrayList<CodeInfo>();
     private int maxTinyEditors;
 
@@ -405,10 +401,6 @@ public class RefreshAction extends AnAction {
         return importsInLines;
     }
 
-    public final void setJTabbedPane(final JTabbedPane pJTabbedPane) {
-        this.jTabbedPane = pJTabbedPane;
-    }
-
     public final void init() throws IOException {
         DataContext dataContext = DataManager.getInstance().getDataContext();
         Project project = (Project) dataContext.getData(DataConstants.PROJECT);
@@ -574,10 +566,10 @@ public class RefreshAction extends AnAction {
     }
 
     private void goToFeaturedPane() {
-        jTabbedPane.setSelectedIndex(0);
+        windowObjects.getjTabbedPane().setSelectedIndex(0);
     }
 
     private void goToAllPane() {
-        jTabbedPane.setSelectedIndex(1);
+        windowObjects.getjTabbedPane().setSelectedIndex(1);
     }
 }

@@ -227,3 +227,9 @@ these values can't be applied.<br>
 1. Labels which displays filename and project name in header panels of tiny code editors should be
    bold when mouse over and should be normal on mouse exit. <br>
 <img src = 'screenshots/beBold.png'/><br>
+
+#### 35. [idea] #269 Add Search with KodeBeagle before Search with google in editor right click menu
+##### fixes <a href='https://github.com/Imaginea/KodeBeagle/issues/267'> #269 </a>
+1. Select code in editor and right clicking an option "<icon>Search with KodeBeagle" should be listed and hitting that
+   should open plugin window and perform search<br>
+<img src = 'screenshots/searchKodeBeagle.png'/><br>

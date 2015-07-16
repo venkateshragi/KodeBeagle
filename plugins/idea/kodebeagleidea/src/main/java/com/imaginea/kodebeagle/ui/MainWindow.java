@@ -17,13 +17,12 @@
 
 package com.imaginea.kodebeagle.ui;
 
-import com.imaginea.kodebeagle.util.WindowEditorOps;
 import com.imaginea.kodebeagle.action.CollapseProjectTreeAction;
 import com.imaginea.kodebeagle.action.EditSettingsAction;
 import com.imaginea.kodebeagle.action.ExpandProjectTreeAction;
 import com.imaginea.kodebeagle.action.RefreshAction;
 import com.imaginea.kodebeagle.object.WindowObjects;
-
+import com.imaginea.kodebeagle.util.WindowEditorOps;
 import com.intellij.ide.actions.ActivateToolWindowAction;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.ide.plugins.PluginManager;
@@ -48,7 +47,6 @@ import com.intellij.ui.components.JBTabbedPane;
 import com.intellij.ui.treeStructure.Tree;
 import java.awt.Dimension;
 import java.util.UUID;
-
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JComponent;
@@ -68,7 +66,7 @@ public class MainWindow implements ToolWindowFactory {
     private static final String FEATURED_TAB = "Top";
     private static final int EDITOR_SCROLL_PANE_WIDTH = 200;
     private static final int EDITOR_SCROLL_PANE_HEIGHT = 300;
-    private static final String KODEBEAGLE = "KodeBeagle";
+    public static final String KODEBEAGLE = "KodeBeagle";
     private static final String IDEA_PLUGIN = "Idea-Plugin";
     private static final String PLUGIN_ID = "kodebeagleidea";
     private static final String OS_NAME = "os.name";
@@ -79,6 +77,7 @@ public class MainWindow implements ToolWindowFactory {
     private WindowEditorOps windowEditorOps = new WindowEditorOps();
     private WindowObjects windowObjects = WindowObjects.getInstance();
     private PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
+
 
     @Override
     public final void createToolWindowContent(final Project project, final ToolWindow toolWindow) {
@@ -165,7 +164,7 @@ public class MainWindow implements ToolWindowFactory {
         final JTabbedPane jTabbedPane = new JBTabbedPane();
         jTabbedPane.add(FEATURED_TAB, editorScrollPane);
         jTabbedPane.add(ALL_TAB, jSplitPane);
-        refreshAction.setJTabbedPane(jTabbedPane);
+        windowObjects.setjTabbedPane(jTabbedPane);
         // Display initial help information here.
         refreshAction.showHelpInfo(RefreshAction.HELP_MESSAGE);
         final JPanel mainPanel = new JPanel();
