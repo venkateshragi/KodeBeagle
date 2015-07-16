@@ -20,10 +20,8 @@ package com.imaginea.kodebeagle
 import java.io.InputStream
 
 import com.imaginea.kodebeagle.util.EditorDocOps
-import com.intellij.openapi.command.impl.DummyProject
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.impl.DocumentImpl
-import com.intellij.openapi.project.Project
 import org.apache.commons.io.IOUtils
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 
@@ -43,8 +41,7 @@ class ExtractImportSuite extends FunSuite with BeforeAndAfterAll {
    * TODO : Explore mocking
    */
   ignore("Extracted imports should match the imports in java file.") {
-    val project: Project = DummyProject.getInstance()
-    val editorDocOps = new EditorDocOps().getImports(document,project)
+    val editorDocOps = new EditorDocOps().getImports(document)
     val expected = Set(
       "java.io.Closeable",
       "java.io.IOException",

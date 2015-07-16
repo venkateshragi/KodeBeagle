@@ -42,6 +42,10 @@ import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiImportList;
+import com.intellij.psi.PsiImportStatementBase;
+import com.intellij.psi.PsiJavaCodeReferenceElement;
+import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiPackage;
 import com.intellij.psi.search.GlobalSearchScope;
@@ -72,9 +76,6 @@ public class EditorDocOps {
     private static final Color HIGHLIGHTING_COLOR =
             new JBColor(new Color(255, 250, 205), Gray._100);
     public static final char DOT = '.';
-    private static final String IMPORT_LIST = "IMPORT_LIST";
-    private static final String IMPORT_STATEMENT = "IMPORT_STATEMENT";
-    private static final String IMPORT_VALUE = "JAVA_CODE_REFERENCE";
     private static final String FILE_EXTENSION = "java";
 
     public final Set<String> importsInLines(final Iterable<String> lines,
@@ -137,25 +138,27 @@ public class EditorDocOps {
         return lines;
     }
 
-    public final Set<String> getImports(@NotNull final Document document,
-                                        @NotNull final Project project) {
-        PsiDocumentManager psiInstance = PsiDocumentManager.getInstance(project);
+    public final Set<String> getImports(@NotNull final Document document) {
+        PsiDocumentManager psiInstance = PsiDocumentManager.getInstance(windowObjects.getProject());
         Set<String> imports = new HashSet<String>();
-
         if (psiInstance != null && (psiInstance.getPsiFile(document)) != null) {
             PsiFile psiFile = psiInstance.getPsiFile(document);
             if (psiFile != null
                     && psiFile.getFileType().getDefaultExtension().equals(FILE_EXTENSION)) {
-                PsiElement[] psiRootChildren = psiFile.getChildren();
-                PsiElement element = null;
-                for (PsiElement elem : psiRootChildren) {
-                    if (elem.getNode().getElementType().toString().equals(IMPORT_LIST)) {
-                        element = elem;
-                        break;
+                PsiJavaFile psiJavaFile = (PsiJavaFile) psiFile;
+                PsiImportList psiImportList = psiJavaFile.getImportList();
+                if (psiImportList != null) {
+                    PsiImportStatementBase[] importStatements =
+                            psiImportList.getAllImportStatements();
+                    for (PsiImportStatementBase psiImportStatementBase : importStatements) {
+                        if (psiImportStatementBase.getImportReference() != null) {
+                            PsiJavaCodeReferenceElement importReference =
+                                    psiImportStatementBase.getImportReference();
+                            if (importReference != null) {
+                                imports.add(importReference.getCanonicalText());
+                            }
+                        }
                     }
-                }
-                if (element != null) {
-                    imports = getImportsSet(element);
                 }
             }
         }
@@ -378,24 +381,6 @@ public class EditorDocOps {
             }
         }
         return stringBuilder.toString();
-    }
-
-    private Set<String> getImportsSet(final PsiElement element) {
-        Set<String> imports = new HashSet<String>();
-        PsiElement[] importListChildren = element.getChildren();
-        for (PsiElement importElement : importListChildren) {
-            if (importElement.getNode().getElementType().
-                    toString().equals(IMPORT_STATEMENT)) {
-                PsiElement[] importsElementList = importElement.getChildren();
-                for (PsiElement importValue : importsElementList) {
-                    if (importValue.getNode().getElementType().toString()
-                            .equals(IMPORT_VALUE)) {
-                        imports.add(importValue.getNode().getText());
-                    }
-                }
-            }
-        }
-        return imports;
     }
 
     public final boolean isJavaFile(final Document document) {
