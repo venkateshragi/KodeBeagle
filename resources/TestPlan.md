@@ -233,3 +233,9 @@ these values can't be applied.<br>
 1. Select code in editor and right clicking an option "<icon>Search with KodeBeagle" should be listed and hitting that
    should open plugin window and perform search<br>
 <img src = 'screenshots/searchKodeBeagle.png'/><br>
+
+#### 36. [idea] #271 Show information message "KodeBeagle supports only java files.." when trying to search from .class files.
+##### fixes <a href='https://github.com/Imaginea/KodeBeagle/issues/271'> #271 </a>
+1. Open KodeBeagle plugin, select some code from any .class file and hit refresh action. It will show information message
+"Currently KodeBeagle supports "java" files only".<br>
+<img src = 'screenshots/271.png'/><br>
