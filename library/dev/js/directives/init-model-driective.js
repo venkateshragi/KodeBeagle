@@ -6,7 +6,7 @@
     'docsService',
     '$document',
     function(model, $location, $rootScope, docsService, $document) {
-      var esURL = 'http://192.168.2.145:9201';
+      var esURL = 'http://labs.imaginea.com/kodebeagle';
       model.showConfig = $location.search().advanced;
       model.pageResultSize=10;
       model.toggelSnippet = true;
