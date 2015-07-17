@@ -50,7 +50,7 @@ public class ESUtils {
     private static final String REPOSITORY_SEARCH = "/repository/_search?source=";
     private static final String FAILED_HTTP_ERROR = "Connection Error: ";
     private static final String USER_AGENT = "USER-AGENT";
-    protected static final String UTF_8 = "UTF-8";
+    public static final String UTF_8 = "UTF-8";
     private static final int HTTP_OK_STATUS = 200;
     private static final String REPO_ID = "repoId";
     private static final String STARGAZERS_COUNT = "stargazersCount";

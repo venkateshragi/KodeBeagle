@@ -17,6 +17,7 @@
 
 package com.imaginea.kodebeagle.ui;
 
+import com.imaginea.kodebeagle.util.ESUtils;
 import com.intellij.icons.AllIcons;
 import com.intellij.ide.plugins.PluginManagerCore;
 import com.intellij.ide.util.PropertiesComponent;
@@ -136,22 +137,14 @@ public class LegalNotice extends DialogWrapper {
         ClassLoader classLoader = this.getClass().getClassLoader();
         InputStream stream = classLoader.getResourceAsStream(KODEBEAGLE_NOTICE_FILENAME);
         StringBuilder legalNoticeMessage = new StringBuilder();
-        try {
+        try (BufferedReader reader =
+                     new BufferedReader(new InputStreamReader(stream, ESUtils.UTF_8))) {
             String line;
-            BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-            if (stream != null) {
-                while ((line = reader.readLine()) != null) {
-                    legalNoticeMessage.append(line);
-                }
+            while ((line = reader.readLine()) != null) {
+                legalNoticeMessage.append(line);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                stream.close();
-            } catch (Throwable e) {
-                e.printStackTrace();
-            }
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
         }
         return String.format(legalNoticeMessage.toString());
     }
