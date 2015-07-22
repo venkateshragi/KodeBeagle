@@ -86,15 +86,21 @@ public class RefreshAction extends AnAction {
     public static final String ES_URL_DEFAULT = "http://labs.imaginea.com/kodebeagle";
     public static final int LINES_FROM_CURSOR_DEFAULT_VALUE = 0;
     public static final int SIZE_DEFAULT_VALUE = 30;
-    private static final String EDITOR_ERROR = "Could not get any active editor";
+    public static final String EDITOR_ERROR = "Could not get any active editor";
     private static final String FORMAT = "%s %s %s";
     private static final String QUERIED = "Queried";
     private static final String FOR = "for";
+
     public static final String EXCLUDE_IMPORT_PATTERN = "Exclude imports pattern";
     public static final String EXCLUDE_IMPORT_CHECKBOX_VALUE = "Exclude imports checkbox value";
     public static final String EXCLUDE_IMPORT_DEFAULT_CHECKBOX_VALUE = "false";
     public static final String EXCLUDE_IMPORT_STATE = "Exclude imports state";
-    public static final String HELP_MESSAGE =
+
+    public static final String HELP_MESSAGE_IF_CODE_SELECTED =
+            "<html>Got nothing to search in selected code. To begin using, "
+                    + "<br /> please select some more code and hit <img src='"
+                    + AllIcons.Actions.Refresh + "' /> <br/> ";
+    public static final String HELP_MESSAGE_NO_SELECTED_CODE =
             "<html>Got nothing to search. To begin using, "
                     + "<br /> please select some code and hit <img src='"
                     + AllIcons.Actions.Refresh + "' /> <br/> ";
@@ -103,9 +109,9 @@ public class RefreshAction extends AnAction {
                     + "<i><b>but found no results in response.</i></b>";
     private static final String PRO_TIP =
             "<p> <br/><b>Tip:</b> Try narrowing your selection to fewer lines. "
-            + "<br/>Alternatively, setup \"Exclude imports\" in settings <img src='"
-            + AllIcons.General.Settings + "'/> "
-            + "</p></body></html>";
+                    + "<br/>Alternatively, setup \"Exclude imports\" in settings <img src='"
+                    + AllIcons.General.Settings + "'/> "
+                    + "</p></body></html>";
     private static final String REPO_SCORE = "Score: ";
     private static final String BANNER_FORMAT = "%s %s %s";
     private static final String HTML_U = "<html><u>";
@@ -174,10 +180,18 @@ public class RefreshAction extends AnAction {
                         ProgressManager.getInstance().run(new QueryBDServerTask(importsInLines,
                                 finalImports, jTree, model, root));
                     } else {
-                        showHelpInfo(HELP_MESSAGE);
+                        if (projectEditor.getSelectionModel().hasSelection()) {
+                            showHelpInfo(HELP_MESSAGE_IF_CODE_SELECTED);
+                        } else {
+                            showHelpInfo(HELP_MESSAGE_NO_SELECTED_CODE);
+                        }
                     }
                 } else {
-                    showHelpInfo(HELP_MESSAGE);
+                    if (projectEditor.getSelectionModel().hasSelection()) {
+                        showHelpInfo(HELP_MESSAGE_IF_CODE_SELECTED);
+                    } else {
+                        showHelpInfo(HELP_MESSAGE_NO_SELECTED_CODE);
+                    }
                 }
             } else {
                 showHelpInfo(FILETYPE_HELP);
@@ -306,8 +320,8 @@ public class RefreshAction extends AnAction {
         expandLabel.setForeground(JBColor.BLACK);
         expandLabel.addMouseListener(
                 new CodePaneTinyEditorExpandLabelMouseListener(displayFileName,
-                                                               fileName,
-                                                               expandLabel));
+                        fileName,
+                        expandLabel));
         expandPanel.add(expandLabel);
 
         final JLabel projectNameLabel =
@@ -476,6 +490,7 @@ public class RefreshAction extends AnAction {
             editorDocOps.gotoLine(windowObjects.
                     getFileNameNumbersMap().get(fileName).get(0), document);
         }
+
         @Override
         public void mouseEntered(final MouseEvent e) {
             expandLabel.setForeground(JBColor.BLUE);

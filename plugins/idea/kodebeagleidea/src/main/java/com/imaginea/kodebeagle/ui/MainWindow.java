@@ -35,6 +35,7 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.extensions.PluginId;
+import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.keymap.Keymap;
 import com.intellij.openapi.keymap.KeymapManager;
@@ -162,8 +163,17 @@ public class MainWindow implements ToolWindowFactory {
         jTabbedPane.add(FEATURED_TAB, editorScrollPane);
         jTabbedPane.add(ALL_TAB, jSplitPane);
         windowObjects.setjTabbedPane(jTabbedPane);
+        final Editor projectEditor = FileEditorManager.getInstance(project).getSelectedTextEditor();
         // Display initial help information here.
-        refreshAction.showHelpInfo(RefreshAction.HELP_MESSAGE);
+        if (projectEditor != null) {
+            if (projectEditor.getSelectionModel().hasSelection()) {
+                refreshAction.showHelpInfo(RefreshAction.HELP_MESSAGE_IF_CODE_SELECTED);
+            } else {
+                refreshAction.showHelpInfo(RefreshAction.HELP_MESSAGE_NO_SELECTED_CODE);
+            }
+        } else {
+            refreshAction.showHelpInfo(RefreshAction.EDITOR_ERROR);
+        }
         final JPanel mainPanel = new JPanel();
         mainPanel.setLayout((new BoxLayout(mainPanel, BoxLayout.Y_AXIS)));
         mainPanel.add(toolBar);
