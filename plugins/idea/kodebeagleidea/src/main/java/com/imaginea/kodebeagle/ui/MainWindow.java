@@ -57,6 +57,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTree;
 import javax.swing.KeyStroke;
 import javax.swing.tree.DefaultMutableTreeNode;
+import org.jetbrains.annotations.NotNull;
 
 public class MainWindow implements ToolWindowFactory {
 
@@ -79,7 +80,6 @@ public class MainWindow implements ToolWindowFactory {
     private WindowObjects windowObjects = WindowObjects.getInstance();
     private PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
 
-
     @Override
     public final void createToolWindowContent(final Project project, final ToolWindow toolWindow) {
 
@@ -101,37 +101,17 @@ public class MainWindow implements ToolWindowFactory {
         Editor windowEditor =
                 EditorFactory.getInstance().createEditor(
                         document, project, FileTypeManager.getInstance()
-                        .getFileTypeByExtension(JAVA),
+                                .getFileTypeByExtension(JAVA),
                         false);
         //Dispose the editor once it's no longer needed
         windowEditorOps.releaseEditor(project, windowEditor);
         final RefreshAction refreshAction = new RefreshAction();
-        Keymap keymap = KeymapManager.getInstance().getActiveKeymap();
-        if (keymap != null) {
-            KeyboardShortcut defShortcut =
-                    new KeyboardShortcut(KeyStroke.getKeyStroke(ALT + NUM_KEY), null);
-            String actionId = ActivateToolWindowAction.getActionIdForToolWindow(KODEBEAGLE);
-            keymap.addShortcut(actionId, defShortcut);
-        }
+        setUpKeyMap();
 
-        EditSettingsAction editSettingsAction = new EditSettingsAction();
-        ExpandProjectTreeAction expandProjectTreeAction = new ExpandProjectTreeAction();
-        CollapseProjectTreeAction collapseProjectTreeAction = new CollapseProjectTreeAction();
         windowObjects.setTree(jTree);
         windowObjects.setWindowEditor(windowEditor);
 
-        DefaultActionGroup group = new DefaultActionGroup();
-        group.add(refreshAction);
-        group.addSeparator();
-        group.add(expandProjectTreeAction);
-        group.add(collapseProjectTreeAction);
-        group.addSeparator();
-        group.add(editSettingsAction);
-        final JComponent toolBar = ActionManager.getInstance().
-                createActionToolbar(KODEBEAGLE, group, true).
-                getComponent();
-        toolBar.setBorder(BorderFactory.createCompoundBorder());
-        toolBar.setMaximumSize(new Dimension(Integer.MAX_VALUE, toolBar.getMinimumSize().height));
+        final JComponent toolBar = setUpToolBar(refreshAction);
 
         JBScrollPane jTreeScrollPane = new JBScrollPane();
         jTreeScrollPane.getViewport().setBackground(JBColor.white);
@@ -140,7 +120,7 @@ public class MainWindow implements ToolWindowFactory {
         windowObjects.setJTreeScrollPane(jTreeScrollPane);
 
         final JSplitPane jSplitPane = new JSplitPane(
-                        JSplitPane.VERTICAL_SPLIT, jTreeScrollPane, windowEditor.getComponent());
+                JSplitPane.VERTICAL_SPLIT, jTreeScrollPane, windowEditor.getComponent());
         jSplitPane.setResizeWeight(DIVIDER_LOCATION);
 
         JPanel editorPanel = new JPanel();
@@ -166,11 +146,7 @@ public class MainWindow implements ToolWindowFactory {
         final Editor projectEditor = FileEditorManager.getInstance(project).getSelectedTextEditor();
         // Display initial help information here.
         if (projectEditor != null) {
-            if (projectEditor.getSelectionModel().hasSelection()) {
-                refreshAction.showHelpInfo(RefreshAction.HELP_MESSAGE_IF_CODE_SELECTED);
-            } else {
-                refreshAction.showHelpInfo(RefreshAction.HELP_MESSAGE_NO_SELECTED_CODE);
-            }
+            refreshAction.showHelpInfo(RefreshAction.HELP_MESSAGE_NO_SELECTED_CODE);
         } else {
             refreshAction.showHelpInfo(RefreshAction.EDITOR_ERROR);
         }
@@ -185,13 +161,43 @@ public class MainWindow implements ToolWindowFactory {
         toolWindow.getComponent().getParent().add(mainPanel);
     }
 
+    @NotNull
+    private JComponent setUpToolBar(final RefreshAction refreshAction) {
+        CollapseProjectTreeAction collapseProjectTreeAction = new CollapseProjectTreeAction();
+        EditSettingsAction editSettingsAction = new EditSettingsAction();
+        ExpandProjectTreeAction expandProjectTreeAction = new ExpandProjectTreeAction();
+        DefaultActionGroup group = new DefaultActionGroup();
+        group.add(refreshAction);
+        group.addSeparator();
+        group.add(expandProjectTreeAction);
+        group.add(collapseProjectTreeAction);
+        group.addSeparator();
+        group.add(editSettingsAction);
+        final JComponent toolBar = ActionManager.getInstance().
+                createActionToolbar(KODEBEAGLE, group, true).
+                getComponent();
+        toolBar.setBorder(BorderFactory.createCompoundBorder());
+        toolBar.setMaximumSize(new Dimension(Integer.MAX_VALUE, toolBar.getMinimumSize().height));
+        return toolBar;
+    }
+
+    private void setUpKeyMap() {
+        Keymap keymap = KeymapManager.getInstance().getActiveKeymap();
+        if (keymap != null) {
+            KeyboardShortcut defShortcut =
+                    new KeyboardShortcut(KeyStroke.getKeyStroke(ALT + NUM_KEY), null);
+            String actionId = ActivateToolWindowAction.getActionIdForToolWindow(KODEBEAGLE);
+            keymap.addShortcut(actionId, defShortcut);
+        }
+    }
+
     private void initSystemInfo() {
         windowObjects.setOsInfo(System.getProperty(OS_NAME) + "/"
                 + System.getProperty(OS_VERSION));
         windowObjects.setApplicationVersion(ApplicationInfo.getInstance().getVersionName()
                 + "/" + ApplicationInfo.getInstance().getBuild().toString());
         IdeaPluginDescriptor codeBeagleVersion =
-                            PluginManager.getPlugin(PluginId.getId(PLUGIN_ID));
+                PluginManager.getPlugin(PluginId.getId(PLUGIN_ID));
 
         if (codeBeagleVersion != null) {
             windowObjects.setPluginVersion(IDEA_PLUGIN + "/" + codeBeagleVersion.getVersion());
