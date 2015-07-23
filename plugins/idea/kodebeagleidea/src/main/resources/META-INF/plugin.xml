@@ -8,7 +8,7 @@
   <description><![CDATA[
     <strong><i>KodeBeagle</i></strong>
 <br/>
-  <p>  A tool to assist you when you need code references.
+  <p> A tool to assist you when you need code references.
   As Developers, we tend to hunt for best-practices of using common and uncommon libraries in order to make our code
   more efficient. Often, a lot of time and energy is spent understanding the pros and cons of different approaches.
   KodeBeagle aims to solve this problem. It cites common practices from standard code references.
@@ -16,18 +16,25 @@
 <br/>
 <u>How it works ?</u>
 <br/><p>
-  It goes through existing popular public projects and gathering required information. When a user searches,
-  it queries the database and fetches relevant results.
+  KodeBeagle servers crawl through existing popular open source projects only and collects useful information
+  about them. When a user searches, it queries the kodebeagle servers by making a remote call and fetches
+  relevant results. Currently, the source for code of open source projects is Github.</p>
 
-  Currently, the source for code of popular projects is Github</p>
-<br/><p>
-Technology Stack : Elastic Search, Spark</p>
-<br/><p>
-Current Status: Beta</p>
-<br/><p>
-Supported Languages: Java</p>
+  <p>We do not collect any personal information on our servers nor do we send user-end code on our
+  servers for processing. The processing of keywords takes place on the plugin locally. These keywords
+  are references to libraries <em>external</em> to the projects. These are send as part of the query to our
+  servers. There is a way to exclude user defined library by clicking settings icon on the plugin and
+  configuring exclude imports. Deciding which library is external and should be included in search is
+  automatic and user configurable both.</p>
 
-    ]]></description>
+  <p>Furthermore, participation on improving search results based on anonymous search logging can be opted-out
+  from plugin settings. Please review our privacy policy for more details on data collection.</p>
+<br/>
+<p>Technology Stack : Elasticsearch and Apache Spark</p>
+<br/>
+<p>Current Status: Beta</p>
+<br/><p>Supported Languages: Java</p>
+]]></description>
 
   <change-notes><![CDATA[
     See milestone for this version(VERSION_STRING) at: <a href="https://github.com/Imaginea/KodeBeagle/milestones">
