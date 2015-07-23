@@ -97,20 +97,24 @@ public class RefreshAction extends AnAction {
     public static final String EXCLUDE_IMPORT_STATE = "Exclude imports state";
 
     public static final String HELP_MESSAGE_IF_CODE_SELECTED =
-            "<html>Got nothing to search in selected code. To begin using, "
-                    + "<br /> please select some more code and hit <img src='"
-                    + AllIcons.Actions.Refresh + "' /> <br/> ";
+            "<html><body> <p>No keywords found in current selection."
+                    + "<br /> You may expand your selection,<br/>"
+                    + "to include more lines. </p><br/>"
+                    + "<p>As an optimization in plugin,<br/> we do not include keywords "
+                    + "which refer <br/>to imports internal to the project."
+                    + "</p></body></html>";
+
     public static final String HELP_MESSAGE_NO_SELECTED_CODE =
-            "<html>Got nothing to search. To begin using, "
-                    + "<br /> please select some code and hit <img src='"
+            "<html><body> <p>Got nothing to search. To begin, "
+                    + "<br /> select some code and hit <img src='"
                     + AllIcons.Actions.Refresh + "' /> <br/> ";
     private static final String QUERY_HELP_MESSAGE =
             "<html><body> <p> <i><b>We tried querying our servers with : </b></i> <br /> %s </p>"
                     + "<i><b>but found no results in response.</i></b>";
     private static final String PRO_TIP =
             "<p> <br/><b>Tip:</b> Try narrowing your selection to fewer lines. "
-                    + "<br/>Alternatively, setup \"Exclude imports\" in settings <img src='"
-                    + AllIcons.General.Settings + "'/> "
+                    + "<br/>Alternatively, \"Configure imports\" in settings <img src='"
+                    + AllIcons.General.Settings + "'/>. "
                     + "</p></body></html>";
     private static final String REPO_SCORE = "Score: ";
     private static final String BANNER_FORMAT = "%s %s %s";
@@ -173,12 +177,12 @@ public class RefreshAction extends AnAction {
             windowObjects.getCodePaneTinyEditorsJPanel().removeAll();
 
             if (editorDocOps.isJavaFile(projectEditor.getDocument())) {
-                Set<String> finalImports = getFinalImports(projectEditor.getDocument());
-                if (!finalImports.isEmpty()) {
-                    Set<String> importsInLines = getImportsInLines(projectEditor, finalImports);
+                Set<String> allImports = getAllImportsAfterExcludes(projectEditor.getDocument());
+                if (!allImports.isEmpty()) {
+                    Set<String> importsInLines = getImportsInLines(projectEditor, allImports);
                     if (!importsInLines.isEmpty()) {
                         ProgressManager.getInstance().run(new QueryBDServerTask(importsInLines,
-                                finalImports, jTree, model, root));
+                                allImports, jTree, model, root));
                     } else {
                         if (projectEditor.getSelectionModel().hasSelection()) {
                             showHelpInfo(HELP_MESSAGE_IF_CODE_SELECTED);
@@ -392,7 +396,7 @@ public class RefreshAction extends AnAction {
         return projectNodes;
     }
 
-    private Set<String> getFinalImports(final Document document) {
+    private Set<String> getAllImportsAfterExcludes(final Document document) {
         Set<String> imports = editorDocOps.getImports(document);
         if (!imports.isEmpty()) {
             if (currentSettings.getExcludeImportsCheckBoxValue()) {
