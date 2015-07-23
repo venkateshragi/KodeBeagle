@@ -18,6 +18,7 @@
 package com.imaginea.kodebeagle.model;
 
 import com.imaginea.kodebeagle.action.RefreshAction;
+import com.imaginea.kodebeagle.ui.LimitsPanel;
 import com.intellij.debugger.impl.DebuggerUtilsEx;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.ui.classFilter.ClassFilter;
@@ -29,11 +30,14 @@ public class Settings {
     private static final int PRIME = 31;
     private static final String DEFAULT_PATTERN_1 = "org.sl4j.Logger";
     private static final String DEFAULT_PATTERN_2 = "java.util.[A-Z][a-z0-9]*";
+    private static final String DELIMITER = ",";
+    private static final String TRUE = "true";
     private Limits limits;
     private EsURLComboBoxModel esURLComboBoxModel;
     private boolean esOverrideCheckBoxValue;
     private List<ClassFilter> filterList;
     private boolean excludeImportsCheckBoxValue;
+
 
     public Settings(final Limits pLimits, final EsURLComboBoxModel pEsURLComboBoxModel,
                     final boolean pEsOverrideCheckBoxValue,
@@ -109,18 +113,33 @@ public class Settings {
                     String.valueOf(this.getTopCount()));
         }
 
+
+        private int getValueBasedOnLimits(final int persistedValue, final int min,
+                                          final int max, final int defaultValue) {
+            if (min <= persistedValue && persistedValue <= max) {
+                return persistedValue;
+            } else {
+                return defaultValue;
+            }
+        }
+
         private void retrieve() {
-            this.setLinesFromCursor(Integer.parseInt(propertiesComponent.getValue(
+            int persistedLinesFromCursor = Integer.parseInt(propertiesComponent.getValue(
                     RefreshAction.LINES_FROM_CURSOR,
-                    String.valueOf(RefreshAction.LINES_FROM_CURSOR_DEFAULT_VALUE))));
-
-            this.setResultSize(Integer.parseInt(propertiesComponent.getValue(
+                    String.valueOf(RefreshAction.LINES_FROM_CURSOR_DEFAULT_VALUE)));
+            int persistedResultSize = Integer.parseInt(propertiesComponent.getValue(
                     RefreshAction.SIZE,
-                    String.valueOf(RefreshAction.SIZE_DEFAULT_VALUE))));
-
-            this.setTopCount(Integer.parseInt(propertiesComponent.getValue(
+                    String.valueOf(RefreshAction.SIZE_DEFAULT_VALUE)));
+            int persistedTopCount = Integer.parseInt(propertiesComponent.getValue(
                     RefreshAction.TOP_COUNT,
-                    String.valueOf(RefreshAction.TOP_COUNT_DEFAULT_VALUE))));
+                    String.valueOf(RefreshAction.TOP_COUNT_DEFAULT_VALUE)));
+            this.setLinesFromCursor(getValueBasedOnLimits(persistedLinesFromCursor,
+                    LimitsPanel.LINES_FROM_CURSOR_MIN, LimitsPanel.LINES_FROM_CURSOR_MAX,
+                    RefreshAction.LINES_FROM_CURSOR_DEFAULT_VALUE));
+            this.setResultSize(getValueBasedOnLimits(persistedResultSize, LimitsPanel.MIN,
+                    LimitsPanel.RESULT_SIZE_MAX, RefreshAction.SIZE_DEFAULT_VALUE));
+            this.setTopCount(getValueBasedOnLimits(persistedTopCount, LimitsPanel.MIN,
+                    LimitsPanel.TOP_COUNT_MAX, RefreshAction.TOP_COUNT_DEFAULT_VALUE));
         }
 
         @Override
@@ -312,6 +331,26 @@ public class Settings {
 
     }
 
+    private void setOldImportsAsPatternAndState(final String oldImports) {
+        PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
+        List<String> oldPatterns = new ArrayList<>();
+        List<String> oldStates = new ArrayList<>();
+            if (oldImports != null) {
+                List<String> oldImportsList = Arrays.asList(oldImports.split(DELIMITER));
+                for (String oldImport : oldImportsList) {
+                    String trimmedImport = oldImport.trim();
+                    if (!trimmedImport.isEmpty()) {
+                        oldPatterns.add(trimmedImport);
+                        oldStates.add(TRUE);
+                    }
+                }
+            }
+        propertiesComponent.setValues(RefreshAction.EXCLUDE_IMPORT_PATTERN,
+                oldPatterns.toArray(new String[oldPatterns.size()]));
+        propertiesComponent.setValues(RefreshAction.EXCLUDE_IMPORT_STATE,
+                oldStates.toArray(new String[oldStates.size()]));
+    }
+
     private void retrieve() {
         final PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
         Limits myLimits = new Limits();
@@ -321,6 +360,11 @@ public class Settings {
         this.setEsOverrideCheckBoxValue(Boolean.parseBoolean(propertiesComponent.getValue(
                 RefreshAction.ES_URL_CHECKBOX_VALUE,
                 RefreshAction.ES_URL_DEFAULT_CHECKBOX_VALUE)));
+        if (propertiesComponent.isValueSet(RefreshAction.OLD_EXCLUDE_IMPORT_LIST)) {
+            setOldImportsAsPatternAndState(propertiesComponent.getValue(
+                    RefreshAction.OLD_EXCLUDE_IMPORT_LIST));
+            propertiesComponent.unsetValue(RefreshAction.OLD_EXCLUDE_IMPORT_LIST);
+        }
         if (propertiesComponent.isValueSet(RefreshAction.EXCLUDE_IMPORT_PATTERN)
                 && propertiesComponent.isValueSet(RefreshAction.EXCLUDE_IMPORT_STATE)) {
             String[] excludeImportStates = propertiesComponent.getValues(
@@ -330,7 +374,7 @@ public class Settings {
             if (excludeImportPatterns != null && excludeImportStates != null) {
                 List<ClassFilter> filters =
                         getClassFiltersFromPatternAndState(excludeImportPatterns,
-                        excludeImportStates);
+                                excludeImportStates);
                 this.setFilterList(filters);
             }
         } else {
@@ -384,3 +428,4 @@ public class Settings {
         return hashCode;
     }
 }
+

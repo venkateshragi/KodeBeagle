@@ -264,3 +264,7 @@ persisted. Thus a user can see the history of all his applied URLs.<br>
 ##### fixes <a href='https://github.com/Imaginea/KodeBeagle/issues/222'> #222 </a>
 1. On hitting "Refresh Action" too many times should not populate the IDE window with notifications.
 
+#### 39. [idea] #299 New settings panel fixed for loading values persisted by old settings panel
+##### fixes <a href='https://github.com/Imaginea/KodeBeagle/issues/299'> #299 </a>
+1. New settings panel will load values persisted by old settings panel by comparing it with their limits. If the value
+lies in the limit then it will be loaded or else default values will be loaded.

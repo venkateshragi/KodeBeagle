@@ -90,12 +90,11 @@ public class RefreshAction extends AnAction {
     private static final String FORMAT = "%s %s %s";
     private static final String QUERIED = "Queried";
     private static final String FOR = "for";
-
     public static final String EXCLUDE_IMPORT_PATTERN = "Exclude imports pattern";
     public static final String EXCLUDE_IMPORT_CHECKBOX_VALUE = "Exclude imports checkbox value";
     public static final String EXCLUDE_IMPORT_DEFAULT_CHECKBOX_VALUE = "false";
     public static final String EXCLUDE_IMPORT_STATE = "Exclude imports state";
-
+    public static final String OLD_EXCLUDE_IMPORT_LIST = "Exclude imports";
     public static final String HELP_MESSAGE_IF_CODE_SELECTED =
             "<html><body> <p>No keywords found in current selection."
                     + "<br /> You may expand your selection,<br/>"

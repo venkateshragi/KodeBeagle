@@ -41,14 +41,14 @@ public class LimitsPanel {
     private static final String RESULTS_SIZE = "Result Size:";
     private static final String DISTANCE_FROM_CURSOR = "Lines from cursor:";
     private static final String SPOTLIGHT_RESULT_COUNT = "Spotlight Results Count:";
-    private static final int LINES_FROM_CURSOR_MIN = 0;
-    private static final int LINES_FROM_CURSOR_MAX = 50;
+    public static final int LINES_FROM_CURSOR_MIN = 0;
+    public static final int LINES_FROM_CURSOR_MAX = 50;
     private static final int MAJOR_TICK_SPACING = 25;
     private static final int MINOR_TICK_SPACING = 1;
     private static final int STEP_SIZE = 5;
-    private static final int MIN = 5;
-    private static final int RESULT_SIZE_MAX = 50;
-    private static final int TOP_COUNT_MAX = 20;
+    public static final int MIN = 5;
+    public static final int RESULT_SIZE_MAX = 50;
+    public static final int TOP_COUNT_MAX = 20;
 
     private static final int[] LIMITS_PANEL_COLUMN_WIDTHS =
             new int[] {0, 0, 0, 0, 0, 37, 25, 41, 0, 0, 0, 0, 0};
@@ -238,3 +238,4 @@ public class LimitsPanel {
         }
     }
 }
+
