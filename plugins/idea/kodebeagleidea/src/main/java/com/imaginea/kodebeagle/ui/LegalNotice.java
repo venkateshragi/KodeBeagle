@@ -19,6 +19,7 @@ package com.imaginea.kodebeagle.ui;
 
 import com.imaginea.kodebeagle.util.ESUtils;
 import com.intellij.icons.AllIcons;
+import com.intellij.ide.BrowserUtil;
 import com.intellij.ide.plugins.PluginManagerCore;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.application.ApplicationManager;
@@ -41,6 +42,8 @@ import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JPanel;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -56,12 +59,15 @@ public class LegalNotice extends DialogWrapper {
     private static final String DIV_STYLE_MARGIN_5PX = "<div style='margin:5px;'>";
     private static final String DIV = "</div>";
     private static final String KODEBEAGLE_NOTICE_FILENAME = "KODEBEAGLE_NOTICE";
+    //This is a temporary URL, we will host this page to our website soon.
+    private static final String KODEBEAGLE_PRIVACY_POLICY = "<html><div style=\"text-align:left\">"
+           + "&nbsp;&nbsp;<a href=\"https://github.com/Imaginea/KodeBeagle/tree/master/"
+           + "docs/KodeBeaglePrivacyPolicy.html\">Privacy Policy</a></div><br></html>";
     private static final Dimension MESSAGE_EDITOR_PANE_PREFERRED_SIZE = new Dimension(500, 100);
     private static final BorderLayout LEGAL_NOTICE_LAYOUT = new BorderLayout(10, 0);
     private static boolean legalNoticeAccepted =
             PropertiesComponent.getInstance().getBoolean(KODE_BEAGLE_IDEA_LEGAL_NOTICE,
                     false);
-
 
     public static boolean isLegalNoticeAccepted() {
         return legalNoticeAccepted;
@@ -97,12 +103,20 @@ public class LegalNotice extends DialogWrapper {
         messageEditorPane.setEditable(false);
         messageEditorPane.setPreferredSize(MESSAGE_EDITOR_PANE_PREFERRED_SIZE);
         messageEditorPane.setBorder(BorderFactory.createLineBorder(Gray._200));
-        String text = DIV_STYLE_MARGIN_5PX + getLegalNoticeMessage() + DIV;
+        String text = DIV_STYLE_MARGIN_5PX + getLegalNoticeMessage() + "\n"
+                + KODEBEAGLE_PRIVACY_POLICY + DIV;
         messageEditorPane.setText(text);
-
         JPanel legalNoticePanel = new JPanel(LEGAL_NOTICE_LAYOUT);
         legalNoticePanel.add(iconPanel, BorderLayout.WEST);
         legalNoticePanel.add(messageEditorPane, BorderLayout.CENTER);
+
+        messageEditorPane.addHyperlinkListener(new HyperlinkListener() {
+            public void hyperlinkUpdate(final HyperlinkEvent he) {
+                if (he.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+                    BrowserUtil.browse(he.getURL());
+                }
+            }
+        });
         return legalNoticePanel;
     }
 
