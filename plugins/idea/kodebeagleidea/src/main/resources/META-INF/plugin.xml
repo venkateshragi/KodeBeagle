@@ -28,7 +28,10 @@
   automatic and user configurable both.</p>
 
   <p>Furthermore, participation on improving search results based on anonymous search logging can be opted-out
-  from plugin settings. Please review our privacy policy for more details on data collection.</p>
+  from plugin settings. Please review our privacy policy for more details on data collection
+  <a href="https://raw.githubusercontent.com/Imaginea/KodeBeagle/master/docs/KodeBeaglePrivacyPolicy.html">
+  KodeBeagle privacy policy. </a>
+  </p>
 <br/>
 <p>Technology Stack : Elasticsearch and Apache Spark</p>
 <br/>
