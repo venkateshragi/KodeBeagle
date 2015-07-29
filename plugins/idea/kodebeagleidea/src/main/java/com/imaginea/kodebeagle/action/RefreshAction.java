@@ -55,6 +55,8 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -304,6 +306,12 @@ public class RefreshAction extends AnAction {
         Editor tinyEditor =
                 EditorFactory.getInstance().
                         createEditor(tinyEditorDoc, project, fileType, false);
+        tinyEditor.getContentComponent().addMouseWheelListener(new MouseWheelListener() {
+            @Override
+            public void mouseWheelMoved(final MouseWheelEvent e) {
+                codePaneTinyEditorJPanel.dispatchEvent(e);
+            }
+        });
         windowEditorOps.releaseEditor(project, tinyEditor);
 
         JPanel expandPanel = new JPanel(wrapLayout);
@@ -339,6 +347,7 @@ public class RefreshAction extends AnAction {
                     BrowserUtil.browse(GITHUB_LINK + projectName);
                 }
             }
+
             public void mouseEntered(final MouseEvent me) {
                 projectNameLabel.setForeground(JBColor.BLUE);
                 projectNameLabel.updateUI();

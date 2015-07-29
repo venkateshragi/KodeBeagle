@@ -278,6 +278,11 @@ Before Opt-Out mode<br>
 After Opt-Out mode <br>
 <img src = 'screenshots/after-opt-out.png'>
 lies in the limit then it will be loaded or else default values will be loaded.
-#### 40. [idea] #305 Fixed addition of empty import pattern while configuring imports 
+
+#### 41. [idea] #305 Fixed addition of empty import pattern while configuring imports 
 ##### fixes <a href='https://github.com/Imaginea/KodeBeagle/issues/305'> #305 </a>
 1. While adding import patterns under the configure imports section, if the user tries to add an empty string then no import is added.
+
+#### 42. [idea] #253 Fixed scrolling issue while scrolling results under the Spotlight tab
+##### fixes <a href='https://github.com/Imaginea/KodeBeagle/issues/253'> #253 </a>
+1. Now a user can scroll the outer panel while scrolling inside the tiny editors.
