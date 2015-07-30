@@ -53,6 +53,8 @@ public class SettingsConfigurable implements Configurable {
     private JCheckBox esURLOverrideCheckBox;
     private JCheckBox excludeImportsCheckBox;
     private JCheckBox optOutCheckBox;
+    private JCheckBox notificationCheckBox;
+    private JCheckBox loggingCheckBox;
     private WindowObjects windowObjects = WindowObjects.getWindowObjects();
 
     private void getFields() {
@@ -65,6 +67,8 @@ public class SettingsConfigurable implements Configurable {
         importsPatternFilter = settingsPanel.getImportsPatternFilter();
         esURLOverrideCheckBox = settingsPanel.getEsURLOverrideCheckBox();
         excludeImportsCheckBox = settingsPanel.getExcludeImportsCheckBox();
+        notificationCheckBox = settingsPanel.getNotificationsCheckBox();
+        loggingCheckBox = settingsPanel.getLoggingCheckBox();
     }
     @Nullable
     @Override
@@ -111,12 +115,16 @@ public class SettingsConfigurable implements Configurable {
         int sizeValue = (int) resultSizeSpinner.getValue();
         int linesFromCursorValue = linesFromCursorSlider.getValue();
         int topCountValue = (int) topCountSpinner.getValue();
+        boolean notificationCheckBoxValue = notificationCheckBox.isSelected();
+        boolean loggingCheckBoxValue = loggingCheckBox.isSelected();
         List<ClassFilter> filtersList = Arrays.asList(importsPatternFilter.getFilters());
         Boolean excludeImportsCheckBoxValue = excludeImportsCheckBox.isSelected();
         Boolean optOutCheckBoxValue = optOutCheckBox.isSelected();
         return new Settings(new Settings.Limits(linesFromCursorValue, sizeValue, topCountValue),
-                new Settings.EsURLComboBoxModel(esURLValue), esOverrideCheckBoxValue,
-                filtersList, excludeImportsCheckBoxValue, optOutCheckBoxValue);
+                new Settings.EsURLComboBoxModel(esURLValue),
+                new Settings.Notifications(notificationCheckBoxValue, loggingCheckBoxValue),
+                esOverrideCheckBoxValue, filtersList,
+                excludeImportsCheckBoxValue, optOutCheckBoxValue);
     }
 
 
@@ -139,13 +147,15 @@ public class SettingsConfigurable implements Configurable {
         Settings mySettings = new Settings();
         loadBeagleId(mySettings.getOptOutCheckBoxValue());
         optOutCheckBox.setSelected(mySettings.getOptOutCheckBoxValue());
-
         linesFromCursorSlider.setValue(mySettings.getLimits().getLinesFromCursor());
         resultSizeSpinner.setValue(mySettings.getLimits().getResultSize());
         topCountSpinner.setValue(mySettings.getLimits().getTopCount());
         esURLComboBox.setModel(
                 new DefaultComboBoxModel(
                         mySettings.getEsURLComboBoxModel().getEsURLS()));
+        notificationCheckBox.setSelected(
+                mySettings.getNotifications().getNotificationsCheckBoxValue());
+        loggingCheckBox.setSelected(mySettings.getNotifications().getLoggingCheckBoxValue());
         esURLOverrideCheckBox.setSelected(mySettings.getEsOverrideCheckBoxValue());
         List<ClassFilter> filtersList = mySettings.getFilterList();
         excludeImportsCheckBox.setSelected(mySettings.getExcludeImportsCheckBoxValue());
@@ -167,6 +177,7 @@ public class SettingsConfigurable implements Configurable {
 
     @Override
     public final void disposeUIResources() {
+
     }
 
     @Nls

@@ -97,6 +97,9 @@ public class RefreshAction extends AnAction {
     public static final String EXCLUDE_IMPORT_DEFAULT_CHECKBOX_VALUE = "false";
     public static final String EXCLUDE_IMPORT_STATE = "Exclude imports state";
     public static final String OLD_EXCLUDE_IMPORT_LIST = "Exclude imports";
+    public static final String NOTIFICATION_CHECKBOX_VALUE = "Notification CheckBox Value";
+    public static final String LOGGING_CHECKBOX_VALUE = "Logging CheckBox Value";
+    public static final String CHECKBOX_DEFAULT_VALUE = "true";
     public static final String HELP_MESSAGE_IF_CODE_SELECTED =
             "<html><body> <p>No keywords found in current selection."
                     + "<br /> You may expand your selection,<br/>"

@@ -286,3 +286,9 @@ lies in the limit then it will be loaded or else default values will be loaded.
 #### 42. [idea] #253 Fixed scrolling issue while scrolling results under the Spotlight tab
 ##### fixes <a href='https://github.com/Imaginea/KodeBeagle/issues/253'> #253 </a>
 1. Now a user can scroll the outer panel while scrolling inside the tiny editors.
+
+### 43. [idea] #302 Added CheckBox for enabling/disabling notifications and logging [ONLY UI]
+#### fixes <a href='https://github.com/Imaginea/KodeBeagle/issues/302'> #302</a>
+1. Added checkboxes for notifications and logging under the "Notifications" section.<br>
+<img src = 'screenshots/notifications-panel.png'>
+2. It should toggle the IDE System Event notification too.

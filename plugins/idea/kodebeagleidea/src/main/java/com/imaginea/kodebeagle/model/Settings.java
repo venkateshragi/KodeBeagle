@@ -34,20 +34,22 @@ public class Settings {
     private static final String TRUE = "true";
     private Limits limits;
     private EsURLComboBoxModel esURLComboBoxModel;
+    private Notifications notifications;
     private boolean esOverrideCheckBoxValue;
     private List<ClassFilter> filterList;
     private boolean excludeImportsCheckBoxValue;
     private boolean optOutCheckBoxValue;
 
-
-
-    public Settings(final Limits pLimits, final EsURLComboBoxModel pEsURLComboBoxModel,
+    public Settings(final Limits pLimits,
+                    final EsURLComboBoxModel pEsURLComboBoxModel,
+                    final Notifications pNotifications,
                     final boolean pEsOverrideCheckBoxValue,
                     final List<ClassFilter> pFilterList,
                     final boolean pExcludeImportsCheckBoxValue,
                     final boolean pOptOutCheckBoxValue) {
         this.limits = pLimits;
         this.esURLComboBoxModel = pEsURLComboBoxModel;
+        this.notifications = pNotifications;
         this.esOverrideCheckBoxValue = pEsOverrideCheckBoxValue;
         this.filterList = pFilterList;
         this.excludeImportsCheckBoxValue = pExcludeImportsCheckBoxValue;
@@ -68,6 +70,14 @@ public class Settings {
 
     public final void setEsURLComboBoxModel(final EsURLComboBoxModel pEsURLComboBoxModel) {
         this.esURLComboBoxModel = pEsURLComboBoxModel;
+    }
+
+    public final Notifications getNotifications() {
+        return notifications;
+    }
+
+    public final void setNotifications(final Notifications pNotifications) {
+        this.notifications = pNotifications;
     }
 
     public final boolean getOptOutCheckBoxValue() {
@@ -253,6 +263,79 @@ public class Settings {
         }
     }
 
+    public static class Notifications {
+
+        private boolean notificationsCheckBoxValue;
+        private boolean loggingCheckBoxValue;
+        private final PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
+
+        public Notifications(final boolean pNotificationCheckBoxValue,
+                              final boolean pLoggingCheckBoxValue) {
+            this.notificationsCheckBoxValue = pNotificationCheckBoxValue;
+            this.loggingCheckBoxValue = pLoggingCheckBoxValue;
+        }
+
+        public Notifications() {
+            retrieve();
+        }
+
+
+        public final boolean getNotificationsCheckBoxValue() {
+            return notificationsCheckBoxValue;
+        }
+
+        public final void setNotificationsCheckBoxValue(final boolean pNotificationsCheckBoxValue) {
+            this.notificationsCheckBoxValue = pNotificationsCheckBoxValue;
+        }
+
+        public final boolean getLoggingCheckBoxValue() {
+            return loggingCheckBoxValue;
+        }
+
+        public final void setLoggingCheckBoxValue(final boolean pLoggingCheckBoxValue) {
+            this.loggingCheckBoxValue = pLoggingCheckBoxValue;
+        }
+
+        private void save() {
+            propertiesComponent.setValue(RefreshAction.NOTIFICATION_CHECKBOX_VALUE,
+                    String.valueOf(this.getNotificationsCheckBoxValue()));
+            propertiesComponent.setValue(RefreshAction.LOGGING_CHECKBOX_VALUE,
+                    String.valueOf(this.getLoggingCheckBoxValue()));
+        }
+
+        private void retrieve() {
+            this.setNotificationsCheckBoxValue(Boolean.parseBoolean(
+                    propertiesComponent.getValue(RefreshAction.NOTIFICATION_CHECKBOX_VALUE,
+                            RefreshAction.CHECKBOX_DEFAULT_VALUE)));
+            this.setLoggingCheckBoxValue(Boolean.parseBoolean(
+                    propertiesComponent.getValue(RefreshAction.LOGGING_CHECKBOX_VALUE,
+                            RefreshAction.CHECKBOX_DEFAULT_VALUE)));
+        }
+
+        @Override
+        public final boolean equals(final Object obj) {
+            if (obj == this) {
+                return  true;
+            }
+            if (obj == null || this.getClass() != obj.getClass()) {
+                return false;
+            }
+            Notifications myNotifications = (Notifications) obj;
+            return this.getNotificationsCheckBoxValue()
+                    == myNotifications.getNotificationsCheckBoxValue()
+                    && this.getLoggingCheckBoxValue()
+                    == myNotifications.getLoggingCheckBoxValue();
+        }
+
+        @Override
+        public final int hashCode() {
+            int hashCode = 0;
+            hashCode = PRIME * Boolean.valueOf(notificationsCheckBoxValue).hashCode() + hashCode;
+            hashCode = PRIME * Boolean.valueOf(loggingCheckBoxValue).hashCode() + hashCode;
+            return hashCode;
+        }
+    }
+
     public Settings() {
         retrieve();
     }
@@ -331,6 +414,8 @@ public class Settings {
         myLimits.save();
         EsURLComboBoxModel myEsURLComboBoxModel = getEsURLComboBoxModel();
         myEsURLComboBoxModel.save();
+        Notifications myNotifications = getNotifications();
+        myNotifications.save();
         propertiesComponent.setValue(RefreshAction.ES_URL_CHECKBOX_VALUE,
                 String.valueOf(esOverrideCheckBoxValue));
         propertiesComponent.setValues(RefreshAction.EXCLUDE_IMPORT_PATTERN,
@@ -369,6 +454,8 @@ public class Settings {
         this.setLimits(myLimits);
         EsURLComboBoxModel myEsURLComboBoxModel = new EsURLComboBoxModel();
         this.setEsURLComboBoxModel(myEsURLComboBoxModel);
+        Notifications myNotifications = new Notifications();
+        this.setNotifications(myNotifications);
         this.setEsOverrideCheckBoxValue(Boolean.parseBoolean(propertiesComponent.getValue(
                 RefreshAction.ES_URL_CHECKBOX_VALUE,
                 RefreshAction.ES_URL_DEFAULT_CHECKBOX_VALUE)));
@@ -425,7 +512,8 @@ public class Settings {
                         new ClassFilter[settings.getFilterList().size()]))
                 && getEsOverrideCheckBoxValue() == settings.getEsOverrideCheckBoxValue()
                 && this.getEsURLComboBoxModel().equals(settings.getEsURLComboBoxModel())
-                && this.getOptOutCheckBoxValue() == settings.getOptOutCheckBoxValue();
+                && this.getOptOutCheckBoxValue() == settings.getOptOutCheckBoxValue()
+                && this.getNotifications().equals(settings.getNotifications());
     }
 
     @Override
@@ -440,9 +528,12 @@ public class Settings {
         if (filterList != null) {
             hashCode = PRIME * filterList.hashCode() + hashCode;
         }
-        hashCode = String.valueOf(esOverrideCheckBoxValue).hashCode() + hashCode;
-        hashCode = String.valueOf(excludeImportsCheckBoxValue).hashCode() + hashCode;
-        hashCode = String.valueOf(optOutCheckBoxValue).hashCode() + hashCode;
+        if (notifications != null) {
+            hashCode = PRIME * notifications.hashCode() + hashCode;
+        }
+        hashCode = PRIME * Boolean.valueOf(esOverrideCheckBoxValue).hashCode() + hashCode;
+        hashCode = PRIME * Boolean.valueOf(excludeImportsCheckBoxValue).hashCode() + hashCode;
+        hashCode = PRIME * Boolean.valueOf(optOutCheckBoxValue).hashCode() + hashCode;
         return hashCode;
     }
 }

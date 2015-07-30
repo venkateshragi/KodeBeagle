@@ -59,11 +59,15 @@ public class SettingsPanel {
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 0, 0), 0, 0);
 
+    private final GridBagConstraints fifthPanel =
+            new GridBagConstraints(1, 10, 8, 1, 0.0, 0.0, GridBagConstraints.CENTER,
+                    GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0);
+
     private final IdentityPanel identityPanel = new IdentityPanel();
     private final LimitsPanel limitsPanel = new LimitsPanel();
     private final ImportsPanel importsPanel = new ImportsPanel();
     private final ElasticSearchPanel elasticSearchPanel = new ElasticSearchPanel();
-
+    private final NotificationPanel notificationPanel = new NotificationPanel();
 
     public final JLabel getBeagleIdValue() {
         return identityPanel.getBeagleIdValue();
@@ -101,6 +105,13 @@ public class SettingsPanel {
         return importsPanel.getExcludeImportsCheckBox();
     }
 
+    public final JCheckBox getNotificationsCheckBox() {
+        return notificationPanel.getNotificationCheckBox();
+    }
+
+    public final JCheckBox getLoggingCheckBox() {
+        return notificationPanel.getLoggingCheckBox();
+    }
 
     public final JComponent createPanel() {
         GridBagLayout gridBagLayout = new GridBagLayout();
@@ -113,6 +124,7 @@ public class SettingsPanel {
         settingsPanel.add(limitsPanel.getPanel(), secondPanel);
         settingsPanel.add(importsPanel.getPanel(), thirdPanel);
         settingsPanel.add(elasticSearchPanel.getPanel(), fourthPanel);
+        settingsPanel.add(notificationPanel.getPanel(), fifthPanel);
         return settingsPanel;
     }
 }
