@@ -19,8 +19,11 @@ package com.imaginea.kodebeagle.model;
 
 import com.imaginea.kodebeagle.action.RefreshAction;
 import com.imaginea.kodebeagle.ui.LimitsPanel;
+import com.imaginea.kodebeagle.ui.MainWindow;
 import com.intellij.debugger.impl.DebuggerUtilsEx;
 import com.intellij.ide.util.PropertiesComponent;
+import com.intellij.notification.NotificationDisplayType;
+import com.intellij.notification.impl.NotificationsConfigurationImpl;
 import com.intellij.ui.classFilter.ClassFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -297,19 +300,36 @@ public class Settings {
         }
 
         private void save() {
+            NotificationDisplayType notificationDisplayType = NotificationDisplayType.NONE;
+
+            boolean shouldLog = false;
             propertiesComponent.setValue(RefreshAction.NOTIFICATION_CHECKBOX_VALUE,
                     String.valueOf(this.getNotificationsCheckBoxValue()));
             propertiesComponent.setValue(RefreshAction.LOGGING_CHECKBOX_VALUE,
                     String.valueOf(this.getLoggingCheckBoxValue()));
+
+            if (this.getNotificationsCheckBoxValue()) {
+                notificationDisplayType = NotificationDisplayType.BALLOON;
+            }
+
+            if (this.getLoggingCheckBoxValue()) {
+                shouldLog = true;
+            }
+
+            NotificationsConfigurationImpl.getNotificationsConfiguration().changeSettings(
+                    MainWindow.KODEBEAGLE, notificationDisplayType, shouldLog, false);
         }
 
         private void retrieve() {
-            this.setNotificationsCheckBoxValue(Boolean.parseBoolean(
-                    propertiesComponent.getValue(RefreshAction.NOTIFICATION_CHECKBOX_VALUE,
-                            RefreshAction.CHECKBOX_DEFAULT_VALUE)));
-            this.setLoggingCheckBoxValue(Boolean.parseBoolean(
-                    propertiesComponent.getValue(RefreshAction.LOGGING_CHECKBOX_VALUE,
-                            RefreshAction.CHECKBOX_DEFAULT_VALUE)));
+            boolean isNotificationEnabled = false;
+            if (NotificationsConfigurationImpl.getSettings(MainWindow.KODEBEAGLE).getDisplayType()
+                    != NotificationDisplayType.NONE) {
+                isNotificationEnabled = true;
+            }
+
+            this.setNotificationsCheckBoxValue(isNotificationEnabled);
+            this.setLoggingCheckBoxValue(NotificationsConfigurationImpl.getSettings(
+                    MainWindow.KODEBEAGLE).isShouldLog());
         }
 
         @Override
