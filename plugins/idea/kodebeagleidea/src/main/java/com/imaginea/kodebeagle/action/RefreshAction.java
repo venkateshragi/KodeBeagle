@@ -425,10 +425,8 @@ public class RefreshAction extends AnAction {
                     imports = editorDocOps.excludeConfiguredImports(imports, excludeImports);
                 }
             }
-            Set<String> internalImports =
-                    editorDocOps.getInternalImports(windowObjects.getProject());
             Set<String> finalImports =
-                    editorDocOps.excludeInternalImports(imports, internalImports);
+                    editorDocOps.excludeInternalImports(imports);
 
             return finalImports;
         }

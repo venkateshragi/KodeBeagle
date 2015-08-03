@@ -292,3 +292,9 @@ lies in the limit then it will be loaded or else default values will be loaded.
 1. Added checkboxes for notifications and logging under the "Notifications" section.<br>
 <img src = 'screenshots/notifications-panel.png'>
 2. It should toggle the IDE System Event notification too.
+
+#### 44. [idea] #326 Optimized scanning of internal imports
+##### fixes <a href='https://github.com/Imaginea/KodeBeagle/issues/326'> #326 </a>
+1. While using KodeBeagle in projects which contain many directories, the scanning of internal imports will not consume a lot of
+time.<br>
+Tried using KodeBeagle for Intellij project.

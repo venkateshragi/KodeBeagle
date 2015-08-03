@@ -33,12 +33,9 @@ import com.intellij.openapi.editor.markup.HighlighterTargetArea;
 import com.intellij.openapi.editor.markup.MarkupModel;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.fileEditor.FileEditorManager;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.openapi.roots.PackageIndex;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.JavaDirectoryService;
-import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -46,19 +43,15 @@ import com.intellij.psi.PsiImportList;
 import com.intellij.psi.PsiImportStatementBase;
 import com.intellij.psi.PsiJavaCodeReferenceElement;
 import com.intellij.psi.PsiJavaFile;
-import com.intellij.psi.PsiManager;
-import com.intellij.psi.PsiPackage;
-import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.ui.Gray;
 import com.intellij.ui.JBColor;
-import com.intellij.util.containers.ContainerUtil;
 import java.awt.Color;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -165,64 +158,25 @@ public class EditorDocOps {
         return imports;
     }
 
-    public final Set<String> getInternalImports(@NotNull final Project project) {
+    public final Set<String> excludeInternalImports(@NotNull final Set<String> imports) {
         final Set<String> internalImports = new HashSet<String>();
-        GlobalSearchScope scope = GlobalSearchScope.projectScope(project);
-        final List<VirtualFile> sourceRoots = new ArrayList<VirtualFile>();
-        final ProjectRootManager projectRootManager = ProjectRootManager.getInstance(project);
-        ContainerUtil.addAll(sourceRoots, projectRootManager.getContentSourceRoots());
-        final PsiManager psiManager = PsiManager.getInstance(project);
-
-        for (final VirtualFile root : sourceRoots) {
-            final PsiDirectory directory = psiManager.findDirectory(root);
-            if (directory != null) {
-                final PsiDirectory[] subdirectories = directory.getSubdirectories();
-                for (PsiDirectory subdirectory : subdirectories) {
-                    final JavaDirectoryService jDirService =
-                            JavaDirectoryService.getInstance();
-                    if (jDirService != null && subdirectory != null
-                            && jDirService.getPackage(subdirectory) != null) {
-                        final PsiPackage rootPackage = jDirService.getPackage(subdirectory);
-                        getCompletePackage(rootPackage, scope, internalImports);
+        PackageIndex packageIndex = PackageIndex.getInstance(windowObjects.getProject());
+        for (String importName : imports) {
+            int indexOfDot = importName.lastIndexOf(DOT);
+            String packageName;
+            if (indexOfDot != -1) {
+                packageName = importName.substring(0, importName.lastIndexOf(DOT));
+                List<VirtualFile> packageDirectories = Arrays.asList(
+                        packageIndex.getDirectoriesByPackageName(packageName, false));
+                if (packageDirectories.size() > 0) {
+                    VirtualFile packageDirectory = packageDirectories.get(0);
+                    if (!packageDirectory.isInLocalFileSystem()) {
+                        internalImports.add(importName);
                     }
                 }
             }
         }
         return internalImports;
-    }
-
-    private void getCompletePackage(final PsiPackage completePackage,
-                                    final GlobalSearchScope scope,
-                                    final Set<String> internalImports) {
-        PsiPackage[] subPackages = completePackage.getSubPackages(scope);
-
-        if (subPackages.length != 0) {
-            for (PsiPackage psiPackage : subPackages) {
-                getCompletePackage(psiPackage, scope, internalImports);
-            }
-        } else {
-            internalImports.add(completePackage.getQualifiedName());
-        }
-    }
-
-    public final Set<String> excludeInternalImports(final Set<String> imports,
-                                                    final Set<String> internalImports) {
-        boolean matchFound;
-        Set<String> externalImports = new HashSet<String>();
-        for (String nextImport : imports) {
-            matchFound = false;
-            for (String internalImport : internalImports) {
-                if (nextImport.startsWith(internalImport)
-                        || internalImport.startsWith(nextImport)) {
-                    matchFound = true;
-                    break;
-                }
-            }
-            if (!matchFound) {
-                externalImports.add(nextImport);
-            }
-        }
-        return externalImports;
     }
 
     public final Set<String> excludeConfiguredImports(final Set<String> imports,
