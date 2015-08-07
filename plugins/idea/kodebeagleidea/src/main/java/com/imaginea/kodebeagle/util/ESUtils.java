@@ -72,7 +72,7 @@ public class ESUtils {
         return resultCount;
     }
 
-    public final void putContentsForFileInMap(final List<String> fileNames) {
+    public final void fetchContentsAndUpdateMap(final List<String> fileNames) {
         String esFileQueryJson = jsonUtils.getJsonForFileContent(fileNames);
         String esFileResultJson;
         esFileResultJson = getESResultJson(esFileQueryJson,
@@ -95,7 +95,7 @@ public class ESUtils {
                 windowObjects.getFileNameContentsMap();
 
         if (!fileNameContentsMap.containsKey(fileName)) {
-            putContentsForFileInMap(Arrays.asList(fileName));
+            fetchContentsAndUpdateMap(Arrays.asList(fileName));
         }
         String fileContent = fileNameContentsMap.get(fileName);
 

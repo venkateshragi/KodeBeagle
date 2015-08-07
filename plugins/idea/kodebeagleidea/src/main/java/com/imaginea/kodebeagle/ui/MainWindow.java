@@ -178,11 +178,11 @@ public class MainWindow implements ToolWindowFactory {
                 + System.getProperty(OS_VERSION));
         windowObjects.setApplicationVersion(ApplicationInfo.getInstance().getVersionName()
                 + "/" + ApplicationInfo.getInstance().getBuild().toString());
-        IdeaPluginDescriptor codeBeagleVersion =
+        IdeaPluginDescriptor kodeBeagleVersion =
                 PluginManager.getPlugin(PluginId.getId(PLUGIN_ID));
 
-        if (codeBeagleVersion != null) {
-            windowObjects.setPluginVersion(IDEA_PLUGIN + "/" + codeBeagleVersion.getVersion());
+        if (kodeBeagleVersion != null) {
+            windowObjects.setPluginVersion(IDEA_PLUGIN + "/" + kodeBeagleVersion.getVersion());
         }
     }
 }

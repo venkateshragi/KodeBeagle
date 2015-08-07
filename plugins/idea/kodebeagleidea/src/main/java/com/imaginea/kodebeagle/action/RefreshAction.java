@@ -245,7 +245,7 @@ public class RefreshAction extends AnAction {
     private List<String> getFileNamesListForTinyEditors(final List<CodeInfo> codePaneTinyEditors) {
         List<String> fileNamesList = new ArrayList<String>();
         for (CodeInfo codePaneTinyEditorInfo : codePaneTinyEditors) {
-            fileNamesList.add(codePaneTinyEditorInfo.getFileName());
+            fileNamesList.add(codePaneTinyEditorInfo.getAbsoluteFileName());
         }
         return fileNamesList;
     }
@@ -255,7 +255,7 @@ public class RefreshAction extends AnAction {
         int tail = CHUNK_SIZE - 1;
         for (int i = 1; i <= (fileNamesList.size() / CHUNK_SIZE); i++) {
             List<String> subFileNamesList = fileNamesList.subList(head, tail);
-            esUtils.putContentsForFileInMap(subFileNamesList);
+            esUtils.fetchContentsAndUpdateMap(subFileNamesList);
             head = tail + 1;
             tail += CHUNK_SIZE;
         }
@@ -286,13 +286,14 @@ public class RefreshAction extends AnAction {
         sortCodePaneTinyEditorsInfoList(codePaneTinyEditors);
 
         for (CodeInfo codePaneTinyEditorInfo : codePaneTinyEditors) {
-            String fileName = codePaneTinyEditorInfo.getFileName();
+            String fileName = codePaneTinyEditorInfo.getAbsoluteFileName();
             String fileContents = esUtils.getContentsForFile(fileName);
             List<Integer> lineNumbers = codePaneTinyEditorInfo.getLineNumbers();
 
             String contentsInLines = editorDocOps.getContentsInLines(fileContents, lineNumbers);
-            createCodePaneTinyEditor(codePaneTinyEditorsJPanel, codePaneTinyEditorInfo.toString(),
-                    codePaneTinyEditorInfo.getFileName(), contentsInLines);
+            createCodePaneTinyEditor(codePaneTinyEditorsJPanel,
+                    codePaneTinyEditorInfo.getDisplayFileName(),
+                    codePaneTinyEditorInfo.getAbsoluteFileName(), contentsInLines);
         }
     }
 
@@ -493,17 +494,27 @@ public class RefreshAction extends AnAction {
 
         @Override
         public void mouseClicked(final MouseEvent e) {
-            VirtualFile virtualFile = editorDocOps.getVirtualFile(displayFileName,
-                    windowObjects.getFileNameContentsMap().get(fileName));
-            FileEditorManager.getInstance(windowObjects.getProject()).
-                    openFile(virtualFile, true, true);
-            Document document =
-                    EditorFactory.getInstance().createDocument(windowObjects.
-                            getFileNameContentsMap().get(fileName));
-            editorDocOps.addHighlighting(windowObjects.
-                    getFileNameNumbersMap().get(fileName), document);
-            editorDocOps.gotoLine(windowObjects.
-                    getFileNameNumbersMap().get(fileName).get(0), document);
+            // Unfortunately this can fail in many ways.
+            // We are deliberately ignoring error to stop plugin from crashing.
+            try {
+                VirtualFile virtualFile = editorDocOps.getVirtualFile(fileName, displayFileName,
+                        windowObjects.getFileNameContentsMap().get(fileName));
+                // We ignore click if file creation failed.
+                FileEditorManager.getInstance(windowObjects.getProject()).
+                        openFile(virtualFile, true, true);
+                Document document =
+                        EditorFactory.getInstance().createDocument(windowObjects.
+                                getFileNameContentsMap().get(fileName));
+                editorDocOps.addHighlighting(windowObjects.
+                        getFileNameNumbersMap().get(fileName), document);
+                editorDocOps.gotoLine(windowObjects.
+                        getFileNameNumbersMap().get(fileName).get(0), document);
+            } catch (Exception exception) {
+                final Notification notification = getNotification("Unable to process", "" + exception.toString(),
+                        NotificationType.ERROR);
+                notification.notify(windowObjects.getProject());
+                exception.printStackTrace();
+            }
         }
 
         @Override
