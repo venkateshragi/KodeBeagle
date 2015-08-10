@@ -42,6 +42,7 @@ object GitHubApiHelper extends Logger {
   implicit val format = DefaultFormats
   private val client = new HttpClient()
   var token: String = KodeBeagleConfig.githubTokens(0)
+  var retryCount: Int = 0
 
   /**
    * Access Github's
@@ -131,7 +132,7 @@ object GitHubApiHelper extends Logger {
   }
 
   def createDirectoryWithDate(targetDir: String): String = {
-    val cal = Calendar.getInstance();
+    val cal = Calendar.getInstance()
     val (day, month, year) = (cal.get(Calendar.DAY_OF_MONTH), cal.get(Calendar.MONTH),
       cal.get(Calendar.YEAR))
     val githubdir = targetDir + "/" + day + "_" + month + "_" + year
@@ -139,21 +140,35 @@ object GitHubApiHelper extends Logger {
     githubdir
   }
 
-  def downloadRepository(r: Repository, targetDir: String): Option[File] = {
-    val githubdir: String = createDirectoryWithDate(targetDir)
-    try {
-      val repoFile = new File(
-        githubdir +
-          s"/repo~${r.login}~${r.name}~${r.id}~${r.fork}~${r.language}~${r.defaultBranch}" +
-          s"~${r.stargazersCount}.zip")
-      log.info(s"Downloading $repoFile")
-      FileUtils.copyURLToFile(new URL(
-        s"https://github.com/${r.login}/${r.name}/archive/${r.defaultBranch}.zip"), repoFile)
-      Some(repoFile)
-    } catch {
-      case x: Throwable =>
-        log.error(s"Failed to download $r", x)
-        None
+  def downloadRepository(r: Repository, targetDir: String, retry: Int = 0): Option[File] = {
+    if (retry < 3) {
+      val githubdir: String = createDirectoryWithDate(targetDir)
+      try {
+        val repoFile = new File(
+          githubdir +
+            s"/repo~${r.login}~${r.name}~${r.id}~${r.fork}~${r.language}~${r.defaultBranch}" +
+            s"~${r.stargazersCount}.zip")
+        log.info(s"Downloading $repoFile")
+        FileUtils.copyURLToFile(new
+            URL(s"https://github.com/${r.login}/${r.name}/archive/${r.defaultBranch}.zip"),
+          repoFile, 5000 * 12, 5000 * 12)
+        Some(repoFile)
+      } catch {
+        case x: java.net.SocketTimeoutException =>
+          log.info("Connection lost, retrying")
+          retryCount += 1
+          downloadRepository(r, targetDir, retryCount)
+          None
+        case x: java.io.FileNotFoundException =>
+          log.error(s"File not found exception $r")
+          None
+        case x: java.io.IOException =>
+          log.error(s"Failed to download $r")
+          None
+      }
+    } else {
+      log.info(s"Retry limit exceeded $r")
+      None
     }
   }
 
@@ -215,8 +230,10 @@ object GitHubRepoCrawlerApp {
       if (zipOrClone.equalsIgnoreCase("clone")) {
         cloneRepository(x, s"https://github.com/${x.login}/${x.name}",
           KodeBeagleConfig.githubDir)
-     }
-      else downloadRepository(x, KodeBeagleConfig.githubDir)
+     } else {
+        retryCount = 0
+        downloadRepository(x, KodeBeagleConfig.githubDir)
+      }
     }
     next
   }
