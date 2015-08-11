@@ -62,7 +62,7 @@ public class MainWindow implements ToolWindowFactory {
     public static final String JAVA = "java";
     private static final double DIVIDER_LOCATION = 0.8;
     private static final String ALL_TAB = "All";
-    private static final String FEATURED_TAB = "Spotlight";
+    private static final String SPOTLIGHT_TAB = "Spotlight";
     private static final int EDITOR_SCROLL_PANE_WIDTH = 200;
     private static final int EDITOR_SCROLL_PANE_HEIGHT = 300;
     public static final String KODEBEAGLE = "KodeBeagle";
@@ -134,7 +134,7 @@ public class MainWindow implements ToolWindowFactory {
         windowObjects.setPanel(editorPanel);
 
         final JTabbedPane jTabbedPane = new JBTabbedPane();
-        jTabbedPane.add(FEATURED_TAB, editorScrollPane);
+        jTabbedPane.add(SPOTLIGHT_TAB, editorScrollPane);
         jTabbedPane.add(ALL_TAB, jSplitPane);
         windowObjects.setjTabbedPane(jTabbedPane);
         final Editor projectEditor = FileEditorManager.getInstance(project).getSelectedTextEditor();

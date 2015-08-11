@@ -21,15 +21,13 @@ import com.imaginea.kodebeagle.model.CodeInfo;
 import com.imaginea.kodebeagle.model.Settings;
 import com.imaginea.kodebeagle.object.WindowObjects;
 import com.imaginea.kodebeagle.ui.KBNotification;
-import com.imaginea.kodebeagle.ui.MainWindow;
 import com.imaginea.kodebeagle.ui.ProjectTree;
-import com.imaginea.kodebeagle.ui.WrapLayout;
+import com.imaginea.kodebeagle.ui.SpotlightPane;
 import com.imaginea.kodebeagle.util.ESUtils;
 import com.imaginea.kodebeagle.util.EditorDocOps;
 import com.imaginea.kodebeagle.util.JSONUtils;
 import com.imaginea.kodebeagle.util.WindowEditorOps;
 import com.intellij.icons.AllIcons;
-import com.intellij.ide.BrowserUtil;
 import com.intellij.ide.DataManager;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
@@ -37,31 +35,18 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataConstants;
 import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.fileEditor.FileEditorManager;
-import com.intellij.openapi.fileTypes.FileType;
-import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.progress.PerformInBackgroundOption;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.ui.JBColor;
 import com.intellij.ui.classFilter.ClassFilter;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -100,7 +85,6 @@ public class RefreshAction extends AnAction {
     public static final String OLD_EXCLUDE_IMPORT_LIST = "Exclude imports";
     public static final String NOTIFICATION_CHECKBOX_VALUE = "Notification CheckBox Value";
     public static final String LOGGING_CHECKBOX_VALUE = "Logging CheckBox Value";
-    public static final String CHECKBOX_DEFAULT_VALUE = "true";
     public static final String HELP_MESSAGE_IF_CODE_SELECTED =
             "<html><body> <p>No keywords found in current selection."
                     + "<br /> You may expand your selection,<br/>"
@@ -121,15 +105,8 @@ public class RefreshAction extends AnAction {
                     + "<br/>Alternatively, \"Configure imports\" in settings <img src='"
                     + AllIcons.General.Settings + "'/>. "
                     + "</p></body></html>";
-    private static final String REPO_SCORE = "Score: ";
-    private static final String BANNER_FORMAT = "%s %s %s";
-    private static final String HTML_U = "<html><u>";
-    private static final String END_U_HTML = "</u></html>";
     private static final String FILETYPE_HELP = "<html><center>Currently KodeBeagle supports "
             + "\"java\" files only.</center></html>";
-    private static final String REPO_BANNER_FORMAT = "%s %s";
-    private static final String GITHUB_LINK = "https://github.com/";
-    private static final String OPEN_IN_BROWSER = "Open in a browser";
     private static final String FETCHING_PROJECTS = "Fetching projects...";
     private static final String FETCHING_FILE_CONTENTS = "Fetching file contents...";
     public static final String KODEBEAGLE = "KodeBeagle";
@@ -143,9 +120,6 @@ public class RefreshAction extends AnAction {
             "<br/> Showing %d of %d results (%.2f seconds)";
     public static final String OPT_OUT_CHECKBOX_VALUE = "Opt out checkbox value";
     public static final String OPT_OUT_DEFAULT_CHECKBOX_VALUE = "false";
-    private static final int HGAP = 20;
-    private static final int VGAP = 5;
-    private final WrapLayout wrapLayout = new WrapLayout(FlowLayout.CENTER, HGAP, VGAP);
     private WindowObjects windowObjects = WindowObjects.getInstance();
     private WindowEditorOps windowEditorOps = new WindowEditorOps();
     private ProjectTree projectTree = new ProjectTree();
@@ -153,7 +127,7 @@ public class RefreshAction extends AnAction {
     private ESUtils esUtils = new ESUtils();
     private JSONUtils jsonUtils = new JSONUtils();
     private Settings currentSettings;
-    private List<CodeInfo> codePaneTinyEditorsInfoList = new ArrayList<CodeInfo>();
+    private List<CodeInfo> spotlightPaneTinyEditorsInfoList = new ArrayList<CodeInfo>();
     private int maxTinyEditors;
 
     public RefreshAction() {
@@ -182,7 +156,7 @@ public class RefreshAction extends AnAction {
             final DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
             root.removeAllChildren();
             jTree.setVisible(true);
-            windowObjects.getCodePaneTinyEditorsJPanel().removeAll();
+            windowObjects.getSpotlightPaneTinyEditorsJPanel().removeAll();
 
             if (editorDocOps.isJavaFile(projectEditor.getDocument())) {
                 Pair<Integer, Integer> pair =
@@ -208,10 +182,11 @@ public class RefreshAction extends AnAction {
 
     private void doFrontEndWork(final JTree jTree, final DefaultTreeModel model,
                                 final DefaultMutableTreeNode root,
-                                final List<CodeInfo> codePaneTinyEditors,
+                                final List<CodeInfo> spotlightTinyEditors,
                                 final Map<String, ArrayList<CodeInfo>> projectNodes) {
+        SpotlightPane spotlightPane = new SpotlightPane();
         updateMainPaneJTreeUI(jTree, model, root, projectNodes);
-        buildCodePane(codePaneTinyEditors);
+        spotlightPane.buildSpotlightPane(spotlightTinyEditors);
     }
 
     private Map<String, ArrayList<CodeInfo>> doBackEndWork(final Set<String> finalImports,
@@ -224,9 +199,10 @@ public class RefreshAction extends AnAction {
             indicator.setFraction(INDICATOR_FRACTION);
             if (!projectNodes.isEmpty()) {
                 indicator.setText(FETCHING_FILE_CONTENTS);
-                codePaneTinyEditorsInfoList = getCodePaneTinyEditorsInfoList(projectNodes);
+                spotlightPaneTinyEditorsInfoList =
+                        getSpotlightPaneTinyEditorsInfoList(projectNodes);
                 List<String> fileNamesList =
-                        getFileNamesListForTinyEditors(codePaneTinyEditorsInfoList);
+                        getFileNamesListForTinyEditors(spotlightPaneTinyEditorsInfoList);
                 if (fileNamesList != null) {
                     putChunkedFileContentInMap(fileNamesList);
                 }
@@ -236,10 +212,11 @@ public class RefreshAction extends AnAction {
         return projectNodes;
     }
 
-    private List<String> getFileNamesListForTinyEditors(final List<CodeInfo> codePaneTinyEditors) {
+    private List<String> getFileNamesListForTinyEditors(final List<CodeInfo>
+                                                                spotlightPaneTinyEditors) {
         List<String> fileNamesList = new ArrayList<String>();
-        for (CodeInfo codePaneTinyEditorInfo : codePaneTinyEditors) {
-            fileNamesList.add(codePaneTinyEditorInfo.getAbsoluteFileName());
+        for (CodeInfo spotlightPaneTinyEditorInfo : spotlightPaneTinyEditors) {
+            fileNamesList.add(spotlightPaneTinyEditorInfo.getAbsoluteFileName());
         }
         return fileNamesList;
     }
@@ -274,120 +251,6 @@ public class RefreshAction extends AnAction {
         return esQueryResultJson;
     }
 
-    protected final void buildCodePane(final List<CodeInfo> codePaneTinyEditors) {
-        JPanel codePaneTinyEditorsJPanel = windowObjects.getCodePaneTinyEditorsJPanel();
-
-        sortCodePaneTinyEditorsInfoList(codePaneTinyEditors);
-
-        for (CodeInfo codePaneTinyEditorInfo : codePaneTinyEditors) {
-            String fileName = codePaneTinyEditorInfo.getAbsoluteFileName();
-            String fileContents = esUtils.getContentsForFile(fileName);
-            List<Integer> lineNumbers = codePaneTinyEditorInfo.getLineNumbers();
-
-            String contentsInLines = editorDocOps.getContentsInLines(fileContents, lineNumbers);
-            createCodePaneTinyEditor(codePaneTinyEditorsJPanel,
-                    codePaneTinyEditorInfo.getDisplayFileName(),
-                    codePaneTinyEditorInfo.getAbsoluteFileName(), contentsInLines);
-        }
-    }
-
-    private void createCodePaneTinyEditor(final JPanel codePaneTinyEditorJPanel,
-                                          final String displayFileName, final String fileName,
-                                          final String contents) {
-        Document tinyEditorDoc =
-                EditorFactory.getInstance().createDocument(contents);
-        tinyEditorDoc.setReadOnly(true);
-        Project project = windowObjects.getProject();
-        FileType fileType =
-                FileTypeManager.getInstance().getFileTypeByExtension(MainWindow.JAVA);
-
-        Editor tinyEditor =
-                EditorFactory.getInstance().
-                        createEditor(tinyEditorDoc, project, fileType, false);
-        tinyEditor.getContentComponent().addMouseWheelListener(new MouseWheelListener() {
-            @Override
-            public void mouseWheelMoved(final MouseWheelEvent e) {
-                codePaneTinyEditorJPanel.dispatchEvent(e);
-            }
-        });
-        windowEditorOps.releaseEditor(project, tinyEditor);
-
-        JPanel expandPanel = new JPanel(wrapLayout);
-
-        final String projectName = esUtils.getProjectName(fileName);
-
-        int repoId = windowObjects.getRepoNameIdMap().get(projectName);
-        String stars;
-        if (windowObjects.getRepoStarsMap().containsKey(projectName)) {
-            stars = windowObjects.getRepoStarsMap().get(projectName).toString();
-        } else {
-            String repoStarsJson = jsonUtils.getRepoStarsJSON(repoId);
-            stars = esUtils.getRepoStars(repoStarsJson);
-            windowObjects.getRepoStarsMap().put(projectName, stars);
-        }
-
-        final JLabel expandLabel =
-                new JLabel(String.format(BANNER_FORMAT, HTML_U, displayFileName, END_U_HTML));
-        expandLabel.setForeground(JBColor.BLACK);
-        expandLabel.addMouseListener(
-                new CodePaneTinyEditorExpandLabelMouseListener(displayFileName,
-                        fileName,
-                        expandLabel));
-        expandPanel.add(expandLabel);
-
-        final JLabel projectNameLabel =
-                new JLabel(String.format(BANNER_FORMAT, HTML_U, projectName, END_U_HTML));
-        projectNameLabel.setForeground(JBColor.BLACK);
-        projectNameLabel.setToolTipText(OPEN_IN_BROWSER);
-        projectNameLabel.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(final MouseEvent me) {
-                if (!projectName.isEmpty()) {
-                    BrowserUtil.browse(GITHUB_LINK + projectName);
-                }
-            }
-
-            public void mouseEntered(final MouseEvent me) {
-                projectNameLabel.setForeground(JBColor.BLUE);
-                projectNameLabel.updateUI();
-            }
-
-            public void mouseExited(final MouseEvent me) {
-                projectNameLabel.setForeground(JBColor.BLACK);
-                projectNameLabel.updateUI();
-            }
-        });
-
-        expandPanel.add(projectNameLabel);
-        expandPanel.setMaximumSize(
-                new Dimension(Integer.MAX_VALUE, expandLabel.getMinimumSize().height));
-        expandPanel.setToolTipText(String.format(REPO_BANNER_FORMAT, REPO_SCORE, stars));
-        expandPanel.revalidate();
-        expandPanel.repaint();
-
-        codePaneTinyEditorJPanel.add(expandPanel);
-
-        codePaneTinyEditorJPanel.add(tinyEditor.getComponent());
-        codePaneTinyEditorJPanel.revalidate();
-        codePaneTinyEditorJPanel.repaint();
-    }
-
-    private List<CodeInfo> getCodePaneTinyEditorsInfoList(final Map<String,
-            ArrayList<CodeInfo>> projectNodes) {
-        int maxEditors = maxTinyEditors;
-        int count = 0;
-        List<CodeInfo> codePaneTinyEditors = new ArrayList<CodeInfo>();
-
-        for (Map.Entry<String, ArrayList<CodeInfo>> entry : projectNodes.entrySet()) {
-            List<CodeInfo> codeInfoList = entry.getValue();
-            for (CodeInfo codeInfo : codeInfoList) {
-                if (count++ < maxEditors) {
-                    codePaneTinyEditors.add(codeInfo);
-                }
-            }
-        }
-        return codePaneTinyEditors;
-    }
-
     public final void showHelpInfo(final String info) {
         JPanel centerInfoPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         centerInfoPanel.add(new JLabel(info));
@@ -402,6 +265,23 @@ public class RefreshAction extends AnAction {
         Map<String, ArrayList<CodeInfo>> projectNodes =
                 projectTree.updateProjectNodes(finalImports, fileTokensMap);
         return projectNodes;
+    }
+
+    private List<CodeInfo> getSpotlightPaneTinyEditorsInfoList(final Map<String,
+            ArrayList<CodeInfo>> projectNodes) {
+        int maxEditors = maxTinyEditors;
+        int count = 0;
+        List<CodeInfo> spotlightPaneTinyEditors = new ArrayList<CodeInfo>();
+
+        for (Map.Entry<String, ArrayList<CodeInfo>> entry : projectNodes.entrySet()) {
+            List<CodeInfo> codeInfoList = entry.getValue();
+            for (CodeInfo codeInfo : codeInfoList) {
+                if (count++ < maxEditors) {
+                    spotlightPaneTinyEditors.add(codeInfo);
+                }
+            }
+        }
+        return spotlightPaneTinyEditors;
     }
 
     private Set<String> getAllImportsAfterExcludes(final Editor projectEditor,
@@ -443,65 +323,6 @@ public class RefreshAction extends AnAction {
         } else {
             showHelpInfo(PROJECT_ERROR);
             goToAllPane();
-        }
-    }
-
-    private void sortCodePaneTinyEditorsInfoList(final List<CodeInfo> codePaneTinyEditorsList) {
-        Collections.sort(codePaneTinyEditorsList, new Comparator<CodeInfo>() {
-            @Override
-            public int compare(final CodeInfo o1, final CodeInfo o2) {
-                Set<Integer> o1HashSet = new HashSet<Integer>(o1.getLineNumbers());
-                Set<Integer> o2HashSet = new HashSet<Integer>(o2.getLineNumbers());
-                return o2HashSet.size() - o1HashSet.size();
-            }
-        });
-    }
-
-    private class CodePaneTinyEditorExpandLabelMouseListener extends MouseAdapter {
-        private final String displayFileName;
-        private final String fileName;
-        private final JLabel expandLabel;
-
-        public CodePaneTinyEditorExpandLabelMouseListener(final String pDisplayFileName,
-                                                          final String pFileName,
-                                                          final JLabel pExpandLabel) {
-            this.displayFileName = pDisplayFileName;
-            this.fileName = pFileName;
-            this.expandLabel = pExpandLabel;
-        }
-
-        @Override
-        public void mouseClicked(final MouseEvent e) {
-            try {
-                VirtualFile virtualFile = editorDocOps.getVirtualFile(fileName, displayFileName,
-                        windowObjects.getFileNameContentsMap().get(fileName));
-                FileEditorManager.getInstance(windowObjects.getProject()).
-                        openFile(virtualFile, true, true);
-                Document document =
-                        EditorFactory.getInstance().createDocument(windowObjects.
-                                getFileNameContentsMap().get(fileName));
-                editorDocOps.addHighlighting(windowObjects.
-                        getFileNameNumbersMap().get(fileName), document);
-                editorDocOps.gotoLine(windowObjects.
-                        getFileNameNumbersMap().get(fileName).get(0), document);
-            } catch (Exception exception) {
-                KBNotification.getInstance().error(exception);
-                exception.printStackTrace();
-            }
-        }
-
-        @Override
-        public void mouseEntered(final MouseEvent e) {
-            expandLabel.setForeground(JBColor.BLUE);
-            expandLabel.updateUI();
-
-        }
-
-        @Override
-        public void mouseExited(final MouseEvent e) {
-            expandLabel.setForeground(JBColor.BLACK);
-            expandLabel.updateUI();
-
         }
     }
 
@@ -564,9 +385,9 @@ public class RefreshAction extends AnAction {
             if (!isFailed) {
                 if (!projectNodes.isEmpty()) {
                     try {
-                        doFrontEndWork(jTree, model, root, codePaneTinyEditorsInfoList,
+                        doFrontEndWork(jTree, model, root, spotlightPaneTinyEditorsInfoList,
                                 projectNodes);
-                        goToFeaturedPane();
+                        goToSpotlightPane();
                     } catch (RuntimeException rte) {
                         KBNotification.getInstance().error(rte);
                         rte.printStackTrace();
@@ -589,7 +410,7 @@ public class RefreshAction extends AnAction {
         }
     }
 
-    private void goToFeaturedPane() {
+    private void goToSpotlightPane() {
         windowObjects.getjTabbedPane().setSelectedIndex(0);
     }
 

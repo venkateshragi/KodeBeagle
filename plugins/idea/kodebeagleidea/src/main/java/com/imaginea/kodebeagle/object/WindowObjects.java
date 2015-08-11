@@ -46,7 +46,7 @@ public final class WindowObjects {
     private String applicationVersion;
     private String pluginVersion;
     private String beagleId;
-    private JPanel codePaneTinyEditorsJPanel;
+    private JPanel spotlightPaneTinyEditorsJPanel;
     private JTabbedPane jTabbedPane;
 
     private WindowObjects() {
@@ -164,12 +164,12 @@ public final class WindowObjects {
         return windowObjects;
     }
 
-    public void setPanel(final JPanel pCodePaneTinyEditorsJPanel) {
-        this.codePaneTinyEditorsJPanel = pCodePaneTinyEditorsJPanel;
+    public void setPanel(final JPanel pspotlightPaneTinyEditorsJPanel) {
+        this.spotlightPaneTinyEditorsJPanel = pspotlightPaneTinyEditorsJPanel;
     }
 
-    public JPanel getCodePaneTinyEditorsJPanel() {
-        return codePaneTinyEditorsJPanel;
+    public JPanel getSpotlightPaneTinyEditorsJPanel() {
+        return spotlightPaneTinyEditorsJPanel;
     }
 
     public void setJTreeScrollPane(final JBScrollPane pJTreeScrollPane) {
