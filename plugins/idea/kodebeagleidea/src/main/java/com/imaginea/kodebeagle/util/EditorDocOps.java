@@ -44,8 +44,12 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiImportList;
+import com.intellij.psi.PsiImportStatement;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiMethod;
+import com.intellij.psi.PsiPackage;
+import com.intellij.psi.util.ClassUtil;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.ui.Gray;
 import com.intellij.ui.JBColor;
@@ -53,6 +57,7 @@ import java.awt.Color;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -111,6 +116,7 @@ public class EditorDocOps {
                 (PsiJavaFile) psiInstance.getPsiFile(projectEditor.getDocument());
         PsiJavaElementVisitor psiJavaElementVisitor =
                 new PsiJavaElementVisitor(start, end);
+        Set<String> finalImports = new HashSet<>();
         if (psiJavaFile != null && psiJavaFile.findElementAt(start) != null) {
             PsiElement psiElement = psiJavaFile.findElementAt(start);
             final PsiElement psiMethod =  PsiTreeUtil.getParentOfType(psiElement, PsiMethod.class);
@@ -122,14 +128,61 @@ public class EditorDocOps {
                     psiClass.accept(psiJavaElementVisitor);
                 }
             }
+            Set<String> importsInLines = psiJavaElementVisitor.getImportsSet();
+            finalImports = getImportsAfterValidation(psiJavaFile, importsInLines);
         }
-        Set<String> importsInLines = psiJavaElementVisitor.getImportsSet();
-        importsInLines = removeImplicitImports(importsInLines);
-        return importsInLines;
+        return removeImplicitImports(finalImports);
     }
 
+    private Set<String> getImportsAfterValidation(final PsiJavaFile javaFile,
+                                                  final Set<String> importInLines) {
+        Set<String> finalImports = getFullyQualifiedImports(javaFile, importInLines);
+        importInLines.removeAll(finalImports);
+        Set<PsiPackage> importedPackages = getOnDemandImports(javaFile);
+        if (!importedPackages.isEmpty()) {
+            for (PsiPackage psiPackage : importedPackages) {
+                for (String psiImport : importInLines) {
+                    if (psiPackage.containsClassNamed(ClassUtil.extractClassName(psiImport))) {
+                        finalImports.add(psiImport);
+                    }
+                }
+            }
+        }
+        return finalImports;
+    }
+
+
+    private Set<String> getFullyQualifiedImports(final PsiJavaFile javaFile,
+                                                final Set<String> importsInLines) {
+        Set<String> fullyQualifiedImports = new HashSet<>();
+        PsiImportList importList = javaFile.getImportList();
+        Collection<PsiImportStatement> importStatements =
+                PsiTreeUtil.findChildrenOfType(importList, PsiImportStatement.class);
+        for (PsiImportStatement importStatement : importStatements) {
+            if (!importStatement.isOnDemand()) {
+                String qualifiedName = importStatement.getQualifiedName();
+                if (importsInLines.contains(qualifiedName)) {
+                    fullyQualifiedImports.add(qualifiedName);
+                }
+            }
+        }
+        return fullyQualifiedImports;
+    }
+
+    private Set<PsiPackage> getOnDemandImports(final PsiJavaFile javaFile) {
+        Set<PsiPackage> psiPackages = new HashSet<>();
+        PsiElement[] packageImports = javaFile.getOnDemandImports(false, false);
+        for (PsiElement packageImport : packageImports) {
+            if (packageImport instanceof PsiPackage) {
+                psiPackages.add((PsiPackage) packageImport);
+            }
+        }
+        return psiPackages;
+    }
+
+
     private Set<String> removeImplicitImports(final Set<String> importsInLines) {
-        Set<String> excludeImplicitImports = new HashSet<String>();
+        Set<String> excludeImplicitImports = new HashSet<>();
         for (String importValue : importsInLines) {
             if (importValue != null && importValue.startsWith(IMPLICIT_IMPORT)) {
                 excludeImplicitImports.add(importValue);
