@@ -59,8 +59,11 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
@@ -110,15 +113,15 @@ public class EditorDocOps {
         return pair;
     }
 
-    public final Set<String> getImportInLines(final Editor projectEditor,
-                                              final Pair<Integer, Integer> pair) {
+    public final Map<String, Set<String>> getImportInLines(final Editor projectEditor,
+                                                           final Pair<Integer, Integer> pair) {
         PsiDocumentManager psiInstance =
                 PsiDocumentManager.getInstance(windowObjects.getProject());
         PsiJavaFile psiJavaFile =
                 (PsiJavaFile) psiInstance.getPsiFile(projectEditor.getDocument());
         PsiJavaElementVisitor psiJavaElementVisitor =
                 new PsiJavaElementVisitor(pair.getFirst(), pair.getSecond());
-        Set<String> finalImports = new HashSet<>();
+        Map<String, Set<String>> finalImports = new HashMap<>();
         if (psiJavaFile != null && psiJavaFile.findElementAt(pair.getFirst()) != null) {
             PsiElement psiElement = psiJavaFile.findElementAt(pair.getFirst());
             final PsiElement psiMethod =  PsiTreeUtil.getParentOfType(psiElement, PsiMethod.class);
@@ -130,44 +133,46 @@ public class EditorDocOps {
                     psiClass.accept(psiJavaElementVisitor);
                 }
             }
-            Set<String> importsInLines = psiJavaElementVisitor.getImportsSet();
-            finalImports = getImportsAfterValidation(psiJavaFile, importsInLines);
+            Map<String, Set<String>> importVsMethods = psiJavaElementVisitor.getImportVsMethods();
+            finalImports = getImportsAndMethodsAfterValidation(psiJavaFile, importVsMethods);
         }
         return removeImplicitImports(finalImports);
     }
 
-    private Set<String> getImportsAfterValidation(final PsiJavaFile javaFile,
-                                                  final Set<String> importInLines) {
-        Set<String> finalImports = getFullyQualifiedImports(javaFile, importInLines);
-        importInLines.removeAll(finalImports);
+    private Map<String, Set<String>> getImportsAndMethodsAfterValidation(
+            final PsiJavaFile javaFile, final Map<String, Set<String>> importsVsMethods) {
+        Map<String, Set<String>> finalImportsWithMethods =
+                getFullyQualifiedImportsWithMethods(javaFile, importsVsMethods);
+        Set<String> imports = importsVsMethods.keySet();
         Set<PsiPackage> importedPackages = getOnDemandImports(javaFile);
         if (!importedPackages.isEmpty()) {
             for (PsiPackage psiPackage : importedPackages) {
-                for (String psiImport : importInLines) {
+                for (String psiImport : imports) {
                     if (psiPackage.containsClassNamed(ClassUtil.extractClassName(psiImport))) {
-                        finalImports.add(psiImport);
+                        finalImportsWithMethods.put(psiImport, importsVsMethods.get(psiImport));
                     }
                 }
             }
         }
-        return finalImports;
+        return finalImportsWithMethods;
     }
 
-    private Set<String> getFullyQualifiedImports(final PsiJavaFile javaFile,
-                                                final Set<String> importsInLines) {
-        Set<String> fullyQualifiedImports = new HashSet<>();
+    private Map<String, Set<String>> getFullyQualifiedImportsWithMethods(
+            final PsiJavaFile javaFile, final Map<String, Set<String>> importVsMethods) {
+        Map<String, Set<String>> fullyQualifiedImportsWithMethods = new HashMap<>();
         PsiImportList importList = javaFile.getImportList();
         Collection<PsiImportStatement> importStatements =
                 PsiTreeUtil.findChildrenOfType(importList, PsiImportStatement.class);
         for (PsiImportStatement importStatement : importStatements) {
             if (!importStatement.isOnDemand()) {
                 String qualifiedName = importStatement.getQualifiedName();
-                if (importsInLines.contains(qualifiedName)) {
-                    fullyQualifiedImports.add(qualifiedName);
+                if (importVsMethods.containsKey(qualifiedName)) {
+                    fullyQualifiedImportsWithMethods.put(qualifiedName,
+                            importVsMethods.get(qualifiedName));
                 }
             }
         }
-        return fullyQualifiedImports;
+        return fullyQualifiedImportsWithMethods;
     }
 
     private Set<PsiPackage> getOnDemandImports(final PsiJavaFile javaFile) {
@@ -182,31 +187,37 @@ public class EditorDocOps {
     }
 
 
-    private Set<String> removeImplicitImports(final Set<String> importsInLines) {
-        Set<String> excludeImplicitImports = new HashSet<>();
-        for (String importValue : importsInLines) {
-            if (importValue != null && importValue.startsWith(IMPLICIT_IMPORT)) {
-                excludeImplicitImports.add(importValue);
+    private Map<String, Set<String>> removeImplicitImports(
+            final Map<String, Set<String>> importsVsMethods) {
+        Map<String, Set<String>> finalImportsVsMethods = new HashMap<>();
+        finalImportsVsMethods.putAll(importsVsMethods);
+        for (Map.Entry<String, Set<String>> entry : importsVsMethods.entrySet()) {
+            String key = entry.getKey();
+            if (key.startsWith(IMPLICIT_IMPORT)) {
+                finalImportsVsMethods.remove(key);
             }
         }
-        importsInLines.removeAll(excludeImplicitImports);
-        return importsInLines;
+        return finalImportsVsMethods;
     }
 
-    public final Set<String> excludeInternalImports(@NotNull final Set<String> imports) {
-        final Set<String> importsAfterExclusion = new HashSet<String>();
+    public final Map<String, Set<String>> excludeInternalImports(
+            @NotNull final Map<String, Set<String>> importVsMethods) {
+        final Map<String, Set<String>> importsAfterExclusion = new HashMap<>();
+        Set<Map.Entry<String, Set<String>>> entrySet = importVsMethods.entrySet();
+        Iterator<Map.Entry<String, Set<String>>> myIterator = entrySet.iterator();
         PackageIndex packageIndex = PackageIndex.getInstance(windowObjects.getProject());
-        for (String importName : imports) {
-            int indexOfDot = importName.lastIndexOf(DOT);
+        while (myIterator.hasNext()) {
+            Map.Entry<String, Set<String>> entry = myIterator.next();
+            int indexOfDot = entry.getKey().lastIndexOf(DOT);
             String packageName;
             if (indexOfDot != -1) {
-                packageName = importName.substring(0, importName.lastIndexOf(DOT));
+                packageName = entry.getKey().substring(0, entry.getKey().lastIndexOf(DOT));
                 List<VirtualFile> packageDirectories = Arrays.asList(
                         packageIndex.getDirectoriesByPackageName(packageName, false));
                 if (packageDirectories.size() > 0) {
                     VirtualFile packageDirectory = packageDirectories.get(0);
                     if (!packageDirectory.isInLocalFileSystem()) {
-                        importsAfterExclusion.add(importName);
+                        importsAfterExclusion.put(entry.getKey(), entry.getValue());
                     }
                 }
             }
@@ -214,26 +225,27 @@ public class EditorDocOps {
         return importsAfterExclusion;
     }
 
-    public final Set<String> excludeConfiguredImports(final Set<String> imports,
-                                                      final Set<String> excludeImports) {
-        Set<String> excludedImports = new HashSet<String>();
-        imports.removeAll(excludeImports);
-        excludedImports.addAll(imports);
+    public final Map<String, Set<String>> excludeConfiguredImports(
+            final Map<String, Set<String>> importsVsMethods, final Set<String> excludeImports) {
+        Map<String, Set<String>> finalImportsVsMethods = new HashMap<>();
+        finalImportsVsMethods.putAll(importsVsMethods);
+        Set<Map.Entry<String, Set<String>>> entrySet =  importsVsMethods.entrySet();
         for (String importStatement : excludeImports) {
-            try {
-                Pattern pattern = Pattern.compile(importStatement);
-                for (String nextImport : imports) {
-                    Matcher matcher = pattern.matcher(nextImport);
+             Pattern pattern = Pattern.compile(importStatement);
+             for (Map.Entry<String, Set<String>> entry : entrySet) {
+                try {
+                    String entryImport = entry.getKey();
+                    Matcher matcher = pattern.matcher(entryImport);
                     if (matcher.find()) {
-                        excludedImports.remove(nextImport);
+                        finalImportsVsMethods.remove(entryImport);
                     }
+                } catch (PatternSyntaxException e) {
+                    KBNotification.getInstance().error(e);
+                    e.printStackTrace();
                 }
-            } catch (PatternSyntaxException e) {
-                KBNotification.getInstance().error(e);
-                e.printStackTrace();
             }
         }
-        return excludedImports;
+        return finalImportsVsMethods;
     }
 
     public final VirtualFile getVirtualFile(final String fileName,

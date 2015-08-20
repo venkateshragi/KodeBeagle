@@ -19,18 +19,23 @@ package com.imaginea.kodebeagle.util;
 
 import com.imaginea.kodebeagle.object.WindowObjects;
 
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import java.awt.FlowLayout;
+import com.intellij.util.ui.UIUtil;
+import javax.swing.JEditorPane;
 
 public class UIUtils {
+
+    private static final String TEXT_HTML = "text/html";
     private final WindowObjects windowObjects = WindowObjects.getInstance();
 
     public final void showHelpInfo(final String info) {
-        JPanel centerInfoPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        centerInfoPanel.add(new JLabel(info));
+        JEditorPane infoEditorPane = new JEditorPane();
+        infoEditorPane.setContentType(TEXT_HTML);
+        infoEditorPane.setEditable(false);
+        infoEditorPane.setBackground(UIUtil.AQUA_SEPARATOR_BACKGROUND_COLOR);
+        infoEditorPane.setText(info);
         goToAllPane();
-        windowObjects.getjTreeScrollPane().setViewportView(centerInfoPanel);
+        windowObjects.getjTreeScrollPane().setViewportView(infoEditorPane);
+
     }
 
     public final void goToAllPane() {

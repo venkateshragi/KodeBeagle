@@ -32,6 +32,7 @@ import com.intellij.openapi.progress.PerformInBackgroundOption;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import java.util.Iterator;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JTree;
@@ -49,12 +50,14 @@ public class QueryKBServerTask extends Task.Backgroundable {
                     + "<img src='" + AllIcons.General.Settings + "'/></html>";
     private static final String FORMAT = "%s %s %s";
     private static final String QUERIED = "Queried";
-    private static final String FOR = "for";
+    private static final String FOR = "for <br/>";
     private static final String QUERY_HELP_MESSAGE =
-            "<html><body> <p> <i><b>We tried querying our servers with : </b></i> <br /> %s </p>"
-                    + "<i><b>but found no results in response.</i></b>";
+            "<html><body> <p style= \\\"padding-left:0.15cm;\\\"> "
+                    + "<i><b>We tried querying our servers with : </b></i> <br/> %s"
+                    + "<i><b><br/>but found no results in response.</i></b></p>";
     private static final String PRO_TIP =
-            "<p> <br/><b>Tip:</b> Try narrowing your selection to fewer lines. "
+            "<p style= \\\"padding-left:0.15cm;\\\"> <br/>"
+                    + "<b>Tip:</b> Try narrowing your selection to fewer lines. "
                     + "<br/>Alternatively, \"Configure imports\" in settings <img src='"
                     + AllIcons.General.Settings + "'/>. "
                     + "</p></body></html>";
@@ -68,7 +71,7 @@ public class QueryKBServerTask extends Task.Backgroundable {
             "<br/> Showing %d of %d results (%.2f seconds)";
     private static final String KODEBEAGLE_SEARCH = "/importsmethods/_search?source=";
     public static final int MIN_IMPORT_SIZE = 3;
-    private final Set<String> finalImports;
+    private final Map<String, Set<String>> finalImports;
     private final JTree jTree;
     private final DefaultTreeModel model;
     private final DefaultMutableTreeNode root;
@@ -83,7 +86,7 @@ public class QueryKBServerTask extends Task.Backgroundable {
     private List<CodeInfo> spotlightPaneTinyEditorsInfoList = new ArrayList<CodeInfo>();
     private UIUtils uiUtils = new UIUtils();
 
-    public QueryKBServerTask(final Project project, final Set<String> pFinalImports,
+    public QueryKBServerTask(final Project project, final Map<String, Set<String>> pFinalImports,
                              final JTree pJTree, final DefaultTreeModel pModel,
                              final DefaultMutableTreeNode pRoot) {
         super(project, KODEBEAGLE, true,
@@ -123,10 +126,29 @@ public class QueryKBServerTask extends Task.Backgroundable {
 
     private String getResultNotificationMessage(final int resultCount, final long totalCount,
                                                 final double timeToFetchResults) {
-        String resultNotification =
-                finalImports.toString() + String.format(RESULT_NOTIFICATION_FORMAT,
-                        resultCount, totalCount, timeToFetchResults);
-        return resultNotification;
+        String notificationContent = getNotificationContent();
+        return notificationContent + String.format(RESULT_NOTIFICATION_FORMAT,
+                resultCount, totalCount, timeToFetchResults);
+    }
+
+    private String getNotificationContent() {
+        StringBuilder notificationContent = new StringBuilder();
+        if (finalImports != null) {
+            Set<Map.Entry<String, Set<String>>> entrySet = finalImports.entrySet();
+            Iterator<Map.Entry<String, Set<String>>> iterator = entrySet.iterator();
+            while (iterator.hasNext()) {
+                Map.Entry<String, Set<String>> next = iterator.next();
+                notificationContent.append(next.getKey());
+                Set<String> methods = next.getValue();
+                if (!methods.isEmpty()) {
+                    notificationContent.append(" " + methods.toString());
+                }
+                if (iterator.hasNext()) {
+                    notificationContent.append(",<br/>");
+                }
+            }
+        }
+        return notificationContent.toString();
     }
 
     @Override
@@ -142,7 +164,7 @@ public class QueryKBServerTask extends Task.Backgroundable {
                 }
             } else {
                 String helpMsg = String.format(QUERY_HELP_MESSAGE,
-                        finalImports.toString().replaceAll(",", "<br/>"));
+                        getNotificationContent());
                 if (finalImports.size() > MIN_IMPORT_SIZE) {
                     helpMsg = helpMsg + PRO_TIP;
                 }
@@ -229,13 +251,14 @@ public class QueryKBServerTask extends Task.Backgroundable {
 
     private Map<String, ArrayList<CodeInfo>> getProjectNodes(final String esResultJson) {
         Map<String, String> fileTokensMap = esUtils.getFileTokens(esResultJson);
-        Map<String, ArrayList<CodeInfo>> pprojectNodes =
-                projectTree.updateProjectNodes(finalImports, fileTokensMap);
-        return pprojectNodes;
+        Map<String, ArrayList<CodeInfo>> pProjectNodes =
+                projectTree.updateProjectNodes(finalImports.keySet(), fileTokensMap);
+        return pProjectNodes;
     }
 
     private String getESQueryResultJson() {
-        String esQueryJson = jsonUtils.getESQueryJson(finalImports, windowObjects.getSize());
+        String esQueryJson = jsonUtils.getESQueryJson(finalImports, windowObjects.getSize(),
+                windowObjects.isIncludeMethods());
         String esQueryResultJson =
                 esUtils.getESResultJson(esQueryJson, windowObjects.getEsURL() + KODEBEAGLE_SEARCH);
         return esQueryResultJson;

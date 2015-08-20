@@ -36,11 +36,11 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Pair;
 import com.intellij.ui.classFilter.ClassFilter;
-
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -62,7 +62,6 @@ public class RefreshAction extends AnAction {
     public static final String EDITOR_ERROR = "Could not get any active editor";
     public static final String EXCLUDE_IMPORT_PATTERN = "Exclude imports pattern";
     public static final String EXCLUDE_IMPORT_CHECKBOX_VALUE = "Exclude imports checkbox value";
-    public static final String EXCLUDE_INTERNAL_IMPORT_CHECKBOX_VALUE = "Exclude internal imports";
     public static final String EXCLUDE_IMPORT_DEFAULT_CHECKBOX_VALUE = "false";
     public static final String EXCLUDE_IMPORT_STATE = "Exclude imports state";
     public static final String OLD_EXCLUDE_IMPORT_LIST = "Exclude imports";
@@ -77,9 +76,9 @@ public class RefreshAction extends AnAction {
                     + "</p></body></html>";
 
     public static final String HELP_MESSAGE_NO_SELECTED_CODE =
-            "<html><body> <p>Got nothing to search. To begin, "
+            "<html><body><center><p>Got nothing to search. To begin, "
                     + "<br /> select some code and hit <img src='"
-                    + AllIcons.Actions.Refresh + "' /> <br/> ";
+                    + AllIcons.Actions.Refresh + "' /> <br/></center> ";
     private static final String FILETYPE_HELP = "<html><center>Currently KodeBeagle supports "
             + "\"java\" files only.</center></html>";
     public static final String KODEBEAGLE = "KodeBeagle";
@@ -87,7 +86,6 @@ public class RefreshAction extends AnAction {
     public static final String TOP_COUNT = "Top count";
     private static final String PROJECT_ERROR = "Unable to get Project. Please Try again";
     public static final String OPT_OUT_CHECKBOX_VALUE = "Opt out checkbox value";
-    public static final String OPT_OUT_DEFAULT_CHECKBOX_VALUE = "false";
     private WindowObjects windowObjects = WindowObjects.getInstance();
     private WindowEditorOps windowEditorOps = new WindowEditorOps();
     private EditorDocOps editorDocOps = new EditorDocOps();
@@ -125,10 +123,12 @@ public class RefreshAction extends AnAction {
             if (editorDocOps.isJavaFile(projectEditor.getDocument())) {
                 Pair<Integer, Integer> pair =
                         editorDocOps.getLineOffSets(projectEditor, windowObjects.getDistance());
-                Set<String> allImports = getAllImportsAfterExcludes(projectEditor, pair);
+                Map<String, Set<String>> allImports =
+                        getAllImportsAfterExcludes(projectEditor, pair);
                 if (!allImports.isEmpty()) {
                     ProgressManager.getInstance().run(new QueryKBServerTask(
                             windowObjects.getProject(), allImports, jTree, model, root));
+
                 } else {
                     if (projectEditor.getSelectionModel().hasSelection()) {
                         uiUtils.showHelpInfo(HELP_MESSAGE_IF_CODE_SELECTED);
@@ -144,10 +144,11 @@ public class RefreshAction extends AnAction {
         }
     }
 
-    private Set<String> getAllImportsAfterExcludes(final Editor projectEditor,
-                                                   final Pair<Integer, Integer> pair) {
-        Set<String> imports = editorDocOps.getImportInLines(projectEditor, pair);
-        if (!imports.isEmpty()) {
+    private Map<String, Set<String>> getAllImportsAfterExcludes(
+            final Editor projectEditor, final Pair<Integer, Integer> pair) {
+        Map<String, Set<String>> importVsMethods =
+                editorDocOps.getImportInLines(projectEditor, pair);
+        if (!importVsMethods.isEmpty()) {
             if (currentSettings.getImports().getExcludeImportsCheckBoxValue()) {
                 List<ClassFilter> importFilters =
                         currentSettings.getImports().getFilterList();
@@ -157,15 +158,16 @@ public class RefreshAction extends AnAction {
                         excludeImports.add(importFilter.getPattern());
                     }
                 }
-                if (!excludeImports.isEmpty()) {
-                    imports = editorDocOps.excludeConfiguredImports(imports, excludeImports);
+               if (!excludeImports.isEmpty()) {
+                    importVsMethods =
+                            editorDocOps.excludeConfiguredImports(importVsMethods, excludeImports);
                 }
             }
-            Set<String> finalImports =
-                    editorDocOps.excludeInternalImports(imports);
+            Map<String, Set<String>> finalImports =
+                    editorDocOps.excludeInternalImports(importVsMethods);
             return finalImports;
         }
-        return imports;
+        return importVsMethods;
     }
 
     public final void init() throws IOException {
@@ -178,6 +180,7 @@ public class RefreshAction extends AnAction {
             windowObjects.setSize(currentSettings.getLimits().getResultSize());
             windowObjects.setEsURL(currentSettings.getElasticSearch().getSelectedEsURL());
             windowObjects.setMaxTinyEditors(currentSettings.getLimits().getTopCount());
+            windowObjects.retrieveIncludeMethods();
             windowEditorOps.writeToDocument("", windowObjects.getWindowEditor().getDocument());
             runAction();
         } else {
