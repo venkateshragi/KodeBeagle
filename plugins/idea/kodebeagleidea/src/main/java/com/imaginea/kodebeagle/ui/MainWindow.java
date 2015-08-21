@@ -24,6 +24,7 @@ import com.imaginea.kodebeagle.action.RefreshAction;
 import com.imaginea.kodebeagle.object.WindowObjects;
 import com.imaginea.kodebeagle.settings.ui.LegalNotice;
 import com.imaginea.kodebeagle.settings.ui.SettingsConfigurable;
+import com.imaginea.kodebeagle.util.UIUtils;
 import com.imaginea.kodebeagle.util.WindowEditorOps;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.ide.plugins.PluginManager;
@@ -74,6 +75,7 @@ public class MainWindow implements ToolWindowFactory {
     private WindowEditorOps windowEditorOps = new WindowEditorOps();
     private WindowObjects windowObjects = WindowObjects.getInstance();
     private PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
+    private UIUtils uiUtils = new UIUtils();
 
     @Override
     public final void createToolWindowContent(final Project project, final ToolWindow toolWindow) {
@@ -140,9 +142,9 @@ public class MainWindow implements ToolWindowFactory {
         final Editor projectEditor = FileEditorManager.getInstance(project).getSelectedTextEditor();
         // Display initial help information here.
         if (projectEditor != null) {
-            refreshAction.showHelpInfo(RefreshAction.HELP_MESSAGE_NO_SELECTED_CODE);
+            uiUtils.showHelpInfo(RefreshAction.HELP_MESSAGE_NO_SELECTED_CODE);
         } else {
-            refreshAction.showHelpInfo(RefreshAction.EDITOR_ERROR);
+            uiUtils.showHelpInfo(RefreshAction.EDITOR_ERROR);
         }
         final JPanel mainPanel = new JPanel();
         mainPanel.setLayout((new BoxLayout(mainPanel, BoxLayout.Y_AXIS)));

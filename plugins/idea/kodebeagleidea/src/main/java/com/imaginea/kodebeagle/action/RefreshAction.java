@@ -17,45 +17,31 @@
 
 package com.imaginea.kodebeagle.action;
 
-import com.imaginea.kodebeagle.model.CodeInfo;
 import com.imaginea.kodebeagle.model.Settings;
 import com.imaginea.kodebeagle.object.WindowObjects;
+import com.imaginea.kodebeagle.tasks.QueryKBServerTask;
 import com.imaginea.kodebeagle.ui.KBNotification;
-import com.imaginea.kodebeagle.ui.ProjectTree;
-import com.imaginea.kodebeagle.ui.SpotlightPane;
-import com.imaginea.kodebeagle.util.ESUtils;
 import com.imaginea.kodebeagle.util.EditorDocOps;
-import com.imaginea.kodebeagle.util.JSONUtils;
+import com.imaginea.kodebeagle.util.UIUtils;
 import com.imaginea.kodebeagle.util.WindowEditorOps;
 import com.intellij.icons.AllIcons;
 import com.intellij.ide.DataManager;
-import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationType;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataConstants;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
-import com.intellij.openapi.progress.PerformInBackgroundOption;
-import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
-import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Pair;
 import com.intellij.ui.classFilter.ClassFilter;
-import java.awt.FlowLayout;
+
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JTree;
-import javax.swing.ToolTipManager;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import org.jetbrains.annotations.NotNull;
@@ -70,14 +56,10 @@ public class RefreshAction extends AnAction {
     public static final String ES_URL_DEFAULT_CHECKBOX_VALUE = "false";
     public static final String LINES_FROM_CURSOR = "lines";
     public static final String SIZE = "size";
-    private static final String KODEBEAGLE_SEARCH = "/importsmethods/_search?source=";
     public static final String ES_URL_DEFAULT = "http://labs.imaginea.com/kodebeagle";
     public static final int LINES_FROM_CURSOR_DEFAULT_VALUE = 0;
     public static final int SIZE_DEFAULT_VALUE = 30;
     public static final String EDITOR_ERROR = "Could not get any active editor";
-    private static final String FORMAT = "%s %s %s";
-    private static final String QUERIED = "Queried";
-    private static final String FOR = "for";
     public static final String EXCLUDE_IMPORT_PATTERN = "Exclude imports pattern";
     public static final String EXCLUDE_IMPORT_CHECKBOX_VALUE = "Exclude imports checkbox value";
     public static final String EXCLUDE_IMPORT_DEFAULT_CHECKBOX_VALUE = "false";
@@ -97,38 +79,19 @@ public class RefreshAction extends AnAction {
             "<html><body> <p>Got nothing to search. To begin, "
                     + "<br /> select some code and hit <img src='"
                     + AllIcons.Actions.Refresh + "' /> <br/> ";
-    private static final String QUERY_HELP_MESSAGE =
-            "<html><body> <p> <i><b>We tried querying our servers with : </b></i> <br /> %s </p>"
-                    + "<i><b>but found no results in response.</i></b>";
-    private static final String PRO_TIP =
-            "<p> <br/><b>Tip:</b> Try narrowing your selection to fewer lines. "
-                    + "<br/>Alternatively, \"Configure imports\" in settings <img src='"
-                    + AllIcons.General.Settings + "'/>. "
-                    + "</p></body></html>";
     private static final String FILETYPE_HELP = "<html><center>Currently KodeBeagle supports "
             + "\"java\" files only.</center></html>";
-    private static final String FETCHING_PROJECTS = "Fetching projects...";
-    private static final String FETCHING_FILE_CONTENTS = "Fetching file contents...";
     public static final String KODEBEAGLE = "KodeBeagle";
-    private static final double INDICATOR_FRACTION = 0.5;
     public static final int TOP_COUNT_DEFAULT_VALUE = 10;
     public static final String TOP_COUNT = "Top count";
     private static final String PROJECT_ERROR = "Unable to get Project. Please Try again";
-    private static final int CHUNK_SIZE = 5;
-    private static final double CONVERT_TO_SECONDS = 1000000000.0;
-    private static final String RESULT_NOTIFICATION_FORMAT =
-            "<br/> Showing %d of %d results (%.2f seconds)";
     public static final String OPT_OUT_CHECKBOX_VALUE = "Opt out checkbox value";
     public static final String OPT_OUT_DEFAULT_CHECKBOX_VALUE = "false";
     private WindowObjects windowObjects = WindowObjects.getInstance();
     private WindowEditorOps windowEditorOps = new WindowEditorOps();
-    private ProjectTree projectTree = new ProjectTree();
     private EditorDocOps editorDocOps = new EditorDocOps();
-    private ESUtils esUtils = new ESUtils();
-    private JSONUtils jsonUtils = new JSONUtils();
     private Settings currentSettings;
-    private List<CodeInfo> spotlightPaneTinyEditorsInfoList = new ArrayList<CodeInfo>();
-    private int maxTinyEditors;
+    private UIUtils uiUtils = new UIUtils();
 
     public RefreshAction() {
         super(KODEBEAGLE, KODEBEAGLE, AllIcons.Actions.Refresh);
@@ -163,125 +126,21 @@ public class RefreshAction extends AnAction {
                         editorDocOps.getLineOffSets(projectEditor, windowObjects.getDistance());
                 Set<String> allImports = getAllImportsAfterExcludes(projectEditor, pair);
                 if (!allImports.isEmpty()) {
-                    ProgressManager.getInstance().run(new QueryKBServerTask(allImports,
-                            jTree, model, root));
+                    ProgressManager.getInstance().run(new QueryKBServerTask(
+                            windowObjects.getProject(), allImports, jTree, model, root));
                 } else {
                     if (projectEditor.getSelectionModel().hasSelection()) {
-                        showHelpInfo(HELP_MESSAGE_IF_CODE_SELECTED);
+                        uiUtils.showHelpInfo(HELP_MESSAGE_IF_CODE_SELECTED);
                     } else {
-                        showHelpInfo(HELP_MESSAGE_NO_SELECTED_CODE);
+                        uiUtils.showHelpInfo(HELP_MESSAGE_NO_SELECTED_CODE);
                     }
                 }
             } else {
-                showHelpInfo(FILETYPE_HELP);
+                uiUtils.showHelpInfo(FILETYPE_HELP);
             }
         } else {
-            showHelpInfo(EDITOR_ERROR);
+            uiUtils.showHelpInfo(EDITOR_ERROR);
         }
-    }
-
-    private void doFrontEndWork(final JTree jTree, final DefaultTreeModel model,
-                                final DefaultMutableTreeNode root,
-                                final List<CodeInfo> spotlightTinyEditors,
-                                final Map<String, ArrayList<CodeInfo>> projectNodes) {
-        SpotlightPane spotlightPane = new SpotlightPane();
-        updateMainPaneJTreeUI(jTree, model, root, projectNodes);
-        spotlightPane.buildSpotlightPane(spotlightTinyEditors);
-    }
-
-    private Map<String, ArrayList<CodeInfo>> doBackEndWork(final Set<String> finalImports,
-                                                           final ProgressIndicator indicator) {
-        indicator.setText(FETCHING_PROJECTS);
-        String esResultJson = getESQueryResultJson(finalImports);
-        Map<String, ArrayList<CodeInfo>> projectNodes = new HashMap<String, ArrayList<CodeInfo>>();
-        if (!esResultJson.equals(EMPTY_ES_URL)) {
-            projectNodes = getProjectNodes(finalImports, esResultJson);
-            indicator.setFraction(INDICATOR_FRACTION);
-            if (!projectNodes.isEmpty()) {
-                indicator.setText(FETCHING_FILE_CONTENTS);
-                spotlightPaneTinyEditorsInfoList =
-                        getSpotlightPaneTinyEditorsInfoList(projectNodes);
-                List<String> fileNamesList =
-                        getFileNamesListForTinyEditors(spotlightPaneTinyEditorsInfoList);
-                if (fileNamesList != null) {
-                    putChunkedFileContentInMap(fileNamesList);
-                }
-            }
-        }
-        indicator.setFraction(1.0);
-        return projectNodes;
-    }
-
-    private List<String> getFileNamesListForTinyEditors(final List<CodeInfo>
-                                                                spotlightPaneTinyEditors) {
-        List<String> fileNamesList = new ArrayList<String>();
-        for (CodeInfo spotlightPaneTinyEditorInfo : spotlightPaneTinyEditors) {
-            fileNamesList.add(spotlightPaneTinyEditorInfo.getAbsoluteFileName());
-        }
-        return fileNamesList;
-    }
-
-    private void putChunkedFileContentInMap(final List<String> fileNamesList) {
-        int head = 0;
-        int tail = CHUNK_SIZE - 1;
-        for (int i = 1; i <= (fileNamesList.size() / CHUNK_SIZE); i++) {
-            List<String> subFileNamesList = fileNamesList.subList(head, tail);
-            esUtils.fetchContentsAndUpdateMap(subFileNamesList);
-            head = tail + 1;
-            tail += CHUNK_SIZE;
-        }
-    }
-
-    private void updateMainPaneJTreeUI(final JTree jTree, final DefaultTreeModel model,
-                                       final DefaultMutableTreeNode root,
-                                       final Map<String, ArrayList<CodeInfo>> projectNodes) {
-        projectTree.updateRoot(root, projectNodes);
-        model.reload(root);
-        jTree.addTreeSelectionListener(projectTree.getTreeSelectionListener(root));
-        ToolTipManager.sharedInstance().registerComponent(jTree);
-        jTree.setCellRenderer(projectTree.getJTreeCellRenderer());
-        jTree.addMouseListener(projectTree.getMouseListener(root));
-        windowObjects.getjTreeScrollPane().setViewportView(jTree);
-    }
-
-    private String getESQueryResultJson(final Set<String> importsInLines) {
-        String esQueryJson = jsonUtils.getESQueryJson(importsInLines, windowObjects.getSize());
-        String esQueryResultJson =
-                esUtils.getESResultJson(esQueryJson, windowObjects.getEsURL() + KODEBEAGLE_SEARCH);
-        return esQueryResultJson;
-    }
-
-    public final void showHelpInfo(final String info) {
-        JPanel centerInfoPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        centerInfoPanel.add(new JLabel(info));
-        goToAllPane();
-        windowObjects.getjTreeScrollPane().setViewportView(centerInfoPanel);
-    }
-
-
-    private Map<String, ArrayList<CodeInfo>> getProjectNodes(final Set<String> finalImports,
-                                                             final String esResultJson) {
-        Map<String, String> fileTokensMap = esUtils.getFileTokens(esResultJson);
-        Map<String, ArrayList<CodeInfo>> projectNodes =
-                projectTree.updateProjectNodes(finalImports, fileTokensMap);
-        return projectNodes;
-    }
-
-    private List<CodeInfo> getSpotlightPaneTinyEditorsInfoList(final Map<String,
-            ArrayList<CodeInfo>> projectNodes) {
-        int maxEditors = maxTinyEditors;
-        int count = 0;
-        List<CodeInfo> spotlightPaneTinyEditors = new ArrayList<CodeInfo>();
-
-        for (Map.Entry<String, ArrayList<CodeInfo>> entry : projectNodes.entrySet()) {
-            List<CodeInfo> codeInfoList = entry.getValue();
-            for (CodeInfo codeInfo : codeInfoList) {
-                if (count++ < maxEditors) {
-                    spotlightPaneTinyEditors.add(codeInfo);
-                }
-            }
-        }
-        return spotlightPaneTinyEditors;
     }
 
     private Set<String> getAllImportsAfterExcludes(final Editor projectEditor,
@@ -317,104 +176,12 @@ public class RefreshAction extends AnAction {
             windowObjects.setDistance(currentSettings.getLimits().getLinesFromCursor());
             windowObjects.setSize(currentSettings.getLimits().getResultSize());
             windowObjects.setEsURL(currentSettings.getEsURLComboBoxModel().getSelectedEsURL());
-            maxTinyEditors = currentSettings.getLimits().getTopCount();
+            windowObjects.setMaxTinyEditors(currentSettings.getLimits().getTopCount());
             windowEditorOps.writeToDocument("", windowObjects.getWindowEditor().getDocument());
             runAction();
         } else {
-            showHelpInfo(PROJECT_ERROR);
-            goToAllPane();
+            uiUtils.showHelpInfo(PROJECT_ERROR);
+            uiUtils.goToAllPane();
         }
-    }
-
-    private class QueryKBServerTask extends Task.Backgroundable {
-        public static final int MIN_IMPORT_SIZE = 3;
-        private final Set<String> finalImports;
-        private final JTree jTree;
-        private final DefaultTreeModel model;
-        private final DefaultMutableTreeNode root;
-        private Notification notification;
-        private Map<String, ArrayList<CodeInfo>> projectNodes;
-        private volatile boolean isFailed;
-        private String httpErrorMsg;
-
-        QueryKBServerTask(final Set<String> pFinalImports,
-                          final JTree pJTree, final DefaultTreeModel pModel,
-                          final DefaultMutableTreeNode pRoot) {
-            super(windowObjects.getProject(), KODEBEAGLE, true,
-                    PerformInBackgroundOption.ALWAYS_BACKGROUND);
-            this.finalImports = pFinalImports;
-            this.jTree = pJTree;
-            this.model = pModel;
-            this.root = pRoot;
-        }
-
-        @Override
-        public void run(@NotNull final ProgressIndicator indicator) {
-            try {
-                long startTime = System.nanoTime();
-                projectNodes = doBackEndWork(finalImports, indicator);
-                long endTime = System.nanoTime();
-                double timeToFetchResults = (endTime - startTime) / CONVERT_TO_SECONDS;
-
-                String notificationTitle = String.format(FORMAT, QUERIED,
-                        windowObjects.getEsURL(), FOR);
-                String notificationContent = " "
-                        + getResultNotificationMessage(esUtils.getResultCount(),
-                                esUtils.getTotalHitsCount(), timeToFetchResults);
-                notification = KBNotification.getInstance()
-                        .notifyBalloon(notificationTitle + notificationContent,
-                                NotificationType.INFORMATION);
-            } catch (RuntimeException rte) {
-                KBNotification.getInstance().error(rte);
-                rte.printStackTrace();
-                httpErrorMsg = rte.getMessage();
-                isFailed = true;
-            }
-        }
-
-        private String getResultNotificationMessage(final int resultCount, final long totalCount,
-                                                    final double timeToFetchResults) {
-            String resultNotification =
-                    finalImports.toString() + String.format(RESULT_NOTIFICATION_FORMAT,
-                            resultCount, totalCount, timeToFetchResults);
-            return resultNotification;
-        }
-
-        @Override
-        public void onSuccess() {
-            if (!isFailed) {
-                if (!projectNodes.isEmpty()) {
-                    try {
-                        doFrontEndWork(jTree, model, root, spotlightPaneTinyEditorsInfoList,
-                                projectNodes);
-                        goToSpotlightPane();
-                    } catch (RuntimeException rte) {
-                        KBNotification.getInstance().error(rte);
-                        rte.printStackTrace();
-                    }
-                } else {
-                    String helpMsg = String.format(QUERY_HELP_MESSAGE,
-                            finalImports.toString().replaceAll(",", "<br/>"));
-                    if (finalImports.size() > MIN_IMPORT_SIZE) {
-                        helpMsg = helpMsg + PRO_TIP;
-                    }
-                    showHelpInfo(helpMsg);
-                    jTree.updateUI();
-                    if (notification != null) {
-                        notification.expire();
-                    }
-                }
-            } else {
-                showHelpInfo(httpErrorMsg);
-            }
-        }
-    }
-
-    private void goToSpotlightPane() {
-        windowObjects.getjTabbedPane().setSelectedIndex(0);
-    }
-
-    private void goToAllPane() {
-        windowObjects.getjTabbedPane().setSelectedIndex(1);
     }
 }

@@ -48,6 +48,7 @@ public final class WindowObjects {
     private String beagleId;
     private JPanel spotlightPaneTinyEditorsJPanel;
     private JTabbedPane jTabbedPane;
+    private int maxTinyEditors;
 
     private WindowObjects() {
 
@@ -191,5 +192,11 @@ public final class WindowObjects {
     public void setjTabbedPane(final JTabbedPane pJTabbedPane) {
         this.jTabbedPane = pJTabbedPane;
     }
+    public int getMaxTinyEditors() {
+        return maxTinyEditors;
+    }
 
+    public void setMaxTinyEditors(final int pmaxTinyEditors) {
+        this.maxTinyEditors = pmaxTinyEditors;
+    }
 }
