@@ -30,8 +30,10 @@ $(document).ready(function() {
   //setInterval( generateTriangle, 5000 );
   */
 });
-(function(angular, window) {
-  angular.module('home', ['httpSerivice'])
+(function(angular, kb) {
+  window.KB = kb;
+  kb.module = angular.module( 'home', ['httpSerivice']);
+  kb.module
     .controller('contributorCtrl', [
       '$scope',
       'http',
@@ -49,126 +51,5 @@ $(document).ready(function() {
             console.log(e);
           })
       }
-    ])
-    .directive('searchComponent', function() {
-      return {
-        controller: 'searchController'
-      };
-    })
-    .controller('searchController', [
-      '$scope',
-      '$timeout',
-      '$document',
-      function(
-        $scope,
-        $timeout,
-        $document
-      ) {
-
-        $document.bind( 'keypress', function( e ) {
-          var key = String.fromCharCode( e.which );
-          if( key.search( /[a-zA-Z]/i ) !== -1 && e.currentTarget !== document.getElementById( 'searchText' ) ) {
-              document.getElementById( 'searchText' ).focus();
-              window.scrollTo(0, 0);
-          }
-        } );
-
-        $scope.selectedTexts = [];
-        //var suggestions;
-        $scope.handleSelectedText = function(e, i) {
-          e.preventDefault();
-          //var target = e.target;
-          var spliceData = $scope.selectedTexts.splice(i, 1);
-          if ($scope.searchText) {
-            $scope.selectedTexts.push($scope.searchText);
-          }
-          $scope.searchText = spliceData[0];
-          document.getElementById('searchText').focus();
-        };
-        $scope.deleteItem = function(e, i) {
-          e.preventDefault();
-          $scope.selectedTexts.splice(i, 1);
-        };
-        $scope.handleClick = function(item) {
-          $scope.selectedTexts.push(item.suggested);
-          //$scope.searchText = item.suggested;
-        };
-        $scope.clearAll = function(e) {
-          e.preventDefault();
-          $scope.selectedTexts = [];
-          $scope.searchText = '';
-          document.getElementById('searchText').focus();
-        };
-
-        function doGetCaretPosition(ctrl) {
-          var CaretPos = 0; // IE Support
-          if (document.selection) {
-            ctrl.focus();
-            var Sel = document.selection.createRange();
-            Sel.moveStart('character', -ctrl.value.length);
-            CaretPos = Sel.text.length;
-          }
-          // Firefox support
-          else if (ctrl.selectionStart || ctrl.selectionStart === '0')
-            CaretPos = ctrl.selectionStart;
-          return (CaretPos);
-        }
-        $scope.getResultsPage = function() {
-          var url = 'search#?searchTerms='
-          var query = $scope.selectedTexts.join(',');
-          if ($scope.searchText) {
-            if (query) {
-              query += ',' + $scope.searchText;
-            } else {
-              query = $scope.searchText;
-            }
-          }
-          if (query) {
-            return url + query;
-          }
-        }
-        $scope.handleSearchText = function(e) {
-          if (e.keyCode === 9) {
-            if ($scope.searchText) {
-              $scope.selectedTexts.push($scope.searchText);
-              $scope.searchText = '';
-              //$scope.checkFormSubmit = true;
-              e.preventDefault();
-              return false;
-            }
-          }
-          if (e.keyCode === 188) {
-            if ($scope.searchText) {
-              $scope.selectedTexts.push($scope.searchText);
-              $scope.searchText = '';
-              //$scope.checkFormSubmit = true;
-            }
-            e.preventDefault();
-            return false;
-          }
-          if (e.keyCode === 13) {
-            if ($scope.searchText) {
-              $scope.selectedTexts.push($scope.searchText);
-              $scope.searchText = '';
-            }
-            document.getElementById('search-button').click();
-          }
-          if (e.keyCode === 32 || e.keyCode === 44) {
-            if ($scope.searchText) {
-              $scope.selectedTexts.push($scope.searchText);
-              $scope.searchText = '';
-              //$scope.checkFormSubmit = true;
-            }
-            e.preventDefault();
-            return false;
-          }
-          if (doGetCaretPosition(e.target) === 0 && e.keyCode === 8) {
-            //$scope.selectedTexts[ $scope.selectedTexts.length - 1 ].tobe
-            $scope.selectedTexts.pop();
-            return;
-          }
-        };
-      }
     ]);
-  angular.bootstrap(document, ['home']);
-})(angular, window);
+})(angular, window.KB || {});

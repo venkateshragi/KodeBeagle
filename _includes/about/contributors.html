@@ -1,0 +1,16 @@
+<section class="container">
+    <section class="section-title">
+        <h2 class="title">Contributors</h2>
+    </section>
+    <section class="section-content animation pulse" ng-controller="contributorCtrl">
+        {% raw %}
+        <ul class="list">
+            <li ng-repeat="item in list">
+                <a ng-href="{{item.author.html_url}}" target="_blank">
+                    <img ng-src="{{item.author.avatar_url}}" title="{{item.author.login}}"/>
+                </a>
+            </li>
+        </ul>
+        {% endraw %}
+    </section>
+</section>

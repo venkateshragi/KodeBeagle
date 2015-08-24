@@ -74,6 +74,7 @@ function codeMirrorDirective(prettify) {
     var codeElm = elm.find('code');
     //determine if to add line numbers or not
     var lineNumbers = scope.$eval(attr.lineNumbers) || false;
+    var heilightLines = scope.$eval(attr.rowHeilight) || false;
 
     scope.$watch(attr.model, function(nVal) {
       if(nVal) {
@@ -82,7 +83,8 @@ function codeMirrorDirective(prettify) {
         codeElm.html(prettify.one(
           nVal.replace(/</g, '&lt;').replace(/>/g,'&gt;'),
           attr.lang || '',
-          lineNumbers
+          lineNumbers,
+          heilightLines
         ));
       }
     });
@@ -1121,7 +1123,7 @@ var prettyPrint;
    * @param {boolean} isPreformatted true iff white-space in text nodes should
    *     be treated as significant.
    */
-  function numberLines(node, opt_startLineNum, isPreformatted) {
+  function numberLines(node, opt_startLineNum, isPreformatted, opt_heilightLines) {
     var nocode = /(?:^|\s)nocode(?:\s|$)/;
     var lineBreak = /\r\n?|\n/;
   
@@ -1225,16 +1227,23 @@ var prettyPrint;
     if (opt_startLineNum == (opt_startLineNum|0)) {
       listItems[0].setAttribute('value', opt_startLineNum);
     }
+
   
     var ol = document.createElement('ol');
     ol.className = 'linenums';
     var offset = Math.max(0, ((opt_startLineNum - 1 /* zero index */)) | 0) || 0;
     for (var i = 0, n = listItems.length; i < n; ++i) {
       li = listItems[i];
+
+      
       // Stick a class on the LIs so that stylesheets can
       // color odd/even rows, or any other row pattern that
       // is co-prime with 10.
       li.className = 'L' + ((i + offset) % 10);
+      if( opt_heilightLines && opt_heilightLines.indexOf( i + opt_startLineNum ) != -1 ) {
+        li.className += ' active-line';   
+      }
+      //console.log( i, opt_startLineNum );
       if (!li.firstChild) {
         li.appendChild(document.createTextNode('\xA0'));
       }
@@ -1543,7 +1552,7 @@ var prettyPrint;
    * @param opt_numberLines {number|boolean} True to number lines,
    *     or the 1-indexed number of the first line in sourceCodeHtml.
    */
-  function $prettyPrintOne(sourceCodeHtml, opt_langExtension, opt_numberLines) {
+  function $prettyPrintOne(sourceCodeHtml, opt_langExtension, opt_numberLines, opt_heilightLines) {
     var container = document.createElement('div');
     // This could cause images to load and onload listeners to fire.
     // E.g. <img onerror="alert(1337)" src="nosuchimage.png">.
@@ -1555,7 +1564,7 @@ var prettyPrint;
     container.innerHTML = '<pre>' + sourceCodeHtml + '</pre>';
     container = container.firstChild;
     if (opt_numberLines) {
-      numberLines(container, opt_numberLines, true);
+      numberLines(container, opt_numberLines, true, opt_heilightLines);
     }
 
     var job = {

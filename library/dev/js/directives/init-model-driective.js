@@ -1,4 +1,5 @@
 (function( module ) {
+  var processedData={};
   module.directive('initModel', [
     'model',
     '$location',
@@ -6,161 +7,165 @@
     'docsService',
     '$document',
     function(model, $location, $rootScope, docsService, $document) {
-      var esURL = 'http://labs.imaginea.com/kodebeagle';
-      model.showConfig = $location.search().advanced;
-      model.pageResultSize=10;
-      model.toggelSnippet = true;
 
-      $document.bind( 'keydown', function( e ) {
-        if( e.ctrlKey || e.shiftKey ) {
-          return;
-        }
+      
+      docsService.config(model.config);
 
-        if( e.target.nodeName.toLowerCase() === 'input' ) {
-          return;
-        }
-        var keyCode = e.which;
-        if( keyCode === 38 || keyCode === 40 ) {
-          
-        }
-        var key = String.fromCharCode( keyCode );
-
-        if( key.search( /[a-zA-Z]/i ) !== -1 ) {
-            document.getElementById( 'searchText' ).focus();
-            window.scrollTo(0, 0);
-        }
-      } );
       var backTotop = angular.element( document.getElementById( 'back-to-top' ) )
       var navEle = angular.element( document.getElementById( 'header-nav' ) );
       var bodyEle = angular.element( document.body );
       var prevScrollTop;
+      
       $document.bind( 'scroll', function( e ) {
         var topOffset = document.body.scrollTop;
-        if( topOffset > 50 ) {
+        if( topOffset > 5 ) {
           backTotop.addClass( 'show' );
+
         } else {
           backTotop.removeClass( 'show' );
-        }
+          navEle[0].style.top = '';
+          bodyEle.removeClass( 'stick-to-top' );
+          return;
+        }        
         
         if( prevScrollTop > topOffset ) {
           bodyEle.addClass( 'stick-to-top' );
-
-          navEle[0].style.top = topOffset + 'px';
-          if( topOffset < 5 ) {
-            bodyEle.removeClass( 'stick-to-top' );
-            navEle[0].style.top = '';
-          }
-          //navEle.css( top, topOffset+'px' );
-        } 
-        prevScrollTop = topOffset;
-        
-      } ); 
-
-      function buildNestedQuery( q ) {
-        var pkgs = q.split( ',' );
-        var must = [];
-        var innerMust;
-        var currectedQuery = '';
-        model.packages = {};
-        var pkgName;
           
-        for( var i=0;i<pkgs.length; i++) {
-          var pkg = pkgs[i].split( '->method:' );
-          innerMust = [];
-          pkgName = ''; 
+          setTimeout( function  () {
+            navEle[0].style.top = '0px';
+          }, 10 );
 
-          if( pkg[0].indexOf( 'pkg:' ) !=-1 ) {
-            pkgName = pkg[ 0 ].substring( 4 );
-            innerMust.push( {
-              'term' : {
-                'tokens.importName': pkgName.toLowerCase()
-              }
-            } );
-            currectedQuery += ',' + pkgName.substring( 4 );
-            model.packages[ pkgName ] = {
-              status: true,
-              methods: {}
-            };
-          }
-          var methods = ( pkg[1] || '' ).split( '&' );
-          for( var j = 0 ; j < methods.length ; j++ ) {
-            if( methods[ j ] ) {
-              innerMust.push( {
-                'term' : {
-                  'tokens.methodAndLineNumbers.methodName': methods[ j ]
-                }
-              } );
-              model.packages[ pkgName ].methods[ methods[ j ] ] = true;
-              currectedQuery += ',' + methods[ j ];  
-            }
-            
-          }
-
-          must.push( {
-            'nested' : {
-               'path': 'tokens',
-               'query' : {
-                  'bool' :  {
-                    'must': innerMust
-                  }
-               } 
-            }
-          } );
+        } else {
+          navEle[0].style.top = '';
+          setTimeout( function  () {
+            bodyEle.removeClass( 'stick-to-top' );
+          }, 100 );          
         }
+        
 
-        if( must.length ) {
-          docsService.search( {
-              query:{
-                bool:{
-                  must: must
-                }
-              },
-              currectedQuery:currectedQuery.substring(1)
-            }, model );
-        }
-
-      }
+        prevScrollTop = topOffset;
+      } ); 
 
       backTotop.bind( 'click', function( e ) {
         e.preventDefault();
         window.scrollTo(0, 0);
       } )
+
       return {
         controller: ['$scope', '$rootScope', function(scope, $rootScope) {
+          
           scope.model = model;
           scope.$watch(function() {
-            return $location.search();
+            return $location.search().searchTerms;
           }, function(params) {
             model.currentPageNo = 0;
             var selectedTexts = $location.search().searchTerms;
-            model.showConfig = $location.search().advanced;
-            var nestedQuery = $location.search().query;
-
+            
+            model.selectedTexts = [];
+            $rootScope.editorView = false;
+            model.showErrorMsg = false;
+            
             if (selectedTexts) {
               model.selectedTexts = selectedTexts.split(',');
               model.searchedData = model.selectedTexts.join( ', ' );
-              docsService.search(selectedTexts, model);
+              model.showPageResponse = false;
+              docsService.search( {
+                queryString: selectedTexts,
+                callback: function( obj ) {
+                  model.showErrorMsg = false;
+                  if( obj.status === 'error' ) {
+                    model.showErrorMsg = true;
+                    model.errorMsg = obj.result.message;
+                    return false;
+                  }
+                  model.totalHitCount = obj.totalHitCount;
+                  model.hitCount = obj.result.length;
+                  model.showPageResponse = true;
+                  var groupedata= docsService.groupByFilename( obj.result );
+                  processedData = docsService.groupByImportsAndFile( {
+                    data: groupedata,
+                    searchString: obj.correctedQuery
+                  } );
+                  docsService.setData( 'processedData', processedData );
+                  processedData.result = _.sortBy(processedData.result, function(elem) {
+                    return -elem.fileMatchingImports.methodCount;
+                  });
+                  model.emptyResponse = false;
+                  model.groupedMethods = _.values( processedData.classes );
+                  model.groupedMethods = _.remove( model.groupedMethods, function ( ele ) {
+                    return( ele.methods.length );
+                  } );
+
+                  
+
+                  for (var cName in processedData.classes ) {
+                    processedData.classes[cName].methods = _.unique(processedData.classes[cName].methods);
+                    //searchCommonUsage(cName, processedData.classes[cName]);
+                  }
+                  if (processedData.result.length === 0) {
+          
+                    model.emptyResponse = true;
+                    function getCombinations(chars) {
+                      var result = [];
+                      var f = function(prefix, chars) {
+                        var r;
+                        for (var i = 0; i < chars.length; i++) {
+                          r = prefix ? prefix + ',' + chars[i] : chars[i] ; 
+                          result.push( r );
+                          f( r, chars.slice(i + 1));
+                        }
+                      }
+                      f('', chars);
+                      return result;
+                    }
+
+                    var combinations = getCombinations(model.selectedTexts);
+                    model.suggestions = [];
+                    for( var i=0; i< combinations.length; i++ ) {
+                      docsService.search( {
+                        queryString: combinations[ i ],
+                        resultSize: 1,
+                        callback: function( obj ) {
+                          
+                          if( obj.result.length ) {
+                            model.suggestions.push( obj.query );
+                          }   
+                        },
+
+                      } );
+                    }
+                    
+                    //docsService.updateSuggesions( combinations );
+                  } else {
+                    KB.updateEditorsList( processedData.result, model.packages, model, docsService );
+                  }
+
+                }
+              } );
               document.getElementById( 'searchText' ) && document.getElementById( 'searchText' ).blur();
               $rootScope.editorView = true;
-              model.packages = {};
-            } else if( nestedQuery ) {
-              $rootScope.editorView = true;
-              model.searchedData = nestedQuery.split( ',' ).join( ', ' );
-              model.selectedTexts = nestedQuery.split(',');
-              buildNestedQuery( nestedQuery );
-            } 
-            else {
-              model.selectedTexts = [];
-              $rootScope.editorView = false;
+              model.isCode = false;
+              model.packages = false;
+
             }
+
           });
-          model.config = localStorage.getObject('config') || {
-            selectedTheme: 'theme-light',
-            esURL: esURL,
-            resultSize: 500
-          };
-          model.config.esURL = model.config.esURL || esURL;
-          model.config.resultSize = model.config.resultSize || 500;
+          scope.$watch(function() {
+            return $location.search().filter;
+          }, function( newval, oldval ) {
+
+            model.currentPageNo = 0;
+            if( !newval ) {
+              newval = '{}';
+              model.packages = false;
+            } else {
+              model.packages = JSON.parse(newval);  
+            }
+            if( newval || oldval ) {
+              KB.updateEditorsList( processedData.result, model.packages, model,  docsService );
+            }
+            
+          });
         }]
       };
     }

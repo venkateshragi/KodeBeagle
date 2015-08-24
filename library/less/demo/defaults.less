@@ -42,7 +42,7 @@ body>.main-content{
 	color: #888;
 	font-size: 18px;
 	margin-bottom: 4em;
-	margin-bottom: 40px;
+	margin-bottom: 5px;
 }
 .welcome-component {
 	height: calc( @welcome-component-height );
@@ -72,7 +72,7 @@ body>.main-content{
 .search-container {
 	width: 50%;
 	margin: 0 auto;
-	.border-radius( 50px );
+	.border-radius( 5px );
 	padding-right: 60px;
 	border: 1px solid #ccc;
 	/////background: #fff;
@@ -84,7 +84,7 @@ body>.main-content{
 	input {
 		padding: 10px;
 		border: 0;
-		.border-radius( 50px );
+		.border-radius( 5px );
 		background: none;
 		/////color: @search-box-text-color;
 		outline: none;
@@ -98,7 +98,7 @@ body>.main-content{
 	.selected-text {
 		margin-left: 5px;
 		background: @search-box-selected-default-bg;
-		.border-radius( 15px );
+		.border-radius( 3px );
 		/////color: @search-box-selected-text-color;
 		padding: 5px 5px 5px 10px;
 		cursor: pointer;
@@ -184,10 +184,10 @@ body>.main-content{
 	}
 }
 .feature-nav {
-	margin-top: 13px;
+	margin-top: 16px;
 }
 header .logo {
-	margin: 0 2rem 0 1rem;
+	margin: 0 2rem 0 0rem;
 	display: inline-block;
 	.fonts( 30 );
 	vertical-align: middle;
@@ -412,8 +412,11 @@ header .logo {
 	-moz-transition:0.5s ease-in background;
 	-o-transition:0.5s ease-in background;
 	transition:0.5s ease-in background;
-	text-align: center;
+	text-align: left;
 	overflow: hidden;
+	background-color: #e5e9eb;
+	height: 0.25em;
+	/*position: relative;
 	&:before{
 		content: '';
 		display: inline-block;
@@ -429,10 +432,10 @@ header .logo {
 	    -moz-animation:spin 1s linear infinite;
 	    animation:spin 1s linear infinite;
 	    /////color: #000;
-	}
+	}*/
 }
 .show{
-	height: 100%;
+	height: 2px;
 	width: 100%;
 	/////background: rgba(256, 256, 256, 0.5);
 
@@ -440,9 +443,13 @@ header .logo {
 
 /* footer styles */
 footer {
+	color: #333;
+    border-top: 1px solid #e7e7e7;
+    padding: 10px;
+    text-align: center;
+    background: #f8f8f8;
 	p {
 		text-align: center;
-		padding: 1rem;
 		margin: 0;
 		span {
 			/////color: #ff0000;
@@ -570,7 +577,9 @@ a.disable-icon{
 	  -o-transition:0.5s ease-in all;
 	  transition:0.5s ease-in all;
 	  opacity:0;
-	  max-width: 0;
+	  max-width: 15%;
+	  white-space: nowrap;
+	  overflow: hidden;
 	}
 
 	/*The ng-enter-active and ng-move-active
@@ -591,10 +600,21 @@ a.disable-icon{
 	  transition:0.5s ease-out all;
 	  max-width: 100%;
 	  overflow: hidden;
+	  white-space: nowrap;
+	  overflow: hidden;
+	  .seach-type-text {
+	  	display: none;
+	  }
+	  .selected-text {
+	  	display: none;
+	  }
 	}
 	&.ng-leave.ng-leave-active {
 	  max-width: 0%;
 	  opacity:0;
+	  .seach-type-text {
+	  	display: none;
+	  }
 	}
 }
 
@@ -779,6 +799,7 @@ a.disable-icon{
 
 }
 
+
 .loader {
   margin: 60px auto;
   font-size: 10px;
@@ -805,6 +826,15 @@ a.disable-icon{
   height: 100px;
   display: inline-block;
 }
+.progress-bar {
+  animation-duration: 3s;
+  animation-name: progressBar;
+  animation-iteration-count: infinite;
+  background-image: linear-gradient(to right, #4cd964, #5ac8fa, #007aff, #34aadc, #5856d6, #ff2d55);
+  background-size: 24em 0.25em;
+  height: 100%;
+  position: relative;
+}
 @-webkit-keyframes load8 {
   0% {
     -webkit-transform: rotate(0deg);
@@ -823,6 +853,30 @@ a.disable-icon{
   100% {
     -webkit-transform: rotate(360deg);
     transform: rotate(360deg);
+  }
+}
+
+@-webkit-keyframes progressBar {
+ 0%, 100% {
+    transition-timing-function: cubic-bezier(1, 0, 0.65, 0.85);
+  }
+  0% {
+    width: 0;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+@keyframes progressBar {
+  0%, 100% {
+    transition-timing-function: cubic-bezier(1, 0, 0.65, 0.85);
+  }
+  0% {
+    width: 0;
+  }
+  100% {
+    width: 100%;
   }
 }
 
@@ -948,7 +1002,7 @@ li.L1, li.L3, li.L5, li.L7, li.L9 {
 	text-align: center;
 	font-weight: bold;
 	display: table;
-	height: calc( ~"100vh - 55px" );
+	height: calc( ~"100vh - 95px" );
 	width: 100%;
 	.table-cell {
 		display: table-cell;
@@ -957,8 +1011,31 @@ li.L1, li.L3, li.L5, li.L7, li.L9 {
 	}
 	.logo {
 		.fonts( 80 );
-		margin-top: -155px;
+		margin-top: -120px;
 		margin-bottom: 0;
 		color: #4679bd;
 	}
+}
+.seach-type-text {
+    margin-bottom: 20px;
+    color: #888;
+    font-weight: normal;
+    z-index: 1;
+    position: relative;
+}
+.seach-type-text a {
+    color: #888;
+    font-weight: bold;
+}
+.seach-type-text .active {
+    color: #337ab7
+}
+
+textarea {
+    height: 100px;
+    width: 100%;
+    border: 0px;
+    background: none;
+    outline: none;
+    font-weight: normal;
 }

@@ -3,12 +3,12 @@
   var precessRequest = function(state) {
     if (state) {
       requestCounter++;
-      angular.element(document.getElementById('page-loader')).addClass('show');
+      angular.element(document.getElementById('request-loader')).addClass('show');
     } else {
       requestCounter--;
       if (requestCounter <= 0) {
         requestCounter = 0;
-        angular.element(document.getElementById('page-loader')).removeClass('show');
+        angular.element(document.getElementById('request-loader')).removeClass('show');
       }
     }
   };
@@ -63,7 +63,7 @@
               .error(function(err, status) {
                 if (status === 0) {
                   err = {
-                    message: 'Oops! Something went wrong.'
+                    message: 'The server is temporarily unable to service your request due to maintenance downtime or capacity problems. Please try again later.'
                   };
                 }
                 defer.reject(err);

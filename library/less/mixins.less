@@ -38,12 +38,12 @@
     -o-user-select: @value;
     user-select: @value;
 }
-.transition(){
-    -webkit-transition: all 0.5s ease;
-    -moz-transition: all 0.5s ease;
-    -ms-transition: all 0.5s ease;
-    -o-transition: all 0.5s ease;
-    transition: all 0.5s ease;
+.transition( @arguments: all 0.5s ease ){
+    -webkit-transition: @arguments;
+    -moz-transition: @arguments;
+    -ms-transition: @arguments;
+    -o-transition: @arguments;
+    transition: @arguments;
 }
 .scale(@x, @y) {
     -webkit-transform: ~"scale(@{x}, @{y})";

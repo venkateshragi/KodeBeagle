@@ -1,0 +1,43 @@
+<div class="result-statistics" >
+    {% raw  %}
+    <div class="">
+        Results shown for: <strong>
+        <span ng-bind="model.searchedData"></span></strong>
+    </div>
+   
+    <tabset class="result-tabs">
+        <tab>
+            <tab-heading>
+                Files <span class="badge"><span ng-bind="model.totalFiles"></span></span>
+            </tab-heading>
+        </tab>
+    </tabset>
+    
+    <div>
+        <div class="row">
+            <div class="col-sm-9">
+                Showing files from <strong>{{model.currentPageNo*model.pageResultSize + 1}}</strong> to
+                <strong>
+                <span ng-show="model.currentPageNo*model.pageResultSize + model.pageResultSize<model.totalFiles">
+                    {{model.currentPageNo*model.pageResultSize + model.pageResultSize}}
+                </span>
+                <span ng-show="model.currentPageNo*model.pageResultSize + model.pageResultSize>=model.totalFiles">
+                    {{model.totalFiles}}
+                </span>
+                </strong>
+                out of <strong>{{model.totalFiles}}</strong> files
+                <span ng-if="model.totalHitCount !== model.hitCount">
+                ( total matches <strong>{{model.totalHitCount}}</strong>  )
+                </span>
+
+                <div style="margin-left: 20px; display: inline-block" class="pull-right">
+                    <div class="btn-group" role="group">
+                      <button type="button" ng-click="toggleCodeSnippets($event)" class="btn btn-default" ng-class="{'active' : model.toggelSnippet}">show code snippets</button>
+                      <button type="button" ng-click="toggleCodeSnippets($event)" class="btn btn-default" ng-class="{'active' : !model.toggelSnippet}">hide code snippets</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endraw %}
+</div>

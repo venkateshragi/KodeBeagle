@@ -1,0 +1,101 @@
+.search-input-component {
+	width: 50%;
+	margin: 0 auto;
+}
+.search-container {
+	width: 100%;
+    margin: 0 auto;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    padding-right: 60px;
+    border: 1px solid #ccc;
+    white-space: nowrap;
+    text-align: left;
+    position: relative;
+    padding-left: 3px;
+    background: #fff;
+    border-radius: 5px;
+    color: #333;
+    .selected-text {
+	    margin-left: 5px;
+	    background: #eaeaea;
+	    -webkit-border-radius: 3px;
+	    -moz-border-radius: 3px;
+	    border-radius: 3px;
+	    padding: 5px 5px 5px 10px;
+	    cursor: pointer;
+	    font-weight: bold;
+	}
+    input {
+	    padding: 10px;
+	    border: 0;
+	    -webkit-border-radius: 5px;
+	    -moz-border-radius: 5px;
+	    border-radius: 5px;
+	    background: 0 0;
+	    outline: 0;
+	    width: 100%;
+	    font-size: 16px;
+	    font-weight: 400;
+	}
+	.selected-text+input {
+      .placeholder-color( transparent );
+    }
+	.clear, .search {
+	    text-decoration: none;
+	    font-size: 20px;
+	    font-size: 2rem;
+	    -webkit-transition: all .5s ease;
+	}
+	.clear {
+	    position: absolute;
+	    right: 60px;
+	    top: 11px;
+	    opacity: 0;
+	    transition: all .5s ease;
+	    visibility: hidden;
+	}
+	&.search-item-present .search {
+	    color: #4679bd;
+	    cursor: pointer;
+	}
+	.search {
+	    position: absolute;
+	    right: 0;
+	    background: 0 0;
+	    border: 0;
+	    top: 0;
+	    height: 100%;
+	    padding: 0 15px;
+	    border-left: 1px solid #ccc;
+	    line-height: 40px;
+	    color: #ccc;
+	    cursor: default;
+	}
+	&.search-item-present .clear {
+	    opacity: 1;
+	    visibility: visible;
+	    color: #555;
+	}
+}
+.seach-type-text {
+	color: #888;	
+}
+
+.seach-type-text a {
+    color: #888;
+    font-weight: bold;
+}
+.seach-type-text .active {
+    color: #337ab7;
+}
+textarea {
+    height: 150px;
+    width: 100% ;
+    border: 0px;
+    background: none;
+    outline: none;
+    font-weight: normal;
+    resize: none;
+}

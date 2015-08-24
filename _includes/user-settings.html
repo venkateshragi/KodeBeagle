@@ -1,0 +1,56 @@
+<a href="#" ng-click="dismiss( $event )" class="glyphicon glyphicon-remove close"></a>
+<div class="modal-header">
+    <h3 class="modal-title">
+        Configuration and preview
+    </h3>
+</div>
+<div class="modal-body">
+    <div class="form-horizontal">
+        <div class="form-group">
+          <div class="col-sm-4">
+            Kode Beagle Url
+          </div>
+          <div class="col-sm-8">
+            <input class="form-control" ng-model="model.config.esURL" >
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="col-sm-4">
+            Result size
+          </div>
+          <div class="col-sm-8">
+            <input class="form-control" type="number" ng-model="model.config.resultSize" >
+          </div>
+        </div>
+
+
+        <!--div class="form-group">
+          <div class="col-sm-4">
+            Page Theme
+          </div>
+          <div class="col-sm-8">
+            <select class="form-control" ng-model="model.config.selectedTheme" >
+                <option value="theme-dark">dark</option>
+                <option value="theme-light">light</option>
+            </select>
+          </div>
+        </div-->
+
+        <div class="form-group">
+          <div class="col-sm-4">
+            result snippet offest
+          </div>
+          <div class="col-sm-8">
+            <input class="form-control" type="number" ng-model="model.config.offset" >
+          </div>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn  btn-lg btn-warning" ng-click="dismiss( $event )">
+        Cancel
+    </button>
+    <button class="btn btn-lg btn-success" ng-click="ok( $event )">
+        Save
+    </button>
+</div>
