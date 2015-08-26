@@ -181,18 +181,20 @@
       }
 
       function groupByImportsAndFile ( obj ) {
-        
+
         var matchingImports= {};
 
         intermediateResult = _.map(obj.data, function(files, fileName) {
-        
+
           var labels = getFileName(fileName),
-          lineNumbers = [];
           fileMatchingImports = {};
+          matchedMethodLines = {};
+          matchedImportLines = {};
           files.forEach(function(f) {
-            var matchingTokens = filterRelevantTokens(obj.searchString.toLowerCase(), f._source.tokens),
-              possibleLines = _.pluck(matchingTokens, 'lineNumbers');
-            
+            var matchingTokens = filterRelevantTokens(obj.searchString.toLowerCase(), f._source.tokens)
+                ;
+
+
             matchingTokens.map(function(x) {
               matchingImports[x.importExactName] = matchingImports[x.importExactName] || {
                 methodCount : 0,
@@ -207,20 +209,25 @@
               fileMatchingImports[x.importExactName] = fileMatchingImports[x.importExactName].concat(x.methodAndLineNumbers.map(function(m) {
                 return m.methodName
               }));
+
+              matchedImportLines[ x.importExactName ] = matchedImportLines[ x.importExactName] || [];
+              matchedImportLines[ x.importExactName] = matchedImportLines[ x.importExactName].concat( x.lineNumbers );
+
+              x.methodAndLineNumbers.map( function( m ) {
+                matchedMethodLines[ m.methodName ] = matchedMethodLines[ m.methodName ] || [];
+                matchedMethodLines[ m.methodName ] = matchedMethodLines[ m.methodName ].concat( m.lineNumbers );
+
+              } );
             });
-            lineNumbers = lineNumbers.concat(possibleLines);
-          });
-          
-          lineNumbers = (_.unique(_.flatten(lineNumbers))).sort(function(a, b) {
-            return a.lineNumber - b.lineNumber;
           });
 
+       
           fileMatchingImports.methodCount = 0;
 
           _.each(fileMatchingImports,function( methods, name ){
             methods = _.unique( methods );
             if( name !== 'methodCount' ) {
-              fileMatchingImports.methodCount += methods.length  
+              fileMatchingImports.methodCount += methods.length
             }
           });
 
@@ -228,9 +235,10 @@
             path: fileName,
             repo: labels.repo,
             name: labels.file,
-            lines: lineNumbers,
             score: files[0]._source.score,
-            fileMatchingImports: fileMatchingImports
+            fileMatchingImports: fileMatchingImports,
+            matchedMethodLines: matchedMethodLines,
+            matchedImportLines: matchedImportLines
           };
         } );
 
@@ -393,6 +401,48 @@
         return obj;
       }
 
+      function updatedLineNumbers( file, pkgs ) {
+
+        var filterExcuted = false;
+        if(  pkgs ) {
+          file.lines = [];
+          for( var pkg in  pkgs ) {
+            filterExcuted = true;
+            var pkgItem = pkgs[ pkg ];
+            if(pkgItem.status) {
+              file.lines = file.lines.concat( file.matchedImportLines[ pkg ] );
+            }
+            for( var m in pkgItem.methods ) {
+              file.lines = file.lines.concat(file.matchedMethodLines[ m ]);
+            }
+
+          }
+        }
+        if( !filterExcuted ) {
+          allLines( file );
+        }
+        file.lines = uniqueAndSortLines( file.lines );
+      }
+
+      function allLines( file ) {
+        file.lines = [];
+        _.each(file.matchedImportLines, function ( x ) {
+          file.lines = file.lines.concat( x );
+        } );
+
+        _.each(file.matchedMethodLines, function ( x ) {
+          file.lines = file.lines.concat( x );
+        } );
+
+      }
+
+      function uniqueAndSortLines( lines ) {
+        return (_.unique(_.flatten(lines))).sort(function(a, b) {
+          return a.lineNumber - b.lineNumber;
+        });
+      }
+
+
       function splitFileContent ( file, fileInfo, offset ) {
         return {
           content: file._source.fileContent,
@@ -416,7 +466,8 @@
         },
         getData: function  ( key ) {
           return this[ key ];
-        }
+        },
+        updatedLineNumbers: updatedLineNumbers
       };
     }
   ]);

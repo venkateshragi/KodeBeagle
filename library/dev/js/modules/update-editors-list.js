@@ -18,6 +18,10 @@
       model.currentPageNo * model.pageResultSize + model.pageResultSize 
     );
 
+    _.each( files, function ( x ) {
+      docs.updatedLineNumbers( x, pkgs );
+    } );
+
     if( files && files.length ) {
       model.filterNotFound = false;
       
