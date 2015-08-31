@@ -183,6 +183,6 @@ public class RefreshAction extends AnAction {
         } else {
             uiUtils.showHelpInfo(PROJECT_ERROR);
             uiUtils.goToAllPane();
-        }
+       }
     }
 }
