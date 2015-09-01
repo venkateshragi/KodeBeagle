@@ -372,7 +372,7 @@
         }
       }
 
-      function getlinesObj( file, lines, offset ) {
+      function getlinesObj( fileContent, lines, offset ) {
 
         var obj = [];
         var str = '';
@@ -384,14 +384,14 @@
         var lastObj;
         
         for( var k = 0; k < lines.length ; k++  ) {
-          getLineData( file._source.fileContent, lastObj, lines[k].lineNumber, offset, obj );
+          getLineData( fileContent, lastObj, lines[k].lineNumber, offset, obj );
         }
         if( obj.length ) {
           var lastObj = obj[ obj.length - 1  ]
           obj.push( { 
               start: lastObj.end - 1,
               end:-1,
-              content: file._source.fileContent.substring( lastObj.endIndex+1 ),
+              content: fileContent.substring( lastObj.endIndex+1 ),
               state: false,
               startIndex: 0,
               endIndex: -1
@@ -443,12 +443,12 @@
       }
 
 
-      function splitFileContent ( file, fileInfo, offset ) {
+      function splitFileContent ( fileContent, fileInfo, offset ) {
         return {
-          content: file._source.fileContent,
+          content: fileContent,
           fileInfo: fileInfo,
-          linecount: file._source.fileContent.split( '\n' ).length + 1,
-          linesData: getlinesObj( file, fileInfo.lines, offset )
+          linecount: fileContent.split( '\n' ).length + 1,
+          linesData: getlinesObj( fileContent, fileInfo.lines, offset )
         }
       }
       return {
