@@ -1,11 +1,14 @@
+{% if page.hideLoader != "hide" %}
 <div class="page-loader" ng-hide="true">
     <div class="progress-bar"></div>
 </div>
+{% endif %}
+
 <header class="default-header">
     <nav class="navbar navbar-default" id="header-nav">
         <div class="container">
             <div class="logo-section pull-left">
-                <a href="#" class="logo logo1" title="KodeBeagle" >
+                <a href="{{page.basepath}}" class="logo logo1" title="KodeBeagle" >
                     KodeBeagle
                 </a>
             </div>
