@@ -53,6 +53,8 @@ public class ESUtils {
     private static final int HTTP_OK_STATUS = 200;
     private static final String FILE_NAME = "fileName";
     private static final String UID = "&uid=";
+    //Query timeout is set to 10 seconds
+    private static final String TIMEOUT = "&timeout=10s";
     private static final String OPTED_OUT = "opted-out";
 
     private static WindowObjects windowObjects = WindowObjects.getInstance();
@@ -147,12 +149,13 @@ public class ESUtils {
         try {
             HttpClient httpClient = new DefaultHttpClient();
             String encodedJson = URLEncoder.encode(esQueryJson, StandardCharsets.UTF_8.name());
-            StringBuilder esGetURL = new StringBuilder(url).append(encodedJson).append(UID);
+            StringBuilder esGetURL = new StringBuilder(url).append(encodedJson).append(TIMEOUT);
             Settings currentSettings = new Settings();
             HttpGet getRequest;
             if (!currentSettings.getIdentity().getOptOutCheckBoxValue()) {
                 esGetURL =
-                        new StringBuilder(esGetURL).append(windowObjects.getBeagleId());
+                        new StringBuilder(esGetURL).append(UID).
+                                append(windowObjects.getBeagleId());
                 String versionInfo = windowObjects.getOsInfo() + "  "
                         + windowObjects.getApplicationVersion() + "  "
                         + windowObjects.getPluginVersion();
