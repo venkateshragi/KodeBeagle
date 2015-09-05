@@ -27,10 +27,10 @@ import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
+import com.intellij.openapi.editor.impl.DocumentImpl;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.JBColor;
 
@@ -85,23 +85,21 @@ public class SpotlightPane {
     private void createSpotlightPaneTinyEditor(final JPanel spotlightPaneTinyEditorJPanel,
                                           final String displayFileName, final String fileName,
                                           final String contents) {
-        Document tinyEditorDoc =
-                EditorFactory.getInstance().createDocument(contents);
+        Document tinyEditorDoc = new DocumentImpl(contents, true, false);
         tinyEditorDoc.setReadOnly(true);
-        Project project = windowObjects.getProject();
         FileType fileType =
                 FileTypeManager.getInstance().getFileTypeByExtension(MainWindow.JAVA);
 
         Editor tinyEditor =
                 EditorFactory.getInstance().
-                        createEditor(tinyEditorDoc, project, fileType, false);
+                        createEditor(tinyEditorDoc, windowObjects.getProject(), fileType, false);
         tinyEditor.getContentComponent().addMouseWheelListener(new MouseWheelListener() {
             @Override
             public void mouseWheelMoved(final MouseWheelEvent e) {
                 spotlightPaneTinyEditorJPanel.dispatchEvent(e);
             }
         });
-        windowEditorOps.releaseEditor(project, tinyEditor);
+        windowEditorOps.releaseEditor(windowObjects.getProject(), tinyEditor);
 
         JPanel expandPanel = new JPanel(wrapLayout);
 
