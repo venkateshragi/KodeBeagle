@@ -25,7 +25,7 @@ import com.imaginea.kodebeagle.util.EditorDocOps;
 import com.imaginea.kodebeagle.util.JSONUtils;
 import com.intellij.ide.BrowserUtil;
 import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.editor.EditorFactory;
+import com.intellij.openapi.editor.impl.DocumentImpl;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -179,7 +179,7 @@ public class ProjectTree {
         if (mouseEvent.getClickCount() == 2) {
             DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)
                     windowObjects.getjTree().getLastSelectedPathComponent();
-            if (selectedNode.isLeaf()) {
+            if (selectedNode != null && selectedNode.isLeaf()) {
                 CodeInfo codeInfo = (CodeInfo) selectedNode.getUserObject();
                 showEditor(codeInfo);
             }
@@ -235,9 +235,7 @@ public class ProjectTree {
             FileEditorManager.getInstance(windowObjects.getProject()).
                     openFile(virtualFile, true, true);
         }
-        Document document =
-                EditorFactory.getInstance().
-                        createDocument(codeInfo.getContents());
+        Document document = new DocumentImpl(codeInfo.getContents(), true, false);
         editorDocOps.addHighlighting(codeInfo.getLineNumbers(), document);
         editorDocOps.gotoLine(codeInfo.getLineNumbers().get(0), document);
     }
@@ -247,16 +245,7 @@ public class ProjectTree {
             @Override
             public void actionPerformed(final ActionEvent actionEvent) {
                 try {
-                    VirtualFile virtualFile =
-                            editorDocOps.getVirtualFile(codeInfo.getAbsoluteFileName(),
-                                    codeInfo.getDisplayFileName(), codeInfo.getContents());
-                    FileEditorManager.getInstance(windowObjects.getProject()).
-                            openFile(virtualFile, true, true);
-                    Document document =
-                            EditorFactory.getInstance().
-                                    createDocument(codeInfo.getContents());
-                    editorDocOps.addHighlighting(codeInfo.getLineNumbers(), document);
-                    editorDocOps.gotoLine(codeInfo.getLineNumbers().get(0), document);
+                    showEditor(codeInfo);
                 } catch (Exception e) {
                     KBNotification.getInstance().error(e);
                     e.printStackTrace();

@@ -192,9 +192,8 @@ public class SpotlightPane {
                         windowObjects.getFileNameContentsMap().get(fileName));
                 FileEditorManager.getInstance(windowObjects.getProject()).
                         openFile(virtualFile, true, true);
-                Document document =
-                        EditorFactory.getInstance().createDocument(windowObjects.
-                                getFileNameContentsMap().get(fileName));
+                Document document = new DocumentImpl(
+                        windowObjects.getFileNameContentsMap().get(fileName), true, false);
                 editorDocOps.addHighlighting(windowObjects.
                         getFileNameNumbersMap().get(fileName), document);
                 editorDocOps.gotoLine(windowObjects.

@@ -36,6 +36,7 @@ import com.intellij.openapi.application.ApplicationInfo;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
+import com.intellij.openapi.editor.impl.DocumentImpl;
 import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileTypes.FileTypeManager;
@@ -95,7 +96,7 @@ public class MainWindow implements ToolWindowFactory {
             windowObjects.setBeagleId(propertiesComponent.getValue(Identity.BEAGLE_ID));
         }
 
-        Document document = EditorFactory.getInstance().createDocument("");
+        Document document = new DocumentImpl("", true, false);
         Editor windowEditor =
                 EditorFactory.getInstance().createEditor(
                         document, project, FileTypeManager.getInstance()
