@@ -155,7 +155,7 @@ public class QueryKBServerTask extends Task.Backgroundable {
     @Override
     public final void onSuccess() {
         if (!isFailed) {
-            if (!projectNodes.isEmpty()) {
+            if (projectNodes != null && !projectNodes.isEmpty()) {
                 try {
                     doFrontEndWork();
                     uiUtils.goToSpotlightPane();
