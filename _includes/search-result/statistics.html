@@ -1,7 +1,7 @@
 <div class="result-statistics" >
     {% raw  %}
     <div class="">
-        Results shown for: <strong>
+        Results for: <strong>
         <span ng-bind="model.searchedData"></span></strong>
     </div>
    
@@ -14,7 +14,7 @@
     </tabset>
     
     <div>
-        <div class="row">
+        <div class="row page-nation-summary">
             <div class="col-sm-9">
                 Showing files from <strong>{{model.currentPageNo*model.pageResultSize + 1}}</strong> to
                 <strong>
@@ -31,9 +31,11 @@
                 </span>
 
                 <div style="margin-left: 20px; display: inline-block" class="pull-right">
+                    <span class="inline-block">code snippets</span>
                     <div class="btn-group" role="group">
-                      <button type="button" ng-click="toggleCodeSnippets($event)" class="btn btn-default" ng-class="{'active' : model.toggelSnippet}">show code snippets</button>
-                      <button type="button" ng-click="toggleCodeSnippets($event)" class="btn btn-default" ng-class="{'active' : !model.toggelSnippet}">hide code snippets</button>
+                      
+                      <button type="button" ng-click="toggleCodeSnippets($event)" class="btn btn-default" ng-class="{'active' : model.toggelSnippet}">show</button>
+                      <button type="button" ng-click="toggleCodeSnippets($event)" class="btn btn-default" ng-class="{'active' : !model.toggelSnippet}">hide</button>
                     </div>
                 </div>
             </div>
