@@ -187,7 +187,7 @@
         intermediateResult = _.map(obj.data, function(files, fileName) {
         
           var labels = getFileName(fileName),
-          lineNumbers = [];
+          lineNumbers = [],
           fileMatchingImports = {};
           files.forEach(function(f) {
             var matchingTokens = filterRelevantTokens(obj.searchString.toLowerCase(), f._source.tokens),

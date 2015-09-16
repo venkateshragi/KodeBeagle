@@ -4,7 +4,7 @@
     >
         <p class="seach-type-text">
             Search by
-            <a href="#" ng-class="{'active':!model.isCode}" ng-click="$event.preventDefault();model.isCode = false">keyword</a> / <a href="#" ng-class="{'active':model.isCode}" ng-click="model.isCode = true;model.selectedTexts=[]"> code </a>
+            <a href="#" ng-class="{'active':!model.isCode}" ng-click="$event.preventDefault();model.isCode = false">keyword</a> | <a href="#" ng-class="{'active':model.isCode}" ng-click="model.isCode = true;model.selectedTexts=[]"> snippet </a>
         </p>
         <div class="search-container" ng-class="{'search-item-present': !model.isCode && (model.selectedTexts.length || model.searchText) || (model.searchCode && model.isCode) }">
             <input type="submit" class="hide"/>
