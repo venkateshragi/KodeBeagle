@@ -1,12 +1,12 @@
 (function( module ) {
-	
+
 	module
   .factory('docsService', [
     'http',
     function(
       http
     ) {
-      
+
       var settings;
 
       function buildSearchString(str) {
@@ -22,15 +22,15 @@
       }
 
       function search( obj ) {
-        
-        
+
+
         var correctedQuery
           , queryBlock
           ;
-        
+
         correctedQuery = buildSearchString( obj.queryString );
         queryBlock = getQuery(correctedQuery);
-      
+
         queryES(
           {
             indexName: 'importsmethods',
@@ -75,12 +75,12 @@
       }
 
       function queryES( obj ) { // indexName, queryBody, resultSize, successCallback
-        var url = settings.esURL 
-                  + '/' 
-                  + obj.indexName 
-                  + '/_search?size=' 
+        var url = settings.esURL
+                  + '/'
+                  + obj.indexName
+                  + '/_search?size='
                   + ( obj.resultSize || 50 )
-                  + '&source=' 
+                  + '&source='
                   + JSON.stringify( obj.queryBody )
                   ;
 
@@ -93,7 +93,7 @@
             obj.callbackObj.status = 'success';
             obj.callback( obj.callbackObj );
 
-            
+
           }, function(error, s) {
 
             obj.callbackObj = obj.callbackObj || {};
@@ -113,7 +113,7 @@
             queryBody: fetchFileQuery(files),
             callbackObj: {
               files: files
-            },  
+            },
             resultSize: 50,
             callback: callback
           }
@@ -141,14 +141,14 @@
       }
 
       function getFilteredFiles( data, pkgs ) {
-        
+
         var result = angular.copy( data ) || [];
         if(  pkgs ) {
-          
+
           for( var pkg in  pkgs ) {
-            
+
             var pkgItem = pkgs[ pkg ];
-            
+
             result = _.map( result, function( r ) {
               if( r.fileMatchingImports[ pkg ] ) {
                 return r;
@@ -157,14 +157,14 @@
             result = _.remove(result, undefined );
 
             for( var m in pkgItem.methods ) {
-              
+
               result = _.map( result, function( r ) {
                 if( r.fileMatchingImports[ pkg ].indexOf( m ) !== -1 ) {
                   return r;
                 }
               } );
               result = _.remove( result, undefined );
-            }  
+            }
           }
         }
 
@@ -173,7 +173,7 @@
 
 
       function groupByFilename ( data ) {
-          
+
           var groupedData = _.groupBy(data, function(entry) {
             return entry._source.file;
           });
@@ -187,9 +187,11 @@
         intermediateResult = _.map(obj.data, function(files, fileName) {
 
           var labels = getFileName(fileName),
-          fileMatchingImports = {};
-          matchedMethodLines = {};
-          matchedImportLines = {};
+            lineNumbers = [],
+            fileMatchingImports = {},
+            matchedMethodLines = {},
+            matchedImportLines = {};
+
           files.forEach(function(f) {
             var matchingTokens = filterRelevantTokens(obj.searchString.toLowerCase(), f._source.tokens)
                 ;
@@ -221,7 +223,7 @@
             });
           });
 
-       
+
           fileMatchingImports.methodCount = 0;
 
           _.each(fileMatchingImports,function( methods, name ){
@@ -247,7 +249,7 @@
           result: intermediateResult
         };
       }
-      
+
 
       function getFileName(filePath) {
         var elements = filePath.split('/'),
@@ -259,10 +261,10 @@
         };
       }
 
-      
-      
+
+
       function filterRelevantTokens( searchString, tokens ) {
-        
+
         var result = searchString.split( ',' ).map( function( term ) {
           var matchingTokens = [],
               correctedTerm = term.trim().replace( /\*/g, '.*' ).replace( /\?/g, '.{1}' );
@@ -278,11 +280,11 @@
 
 
       function getLineData( content, lastObj, l, offset, obj ) {
-          
+
         if( obj.length ) {
-          
+
           var lastObj = obj[ obj.length -1 ];
-          if( lastObj.state ) { 
+          if( lastObj.state ) {
             if( lastObj.end + offset >= l ) {
               var i2 = nth_occurrence( content, '\n', l + offset );
               if( i2 === -1 ) {
@@ -291,7 +293,7 @@
               lastObj.content +=  content.substring( lastObj.endIndex, i2 ) + ' ';
               lastObj.endIndex = i2 ;
               lastObj.end = l +  offset + 1;
-              lastObj.lineNumbers.push( l );  
+              lastObj.lineNumbers.push( l );
             } else {
                 var i1 = nth_occurrence( content, '\n', l - offset -1 );
                 obj.push( {
@@ -318,7 +320,7 @@
               sanitizeFirstChar( obj[ obj.length -1 ] );
             }
           }
-         
+
 
         } else {
           var i1 = nth_occurrence( content, '\n', l - offset - 1  );
@@ -343,11 +345,11 @@
           } );
 
           sanitizeFirstChar( obj[ obj.length -1 ] );
-          
+
 
         }
       }
-      
+
       function nth_occurrence (string, char, nth) {
         var first_index = string.indexOf(char);
         var length_up_to_first_index = first_index + 1;
@@ -361,14 +363,14 @@
             if (next_occurrence === -1) {
                 return -1;
             } else {
-                return length_up_to_first_index + next_occurrence;  
+                return length_up_to_first_index + next_occurrence;
             }
         }
       }
 
       function sanitizeFirstChar ( obj ) {
         if( obj.content[0] === '\n' ) {
-          obj.content = ' ' + obj.content; 
+          obj.content = ' ' + obj.content;
         }
       }
 
@@ -382,20 +384,20 @@
         var i1=0;
         var i2;
         var lastObj;
-        
+
         for( var k = 0; k < lines.length ; k++  ) {
           getLineData( fileContent, lastObj, lines[k].lineNumber, offset, obj );
         }
         if( obj.length ) {
           var lastObj = obj[ obj.length - 1  ]
-          obj.push( { 
+          obj.push( {
               start: lastObj.end - 1,
               end:-1,
               content: fileContent.substring( lastObj.endIndex+1 ),
               state: false,
               startIndex: 0,
               endIndex: -1
-          } )  
+          } )
         }
 
         return obj;
