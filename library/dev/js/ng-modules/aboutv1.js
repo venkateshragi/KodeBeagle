@@ -2,7 +2,7 @@
 $( '.section-container' ).waypoint(function(direction) {
   $( '#main-nav li' ).removeClass( 'active' );
   $( '#main-nav a[href=#' + $(this.element).attr( 'id' ) + ']' ).parent().addClass( 'active' );
-  //console.log( $(this.element).attr( 'id' ) ); 
+  //console.log( $(this.element).attr( 'id' ) );
 }, {
   offset: '-2%'
 } );
@@ -22,21 +22,22 @@ $( window ).scroll( function  (argument) {
   }
 } );
 
-$( '#main-nav a' ).click( function( e ) { 
+$( '#main-nav a' ).click( function( e ) {
     e.preventDefault();
     var self = $( this );
     self.parent().addClass( 'active' );
     var id = $(this).attr( 'href' );
-    $("html, body").animate( 
+    $("html, body").animate(
         {
-            scrollTop: $( id ).offset().top  + 'px'   
+            scrollTop: $( id ).offset().top  + 'px'
         } ,
         1000 ,
-        'easeInOutQuint', 
+        'easeInOutQuint',
         function() {
+            location.hash = id;
             $( '#main-nav li' ).removeClass( 'active' );
             self.parent().addClass( 'active' );
-        } 
+        }
     )
 } );
 
@@ -50,7 +51,7 @@ $( '#main-nav a' ).click( function( e ) {
         http.get('https://api.github.com/repos/Imaginea/KodeBeagle/stats/contributors')
         .then(function(res) {
           for (var i = 0; i < res.length; i++) {
-            
+
             /*for( var j=0; j < res[i].weeks.length; j++ ) {
               if( !res[i].weeks[j].c ) {
                 break;
@@ -72,7 +73,7 @@ $( '#main-nav a' ).click( function( e ) {
 })(angular, window);
 
 $(document).ready(function() {
- 
+
   var owl = $("#owl-demo").owlCarousel({
       slideSpeed : 300,
       paginationSpeed : 400,
@@ -94,5 +95,5 @@ $(document).ready(function() {
     owl.currentItem = $( this ).data( 'target' );
     owl.goTo( $( this ).data( 'target' ) );
   } );
- 
+
 });

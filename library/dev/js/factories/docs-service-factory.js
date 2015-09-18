@@ -1,12 +1,12 @@
 (function( module ) {
-	
+
 	module
   .factory('docsService', [
     'http',
     function(
       http
     ) {
-      
+
       var settings;
 
       function buildSearchString(str) {
@@ -22,15 +22,15 @@
       }
 
       function search( obj ) {
-        
-        
+
+
         var correctedQuery
           , queryBlock
           ;
-        
+
         correctedQuery = buildSearchString( obj.queryString );
         queryBlock = getQuery(correctedQuery);
-      
+
         queryES(
           {
             indexName: 'importsmethods',
@@ -75,12 +75,12 @@
       }
 
       function queryES( obj ) { // indexName, queryBody, resultSize, successCallback
-        var url = settings.esURL 
-                  + '/' 
-                  + obj.indexName 
-                  + '/_search?size=' 
+        var url = settings.esURL
+                  + '/'
+                  + obj.indexName
+                  + '/_search?size='
                   + ( obj.resultSize || 50 )
-                  + '&source=' 
+                  + '&source='
                   + JSON.stringify( obj.queryBody )
                   ;
 
@@ -93,7 +93,7 @@
             obj.callbackObj.status = 'success';
             obj.callback( obj.callbackObj );
 
-            
+
           }, function(error, s) {
 
             obj.callbackObj = obj.callbackObj || {};
@@ -113,7 +113,7 @@
             queryBody: fetchFileQuery(files),
             callbackObj: {
               files: files
-            },  
+            },
             resultSize: 50,
             callback: callback
           }
@@ -141,14 +141,14 @@
       }
 
       function getFilteredFiles( data, pkgs ) {
-        
+
         var result = angular.copy( data ) || [];
         if(  pkgs ) {
-          
+
           for( var pkg in  pkgs ) {
-            
+
             var pkgItem = pkgs[ pkg ];
-            
+
             result = _.map( result, function( r ) {
               if( r.fileMatchingImports[ pkg ] ) {
                 return r;
@@ -157,14 +157,14 @@
             result = _.remove(result, undefined );
 
             for( var m in pkgItem.methods ) {
-              
+
               result = _.map( result, function( r ) {
                 if( r.fileMatchingImports[ pkg ].indexOf( m ) !== -1 ) {
                   return r;
                 }
               } );
               result = _.remove( result, undefined );
-            }  
+            }
           }
         }
 
@@ -173,7 +173,7 @@
 
 
       function groupByFilename ( data ) {
-          
+
           var groupedData = _.groupBy(data, function(entry) {
             return entry._source.file;
           });
@@ -181,18 +181,22 @@
       }
 
       function groupByImportsAndFile ( obj ) {
-        
+
         var matchingImports= {};
 
         intermediateResult = _.map(obj.data, function(files, fileName) {
-        
+
           var labels = getFileName(fileName),
-          lineNumbers = [];
-          fileMatchingImports = {};
+            lineNumbers = [],
+            fileMatchingImports = {},
+            matchedMethodLines = {},
+            matchedImportLines = {};
+
           files.forEach(function(f) {
-            var matchingTokens = filterRelevantTokens(obj.searchString.toLowerCase(), f._source.tokens),
-              possibleLines = _.pluck(matchingTokens, 'lineNumbers');
-            
+            var matchingTokens = filterRelevantTokens(obj.searchString.toLowerCase(), f._source.tokens)
+                ;
+
+
             matchingTokens.map(function(x) {
               matchingImports[x.importExactName] = matchingImports[x.importExactName] || {
                 methodCount : 0,
@@ -207,20 +211,25 @@
               fileMatchingImports[x.importExactName] = fileMatchingImports[x.importExactName].concat(x.methodAndLineNumbers.map(function(m) {
                 return m.methodName
               }));
+
+              matchedImportLines[ x.importExactName ] = matchedImportLines[ x.importExactName] || [];
+              matchedImportLines[ x.importExactName] = matchedImportLines[ x.importExactName].concat( x.lineNumbers );
+
+              x.methodAndLineNumbers.map( function( m ) {
+                matchedMethodLines[ m.methodName ] = matchedMethodLines[ m.methodName ] || [];
+                matchedMethodLines[ m.methodName ] = matchedMethodLines[ m.methodName ].concat( m.lineNumbers );
+
+              } );
             });
-            lineNumbers = lineNumbers.concat(possibleLines);
           });
-          
-          lineNumbers = (_.unique(_.flatten(lineNumbers))).sort(function(a, b) {
-            return a.lineNumber - b.lineNumber;
-          });
+
 
           fileMatchingImports.methodCount = 0;
 
           _.each(fileMatchingImports,function( methods, name ){
             methods = _.unique( methods );
             if( name !== 'methodCount' ) {
-              fileMatchingImports.methodCount += methods.length  
+              fileMatchingImports.methodCount += methods.length
             }
           });
 
@@ -228,9 +237,10 @@
             path: fileName,
             repo: labels.repo,
             name: labels.file,
-            lines: lineNumbers,
             score: files[0]._source.score,
-            fileMatchingImports: fileMatchingImports
+            fileMatchingImports: fileMatchingImports,
+            matchedMethodLines: matchedMethodLines,
+            matchedImportLines: matchedImportLines
           };
         } );
 
@@ -239,7 +249,7 @@
           result: intermediateResult
         };
       }
-      
+
 
       function getFileName(filePath) {
         var elements = filePath.split('/'),
@@ -251,10 +261,10 @@
         };
       }
 
-      
-      
+
+
       function filterRelevantTokens( searchString, tokens ) {
-        
+
         var result = searchString.split( ',' ).map( function( term ) {
           var matchingTokens = [],
               correctedTerm = term.trim().replace( /\*/g, '.*' ).replace( /\?/g, '.{1}' );
@@ -270,11 +280,11 @@
 
 
       function getLineData( content, lastObj, l, offset, obj ) {
-          
+
         if( obj.length ) {
-          
+
           var lastObj = obj[ obj.length -1 ];
-          if( lastObj.state ) { 
+          if( lastObj.state ) {
             if( lastObj.end + offset >= l ) {
               var i2 = nth_occurrence( content, '\n', l + offset );
               if( i2 === -1 ) {
@@ -283,7 +293,7 @@
               lastObj.content +=  content.substring( lastObj.endIndex, i2 ) + ' ';
               lastObj.endIndex = i2 ;
               lastObj.end = l +  offset + 1;
-              lastObj.lineNumbers.push( l );  
+              lastObj.lineNumbers.push( l );
             } else {
                 var i1 = nth_occurrence( content, '\n', l - offset -1 );
                 obj.push( {
@@ -310,7 +320,7 @@
               sanitizeFirstChar( obj[ obj.length -1 ] );
             }
           }
-         
+
 
         } else {
           var i1 = nth_occurrence( content, '\n', l - offset - 1  );
@@ -335,11 +345,11 @@
           } );
 
           sanitizeFirstChar( obj[ obj.length -1 ] );
-          
+
 
         }
       }
-      
+
       function nth_occurrence (string, char, nth) {
         var first_index = string.indexOf(char);
         var length_up_to_first_index = first_index + 1;
@@ -353,18 +363,18 @@
             if (next_occurrence === -1) {
                 return -1;
             } else {
-                return length_up_to_first_index + next_occurrence;  
+                return length_up_to_first_index + next_occurrence;
             }
         }
       }
 
       function sanitizeFirstChar ( obj ) {
         if( obj.content[0] === '\n' ) {
-          obj.content = ' ' + obj.content; 
+          obj.content = ' ' + obj.content;
         }
       }
 
-      function getlinesObj( file, lines, offset ) {
+      function getlinesObj( fileContent, lines, offset ) {
 
         var obj = [];
         var str = '';
@@ -374,31 +384,73 @@
         var i1=0;
         var i2;
         var lastObj;
-        
+
         for( var k = 0; k < lines.length ; k++  ) {
-          getLineData( file._source.fileContent, lastObj, lines[k].lineNumber, offset, obj );
+          getLineData( fileContent, lastObj, lines[k].lineNumber, offset, obj );
         }
         if( obj.length ) {
           var lastObj = obj[ obj.length - 1  ]
-          obj.push( { 
+          obj.push( {
               start: lastObj.end - 1,
               end:-1,
-              content: file._source.fileContent.substring( lastObj.endIndex+1 ),
+              content: fileContent.substring( lastObj.endIndex+1 ),
               state: false,
               startIndex: 0,
               endIndex: -1
-          } )  
+          } )
         }
 
         return obj;
       }
 
-      function splitFileContent ( file, fileInfo, offset ) {
+      function updatedLineNumbers( file, pkgs ) {
+
+        var filterExcuted = false;
+        if(  pkgs ) {
+          file.lines = [];
+          for( var pkg in  pkgs ) {
+            filterExcuted = true;
+            var pkgItem = pkgs[ pkg ];
+            if(pkgItem.status) {
+              file.lines = file.lines.concat( file.matchedImportLines[ pkg ] );
+            }
+            for( var m in pkgItem.methods ) {
+              file.lines = file.lines.concat(file.matchedMethodLines[ m ]);
+            }
+
+          }
+        }
+        if( !filterExcuted ) {
+          allLines( file );
+        }
+        file.lines = uniqueAndSortLines( file.lines );
+      }
+
+      function allLines( file ) {
+        file.lines = [];
+        _.each(file.matchedImportLines, function ( x ) {
+          file.lines = file.lines.concat( x );
+        } );
+
+        _.each(file.matchedMethodLines, function ( x ) {
+          file.lines = file.lines.concat( x );
+        } );
+
+      }
+
+      function uniqueAndSortLines( lines ) {
+        return (_.unique(_.flatten(lines))).sort(function(a, b) {
+          return a.lineNumber - b.lineNumber;
+        });
+      }
+
+
+      function splitFileContent ( fileContent, fileInfo, offset ) {
         return {
-          content: file._source.fileContent,
+          content: fileContent,
           fileInfo: fileInfo,
-          linecount: file._source.fileContent.split( '\n' ).length + 1,
-          linesData: getlinesObj( file, fileInfo.lines, offset )
+          linecount: fileContent.split( '\n' ).length + 1,
+          linesData: getlinesObj( fileContent, fileInfo.lines, offset )
         }
       }
       return {
@@ -416,7 +468,8 @@
         },
         getData: function  ( key ) {
           return this[ key ];
-        }
+        },
+        updatedLineNumbers: updatedLineNumbers
       };
     }
   ]);
