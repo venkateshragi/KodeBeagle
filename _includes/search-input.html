@@ -14,7 +14,7 @@
                 {% endraw %}
                 <i href="#" class="glyphicon glyphicon-remove" ng-click="deleteItem( $event, $index )"></i>
             </span>
-            <input type="text" ng-if="!model.isCode" name="searchText" id="searchText" ng-model="model.searchText" ng-keydown="handleSearchText( $event )"  ng-focusout="searchTextFocusout()" placeholder="search here Eg: FileChannel, MappedByteBuffer"
+            <input type="text" ng-if="!model.isCode" name="searchText" id="searchText" ng-model="model.searchText" ng-keydown="handleSearchText( $event )"  ng-focusout="searchTextFocusout()" placeholder="Search here Eg: FileChannel, MappedByteBuffer"
             autocomplete="off"
             />
             <textarea name="searchText" ng-if="model.isCode" ng-model="model.searchCode" id="searchCode"></textarea>
