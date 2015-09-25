@@ -28,14 +28,15 @@ import com.kodebeagle.configuration.{KodeBeagleConfig, TopicModelConfig}
 import com.kodebeagle.logging.Logger
 import com.kodebeagle.ml.{DistributedLDAModel, LDA}
 import com.kodebeagle.spark.SparkIndexJobHelper.createSparkContext
-import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.rdd.RDD
+import org.apache.spark.{SparkConf, SparkContext}
 import org.eclipse.jdt.core.dom.CompilationUnit
 import org.elasticsearch.spark._
 
 import scala.collection.JavaConversions._
 import scala.collection.mutable
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
+
 
 object CreateTopicModelJob extends Logger {
 
@@ -232,10 +233,8 @@ object CreateTopicModelJob extends Logger {
                    tokenToWordMap: Map[Long, String],
                    fileIdVsName: mutable.Map[Long, String],
                    repoMap: Map[Long, RepositoryModel]): Unit = {
-
     val topics = result.describeTopics(nWordsDesc)
     logTopics(topics, repoIdVsName, tokenToWordMap)
-
     var i = nbgTopics
     val repoTopics = topics.slice(nbgTopics, topics.length)
     // For each repo, map of topic terms vs their frequencies 
@@ -249,7 +248,6 @@ object CreateTopicModelJob extends Logger {
       i += 1
       (repoName, topicMap.toSeq.sortWith(_._2 > _._2))
     }
-
     val repoSummary = result.summarizeDocGroups()
     logRepoSummary(repoSummary, repoIdVsName, fileIdVsName)
 
@@ -265,7 +263,14 @@ object CreateTopicModelJob extends Logger {
 
     val updatedRepoRDD = sc.makeRDD(repoTopicFields).join(repoFilescore)
       .map({ case(repoId, (repoTopicMap, repoFileMap)) =>
-      val esTopicMap = repoTopicMap.map(f => Map(termFieldName -> f._1, freqFieldName  -> f._2))
+        val totalFrequency = repoTopicMap.toMap.values.sum
+        val esTopicMap = repoTopicMap.map { f =>
+          Try(f._2 / totalFrequency.toDouble)  match {
+            case Success(d) => Map(termFieldName -> f._1,
+              freqFieldName -> d)
+            case Failure(ex) => Map()
+          }
+        }.filter(_.nonEmpty)
       val esFilesMap = repoFileMap.map(f => Map(fileFieldName-> f._1, klScoreFieldName-> f._2))
       val termMap = Map(topicFieldName -> esTopicMap)
       val topicMap = Map(filesFieldName -> esFilesMap)

@@ -19,11 +19,16 @@ import com.typesafe.sbt.SbtGit.git
 import com.typesafe.sbt.{GitBranchPrompt, GitVersioning}
 import de.johoop.cpd4sbt.CopyPasteDetector._
 import de.johoop.cpd4sbt.Language
+<<<<<<< HEAD
 import de.johoop.findbugs4sbt.FindBugs._
 import sbt.Keys._
 import sbt._
 import sbtassembly.AssemblyKeys._
 import sbtassembly.{MergeStrategy, AssemblyPlugin}
+=======
+import sbtassembly._
+import AssemblyKeys._
+>>>>>>> [core] #410 Normalized topic terms frequency.
 
 object KodeBeagleBuild extends Build {
 
@@ -114,8 +119,12 @@ object KodeBeagleBuild extends Build {
       javaOptions += "-Xmx6048m",
       javaOptions += "-XX:+HeapDumpOnOutOfMemoryError",
       assemblyMergeStrategy in assembly := {
+<<<<<<< HEAD
         case "plugin.properties" | "plugin.xml" | ".api_description" | "META-INF/eclipse.inf" | ".options"
         => MergeStrategy.first
+=======
+        case "plugin.properties" |"plugin.xml" |".api_description" | "META-INF/eclipse.inf" | ".options"   => MergeStrategy.first
+>>>>>>> [core] #410 Normalized topic terms frequency.
         case x =>
           val oldStrategy = (assemblyMergeStrategy in assembly).value
           oldStrategy(x)
@@ -137,7 +146,7 @@ object Dependencies {
   val json4sJackson = "org.json4s" %% "json4s-jackson" % "3.2.10"
   val httpClient = "commons-httpclient" % "commons-httpclient" % "3.1"
   val config = "com.typesafe" % "config" % "1.2.1"
-  val jgit = "org.eclipse.jgit" % "org.eclipse.jgit" % "3.7.0.201502260915-r"
+  val jgit = "org.eclipse.jgit" % "org.eclipse.jgit" % "3.7.0.201502260915-r" intransitive()
   val commonsIO = "commons-io" % "commons-io" % "2.4"
   val esSpark = "org.elasticsearch" % "elasticsearch-spark_2.11" % "2.1.0.Beta4"
   val guava = "com.google.guava" % "guava" % "18.0"
