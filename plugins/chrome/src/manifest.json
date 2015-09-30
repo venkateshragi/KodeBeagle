@@ -1,0 +1,12 @@
+{
+	"manifest_version":	2,
+	"name":	"KodeBeagle",
+	"description":	"Quick access to code samples(in Java) from GitHub by searching on kodebeagle.com",
+	"version":	"0.1",
+	"background":	{
+		"scripts":	["background.js"]
+	},
+	"permissions":	[
+		"contextMenus"
+	]
+}

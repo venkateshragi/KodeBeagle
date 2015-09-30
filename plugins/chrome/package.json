@@ -1,0 +1,24 @@
+{
+  "name": "KodeBeagle",
+  "version": "0.1.1",
+  "description": "Quick access to code samples(in Java) from GitHub by searching on kodebeagle.com",
+  "main": "background.js",
+  "devDependencies": {
+    "gulp": "^3.9.0",
+    "gulp-crx": "git+https://github.com/PavelVanecek/gulp-crx.git"
+  },
+  "keywords": [
+    "Chrome",
+    "Pramati",
+    "KodeBeagle"
+  ],
+  "author": "Pramati",
+  "contributors": [
+      {
+        "name":"Prashanth Ambure",
+        "email":"prashanth.ambure@imaginea.com"
+      }
+  ],
+  "private": true,
+  "license": "Apache 2.0"
+}
