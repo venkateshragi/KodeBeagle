@@ -98,7 +98,7 @@ object KodeBeagleBuild extends Build {
       crossPaths := false,
       fork := true,
       javacOptions ++= Seq("-source", "1.7"),
-      javaOptions += "-Xmx2048m",
+      javaOptions += "-Xmx6048m",
       javaOptions += "-XX:+HeapDumpOnOutOfMemoryError"
     )
 

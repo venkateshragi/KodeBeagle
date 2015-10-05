@@ -32,6 +32,7 @@ object CreateIndexJobForMethods  {
       .setMaster(KodeBeagleConfig.sparkMaster)
       .setAppName("CreateIndexJobForMethods")
       .set("spark.executor.memory", "2g")
+      .set("spark.network.timeout", "1200s")
 
     val sc: SparkContext = createSparkContext(conf)
 
