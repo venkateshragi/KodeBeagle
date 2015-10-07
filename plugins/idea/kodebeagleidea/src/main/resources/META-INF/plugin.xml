@@ -63,7 +63,7 @@
     <!-- Add your project components here -->
   </project-components>
     <actions>
-      <action id="KodeBeagle" class="com.imaginea.kodebeagle.action.SearchKodeBeagleAction" text="Search with KodeBeagle" icon="AllIcons.Toolwindows.Documentation">
+      <action id="KodeBeagle" class="com.imaginea.kodebeagle.action.SearchKodeBeagleAction" text="Search with KodeBeagle" icon="/icons/logo.png">
         <add-to-group group-id="EditorPopupMenu" anchor="before" relative-to-action="$SearchWeb"/>
         <keyboard-shortcut keymap="$default" first-keystroke="alt 8"/>
       </action>
@@ -76,7 +76,7 @@
     </actions>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="KodeBeagle" icon="AllIcons.Toolwindows.Documentation" anchor="right" factoryClass="com.imaginea.kodebeagle.ui.MainWindow"/>
+        <toolWindow id="KodeBeagle" icon= "/icons/logo.png" anchor="right" factoryClass="com.imaginea.kodebeagle.ui.MainWindow"/>
         <applicationConfigurable instance="com.imaginea.kodebeagle.settings.ui.SettingsConfigurable"/>
     </extensions>
 </idea-plugin>
