@@ -81,9 +81,13 @@ public class ESUtils {
                 JsonObject sourceObject = hitObject.getAsJsonObject(SOURCE);
                 //Replacing \r as it's treated as bad end of line character
                 String fileContent = sourceObject.getAsJsonPrimitive(FILE_CONTENT).
-                        getAsString().replaceAll("\r", "");
+                        getAsString();
                 String fileName = sourceObject.getAsJsonPrimitive(FILE_NAME).getAsString();
-                windowObjects.getFileNameContentsMap().put(fileName, fileContent);
+                if (fileName != null && !fileName.isEmpty()
+                        && fileContent != null && !fileContent.isEmpty()) {
+                    windowObjects.getFileNameContentsMap().put(fileName,
+                            fileContent.replaceAll("\r", ""));
+                }
             }
         }
     }
