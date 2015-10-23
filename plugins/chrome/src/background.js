@@ -1,6 +1,6 @@
 //Chrome supports 4 types of contexts - selection,page,image,link
 //for our requirement we like the context menu to be enabled only on text selection.
-var contextMenuTitle = "Search this selection on KodeBeagle.";
+var contextMenuTitle = "Search on KodeBeagle";
 
 chrome.contextMenus.create({
   title: contextMenuTitle,
@@ -17,9 +17,9 @@ function evalFunction(data) {
   var textSelected = data.selectionText,
     // Replace all special characters with spaces. 
     // Any character other than A-Z or a-z or 0-9 will be replaced by a blank
-    clearedSelection = textSelected.replace(/[^a-zA-Z0-9_]/g, ' ').split(' '),
+    clearedSelection = textSelected.replace(/(\"[^\"]*\")/g,'').replace(/[^a-zA-Z0-9_]/g, ' ').split(' '),
     //regex to select only camelcase words    
-    regexPattern = new RegExp("^[A-Z]([A-Za-z])*");
+    regexPattern = new RegExp("^[A-Z]([A-Za-z])+");
 
   // Load external JSON file named java_lang_pkg.json
   loadJSON(function(response) {
@@ -46,7 +46,7 @@ function evalFunction(data) {
   });
 
   chrome.tabs.create({
-    url: "http://kodebeagle.com/search/#?searchTerms=" + search.toLowerCase()
+    url: "http://kodebeagle.com/search/#?searchTerms=" + search
   });
 }
 
