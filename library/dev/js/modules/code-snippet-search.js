@@ -9,9 +9,9 @@
     var searchTextArray = []
     // Replace all special characters with spaces.
     // Any character other than A-Z or a-z or 0-9 will be replaced by a blank
-    , clearedSelection = textSelected.replace(/[^a-zA-Z0-9_]/g, ' ').split(' ')
+    , clearedSelection = textSelected.replace(/(\"[^\"]*\")/g,'').replace(/[^a-zA-Z0-9_]/g, ' ').split(' ')
     //regex to select only camelcase words  
-    , regexPattern = new RegExp("^[A-Z]([A-Za-z])*")
+    , regexPattern = new RegExp("^[A-Z]([A-Za-z])+")
     ;
     clearedSelection = _.unique( clearedSelection );
     clearedSelection.forEach( function( keyword ) {
