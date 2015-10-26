@@ -71,7 +71,7 @@ class ExtractImportSuite extends FunSuite with BeforeAndAfterAll {
       "java.io.BufferedReader",
       "java.io.File"
     )
-    assert(editorDocOps.keySet().toSet() === expectedImports.toSet())
+    assert(editorDocOps.keySet().toSet === expectedImports.toSet)
   }
   ignore("Internal imports should be excluded from imports") {
     test("Internal imports should be excluded from imports") {

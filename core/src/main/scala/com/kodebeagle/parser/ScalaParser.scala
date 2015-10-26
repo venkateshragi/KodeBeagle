@@ -29,7 +29,7 @@ object ScalaParser {
     val scalariform: Option[ScalariformAst] = new CheckerUtils().parseScalariform(s)
     scalariform.map { x=>
       x.ast.tokens.filter(_.tokenType == Tokens.DEF).map(_.text)
-    }.foreach(x => println(x))
+    }
 
   }
 }

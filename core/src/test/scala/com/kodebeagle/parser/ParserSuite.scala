@@ -23,40 +23,42 @@ import com.kodebeagle.indexer.{HighLighter, Repository}
 import org.apache.commons.io.IOUtils
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 
+import scala.collection.mutable
+
 class ParserSuite extends FunSuite with BeforeAndAfterAll {
 
   test("Simple repo") {
     val r = RepoFileNameParser("repo~apache~zookeeper~160999~false~Java~trunk~789.zip")
-    assert(r == Some(Repository("apache", 160999, "zookeeper", false, "Java", "trunk", 789)))
+    assert(r.contains(Repository("apache", 160999, "zookeeper", false, "Java", "trunk", 789)))
   }
 
   test("Names with special character") {
     val r = RepoFileNameParser("/home/dir~temp/repo~apache~zookeeper-lost~160999~false~Java" +
       "~=+-trunk/2.1~789.zip")
-    assert(r == Some(Repository("apache", 160999, "zookeeper-lost", false, "Java", "=+-trunk/2.1",
+    assert(r.contains(Repository("apache", 160999, "zookeeper-lost", false, "Java", "=+-trunk/2.1",
       789)))
   }
 
   test("Branch name with version number only") {
     val r = RepoFileNameParser("repo~apache~zookeeper~160999~false~Java~2.1~789.zip")
-    assert(r == Some(Repository("apache", 160999, "zookeeper", false, "Java", "2.1", 789)))
+    assert(r.contains(Repository("apache", 160999, "zookeeper", false, "Java", "2.1", 789)))
   }
 
 
   test("Branch name with tilde in it.") {
     val r = RepoFileNameParser("repo~apache~zookee~per~160999~false~Java~2.~1~789.zip")
-    assert(r == None)
+    assert(r.isEmpty)
   }
 
   test("Branch name absent.") {
     val r = RepoFileNameParser("repo~apache~zookeeper~160999~false~Java~789.zip")
-    assert(r == Some(Repository("apache", 160999, "zookeeper", false, "Java", "master", 789)))
+    assert(r.contains(Repository("apache", 160999, "zookeeper", false, "Java", "master", 789)))
   }
 
   test("Hdfs url.") {
     val r = RepoFileNameParser(
       "/172.16.13.179:9000/user/data/github3/repo~apache~zookeeper~160999~false~Java~789.zip")
-    assert(r == Some(Repository("apache", 160999, "zookeeper", false, "Java", "master", 789)))
+    assert(r.contains(Repository("apache", 160999, "zookeeper", false, "Java", "master", 789)))
   }
 
   test("Multiple valid repo names.") {
@@ -67,7 +69,7 @@ class ParserSuite extends FunSuite with BeforeAndAfterAll {
     val repoNames = writer.toString.split("\n").map { x =>
       (RepoFileNameParser(x), x)
     }
-    assert(repoNames.filter(x => x._1 == None) === Seq())
+    assert(repoNames.filter(p = x => x._1.isEmpty) === Seq())
   }
 }
 
@@ -101,60 +103,61 @@ class MethodVisitorSuite extends FunSuite with BeforeAndAfterAll {
 
     val testMap = List(Map("io.netty.channel.Channel" -> Map(),
       "com.google.common.base.Preconditions" -> Map("checkNotNull" ->
-        List(HighLighter(74,20,54), HighLighter(75,20,54)))),
+        List(HighLighter(74, 20, 54), HighLighter(75, 20, 54)))),
 
-      Map("io.netty.channel.Channel" -> Map("isOpen" -> List(HighLighter(79,12,27)),
-        "isActive" -> List(HighLighter(79,32,49))),
+      Map("io.netty.channel.Channel" -> Map("isOpen" -> List(HighLighter(79, 12, 27)),
+        "isActive" -> List(HighLighter(79, 32, 49))),
         "javax.xml.bind.annotation.XmlAnyAttribute" -> Map()),
 
-      Map("org.slf4j.Logger" -> Map("trace" -> List(HighLighter(114,13,24)),
-        "debug" -> List(HighLighter(103,5,80)),
-        "error" -> List(HighLighter(119,13,50), HighLighter(125,15,85))),
+      Map("org.slf4j.Logger" -> Map("trace" -> List(HighLighter(114, 13, 24)),
+        "debug" -> List(HighLighter(103, 5, 80)),
+        "error" -> List(HighLighter(119, 13, 50), HighLighter(125, 15, 85))),
         "org.apache.spark.network.protocol.ChunkFetchRequest" -> Map(),
         "io.netty.channel.ChannelFutureListener" -> Map(), "java.io.IOException" -> Map(),
         "org.apache.spark.network.util.NettyUtils" -> Map("getRemoteAddress" ->
-          List(HighLighter(101,31,66))), "io.netty.channel.ChannelFuture" ->
-          Map("cause" -> List(HighLighter(118,27,40), HighLighter(119,36,49),
-            HighLighter(123,72,85)), "isSuccess" -> List(HighLighter(112,15,32))),
-        "io.netty.channel.Channel" -> Map("close" -> List(HighLighter(121,13,27)),
-          "writeAndFlush" -> List(HighLighter(108,5,63))),
+          List(HighLighter(101, 31, 66))), "io.netty.channel.ChannelFuture" ->
+          Map("cause" -> List(HighLighter(118, 27, 40), HighLighter(119, 36, 49),
+            HighLighter(123, 72, 85)), "isSuccess" -> List(HighLighter(112, 15, 32))),
+        "io.netty.channel.Channel" -> Map("close" -> List(HighLighter(121, 13, 27)),
+          "writeAndFlush" -> List(HighLighter(108, 5, 63))),
         "org.apache.spark.network.protocol.StreamChunkId" -> Map()),
 
-      Map("org.slf4j.Logger" -> Map("trace" -> List(HighLighter(139,5,49), HighLighter(150,13,97)),
-        "error" -> List(HighLighter(154,13,50), HighLighter(160,15,85))),
+      Map("org.slf4j.Logger" -> Map("trace" -> List(HighLighter(139, 5, 49),
+        HighLighter(150, 13, 97)),
+        "error" -> List(HighLighter(154, 13, 50), HighLighter(160, 15, 85))),
         "io.netty.channel.ChannelFutureListener" -> Map(),
         "java.io.IOException" -> Map(), "java.util.UUID" ->
-          Map("randomUUID" -> List(HighLighter(141,37,53))),
+          Map("randomUUID" -> List(HighLighter(141, 37, 53))),
         "org.apache.spark.network.util.NettyUtils" ->
-          Map("getRemoteAddress" -> List(HighLighter(137,31,66))),
-        "io.netty.channel.ChannelFuture" -> Map("cause" -> List(HighLighter(153,27,40),
-          HighLighter(154,36,49), HighLighter(158,60,73)), "isSuccess" ->
-          List(HighLighter(148,15,32))), "io.netty.channel.Channel" -> Map("close" ->
-          List(HighLighter(156,13,27)), "writeAndFlush" -> List(HighLighter(144,5,61))),
+          Map("getRemoteAddress" -> List(HighLighter(137, 31, 66))),
+        "io.netty.channel.ChannelFuture" -> Map("cause" -> List(HighLighter(153, 27, 40),
+          HighLighter(154, 36, 49), HighLighter(158, 60, 73)), "isSuccess" ->
+          List(HighLighter(148, 15, 32))), "io.netty.channel.Channel" -> Map("close" ->
+          List(HighLighter(156, 13, 27)), "writeAndFlush" -> List(HighLighter(144, 5, 61))),
         "org.apache.spark.network.protocol.RpcRequest" -> Map()),
 
-        Map("java.util.concurrent.TimeUnit" -> Map(), "java.util.concurrent.ExecutionException" ->
-        Map("getCause" -> List(HighLighter(189,34,45))), "com.google.common.base.Throwables" ->
-        Map("propagate" -> List(HighLighter(189,13,46), HighLighter(191,13,35))),
+      Map("java.util.concurrent.TimeUnit" -> Map(), "java.util.concurrent.ExecutionException" ->
+        Map("getCause" -> List(HighLighter(189, 34, 45))), "com.google.common.base.Throwables" ->
+        Map("propagate" -> List(HighLighter(189, 13, 46), HighLighter(191, 13, 35))),
         "com.google.common.util.concurrent.SettableFuture" -> Map("set" ->
-          List(HighLighter(177,9,28)), "get" -> List(HighLighter(187,14,57)),
-          "create" -> List(HighLighter(172,43,65)),
-          "setException" -> List(HighLighter(182,9,30)))),
+          List(HighLighter(177, 9, 28)), "get" -> List(HighLighter(187, 14, 57)),
+          "create" -> List(HighLighter(172, 43, 65)),
+          "setException" -> List(HighLighter(182, 9, 30)))),
 
       Map("java.util.concurrent.TimeUnit" -> Map(), "io.netty.channel.Channel" ->
-        Map("close" -> List(HighLighter(198,5,19)))),
+        Map("close" -> List(HighLighter(198, 5, 19)))),
 
-      Map("io.netty.channel.Channel" -> Map("remoteAddress" -> List(HighLighter(204,28,50))),
-        "com.google.common.base.Objects" -> Map("toStringHelper" -> List(HighLighter(203,12,39))))
+      Map("io.netty.channel.Channel" -> Map("remoteAddress" -> List(HighLighter(204, 28, 50))),
+        "com.google.common.base.Objects" -> Map("toStringHelper" -> List(HighLighter(203, 12, 39))))
     )
 
     val imports = getImports(parser, Set()).map(importName => importName._1 + "." + importName._2)
     val tokenMap: List[Map[String, List[HighLighter]]] = getTokenMap(parser, imports)
     val resultTokens = getImportsWithMethodAndLineNumbers(parser, tokenMap).map(_._1)
 
-    for(i <- resultTokens.indices) {
+    for (i <- resultTokens.indices) {
       val resultToken = resultTokens(i)
-      val testToken =  testMap(i)
+      val testToken = testMap(i)
       assert(resultToken.size === testToken.size)
       assert((resultToken.keySet diff testToken.keySet) === Set())
       assert((testToken.keySet diff resultToken.keySet) === Set())
@@ -170,15 +173,87 @@ class MethodVisitorSuite extends FunSuite with BeforeAndAfterAll {
   }
 }
 
+class GenericParserTest extends FunSuite {
+
+
+  test("With dummy scala file") {
+    val parsed: Option[List[String]] = GenericBraceMatchingParser(
+      """
+        |import abc.xyz
+        |import abc.xyz;
+        |
+        |object Test {
+        |  val g = 1
+        |  def fun = {
+        |   // some content.
+        |   val i = 10
+        |   }
+        |}
+        |class A {
+        | val a = 1000
+        |}
+        |
+      """.stripMargin)
+    assert(parsed.isDefined)
+    assert(parsed.get.exists(_.contains("val i = 10")))
+    assert(parsed.get.exists(_.contains("val a = 1000")))
+  }
+
+  test("With real java file") {
+    val stream: InputStream =
+      Thread.currentThread.getContextClassLoader.getResourceAsStream("TransportClient.java")
+
+    import scala.collection.JavaConversions._
+
+    val lines: String = IOUtils.readLines(stream).reduce(_ + _)
+    val parsed: Option[List[String]] = GenericBraceMatchingParser(lines)
+    assert(parsed.isDefined)
+  }
+
+  test("With real js file") {
+    val stream: InputStream =
+      Thread.currentThread.getContextClassLoader.getResourceAsStream("background.js")
+
+    import scala.collection.JavaConversions._
+
+    val lines: String = IOUtils.readLines(stream).reduce(_ + _)
+    val parsed: Option[List[String]] = GenericBraceMatchingParser(lines)
+    assert(parsed.isDefined)
+  }
+}
+
+class ScalaParserTest extends FunSuite {
+
+  import ScalaParser._
+
+  test("") {
+    parse(
+      """
+        |import abc.xyz
+        |import abc.xyz;
+        |
+        |object Test {
+        |
+        |  def fun = {
+        |   // some content.
+        |   val i = 10
+        |  }
+        |}
+        |
+      """.stripMargin)
+  }
+}
+
 class ZipParserTest extends FunSuite {
 
-  import com.kodebeagle.crawler.ZipBasicParser._
   import java.util.zip.ZipInputStream
+
+  import com.kodebeagle.crawler.ZipBasicParser._
   import com.kodebeagle.indexer.Statistics
 
   test("read zip file correctly") {
     val stream: InputStream = Thread.currentThread.getContextClassLoader.getResourceAsStream(
-        "repo~Cascading~cascading-dbmigrate~576623~false~Java~master~65.zip")
+      "repo~Cascading~cascading-dbmigrate~576623~false~Java~master~65.zip")
     val (files, packages, statistics) = readFilesAndPackages(576623, new ZipInputStream(stream))
     assert(statistics === Statistics(576623, 529, 4, 19))
   }

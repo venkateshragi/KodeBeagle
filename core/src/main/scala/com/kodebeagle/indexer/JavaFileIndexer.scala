@@ -24,21 +24,6 @@ import scala.util.Try
 
 import com.kodebeagle.configuration.KodeBeagleConfig
 
-trait BasicIndexer extends Serializable {
-
-  /** Adjusting the lines of context is crucial to the kinds of token generated. (Tune this.) */
-  def linesOfContext: Int
-
-  /** Import pattern of some languages is similar. */
-  val importPattern: Pattern = Pattern.compile("import (.*)\\.(\\w+);")
-
-  def generateTokens(files: Map[String, String], excludePackages: List[String],
-      repo: Option[Repository]): Set[IndexEntry]
-
-  protected def mapToTokens(map: mutable.Map[String, immutable.SortedSet[Int]]): Set[Token] = {
-    map.map{ case (key, value) => Token(key, value) }.toSet
-  }
-}
 object JavaFileIndexerHelper {
   val penalizeTestFiles = 5
 
@@ -53,6 +38,21 @@ object JavaFileIndexerHelper {
 
   def tuple2ToImportString(importName: (String, String)): String = {
     importName._1 + "." + importName._2
+  }
+}
+trait BasicIndexer extends Serializable {
+
+  /** Adjusting the lines of context is crucial to the kinds of token generated. (Tune this.) */
+  def linesOfContext: Int
+
+  /** Import pattern of some languages is similar. */
+  val importPattern: Pattern = Pattern.compile("import (.*)\\.(\\w+);")
+
+  def generateTokens(files: Map[String, String], excludePackages: List[String],
+                     repo: Option[Repository]): Set[IndexEntry]
+
+  protected def mapToTokens(map: mutable.Map[String, immutable.SortedSet[Int]]): Set[Token] = {
+    map.map{ case (key, value) => Token(key, value) }.toSet
   }
 }
 
@@ -97,7 +97,7 @@ class JavaFileIndexer extends BasicIndexer {
   /**
    * Takes a line of code and cleans it for further indexing.
    */
-  private def cleanUpCode(line: String): String = {
+  def cleanUpCode(line: String): String = {
    val cleaned =
      line.replaceFirst("""(\s*(import|private|public|protected|\/?\*|//).*)|\".*\"""", "")
       .replaceAll("\\W+", " ")
