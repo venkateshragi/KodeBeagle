@@ -175,7 +175,6 @@ public class LimitsPanel {
     }
 
     public final JPanel getPanel() {
-        createFields();
         JPanel limitsPanel = new JPanel();
         limitsPanel.setBorder(new TitledBorder(TITLE2));
         limitsPanel.setLayout(new GridBagLayout());
