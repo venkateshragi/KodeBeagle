@@ -17,14 +17,21 @@
 #
 
 use strict;
-
-
-open FILE, "plugins/idea/kodebeagleidea/target/findbugs/report.xml" or die "Couldn't open file: $!"; 
-
-my $string = "";
-my $count = -1;
+displayCheckStyleWarnings("plugins/idea/common/target/checkstyle-result.xml");
+displayCheckStyleWarnings("plugins/idea/javaPlugin/target/checkstyle-result.xml");
+displayFindBugsWarnings("plugins/idea/common/target/findbugs/report.xml");
+displayFindBugsWarnings("plugins/idea/javaPlugin/target/findbugs/report.xml");
+displayPMDWarnings("plugins/idea/common/target/pmd.xml");
+displayPMDWarnings("plugins/idea/javaPlugin/target/pmd.xml");
 
 # Findbugs
+sub displayFindBugsWarnings {
+
+open FILE, $_[0] or die "Couldn't open file: $!";
+my $string = "";
+my $count = -1;
+my $indx = index($_[0], "/target");
+my $proj = substr($_[0], 0, $indx);
 while (<FILE>) {
     $string .= $_;
     if(/<Errors errors=\"(\d+).*/) {
@@ -32,19 +39,21 @@ while (<FILE>) {
     }
 }
 if ($count > 0) {
-    print "ERROR: Found findbug violations.!!\n";
+    print "ERROR: Found findbug violations in ${proj}\n";
     print $string;
-    exit(1);
+
 }
 print "SUCCESS: No findbug violations\n";
 close FILE;
+}
 
 # Checkstyle
-open FILE, "plugins/idea/kodebeagleidea/target/checkstyle-result.xml" or die "Couldn't open file: $!"; 
-
+sub displayCheckStyleWarnings {
+open FILE, $_[0] or die "Couldn't open file: $!";
 my $string = "";
 my $count = 0;
-
+my $indx = index($_[0], "/target");
+my $proj = substr($_[0], 0, $indx);
 while (<FILE>) {
 
     if(/<file .*/) {
@@ -58,19 +67,22 @@ while (<FILE>) {
 }
 
 if ($count > 0) {
-    print "ERROR: Found checkstyle violations.!!\n";
+    print "ERROR: Found checkstyle violations in ${proj}\n";
     print $string;
-    exit(1);
-}
 
+}
 print "SUCCESS: No checkstyle violations\n";
 close FILE;
+}
 
 # PMD
-open FILE, "plugins/idea/kodebeagleidea/target/pmd.xml" or die "Couldn't open file: $!"; 
+sub displayPMDWarnings {
+open FILE, $_[0] or die "Couldn't open file: $!";
 
 my $string = "";
 my $count = 0;
+my $indx = index($_[0], "/target");
+my $proj = substr($_[0], 0, $indx);
 
 while (<FILE>) {
 
@@ -84,11 +96,14 @@ while (<FILE>) {
     }
 }
 
-if ($count > 4) { # allowing 4 violations
-    print "ERROR: Your code adds PMD violations.!!\n";
-    print $string;
-    exit(1);
+  if ($count > 4 && index($proj , "common") != -1) { # allowing 4 violations only if module is common
+     print "ERROR: Found additional PMD violations in ${proj}\n";
+     print $string;
+  } elsif ($count > 4 && index($proj , "common") == -1 ) {
+     print "ERROR: Found PMD violations in ${proj}\n";
+     print $string;
+  } else {
+     print "SUCCESS: No PMD violations\n";
+     close FILE;
+  }
 }
-
-print "SUCCESS: No PMD violations\n";
-close FILE;

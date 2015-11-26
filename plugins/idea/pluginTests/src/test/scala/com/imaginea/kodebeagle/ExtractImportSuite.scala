@@ -18,8 +18,7 @@
 package com.imaginea.kodebeagle
 
 import java.io.InputStream
-
-import com.imaginea.kodebeagle.util.EditorDocOps
+import com.imaginea.kodebeagle.javaplugin.util.JavaImportsUtil
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.impl.DocumentImpl
 import org.apache.commons.io.IOUtils
@@ -44,7 +43,7 @@ class ExtractImportSuite extends FunSuite with BeforeAndAfterAll {
    */
 
   test("Excluded imports set should accept regex and FQCN.") {
-    val importVsMethods = new mutable.HashMap[String, java.util.Set[String]]();
+    val importVsMethods = new mutable.HashMap[String, java.util.Set[String]]()
       importVsMethods += (
       "java.io.BufferedReader" -> Set("read").asJava,
       "java.io.FileInputStream" -> Set("close").asJava,
@@ -63,7 +62,7 @@ class ExtractImportSuite extends FunSuite with BeforeAndAfterAll {
       "java.util.Iterator"
     )
     val editorDocOps =
-      new EditorDocOps().excludeConfiguredImports(importVsMethods.asJava, excludeImport.asJava)
+      new JavaImportsUtil().excludeConfiguredImports(importVsMethods.asJava, excludeImport.asJava)
     val expectedImports = Set(
       "java.util.List",
       "java.nio.channels.FileChannel",
@@ -87,7 +86,7 @@ class ExtractImportSuite extends FunSuite with BeforeAndAfterAll {
         "com.imaginea.pramati.MojoP",
         "com.imaginea.pramati.Plan"
       )
-      val editorDocOps = new EditorDocOps().excludeInternalImports(imports.asJava)
+      val editorDocOps = new JavaImportsUtil().excludeInternalImports(imports.asJava)
       val expectedImports = Set(
         "java.io.BufferedInputStream",
         "java.io.FileInputStream",

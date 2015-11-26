@@ -21,9 +21,8 @@ import com.imaginea.kodebeagle.`object`.WindowObjects
 import com.imaginea.kodebeagle.util.JSONUtils
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 
-import scala.collection.JavaConverters._
-
 import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 class ESQueryJsonSuite extends FunSuite with BeforeAndAfterAll{
 
