@@ -53,6 +53,7 @@ import com.intellij.psi.util.ClassUtil;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.ui.Gray;
 import com.intellij.ui.JBColor;
+
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
@@ -69,6 +70,7 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+
 import org.jetbrains.annotations.NotNull;
 
 public class EditorDocOps {
@@ -124,7 +126,7 @@ public class EditorDocOps {
         Map<String, Set<String>> finalImports = new HashMap<>();
         if (psiJavaFile != null && psiJavaFile.findElementAt(pair.getFirst()) != null) {
             PsiElement psiElement = psiJavaFile.findElementAt(pair.getFirst());
-            final PsiElement psiMethod =  PsiTreeUtil.getParentOfType(psiElement, PsiMethod.class);
+            final PsiElement psiMethod = PsiTreeUtil.getParentOfType(psiElement, PsiMethod.class);
             if (psiMethod != null) {
                 psiMethod.accept(psiJavaElementVisitor);
             } else {
@@ -214,8 +216,7 @@ public class EditorDocOps {
                 packageName = entry.getKey().substring(0, entry.getKey().lastIndexOf(DOT));
                 List<VirtualFile> packageDirectories = Arrays.asList(
                         packageIndex.getDirectoriesByPackageName(packageName, false));
-                if (packageDirectories.size() > 0) {
-                    VirtualFile packageDirectory = packageDirectories.get(0);
+                for (VirtualFile packageDirectory : packageDirectories) {
                     if (!packageDirectory.isInLocalFileSystem()) {
                         importsAfterExclusion.put(entry.getKey(), entry.getValue());
                     }
@@ -229,10 +230,10 @@ public class EditorDocOps {
             final Map<String, Set<String>> importsVsMethods, final Set<String> excludeImports) {
         Map<String, Set<String>> finalImportsVsMethods = new HashMap<>();
         finalImportsVsMethods.putAll(importsVsMethods);
-        Set<Map.Entry<String, Set<String>>> entrySet =  importsVsMethods.entrySet();
+        Set<Map.Entry<String, Set<String>>> entrySet = importsVsMethods.entrySet();
         for (String importStatement : excludeImports) {
-             Pattern pattern = Pattern.compile(importStatement);
-             for (Map.Entry<String, Set<String>> entry : entrySet) {
+            Pattern pattern = Pattern.compile(importStatement);
+            for (Map.Entry<String, Set<String>> entry : entrySet) {
                 try {
                     String entryImport = entry.getKey();
                     Matcher matcher = pattern.matcher(entryImport);
