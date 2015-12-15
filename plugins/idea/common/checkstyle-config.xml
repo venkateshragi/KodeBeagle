@@ -75,7 +75,7 @@
     </module>
 
 	<module name="SuppressionFilter">
-		<property name="file" value="https://raw.githubusercontent.com/Imaginea/KodeBeagle/master/plugins/idea/kodebeagleidea/checkstyle-supressions.xml" />
+		<property name="file" value="https://raw.githubusercontent.com/Imaginea/KodeBeagle/master/plugins/idea/common/checkstyle-supressions.xml" />
 	</module>
 
     <module name="TreeWalker">

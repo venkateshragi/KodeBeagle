@@ -79,8 +79,9 @@ public class ProjectTree {
         return new TreeSelectionListener() {
             @Override
             public void valueChanged(final TreeSelectionEvent treeSelectionEvent) {
+                JTree jtree = (JTree) treeSelectionEvent.getSource();
                 DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)
-                        windowObjects.getjTree().getLastSelectedPathComponent();
+                        jtree.getLastSelectedPathComponent();
                 if (selectedNode != null && selectedNode.isLeaf() && root.getChildCount() > 0) {
                     final CodeInfo codeInfo = (CodeInfo) selectedNode.getUserObject();
                     ProgressManager.getInstance().run(new FetchFileContentTask(
@@ -221,22 +222,24 @@ public class ProjectTree {
     }
 
     private void showEditor(final CodeInfo codeInfo) {
-        VirtualFile virtualFile =
-                null;
-        try {
-            virtualFile = editorDocOps.getVirtualFile(codeInfo.getAbsoluteFileName(),
-                    codeInfo.getDisplayFileName(), codeInfo.getContents());
-        } catch (IOException | NoSuchAlgorithmException e) {
-            KBNotification.getInstance().error(e);
-            e.printStackTrace();
+        if (codeInfo.getContents() != null && !codeInfo.getContents().isEmpty()) {
+            VirtualFile virtualFile =
+                    null;
+            try {
+                virtualFile = editorDocOps.getVirtualFile(codeInfo.getAbsoluteFileName(),
+                        codeInfo.getDisplayFileName(), codeInfo.getContents());
+            } catch (IOException | NoSuchAlgorithmException e) {
+                KBNotification.getInstance().error(e);
+                e.printStackTrace();
+            }
+            if (virtualFile != null) {
+                FileEditorManager.getInstance(windowObjects.getProject()).
+                        openFile(virtualFile, true, true);
+            }
+            Document document = new DocumentImpl(codeInfo.getContents(), true, false);
+            editorDocOps.addHighlighting(codeInfo.getLineNumbers(), document);
+            editorDocOps.gotoLine(codeInfo.getLineNumbers().get(0), document);
         }
-        if (virtualFile != null) {
-            FileEditorManager.getInstance(windowObjects.getProject()).
-                    openFile(virtualFile, true, true);
-        }
-        Document document = new DocumentImpl(codeInfo.getContents(), true, false);
-        editorDocOps.addHighlighting(codeInfo.getLineNumbers(), document);
-        editorDocOps.gotoLine(codeInfo.getLineNumbers().get(0), document);
     }
 
     private AbstractAction addOpenInNewTabMenuItem(final CodeInfo codeInfo) {

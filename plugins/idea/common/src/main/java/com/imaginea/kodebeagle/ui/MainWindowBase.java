@@ -167,7 +167,7 @@ public abstract class MainWindowBase implements ToolWindowFactory {
         return toolBar;
     }
 
-    protected DefaultActionGroup getBasicActionGroup() {
+    protected final DefaultActionGroup getBasicActionGroup() {
         CollapseProjectTreeAction collapseProjectTreeAction = new CollapseProjectTreeAction();
         EditSettingsAction editSettingsAction = new EditSettingsAction();
         ExpandProjectTreeAction expandProjectTreeAction = new ExpandProjectTreeAction();
