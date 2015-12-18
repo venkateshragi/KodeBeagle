@@ -19,7 +19,7 @@ package com.kodebeagle.parser
 
 import java.util.regex.Pattern
 
-import com.kodebeagle.indexer.{HighLighter, ImportsMethods, MethodToken, Repository}
+import com.kodebeagle.indexer.{JavaFileIndexerHelper, HighLighter, ImportsMethods, MethodToken, Repository}
 import com.kodebeagle.logging.Logger
 import org.scalastyle.{CheckerUtils, ScalariformAst}
 
@@ -132,11 +132,11 @@ object ScalaParser extends Logger {
         }
 
         val repository: Repository = repo.getOrElse(Repository.invalid)
-        ImportsMethods(repository.id, fileName, tokens.toSet[MethodToken],
-          repository.stargazersCount)
+        ImportsMethods(repository.id, JavaFileIndexerHelper.fileNameToURL(repository, fileName),
+          tokens.toSet[MethodToken], repository.stargazersCount)
       }
 
-    }.toSet // TODO: These toSet are inefficient, work on them later.
+    }.filter(_.tokens.nonEmpty).toSet // TODO: These toSet are inefficient, work on them later.
   }
 
   // It is WIP, Offsets have to be captured from starting def to ending '}'
