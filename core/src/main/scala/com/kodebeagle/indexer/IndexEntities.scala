@@ -27,7 +27,8 @@ case class MethodAndLines(methodName: String, lineNumbers: List[HighLighter])
 case class IndexEntry(repoId: Int, file: String, tokens: Set[Token], score: Int)
 
 case class ImportsMethods(repoId: Int, file: String,
-                          tokens: Set[MethodToken], score: Int)
+                          tokens: Set[MethodToken],
+                          score: Int, language: String)
 
 /* Since our tokens are fully qualified import names. */
 case class Token(importName: String, lineNumbers: immutable.Set[Int])

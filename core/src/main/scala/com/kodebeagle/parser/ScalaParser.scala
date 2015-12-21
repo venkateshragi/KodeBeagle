@@ -79,8 +79,9 @@ object ScalaParser extends Logger {
           methodTokens
         }
       val repository: Repository = repo.getOrElse(Repository.invalid)
-      ImportsMethods(repository.id, fileName, tokens.toSet[MethodToken], repository.stargazersCount)
-    }.toSet
+      ImportsMethods(repository.id, fileName, tokens.toSet[MethodToken],
+        repository.stargazersCount, JavaFileIndexerHelper.getLang(fileName))
+    }.filter(x => x.tokens.nonEmpty && x.language.nonEmpty).toSet
   }
 
   /**
@@ -130,13 +131,14 @@ object ScalaParser extends Logger {
             methodTokens
           }
         }
-
         val repository: Repository = repo.getOrElse(Repository.invalid)
-        ImportsMethods(repository.id, JavaFileIndexerHelper.fileNameToURL(repository, fileName),
-          tokens.toSet[MethodToken], repository.stargazersCount)
+        val absoluteFileName: String = JavaFileIndexerHelper.fileNameToURL(repository, fileName)
+        ImportsMethods(repository.id, absoluteFileName,
+          tokens.toSet[MethodToken], repository.stargazersCount,
+          JavaFileIndexerHelper.getLang(absoluteFileName))
       }
-
-    }.filter(_.tokens.nonEmpty).toSet // TODO: These toSet are inefficient, work on them later.
+    }.filter(_.tokens.nonEmpty).filter(_.language.nonEmpty).toSet
+    // TODO: These toSet are inefficient, work on them later.
   }
 
   // It is WIP, Offsets have to be captured from starting def to ending '}'

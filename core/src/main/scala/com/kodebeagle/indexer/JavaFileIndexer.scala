@@ -32,6 +32,15 @@ object JavaFileIndexerHelper {
     s"""${repo.login}/${repo.name}/blob/${repo.defaultBranch}$actualFileName"""
   }
 
+  def getLang(fileName: String): String = {
+    val indexOfDot = fileName.lastIndexOf('.')
+    if (indexOfDot != -1) {
+      fileName.substring(indexOfDot + 1).toLowerCase()
+    } else {
+      ""
+    }
+  }
+
   def isTestFile(imports: Set[(String, String)]): Boolean = {
     imports.exists(x => x._1.equalsIgnoreCase("org.junit"))
   }
