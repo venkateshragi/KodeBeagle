@@ -30,6 +30,11 @@ class GitHubRepoDownloader extends Actor with Logger {
 
     case DownloadOrganisationRepos(organisation) => downloadFromOrganization(organisation)
 
+    case DownloadJavaScriptRepos(page) =>
+      JavaScriptRepoDownloader.startCrawlingFromSkippedCount(page)
+      JavaScriptRepoDownloader.pageNumber = JavaScriptRepoDownloader.pageNumber + 1
+      self ! DownloadJavaScriptRepos(JavaScriptRepoDownloader.pageNumber)
+
     case DownloadPublicRepos(since, zipOrClone) =>
       try {
         val nextSince = downloadFromRepoIdRange(since, zipOrClone)
@@ -72,6 +77,8 @@ object GitHubRepoDownloader {
 
   case class DownloadPublicReposMetadata(since: Int)
 
+  case class DownloadJavaScriptRepos(pageNumber: Int)
+
   case class RateLimit(limit: String)
 
   val system = ActorSystem("RepoDownloder")
@@ -79,7 +86,6 @@ object GitHubRepoDownloader {
   val repoDownloader = system.actorOf(Props[GitHubRepoDownloader])
 
   val zipActor = system.actorOf(Props[ZipActor])
-
 }
 
 class ZipActor extends Actor {
@@ -89,4 +95,3 @@ class ZipActor extends Actor {
       Process("rm -fr " + filePath).!!
   }
 }
-
