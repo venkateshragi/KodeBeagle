@@ -69,9 +69,10 @@ $(document).bind( 'keydown', function( e ) {
           
           if ( searchTerm ) {
             if( model.searchPage ) {
-              $location.search({
-                'searchTerms': searchTerm
-              });
+              var search = $location.search();
+              search.searchTerms = searchTerm;
+              $location.search( search );
+              
               $rootScope.editorView = true;  
             } else {
               window.location = 'search/#?searchTerms=' + searchTerm;
@@ -83,9 +84,9 @@ $(document).bind( 'keydown', function( e ) {
 
           KB.parseCodeSnippet( {url:basepath + 'library/data/java_lang_pkg.json',textSelected:model.searchCode}, function  ( searchTerm ) {
             if( model.searchPage ) { 
-              $location.search({
-                'searchTerms': searchTerm
-              });
+              var search = $location.search();
+              search.searchTerms = searchTerm;
+              $location.search( search );
               model.searchCode = ''; 
             } else {
               window.location = 'search/#?searchTerms=' + searchTerm;

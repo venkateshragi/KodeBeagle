@@ -21,7 +21,7 @@
       
 
       $scope.calcTop = function( snipp, line ) {
-        var val = line - snipp.start;
+        var val = line.lineNumber - snipp.start;
         var totHeight = $(snipp.ele).closest( '.snippet-holder' ).height();
         var offset = $(snipp.ele)[0].offsetTop + snipp.ele.find( 'ol li:nth-child(' +val + ')'  )[0].offsetTop;
         return {
@@ -30,7 +30,7 @@
       };
 
       $scope.goToTop = function(snipp, line) {
-        var val = line - snipp.start;
+        var val = line.lineNumber - snipp.start;
         var scrollEle = $(snipp.ele).closest( '.snippet-wraper' );
         var offset = $(snipp.ele)[0].offsetTop + snipp.ele.find( 'ol li:nth-child(' +val + ')'  )[0].offsetTop;
         scrollEle.scrollTop( offset );
@@ -117,9 +117,95 @@
           }
           search.filter = JSON.stringify( model.packages );
           $location.search( search  );
-      }
+      };
+
+      $scope.loadRepos = function () {
+        
+        if( model.repos || model.repoRequest === 'sent' ) {
+          return;
+        }
+        var selectedTexts = $location.search().searchTerms;
+        model.repos = false;
+        model.repoRequest = 'sent';
+        docsService.searchRepotopic( {
+          queryString: selectedTexts,
+          callback: function  ( obj ) {
+            model.repoRequest = 'responded';
+            var index;
+            var repos = [];
+            var obj;
+            var url;
+            var sortedArray;
+            var res = obj.result; 
+            for( var i=0; i < res.length ; i++ ) {
+              obj = { score: 0 };
+              addrepo  = false;
+              for( var j =0; j< res[i]._source.terms.length; j++ ) {
+                if( model.selectedTexts.indexOf( res[i]._source.terms[j].term ) !== -1 ) {
+                  addrepo = true;
+                  /*obj.terms = obj.terms || [];
+                  obj.terms.push( {
+                    term: res[i]._source.terms[j].term,
+                    score: res[ i ]._source.terms[ j ].score
+                  } );*/
+                  
+                  obj.score += res[i]._source.terms[j].score;
+                }
+              }
+              
+
+              if( addrepo ) {
+
+                obj.files = res[ i ]._source.files.slice( 0 , 5 );
+                if( obj.files.length ) {
+                  obj.reponame = ( function ( url ) {
+                    url = url.split('/');
+                    return url[0] + '/' + url[1];
+                  } )( obj.files[0].fileName );
+                  obj.terms = res[i]._source.terms.slice( 0, 10 );
+                  obj.repoStars = +res[i]._source.repository.repoStars;
+                  obj.repoId = res[i]._source.repository.repoId;
+                  repos.push( obj );  
+                }
+                
+                
+              }
+            }
+            model.repos = repos;
+          }
+        } );
+      };
+
+      $scope.changeTab = function( activeTab ) {
+        model.tab.files= false;
+        model.tab.repos= false;
+        model.tab[ activeTab ] = true;
+
+        var search = $location.search();
+        search.activeTab = activeTab;
+        $location.search( search );
+      };
+
+      $scope.orderByKey = '-score';
+      
+      $scope.repoSortBy = function( key ) {
+        if( key === 'score' ) {
+          $scope.orderByKey = $scope.orderByKey === '-score' ? 'score' : '-score';    
+        }
+        if( key === 'repoStars' ) {
+          $scope.orderByKey = $scope.orderByKey === '-repoStars' ? 'repoStars' : '-repoStars';    
+        }
+      };
       
     }
-  ]);
+  ])
+.filter('repoFileName', function() {
+  return function(input) {
+    input = input.split('/');
+    return input[input.length-1];
+  };
+})
+
+;
 
 })( KB.module )

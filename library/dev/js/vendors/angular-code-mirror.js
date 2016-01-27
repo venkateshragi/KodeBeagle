@@ -1,3 +1,8 @@
+String.prototype.replaceBetween = function(start, end, what) {
+    return this.substring(0, start) + what + this.substring(end);
+};
+
+
 /**
  * 2 way binding code mirror for AngularJS based on google-prettify
  * @version v0.0.3 - 2014-09-21 * @link https://github.com/a8m/angular-code-mirror
@@ -7,6 +12,77 @@
 (function ( window, angular, undefined ) {
 /*jshint globalstrict:true*/
 'use strict';
+
+function nth_occurrence (string, char, nth) {
+    var first_index = string.indexOf(char);
+    var length_up_to_first_index = first_index + 1;
+
+    if (nth == 1) {
+        return first_index;
+    } else {
+        var string_after_first_occurrence = string.slice(length_up_to_first_index);
+        var next_occurrence = nth_occurrence(string_after_first_occurrence, char, nth - 1);
+
+        if (next_occurrence === -1) {
+            return -1;
+        } else {
+            return length_up_to_first_index + next_occurrence;  
+        }
+    }
+  }
+
+  var highlightedLine = function  (line, start, end ) {
+    var counter = 0;
+    var ignore = false;
+    var startIndex = -1;
+    var endIndex = -1;
+    var tagStartPos ;
+    var endReached;
+
+    if( end <= start ) {
+      return line;
+    }
+
+    for( var i = 0;i < line.length ; i++  ) {
+
+      if( line[ i ] === '<' ) {
+        tagStartPos = i;
+        ignore = true;
+      }
+      else if( line[ i ] === '>' ) {
+        if( endReached ) {
+          endIndex = i + 1;
+          break;
+        }
+        ignore = false;
+        continue;
+      }
+
+      if( ignore ) {
+        continue;
+      }
+
+      counter++;
+      if( counter === start ) {
+        startIndex = tagStartPos;
+        
+      }
+      if( counter === end ) {
+        endReached = true;
+        if( line[ i + 1 ] != '<' ){
+          endIndex = i + 1;
+          break;
+        }
+        
+      }
+
+    }
+    //console.log( startIndex, endIndex, line   );
+    return line.replaceBetween( startIndex, endIndex, '<span class="hltd">' + line.substring( startIndex, endIndex ) + '</span>' );
+
+  }
+
+
 
 var isDefined = angular.isDefined,
   isUndefined = angular.isUndefined,
@@ -55,6 +131,7 @@ function codeMirrorDirective(prettify) {
 
       preElm.append(codeElm);
       //replace tElm with new preElm
+      //console.log( preElm[0] );
       tElm.replaceWith(preElm[0]);
 
       return linkFn
@@ -62,7 +139,7 @@ function codeMirrorDirective(prettify) {
 
   };
 
-  /*
+    /*
    * Directive link function
    * @param scope
    * @param elm
@@ -74,18 +151,43 @@ function codeMirrorDirective(prettify) {
     var codeElm = elm.find('code');
     //determine if to add line numbers or not
     var lineNumbers = scope.$eval(attr.lineNumbers) || false;
-    var heilightLines = scope.$eval(attr.rowHeilight) || false;
+    var highlightLines = scope.$eval(attr.rowHeilight) || false;
+    //console.log( 'asdasdasadsdddddddddddddddddddddd' );
+    var activeLineNumbers;
+    if( highlightLines ) {
+      activeLineNumbers = _.pluck( highlightLines, 'lineNumber' );  
+    }
+    
 
+
+    //console.log( heilightLines );
     scope.$watch(attr.model, function(nVal) {
+
       if(nVal) {
         codeElm.empty();
         //replace all tag chars with their entity
-        codeElm.html(prettify.one(
+        
+        var code = prettify.one(
           nVal.replace(/</g, '&lt;').replace(/>/g,'&gt;'),
           attr.lang || '',
           lineNumbers,
-          heilightLines
-        ));
+          activeLineNumbers
+        );
+
+
+        /*if( highlightLines ) {
+
+          for( var i=0;i<highlightLines.length;i++ ) {
+            var startInd = nth_occurrence(code, '<li', highlightLines[ i ].lineNumber - lineNumbers + 1  );
+            var endInd = nth_occurrence(code, '</li>', highlightLines[ i ].lineNumber - lineNumbers + 1  );
+            var line = code.substring( startInd, endInd + 5 );
+            var line = highlightedLine( line, highlightLines[i].startColumn, highlightLines[i].endColumn );
+            code = code.replaceBetween(startInd, endInd + 5, line );
+          }  
+        }*/
+        
+
+        codeElm.html(code);
       }
     });
 
@@ -834,6 +936,7 @@ var prettyPrint;
      * }</pre>
      */
     var decorate = function (job) {
+
       var sourceCode = job.sourceCode, basePos = job.basePos;
       /** Even entries are positions in source in ascending order.  Odd enties
         * are style markers (e.g., PR_COMMENT) that run from that position until
@@ -899,6 +1002,7 @@ var prettyPrint;
             embeddedSourceStart = embeddedSourceEnd - embeddedSource.length;
           }
           var lang = style.substring(5);
+
           // Decorate the left of the embedded source
           appendDecorations(
               basePos + tokenStart,
@@ -918,6 +1022,7 @@ var prettyPrint;
         }
       }
       job.decorations = decorations;
+      
     };
     return decorate;
   }
@@ -1123,7 +1228,7 @@ var prettyPrint;
    * @param {boolean} isPreformatted true iff white-space in text nodes should
    *     be treated as significant.
    */
-  function numberLines(node, opt_startLineNum, isPreformatted, opt_heilightLines) {
+  function numberLines(node, opt_startLineNum, isPreformatted, opt_heilightLines, opt_heilightLines_obj) {
     var nocode = /(?:^|\s)nocode(?:\s|$)/;
     var lineBreak = /\r\n?|\n/;
   
@@ -1241,7 +1346,8 @@ var prettyPrint;
       // is co-prime with 10.
       li.className = 'L' + ((i + offset) % 10);
       if( opt_heilightLines && opt_heilightLines.indexOf( i + opt_startLineNum ) != -1 ) {
-        li.className += ' active-line';   
+        li.className += ' active-line';
+
       }
       //console.log( i, opt_startLineNum );
       if (!li.firstChild) {
@@ -1552,7 +1658,7 @@ var prettyPrint;
    * @param opt_numberLines {number|boolean} True to number lines,
    *     or the 1-indexed number of the first line in sourceCodeHtml.
    */
-  function $prettyPrintOne(sourceCodeHtml, opt_langExtension, opt_numberLines, opt_heilightLines) {
+  function $prettyPrintOne(sourceCodeHtml, opt_langExtension, opt_numberLines, opt_heilightLines, opt_heilightLines_obj) {
     var container = document.createElement('div');
     // This could cause images to load and onload listeners to fire.
     // E.g. <img onerror="alert(1337)" src="nosuchimage.png">.
@@ -1562,9 +1668,10 @@ var prettyPrint;
     // http://stackoverflow.com/questions/451486/pre-tag-loses-line-breaks-when-setting-innerhtml-in-ie
     // http://stackoverflow.com/questions/195363/inserting-a-newline-into-a-pre-tag-ie-javascript
     container.innerHTML = '<pre>' + sourceCodeHtml + '</pre>';
+
     container = container.firstChild;
     if (opt_numberLines) {
-      numberLines(container, opt_numberLines, true, opt_heilightLines);
+      numberLines(container, opt_numberLines, true, opt_heilightLines, opt_heilightLines_obj);
     }
 
     var job = {
@@ -1574,6 +1681,7 @@ var prettyPrint;
       pre: 1
     };
     applyDecorator(job);
+
     return container.innerHTML;
   }
 

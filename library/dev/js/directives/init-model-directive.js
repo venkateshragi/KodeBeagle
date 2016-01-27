@@ -60,7 +60,7 @@
           }, function(params) {
             model.currentPageNo = 0;
             var selectedTexts = $location.search().searchTerms;
-            
+             model.repos = false;
             model.selectedTexts = [];
             $rootScope.editorView = false;
             model.showErrorMsg = false;
@@ -105,6 +105,7 @@
                   if (processedData.result.length === 0) {
           
                     model.emptyResponse = true;
+                    model.totalFiles = 0;
                     function getCombinations(chars) {
                       var result = [];
                       var f = function(prefix, chars) {
@@ -148,8 +149,8 @@
               model.packages = false;
 
             }
-
           });
+
           scope.$watch(function() {
             return $location.search().filter;
           }, function( newval, oldval ) {

@@ -1,6 +1,6 @@
 (function(angular) {
   var requestCounter = 0;
-  var precessRequest = function(state) {
+  var processRequest = function(state) {
     if (state) {
       requestCounter++;
       angular.element(document.getElementById('request-loader')).addClass('show');
@@ -22,22 +22,22 @@
       $httpProvider.interceptors.push(function($q) {
         return {
           request: function(config) {
-            precessRequest(true);
+            processRequest(true);
             //console.log( 'all requests will go through this..' );
             return config;
           },
           requestError: function(response) {
-            precessRequest(false);
+            processRequest(false);
             //console.log( 'all requestError will go through this..' );
             return $q.reject(response);
           },
           response: function(response) {
-            precessRequest(false);
+            processRequest(false);
             //console.log( 'all response will go through this..' );
             return response;
           },
           responseError: function(response, status) {
-            precessRequest(false);
+            processRequest(false);
             //console.log( 'all responseError will go through this..' );
             return $q.reject(response);
           },

@@ -8,7 +8,7 @@
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
     border-radius: 5px;
-    padding-right: 60px;
+    padding-right: 84px;
     border: 1px solid #ccc;
     white-space: nowrap;
     text-align: left;
@@ -35,9 +35,10 @@
 	    border-radius: 5px;
 	    background: 0 0;
 	    outline: 0;
-	    width: 100%;
+	    /*width: 100%;*/
 	    font-size: 16px;
 	    font-weight: 400;
+	    width: 100%;
 	}
 	.selected-text+input {
       .placeholder-color( transparent );
@@ -59,6 +60,9 @@
 	&.search-item-present .search {
 	    color: #4679bd;
 	    cursor: pointer;
+	}
+	&.search-item-present input{
+		width: auto; 
 	}
 	.search {
 	    position: absolute;
@@ -99,4 +103,8 @@ textarea {
     outline: none;
     font-weight: normal;
     resize: none;
+}
+
+.search-input-holder {
+    overflow-y: auto;
 }

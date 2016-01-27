@@ -29,7 +29,7 @@
           ;
 
         correctedQuery = buildSearchString( obj.queryString );
-        queryBlock = getQuery(correctedQuery);
+        queryBlock = getQuery(correctedQuery, 'typeimportsmethods.tokens.importName', 'must');
 
         queryES(
           {
@@ -54,24 +54,26 @@
 
       }
 
-      function getQuery( queryString ) {
+      function getQuery( queryString, token, key ) {
         var terms = queryString.split( ',' ),
           mustTerms = terms.map( function( queryTerm ) {
               var prefix = ( queryTerm.search( /\*/ ) >= 0 || queryTerm.search( /\?/ ) >= 0 ) ? 'wildcard' : 'term';
               var result = {};
               result[ prefix ] = {
-                  'typeimportsmethods.tokens.importName': queryTerm.trim().toLowerCase()
               };
+              result[ prefix ][ token ] =  queryTerm.trim().toLowerCase();
               return result;
           } );
-
-        return {
-          'bool': {
-            'must': mustTerms,
-            'must_not': [],
-            'should': []
-          }
-        };
+        var returnObj = {};
+        returnObj.bool = {};
+        returnObj.bool[ key ] = mustTerms;
+        returnObj.bool.must_not = [];
+        if( key === 'should' ) {
+          returnObj.bool.must = [];
+        } else {
+          returnObj.bool.should = [];
+        }
+        return returnObj;
       }
 
       function queryES( obj ) { // indexName, queryBody, resultSize, successCallback
@@ -154,6 +156,7 @@
                 return r;
               }
             } );
+
             result = _.remove(result, undefined );
 
             for( var m in pkgItem.methods ) {
@@ -205,19 +208,20 @@
               };
               matchingImports[x.importExactName].methodCount++;
               matchingImports[x.importExactName].methods = matchingImports[x.importExactName].methods.concat(x.methodAndLineNumbers.map(function(m) {
-                return m.methodName
+                return 'm_' + m.methodName
               }));
               fileMatchingImports[x.importExactName] = fileMatchingImports[x.importExactName] || [];
               fileMatchingImports[x.importExactName] = fileMatchingImports[x.importExactName].concat(x.methodAndLineNumbers.map(function(m) {
-                return m.methodName
+                return 'm_' + m.methodName
               }));
 
               matchedImportLines[ x.importExactName ] = matchedImportLines[ x.importExactName] || [];
               matchedImportLines[ x.importExactName] = matchedImportLines[ x.importExactName].concat( x.lineNumbers );
 
               x.methodAndLineNumbers.map( function( m ) {
-                matchedMethodLines[ m.methodName ] = matchedMethodLines[ m.methodName ] || [];
-                matchedMethodLines[ m.methodName ] = matchedMethodLines[ m.methodName ].concat( m.lineNumbers );
+                
+                matchedMethodLines[ 'm_' + m.methodName ] = matchedMethodLines[ 'm_' + m.methodName ] || [];
+                matchedMethodLines[ 'm_' + m.methodName ] = matchedMethodLines[ 'm_' + m.methodName ].concat( m.lineNumbers );
 
               } );
             });
@@ -279,8 +283,15 @@
       }
 
 
-      function getLineData( content, lastObj, l, offset, obj ) {
-
+      function sanitizeLastChar ( obj ) {
+        if( obj.content[ obj.content.length -1 ] === '\n' ) {
+          obj.end--;
+          obj.endIndex--;
+          obj.content = obj.content.substring( 0, obj.content.length -1 )
+        }
+      }
+      function getLineData( content, lastObj, line, offset, obj ) {
+        var l = line.lineNumber;
         if( obj.length ) {
 
           var lastObj = obj[ obj.length -1 ];
@@ -290,20 +301,23 @@
               if( i2 === -1 ) {
                 i2 = nth_occurrence( content, '\n', l + offset - 1 );
               }
-              lastObj.content +=  content.substring( lastObj.endIndex, i2 ) + ' ';
+              lastObj.content +=  content.substring( lastObj.endIndex, i2 ) ;
               lastObj.endIndex = i2 ;
               lastObj.end = l +  offset + 1;
-              lastObj.lineNumbers.push( l );
+              lastObj.lineNumbers.push( line );
+              sanitizeLastChar( lastObj );
             } else {
                 var i1 = nth_occurrence( content, '\n', l - offset -1 );
                 obj.push( {
                   start: lastObj.end - 1,
                   end: l - offset - 1,
-                  content: content.substring( lastObj.endIndex+1, i1 ) + ' ',
+                  content: content.substring( lastObj.endIndex+1, i1 ) ,
                   state: false,
                   startIndex: 0,
                   endIndex: i1
                 } );
+                sanitizeFirstChar( obj[ obj.length -1 ] );
+                sanitizeLastChar( obj[ obj.length -1 ] );
               var i2 = nth_occurrence( content, '\n', l + offset );
               if( i2 === -1 ) {
                 i2 = nth_occurrence( content, '\n', l + offset - 1 );
@@ -311,12 +325,13 @@
                obj.push( {
                 start: l - offset - 1 ,
                 end: l + offset + 1,
-                content: content.substring( i1, i2 ).substring(1) + ' ',
+                content: content.substring( i1, i2 ).substring(1) ,
                 state: true,
                 startIndex: i1,
                 endIndex: i2,
-                lineNumbers: [ l ]
+                lineNumbers: [ line ]
               } );
+              sanitizeLastChar( obj[ obj.length -1 ] );
               sanitizeFirstChar( obj[ obj.length -1 ] );
             }
           }
@@ -327,23 +342,27 @@
           obj.push( {
             start: 0,
             end: l - offset - 1,
-            content: content.substring( 0, i1 ) + ' ' ,
+            content: content.substring( 0, i1 )  ,
             state: false,
             startIndex: 0,
             endIndex: i1
           } );
-
+          sanitizeFirstChar( obj[ obj.length -1 ] );
+          sanitizeLastChar( obj[ obj.length -1 ] );
           var i2 = nth_occurrence( content, '\n', l + offset );
+          if( i2 === -1 ) {
+            i2 = nth_occurrence( content, '\n', l + offset - 1 );
+          }
           obj.push( {
             start: l - offset - 1,
             end: l + offset + 1,
-            content: content.substring( i1, i2 ).substring(1) + ' ',
+            content: content.substring( i1, i2 ).substring(1) ,
             state: true,
             startIndex: i1,
             endIndex: i2,
-            lineNumbers: [ l ]
+            lineNumbers: [ line ]
           } );
-
+          sanitizeLastChar( obj[ obj.length -1 ] );
           sanitizeFirstChar( obj[ obj.length -1 ] );
 
 
@@ -358,6 +377,7 @@
             return first_index;
         } else {
             var string_after_first_occurrence = string.slice(length_up_to_first_index);
+
             var next_occurrence = nth_occurrence(string_after_first_occurrence, char, nth - 1);
 
             if (next_occurrence === -1) {
@@ -386,7 +406,7 @@
         var lastObj;
 
         for( var k = 0; k < lines.length ; k++  ) {
-          getLineData( fileContent, lastObj, lines[k].lineNumber, offset, obj );
+          getLineData( fileContent, lastObj, lines[k], offset, obj );
         }
         if( obj.length ) {
           var lastObj = obj[ obj.length - 1  ]
@@ -453,6 +473,33 @@
           linesData: getlinesObj( fileContent, fileInfo.lines, offset )
         }
       }
+
+      var searchRepotopic = function  ( obj ) {
+        
+        var correctedQuery
+          , queryBlock
+          ;
+
+        correctedQuery = buildSearchString( obj.queryString );
+        queryBlock = getQuery(correctedQuery, 'typerepotopic.terms.term', 'must' );
+
+        queryES(
+          {
+            indexName: 'repotopic',
+            queryBody: {
+              'query': queryBlock,
+              "from": 0,
+              "size": 10,
+              "sort": [],
+              "facets": {}
+            },
+            callbackObj: {
+            },
+            resultSize: obj.resultSize || settings.resultSize,
+            callback: obj.callback
+          } );
+      };
+
       return {
         search: search,
         getFilteredFiles: getFilteredFiles,
@@ -469,7 +516,8 @@
         getData: function  ( key ) {
           return this[ key ];
         },
-        updatedLineNumbers: updatedLineNumbers
+        updatedLineNumbers: updatedLineNumbers,
+        searchRepotopic: searchRepotopic
       };
     }
   ]);

@@ -1,0 +1,96 @@
+<tab select="loadRepos()" active="model.tab[ 'repos' ]" ng-click="changeTab( 'repos' )">
+    <tab-heading>
+        Repos  <span ng-if="model.repos.length" class="badge"><span ng-bind="model.repos.length"></span></span>
+    </tab-heading>
+    {% raw %}
+    <div>
+        <table class="table" ng-if="model.repoRequest=='responded' && model.repos.length">
+            <thead>
+              <tr>
+                <th>Repo Name</th>
+                <th class="pointer" ng-click="repoSortBy( 'repoStars' )">Git stars</th>
+                <th>Files</th>
+                <th class="pointer" ng-click="repoSortBy( 'score' )">Relative Frequency</th>
+                <th ng-hide="true">Term Frequency</th>
+                <th>Word Cloud</th>
+              </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="repoData in model.repos | orderBy: orderByKey">
+                    <td>
+                    <a ng-href="./../repository#?repoId={{repoData.repoId}}" >{{repoData.reponame}}</a> <a class="glyphicon glyphicon-new-window" ng-href="https://github.com/{{repoData.reponame}}" target="_blank"></a>
+                    
+                    </td>
+                    <td>{{repoData.repoStars}}</td>
+                    <td>
+                        <table class="table files-table">
+                            <tbody>
+                                <tr ng-repeat="repoFile in repoData.files">
+                                    <td><a href="https://github.com/{{repoFile.fileName}}" target="_blank">{{repoFile.fileName | repoFileName}}</a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                    <td>{{repoData.score*100 | number:2}} %</td>
+                    <td ng-hide="true">
+                        <table class="table files-table">
+                            <tbody>
+                                <tr ng-repeat="term in repoData.terms">
+                                    <td>{{term.score}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                    <td>
+                        <canvas word-cloud data-terms="repoData.terms"></canvas>
+
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div ng-if="model.repoRequest=='sent'">
+            <div class="text-center jumbotron">
+                Loading...
+            </div>
+        </div>
+        <div ng-if="model.repoRequest=='responded' && !model.repos.length">
+            <div class="text-center jumbotron">
+                no matches found
+            </div>
+        </div>
+    </div>
+    {% endraw %}
+</tab>
+<style type="text/css">
+    .table {
+        background: #f8f8f8;   
+    }
+    .table a{
+        color: #333;
+    }
+    .table .table {
+        background: transparent;
+    }
+    .table thead th {
+        text-align: center;
+        white-space: nowrap;
+    }
+    .table>tbody>tr>td {
+        text-align: center;
+    }
+    .table>tbody>tr>td:first-child {
+        text-align: left;
+    }
+    .files-table>tbody>tr>td:first-child {
+        text-align: center;
+    }
+    .pointer {
+        cursor: pointer;
+    }
+    .table>thead>tr>th:first-child {
+        text-align: left;
+    }
+    .table .glyphicon{
+        font-size: 14px;
+    }
+</style>

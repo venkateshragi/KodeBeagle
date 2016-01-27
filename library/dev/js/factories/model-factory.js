@@ -27,7 +27,9 @@
 			    data.config.offset = 2;
 			}
       	}
-
+        var activeTab = $location.search().activeTab || 'files';
+        data.tab = {};
+        data.tab[ activeTab ] = true;
         return data;
     } ] );
 

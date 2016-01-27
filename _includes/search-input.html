@@ -7,17 +7,19 @@
             <a href="#" ng-class="{'active':!model.isCode}" ng-click="$event.preventDefault();model.isCode = false">keyword</a> | <a href="#" ng-class="{'active':model.isCode}" ng-click="model.isCode = true;model.selectedTexts=[]"> snippet </a>
         </p>
         <div class="search-container" ng-class="{'search-item-present': !model.isCode && (model.selectedTexts.length || model.searchText) || (model.searchCode && model.isCode) }">
-            <input type="submit" class="hide"/>
-            <span ng-repeat="item in model.selectedTexts track by $index" class="selected-text" ng-dblclick="handleSelectedText( $event, $index )">
-                {% raw  %}
-                    {{item}}
-                {% endraw %}
-                <i href="#" class="glyphicon glyphicon-remove" ng-click="deleteItem( $event, $index )"></i>
-            </span>
-            <input type="text" ng-if="!model.isCode" name="searchText" id="searchText" ng-model="model.searchText" ng-keydown="handleSearchText( $event )"  ng-focusout="searchTextFocusout()" placeholder="Search here Eg: FileChannel, MappedByteBuffer"
-            autocomplete="off"
-            />
-            <textarea name="searchText" ng-if="model.isCode" ng-model="model.searchCode" id="searchCode"></textarea>
+            <div class="search-input-holder">
+                <input type="submit" class="hide"/>
+                <span ng-repeat="item in model.selectedTexts track by $index" class="selected-text" ng-dblclick="handleSelectedText( $event, $index )">
+                    {% raw  %}
+                        {{item}}
+                    {% endraw %}
+                    <i href="#" class="glyphicon glyphicon-remove" ng-click="deleteItem( $event, $index )"></i>
+                </span>
+                <input type="text" ng-if="!model.isCode" name="searchText" id="searchText" ng-model="model.searchText" ng-keydown="handleSearchText( $event )"  ng-focusout="searchTextFocusout()" placeholder="Search here Eg: FileChannel, MappedByteBuffer"
+                autocomplete="off"
+                />
+                <textarea name="searchText" ng-if="model.isCode" ng-model="model.searchCode" id="searchCode"></textarea>
+            </div>
             <a href="#" class="glyphicon glyphicon-remove clear" ng-click="clearAll( $event )" tooltip-placement="bottom" tooltip="Clear Text"></a>
             </a>
             <button type="button" ng-click="formSubmit( true )" class="glyphicon glyphicon-search search"

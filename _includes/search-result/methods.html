@@ -20,7 +20,7 @@
                     <li class="method" ng-repeat="item in import.methods">
                         <label>
                             <input  type="checkbox" name="method" ng-model="model.packages[ import.importName ].methods[item]" ng-change="updateFilter()">
-                            {{item}}
+                            {{item.substring( 2 )}}
                         </label>
                     </li>
                 </ul>
