@@ -17,6 +17,7 @@
 
 package com.kodebeagle.crawler
 
+
 import akka.actor.{Actor, ActorSystem, Props}
 import com.kodebeagle.configuration.KodeBeagleConfig
 import com.kodebeagle.logging.Logger
@@ -31,8 +32,10 @@ class GitHubRepoDownloader extends Actor with Logger {
     case DownloadOrganisationRepos(organisation) => downloadFromOrganization(organisation)
 
     case DownloadJavaScriptRepos(page) =>
-      JavaScriptRepoDownloader.startCrawlingFromSkippedCount(page)
-      JavaScriptRepoDownloader.pageNumber = JavaScriptRepoDownloader.pageNumber + 1
+      val corruptRepo = JavaScriptRepoDownloader.startCrawlingFromSkippedCount(page,"")
+      if (corruptRepo == "") {
+        JavaScriptRepoDownloader.pageNumber = JavaScriptRepoDownloader.pageNumber + 1
+      }
       self ! DownloadJavaScriptRepos(JavaScriptRepoDownloader.pageNumber)
 
     case DownloadPublicRepos(since, zipOrClone) =>

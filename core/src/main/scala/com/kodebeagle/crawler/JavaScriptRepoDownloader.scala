@@ -17,6 +17,8 @@
 
 package com.kodebeagle.crawler
 
+import java.util
+
 import com.kodebeagle.configuration.KodeBeagleConfig
 import com.kodebeagle.crawler.GitHubApiHelper._
 import com.kodebeagle.crawler.GitHubRepoDownloader.DownloadJavaScriptRepos
@@ -42,7 +44,8 @@ object JavaScriptRepoDownloader extends App with Logger {
 
   GitHubRepoDownloader.repoDownloader ! DownloadJavaScriptRepos(pageNumber)
 
-  def startCrawlingFromSkippedCount(pageNumber: Int): Unit = {
+  def startCrawlingFromSkippedCount(pageNumber: Int, corruptRepoId: String): String = {
+    var currentRepoId = ""
     try {
       val method = new GetMethod(url(perPageRepositories, skippedCount(pageNumber)))
       val executedMethod = executeMethod(method)
@@ -50,11 +53,15 @@ object JavaScriptRepoDownloader extends App with Logger {
       if (ids.children.isEmpty) log.info("Did not get repo list from NPM")
       else {
         val repoIdVsGithubUrls = getRepoAndGithubUrlMap(ids)
+        if(corruptRepoId != "") {
+          repoIdVsGithubUrls.remove(corruptRepoId)
+        }
         log.info("[" + repoIdVsGithubUrls + "]")
-        repoIdVsGithubUrls.foreach { case (repoId, repoURL) =>
+        import scala.collection.JavaConversions._
+        repoIdVsGithubUrls.toMap.foreach { case (repoId, repoURL) =>
+          currentRepoId = repoId
           if (repoURL.nonEmpty && repoURL.size == 1) {
             val repo = repoURL(0)
-            log.info("#repo : " + repo)
             val gitUserNameAndRepoName = repo.split("/")
             val userName = gitUserNameAndRepoName(0).split(":")(1)
             val lastIndex = gitUserNameAndRepoName(1).lastIndexOf(".git")
@@ -63,21 +70,30 @@ object JavaScriptRepoDownloader extends App with Logger {
               lastIndexOf(".git"))
             log.info(s"Downloading from pageNumber $pageNumber " +
               s"https://api.github.com/repos/$userName/${repoName}")
-            val method = GitHubApiHelper.executeMethod(s"https://api.github.com/" +
-              s"repos/$userName/${repoName}", token)
+
+            // Add client_id and client_secret to the url in executeMethod()
+            val method = GitHubApiHelper.executeMethod(
+              s"https://api.github.com/repos/$userName/${repoName}", token)
             httpGetJson(method).map { json =>
               val repository = extractRepoInfo(json)
-              GitHubApiHelper.cloneRepository(repository, repoURL.head, KodeBeagleConfig.githubDir)
+              if (repository.language == "JavaScript") {
+                val url = s"https://github.com/$userName/${repoName}.git"
+                GitHubApiHelper.cloneRepository(repository, url, KodeBeagleConfig.githubDir)
+              }
             }
           }
         }
       }
+      ""
     } catch {
       case ex: Exception => log.error("Exception {}", ex)
+        currentRepoId
     }
+
   }
 
-  def getRepoAndGithubUrlMap(ids: JValue): Map[String, List[String]] = {
+  def getRepoAndGithubUrlMap(ids: JValue): util.Map[String, List[String]] = {
+    import scala.collection.JavaConverters._
     val repoIdVsGithubUrls = ids.children.map { repoDetails =>
       val repoId = (repoDetails \ "id").values.toString
       val method = new GetMethod(getRepoUrl(repoId))
@@ -88,11 +104,11 @@ object JavaScriptRepoDownloader extends App with Logger {
             "git://github.com/|http://github.com/", "git@github.com:"))).
         filter(repo => repo.contains("github.com")).distinct
     }
-    repoIdVsGithubUrls.toMap
+    repoIdVsGithubUrls.toMap.asJava
   }
 
   def url(limit: Int, skip: Int): String = s"https://skimdb.npmjs.com/registry/_all_docs?" +
-    s"limit= $limit&skip=$skip"
+    s"limit=$limit&skip=$skip"
 
   def getRepoUrl(repoName: String): String = s"https://skimdb.npmjs.com/registry/$repoName"
 
