@@ -17,18 +17,14 @@
 
 package com.kodebeagle.crawler
 
-import akka.actor.Actor
-import akka.actor.Props
-import scala.concurrent.duration.Duration
-import java.util.concurrent.TimeUnit
-import akka.actor.ActorSystem
-import com.kodebeagle.logging.Logger
+import akka.actor.{Actor, ActorSystem, Props}
 import com.kodebeagle.configuration.KodeBeagleConfig
+import com.kodebeagle.logging.Logger
 
 class GitHubRepoDownloader extends Actor with Logger {
 
-  import GitHubRepoDownloader._
   import GitHubRepoCrawlerApp._
+  import GitHubRepoDownloader._
 
   def receive: PartialFunction[Any, Unit] = {
 
@@ -52,6 +48,18 @@ class GitHubRepoDownloader extends Actor with Logger {
         GitHubApiHelper.token = KodeBeagleConfig.nextToken()
         log.info("limit 0,token changed :" + GitHubApiHelper.token)
       }
+
+    case DownloadPublicReposMetadata(since) =>
+      try {
+        val nextSince = GitHubRepoMetadataDownloader.getRepoIdFromRange(since)
+        self ! DownloadPublicReposMetadata(nextSince)
+      } catch {
+        case ex: Exception =>
+          ex.printStackTrace()
+          log.error("Got Exception [" + ex.getMessage + "] Trying to download, " +
+            "waiting for other tokens")
+          self ! DownloadPublicReposMetadata(since)
+      }
   }
 
 }
@@ -61,6 +69,8 @@ object GitHubRepoDownloader {
   case class DownloadOrganisationRepos(organisation: String)
 
   case class DownloadPublicRepos(since: Int, zipOrClone: String)
+
+  case class DownloadPublicReposMetadata(since: Int)
 
   case class RateLimit(limit: String)
 
