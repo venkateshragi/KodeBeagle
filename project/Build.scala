@@ -146,7 +146,6 @@ object Dependencies {
   val graphx = "org.apache.spark" % "spark-graphx_2.11" % "1.4.1"
   val junit = "junit" % "junit" % "4.12"
 
-
   //Eclipse dependencies for Tassal libs
   object EclipseDeps {
     val tycho = "org.eclipse.tycho" % "org.eclipse.jdt.core" % "3.10.0.v20140604-1726"
