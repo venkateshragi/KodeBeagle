@@ -177,6 +177,10 @@
       };
 
       $scope.changeTab = function( activeTab ) {
+
+        if(model.searchOptions.selectedSearchType === model.langConstants.JAVA_SCRIPT){
+          return;
+        }
         model.tab.files= false;
         model.tab.repos= false;
         model.tab[ activeTab ] = true;

@@ -55,6 +55,19 @@ $(document).bind( 'keydown', function( e ) {
         model.selectedTexts.splice(i, 1);
       
       };
+
+      $scope.changeSearchType = function($event,searchType){
+        $event.preventDefault();
+        var langConstants = model.langConstants;
+        if(searchType === 'keyword'){
+          model.isCode = false;
+          model.searchOptions.searchTypes = [langConstants.JAVA,langConstants.JAVA_SCRIPT,langConstants.SCALA];
+        }else if(searchType === 'snippet'){
+          model.isCode = true;
+          model.selectedTexts=[]
+          model.searchOptions.searchTypes = [langConstants.JAVA,langConstants.SCALA];
+        }
+      }
       
       $scope.formSubmit = function(forceSubmit) {
         
@@ -66,16 +79,17 @@ $(document).bind( 'keydown', function( e ) {
           }
 
           var searchTerm = model.selectedTexts.join(',');
-          
+          var searchType = model.searchOptions.selectedSearchType;
           if ( searchTerm ) {
             if( model.searchPage ) {
               var search = $location.search();
               search.searchTerms = searchTerm;
+              search.searchType = searchType;
               $location.search( search );
               
               $rootScope.editorView = true;  
             } else {
-              window.location = 'search/#?searchTerms=' + searchTerm;
+              window.location = 'search/#?searchTerms=' + searchTerm+'&searchType='+searchType;
             }
             
 

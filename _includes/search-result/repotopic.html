@@ -1,4 +1,4 @@
-<tab select="loadRepos()" active="model.tab[ 'repos' ]" ng-click="changeTab( 'repos' )">
+<tab select="loadRepos()" active="model.tab[ 'repos' ]" ng-if="model.searchOptions.selectedSearchType !== model.langConstants.JAVA_SCRIPT" ng-click="changeTab( 'repos' )">
     <tab-heading>
         Repos  <span ng-if="model.repos.length" class="badge"><span ng-bind="model.repos.length"></span></span>
     </tab-heading>

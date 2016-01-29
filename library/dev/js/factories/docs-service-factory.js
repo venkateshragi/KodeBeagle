@@ -2,9 +2,9 @@
 
 	module
   .factory('docsService', [
-    'http',
+    'http','model',
     function(
-      http
+      http,model
     ) {
 
       var settings;
@@ -25,15 +25,25 @@
 
 
         var correctedQuery
-          , queryBlock
+          , queryBlock,token,methodName
           ;
 
         correctedQuery = buildSearchString( obj.queryString );
-        queryBlock = getQuery(correctedQuery, 'typeimportsmethods.tokens.importName', 'must');
-
+        if(model.searchOptions.selectedSearchType === model.langConstants.JAVA_SCRIPT){
+          token = 'types.typeName';
+          methodName = '/typejs';
+        }else if(model.searchOptions.selectedSearchType === model.langConstants.SCALA){
+          token = 'tokens.importName';
+          methodName = '/typescala';
+        }else{
+          token = 'tokens.importName';
+          methodName = '/typeimportsmethods';
+        }
+        queryBlock = getQuery(correctedQuery, token, 'must');
         queryES(
           {
             indexName: 'importsmethods',
+            methodName:methodName,
             queryBody: {
               'query': queryBlock,
               'sort': [{
@@ -80,6 +90,7 @@
         var url = settings.esURL
                   + '/'
                   + obj.indexName
+                  + obj.methodName
                   + '/_search?size='
                   + ( obj.resultSize || 50 )
                   + '&source='
@@ -87,11 +98,16 @@
                   ;
 
         http.get(url)
-          .then(function( result ) {
+          .then(function( result ) {  
 
             obj.callbackObj = obj.callbackObj || {};
             obj.callbackObj.totalHitCount = result.hits.total;
-            obj.callbackObj.result = result.hits.hits;
+            if(model.searchOptions.selectedSearchType === model.langConstants.JAVA_SCRIPT){
+              var jsData = restructureData(result.hits.hits);
+              obj.callbackObj.result = jsData;
+            }else{
+              obj.callbackObj.result = result.hits.hits;
+            }            
             obj.callbackObj.status = 'success';
             obj.callback( obj.callbackObj );
 
@@ -106,12 +122,32 @@
           } );
       }
 
+      function restructureData(hits){
+          var hitsData = angular.copy(hits);
+          _.forEach(hitsData,function(eachHit){
+              eachHit._source.tokens = eachHit._source.types;
+              _.forEach(eachHit._source.tokens,function(eachToken){
+                  eachToken.importExactName = eachToken.typeName;
+                  eachToken.importName = eachToken.typeName;
+                  _.forEach(eachToken.properties,function(eachProperty){
+                      eachProperty.methodName = eachProperty.propertyName;
+                      delete eachProperty.propertyName;
+                  });
+                  eachToken.methodAndLineNumbers = eachToken.properties;
+                  delete eachToken.typeName;
+                  delete eachToken.properties;
+              });
+              delete eachHit._source.types;
+          });
+          return hitsData;
+      }
 
       function renderFileContent(files, callback) {
          var content;
 
           var obj = {
             indexName: 'sourcefile',
+            methodName:'',
             queryBody: fetchFileQuery(files),
             callbackObj: {
               files: files
@@ -292,6 +328,9 @@
       }
       function getLineData( content, lastObj, line, offset, obj ) {
         var l = line.lineNumber;
+        if( l-offset - 1 < 0 ) {
+          l = offset + 1;
+        }
         if( obj.length ) {
 
           var lastObj = obj[ obj.length -1 ];
@@ -339,24 +378,34 @@
 
         } else {
           var i1 = nth_occurrence( content, '\n', l - offset - 1  );
-          obj.push( {
-            start: 0,
-            end: l - offset - 1,
-            content: content.substring( 0, i1 )  ,
-            state: false,
-            startIndex: 0,
-            endIndex: i1
-          } );
-          sanitizeFirstChar( obj[ obj.length -1 ] );
-          sanitizeLastChar( obj[ obj.length -1 ] );
+          if( l !== offset + 1 ) {
+              obj.push( {
+              start: 0,
+              end: l - offset - 1,
+              content: content.substring( 0, i1 )  ,
+              state: false,
+              startIndex: 0,
+              endIndex: i1
+            } );
+            sanitizeFirstChar( obj[ obj.length -1 ] );
+            sanitizeLastChar( obj[ obj.length -1 ] );  
+          } else {
+            i1 = 0;
+          }
+          
           var i2 = nth_occurrence( content, '\n', l + offset );
           if( i2 === -1 ) {
             i2 = nth_occurrence( content, '\n', l + offset - 1 );
           }
+          var cont = content.substring( i1, i2 ) ;
+          if( i1 !== 0) {
+            cont = cont.substring(1);
+          } 
+
           obj.push( {
             start: l - offset - 1,
             end: l + offset + 1,
-            content: content.substring( i1, i2 ).substring(1) ,
+            content: cont,
             state: true,
             startIndex: i1,
             endIndex: i2,
@@ -369,16 +418,16 @@
         }
       }
 
-      function nth_occurrence (string, char, nth) {
-        var first_index = string.indexOf(char);
+      function nth_occurrence (string, char1, nth) {
+        var first_index = string.indexOf(char1);
         var length_up_to_first_index = first_index + 1;
 
-        if (nth == 1) {
+        if (nth <= 1) {
             return first_index;
         } else {
             var string_after_first_occurrence = string.slice(length_up_to_first_index);
 
-            var next_occurrence = nth_occurrence(string_after_first_occurrence, char, nth - 1);
+            var next_occurrence = nth_occurrence(string_after_first_occurrence, char1, nth - 1);
 
             if (next_occurrence === -1) {
                 return -1;
@@ -486,6 +535,7 @@
         queryES(
           {
             indexName: 'repotopic',
+            methodName:'',
             queryBody: {
               'query': queryBlock,
               "from": 0,

@@ -1,0 +1,11 @@
+<div class='drop-down' ng-mouseenter='isVisible=true' ng-mouseleave='isVisible=false'>
+	<div class='header'>
+		<span class='list-value' ng-bind='selected'></span>
+		<span class='drop-down-icon glyphicon glyphicon-chevron-down'></span>
+	</div>
+	<div class='list' ng-show='isVisible'>
+		<div class='list-container' ng-repeat='label in values' ng-click='setValue(this.label)'>
+			<span class='list-value' ng-bind='label'></span>
+		</div>
+	</div>
+</div>

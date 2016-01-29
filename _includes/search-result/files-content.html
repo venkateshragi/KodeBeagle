@@ -65,13 +65,14 @@
                                   <div style="position: relative">
                                       <div class="snippet-wraper">
                                           <div class="snippet-holder">
-
                                               <div ng-repeat="snipp in item.linesData" class="snipp" ng-class="{'codeshown':snipp.state || snipp.show}" code-snipp-ele>
                                                   <div class="code" ng-class="{'collapsable-code':!snipp.state}" >
-                                                  <code-mirror  lang="java" line-numbers="snipp.start + 1" model="snipp.content" code-mirror-ready
+                                                  
+                                                  <code-mirror lang="{{model.searchOptions.langType}}" line-numbers="snipp.start + 1" model="snipp.content" code-mirror-ready
                                                   row-heilight="snipp.lineNumbers"
                                                   >
                                                   </code-mirror>
+                                                  
                                                   </div>
                                                   <pre class='dots' ng-if="!snipp.state"><span ng-click="toggleCode( snipp )"></span></pre>
                                               </div>

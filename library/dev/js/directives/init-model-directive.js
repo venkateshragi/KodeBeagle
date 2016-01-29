@@ -56,10 +56,11 @@
           
           scope.model = model;
           scope.$watch(function() {
-            return $location.search().searchTerms;
+            return $location.search().searchTerms + $location.search().searchType;
           }, function(params) {
             model.currentPageNo = 0;
-            var selectedTexts = $location.search().searchTerms;
+            var queryParams = $location.search();
+            var selectedTexts = queryParams.searchTerms;
              model.repos = false;
             model.selectedTexts = [];
             $rootScope.editorView = false;
@@ -68,6 +69,13 @@
             if (selectedTexts) {
               model.selectedTexts = selectedTexts.split(',');
               model.searchedData = model.selectedTexts.join( ', ' );
+              model.searchOptions.selectedSearchType = queryParams.searchType;
+              if(model.searchOptions.selectedSearchType === model.langConstants.JAVA_SCRIPT){
+                model.searchOptions.langType = 'js';
+              }
+              else{
+                model.searchOptions.langType = 'java'
+              }
               model.showPageResponse = false;
               docsService.search( {
                 queryString: selectedTexts,
