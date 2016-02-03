@@ -19,16 +19,11 @@ import com.typesafe.sbt.SbtGit.git
 import com.typesafe.sbt.{GitBranchPrompt, GitVersioning}
 import de.johoop.cpd4sbt.CopyPasteDetector._
 import de.johoop.cpd4sbt.Language
-<<<<<<< HEAD
 import de.johoop.findbugs4sbt.FindBugs._
 import sbt.Keys._
 import sbt._
 import sbtassembly.AssemblyKeys._
-import sbtassembly.{MergeStrategy, AssemblyPlugin}
-=======
-import sbtassembly._
-import AssemblyKeys._
->>>>>>> [core] #410 Normalized topic terms frequency.
+import sbtassembly.MergeStrategy
 
 object KodeBeagleBuild extends Build {
 
@@ -119,12 +114,7 @@ object KodeBeagleBuild extends Build {
       javaOptions += "-Xmx6048m",
       javaOptions += "-XX:+HeapDumpOnOutOfMemoryError",
       assemblyMergeStrategy in assembly := {
-<<<<<<< HEAD
-        case "plugin.properties" | "plugin.xml" | ".api_description" | "META-INF/eclipse.inf" | ".options"
-        => MergeStrategy.first
-=======
         case "plugin.properties" |"plugin.xml" |".api_description" | "META-INF/eclipse.inf" | ".options"   => MergeStrategy.first
->>>>>>> [core] #410 Normalized topic terms frequency.
         case x =>
           val oldStrategy = (assemblyMergeStrategy in assembly).value
           oldStrategy(x)

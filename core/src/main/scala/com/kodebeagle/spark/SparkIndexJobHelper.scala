@@ -45,7 +45,7 @@ object SparkIndexJobHelper {
     List[(String, String)], Option[Repository], List[String], Statistics)] = {
     val zipFileNameRDD = sc.binaryFiles(KodeBeagleConfig.githubDir).map {
       case (zipFile, stream) =>
-      (zipFile.stripPrefix("file:").stripPrefix("hdfs:"), stream)
+        (zipFile.stripPrefix("file:").stripPrefix("hdfs:"), stream)
     }
     val zipFileExtractedRDD = zipFileNameRDD.map { case (zipFileName, stream) =>
       val repo: Option[Repository] = RepoFileNameParser(zipFileName)
@@ -58,8 +58,8 @@ object SparkIndexJobHelper {
   }
 
   /**
-   * This currently uses star counts for a repo as a score.
-   */
+    * This currently uses star counts for a repo as a score.
+    */
   def getGitScore(f: String): Option[Int] = {
     Try(f.stripSuffix(".zip").split("~").last.toInt).toOption
   }
@@ -72,7 +72,32 @@ object SparkIndexJobHelper {
     (for (item <- t) yield toJson(item, addESHeader = true, isToken = isToken)).mkString("\n")
   }
 
-  def toJson[T <: AnyRef <% Product with Serializable](t: T, addESHeader: Boolean = true,
+  def toLangSpecificJson[T <: AnyRef <% Product with Serializable](indexName: String,
+                                                                   typeName: String, t: Set[T],
+                                                                   isToken: Boolean): String = {
+    (for (item <- t) yield toLangSpecificJson(indexName, typeName,
+      item, addESHeader = true, isToken = isToken)).mkString("\n")
+  }
+
+  private def toLangSpecificJson[T <: AnyRef <% Product with Serializable](indexName: String,
+                                                                   typeName: String, t: T,
+                                                                   addESHeader: Boolean = true,
+                                                                   isToken: Boolean = false) = {
+    import org.json4s._
+    import org.json4s.jackson.Serialization
+    import org.json4s.jackson.Serialization.write
+    implicit val formats = Serialization.formats(NoTypeHints)
+    if (addESHeader && isToken) {
+      s"""|{ "index" : { "_index" : "$indexName", "_type" : "$typeName" } }
+          | """.stripMargin + write(t)
+    } else if (addESHeader) {
+      s"""|{ "index" : { "_index" : "$indexName", "_type" : "$typeName" } }
+          |""".stripMargin + write(t)
+    } else "" + write(t)
+
+  }
+
+   def toJson[T <: AnyRef <% Product with Serializable](t: T, addESHeader: Boolean = true,
                                                        isToken: Boolean = false): String = {
     import org.json4s._
     import org.json4s.jackson.Serialization
@@ -84,7 +109,7 @@ object SparkIndexJobHelper {
         | """.stripMargin + write(t)
     } else if (addESHeader) {
       s"""|{ "index" : { "_index" : "$indexName", "_type" : "type$indexName" } }
-         |""".stripMargin + write(t)
+          |""".stripMargin + write(t)
     } else "" + write(t)
 
   }

@@ -52,12 +52,12 @@ class JavaASTBasedIndexerForMethods extends JavaASTBasedIndexer {
         for (methodToken <- methodTokens) {
           indexEntries =
             indexEntries + ImportsMethods(r.id, fullGithubURL, methodToken,
-              score, JavaFileIndexerHelper.getLang(fullGithubURL))
+              score)
         }
       } catch {
         case e: Throwable => log.error(s"Failed for $fullGithubURL", e);
       }
     }
-    indexEntries.filter(x => x.language.nonEmpty && x.tokens.nonEmpty)
+    indexEntries.filter(_.tokens.nonEmpty)
   }
 }

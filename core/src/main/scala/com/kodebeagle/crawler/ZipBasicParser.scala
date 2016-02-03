@@ -59,9 +59,9 @@ object ZipBasicParser extends Logger {
           size += fileContent.length
           fileCount += 1
           sloc += fileContent.split("\n").size
-          if (ze.getName.endsWith("scala")) {
+          if (ze.getName.endsWith(".scala")) {
             scalaFileList += (fileName -> fileContent)
-          } else if (ze.getName.endsWith("java")) {
+          } else if (ze.getName.endsWith(".java")) {
             javaFileList += (fileName -> fileContent)
           }
         } else if (ze.isDirectory && (ze.getName.toLowerCase.matches(".*src/main/java.*")

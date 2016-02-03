@@ -19,8 +19,9 @@ package com.kodebeagle.parser
 
 import java.io.{InputStream, StringWriter}
 
-import com.kodebeagle.indexer.{HighLighter, Repository}
+import com.kodebeagle.indexer.{MethodAndLines, ScalaASTBasedIndexer, HighLighter, Repository}
 import org.apache.commons.io.IOUtils
+import org.scalastyle.Lines
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 
 import scala.collection.mutable
@@ -29,19 +30,19 @@ class ParserSuite extends FunSuite with BeforeAndAfterAll {
 
   test("Simple repo") {
     val r = RepoFileNameParser("repo~apache~zookeeper~160999~false~Java~trunk~789.zip")
-    assert(r.contains(Repository("apache", 160999, "zookeeper", false, "Java", "trunk", 789)))
+   assert(r.get == Repository("apache", 160999, "zookeeper", false, "Java", "trunk", 789))
   }
 
   test("Names with special character") {
     val r = RepoFileNameParser("/home/dir~temp/repo~apache~zookeeper-lost~160999~false~Java" +
       "~=+-trunk/2.1~789.zip")
-    assert(r.contains(Repository("apache", 160999, "zookeeper-lost", false, "Java", "=+-trunk/2.1",
-      789)))
+    assert(r.get == Repository("apache", 160999, "zookeeper-lost", false, "Java", "=+-trunk/2.1",
+      789))
   }
 
   test("Branch name with version number only") {
     val r = RepoFileNameParser("repo~apache~zookeeper~160999~false~Java~2.1~789.zip")
-    assert(r.contains(Repository("apache", 160999, "zookeeper", false, "Java", "2.1", 789)))
+    assert(r.get == Repository("apache", 160999, "zookeeper", false, "Java", "2.1", 789))
   }
 
 
@@ -52,13 +53,13 @@ class ParserSuite extends FunSuite with BeforeAndAfterAll {
 
   test("Branch name absent.") {
     val r = RepoFileNameParser("repo~apache~zookeeper~160999~false~Java~789.zip")
-    assert(r.contains(Repository("apache", 160999, "zookeeper", false, "Java", "master", 789)))
+    assert(r.get == Repository("apache", 160999, "zookeeper", false, "Java", "master", 789))
   }
 
   test("Hdfs url.") {
     val r = RepoFileNameParser(
       "/172.16.13.179:9000/user/data/github3/repo~apache~zookeeper~160999~false~Java~789.zip")
-    assert(r.contains(Repository("apache", 160999, "zookeeper", false, "Java", "master", 789)))
+    assert(r.get == Repository("apache", 160999, "zookeeper", false, "Java", "master", 789))
   }
 
   test("Multiple valid repo names.") {
@@ -245,23 +246,58 @@ class GenericParserTest extends FunSuite {
 
 class ScalaParserTest extends FunSuite {
 
-  import ScalaParser._
+  val stream: InputStream = Thread.currentThread().getContextClassLoader
+    .getResourceAsStream("PartioningUtils.scala")
+  val source = scala.io.Source.fromInputStream(stream).mkString
+  test("extract functions from scala file") {
+    val actualFunctions = ScalaParserUtils.extractFunctions(source).map(_.nameToken.rawText)
+    val expectedFunctions = List("parsePartitions",
+      "parsePartition", "parsePartitionColumn", "resolvePartitions",
+      "listConflictingPartitionColumns", "inferPartitionColumnValue",
+      "validatePartitionColumnDataTypes", "resolveTypeConflicts", "needsEscaping",
+      "escapePathName", "unescapePathName")
+    assert(actualFunctions == expectedFunctions)
+  }
 
-  test("") {
-    parse(
-      """
-        |import abc.xyz
-        |import abc.xyz;
-        |
-        |object Test {
-        |
-        |  def fun = {
-        |   // some content.
-        |   val i = 10
-        |  }
-        |}
-        |
-      """.stripMargin)
+  val testFunction = ScalaParserUtils.extractFunctions(source).head
+
+  test("params for a function") {
+    val actualParams = ScalaParserUtils.getParams(testFunction)
+    val expectedParams = List(("paths", "Seq"), ("defaultPartitionName", "String"),
+      ("typeInference", "Boolean"), ("basePaths", "Set"))
+    assert(actualParams == expectedParams)
+  }
+
+  val allMethodCallExprs = ScalaParserUtils.getAllCallExprs(testFunction)
+  test("All Method Call Exprs inside a function") {
+    val expectedCallExprs = List("unzip", "flatMap", "isEmpty", "emptySpec", "assert",
+      "resolvePartitions", "head", "map", "PartitionSpec")
+    assert(allMethodCallExprs.map(_.id.rawText).distinct == expectedCallExprs)
+  }
+
+  import org.scalastyle.Checker
+
+  private val lines: Lines = Checker.parseLines(source)
+  test("Method Call Expr for a particular param") {
+    val actualCallExprs = ScalaParserUtils.getCallExprAndLines(allMethodCallExprs, "paths", lines)
+      .map(_.methodName)
+    val expectedCallExprs = List("zip", "map")
+    assert(actualCallExprs == expectedCallExprs)
+  }
+
+  test("Highlighters of usage for a particular param") {
+    val actualHighlighters = ScalaParserUtils.getImportsLines(testFunction, "paths", lines)
+    val expectedHighlighters = List(HighLighter(76,36,41),
+      HighLighter(81,52,57), HighLighter(87,35,40))
+    assert(actualHighlighters == expectedHighlighters)
+  }
+
+  test("Highlighters of methodcall for a particular param") {
+    val actualCallExprAndLines = ScalaParserUtils.
+      getCallExprAndLines(allMethodCallExprs, "paths", lines)
+    val expectedCallExprAndLines = List(MethodAndLines("zip",List(HighLighter(87,41,44))),
+      MethodAndLines("map",List(HighLighter(81,58,61))))
+    assert(actualCallExprAndLines == expectedCallExprAndLines)
   }
 }
 

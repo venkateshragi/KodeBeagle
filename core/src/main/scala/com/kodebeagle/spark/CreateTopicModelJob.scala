@@ -237,9 +237,8 @@ object CreateTopicModelJob extends Logger {
     logTopics(topics, repoIdVsName, tokenToWordMap)
     var i = nbgTopics
     val repoTopics = topics.slice(nbgTopics, topics.length)
-    // For each repo, map of topic terms vs their frequencies 
     val repoTopicFields = for {topic <- repoTopics if repoIdVsName.get(i.toLong).isDefined } yield
-    {
+    { // For each repo, map of topic terms vs their frequencies
       val repoName = repoIdVsName.get(i.toLong).get
       val topicMap = topic.map({
         case (count, wordId) =>
@@ -250,10 +249,8 @@ object CreateTopicModelJob extends Logger {
     }
     val repoSummary = result.summarizeDocGroups()
     logRepoSummary(repoSummary, repoIdVsName, fileIdVsName)
-
     val repoSummaryRdd = sc.makeRDD(repoSummary)
-    // For each repo, map of files vs their score.
-    val repoFilescore = repoSummaryRdd.map{
+    val repoFilescore = repoSummaryRdd.map{ // For each repo, map of files vs their score.
       case(repoId, fileId, klScore) =>
         repoIdVsName.get(repoId).map(repoName => (repoName,
           fileIdVsName.get(fileId *(-1L)).get.split(":")(1), klScore))

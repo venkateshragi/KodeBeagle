@@ -19,7 +19,7 @@ package com.kodebeagle.spark
 
 import com.kodebeagle.configuration.KodeBeagleConfig
 import com.kodebeagle.parser._
-import com.kodebeagle.indexer.{JavaASTBasedIndexerForMethods, Repository, Statistics}
+import com.kodebeagle.indexer.{ScalaASTBasedIndexer, JavaASTBasedIndexerForMethods, Repository, Statistics}
 import com.kodebeagle.spark.SparkIndexJobHelper._
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
@@ -30,7 +30,8 @@ object CreateIndexJobForMethods {
     val conf = new SparkConf()
       .setMaster(KodeBeagleConfig.sparkMaster)
       .setAppName("CreateIndexJobForMethods")
-      .set("spark.executor.memory", "2g")
+        .set("spark.driver.memory", "6g")
+        .set("spark.executor.memory", "4g")
       .set("spark.network.timeout", "1200s")
 
     val sc: SparkContext = createSparkContext(conf)
@@ -38,18 +39,19 @@ object CreateIndexJobForMethods {
     val zipFileExtractedRDD: RDD[(List[(String, String)], List[(String, String)],
       Option[Repository], List[String], Statistics)] = makeZipFileExtractedRDD(sc)
 
+    val javaASTBasedIndexerForMethods = new JavaASTBasedIndexerForMethods()
     // Create indexes for elastic search.
 
     zipFileExtractedRDD.map { f =>
       val (javaFiles, scalaFiles, repo, packages, stats) = f
-      (repo, new JavaASTBasedIndexerForMethods()
+      (repo, javaASTBasedIndexerForMethods
         .generateTokensWithMethods(javaFiles.toMap, packages, repo),
-        ScalaParser.generateTokensWithBraceContext(scalaFiles.toMap, packages, repo),
+        ScalaASTBasedIndexer.generateTokensWithFunctionContext(scalaFiles.toMap, packages, repo),
         mapToSourceFiles(repo, javaFiles ++ scalaFiles), stats)
     }.flatMap { case (Some(repository), javaIndices, scalaIndices, sourceFiles, stats) =>
       Seq(toJson(repository, isToken = false), toJson(javaIndices, isToken = false),
-        toJson(scalaIndices, isToken = false), toJson(sourceFiles, isToken = false),
-        toJson(stats, isToken = false))
+        toLangSpecificJson("importsmethods", "typescala", scalaIndices, isToken = false),
+        toJson(sourceFiles, isToken = false), toJson(stats, isToken = false))
     case _ => Seq()
     }.saveAsTextFile(KodeBeagleConfig.sparkIndexOutput)
   }
