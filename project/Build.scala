@@ -144,6 +144,7 @@ object Dependencies {
   val compress = "org.apache.commons" % "commons-compress" % "1.10"
   val graphx = "org.apache.spark" % "spark-graphx_2.11" % "1.4.1"
   val junit = "junit" % "junit" % "4.12"
+  val rhino = "org.mozilla" % "rhino" % "1.7R4"
 
   //Eclipse dependencies for Tassal libs
   object EclipseDeps {
@@ -162,10 +163,10 @@ object Dependencies {
   }
 
   val kodebeagle = Seq(akka, httpClient, scalastyle, spark, parserCombinator, scalaTest, slf4j, javaparser, json4s, config,
-    json4sJackson, jgit, commonsIO, esSpark, graphx, guava, compress, junit) ++ EclipseDeps.allDeps
+    json4sJackson, jgit, commonsIO, esSpark, graphx, guava, compress, junit, rhino) ++ EclipseDeps.allDeps
+
   val ideaPluginTest = Seq(scalaTest, commonsIO)
   val ideaPlugin = Seq()
-
   // transitively uses
   // commons-compress-1.4.1
 }

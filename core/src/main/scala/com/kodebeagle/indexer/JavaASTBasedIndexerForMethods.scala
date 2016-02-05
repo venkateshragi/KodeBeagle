@@ -61,3 +61,4 @@ class JavaASTBasedIndexerForMethods extends JavaASTBasedIndexer {
     indexEntries.filter(_.tokens.nonEmpty)
   }
 }
+

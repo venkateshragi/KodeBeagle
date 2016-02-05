@@ -17,20 +17,22 @@
 
 package com.kodebeagle.parser
 
-import java.io.{InputStream, StringWriter}
+import java.io.{FileReader, InputStream, StringWriter}
 
-import com.kodebeagle.indexer.{MethodAndLines, ScalaASTBasedIndexer, HighLighter, Repository}
+import com.kodebeagle.indexer.{HighLighter, MethodAndLines, Repository}
 import org.apache.commons.io.IOUtils
+import org.mozilla.javascript.ast.ErrorCollector
+import org.mozilla.javascript.{CompilerEnvirons, IRFactory}
 import org.scalastyle.Lines
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 
-import scala.collection.mutable
+import scala.util.Try
 
 class ParserSuite extends FunSuite with BeforeAndAfterAll {
 
   test("Simple repo") {
     val r = RepoFileNameParser("repo~apache~zookeeper~160999~false~Java~trunk~789.zip")
-   assert(r.get == Repository("apache", 160999, "zookeeper", false, "Java", "trunk", 789))
+    assert(r.get == Repository("apache", 160999, "zookeeper", false, "Java", "trunk", 789))
   }
 
   test("Names with special character") {
@@ -244,6 +246,50 @@ class GenericParserTest extends FunSuite {
   }
 }
 
+class JsParserTest extends FunSuite {
+  val location = Thread.currentThread().getContextClassLoader.getResource("Test.js")
+  val reader = new FileReader(location.getFile)
+  val env = new CompilerEnvirons()
+  env.setRecoverFromErrors(true)
+  env.setIdeMode(true)
+  env.setErrorReporter(new ErrorCollector)
+  env.setStrictMode(false)
+  val irFactory = new IRFactory(env)
+  val mayBeAstRoot = Try(irFactory.parse(reader, "", 1))
+  test("Properties of a particular javascript object") {
+    if (mayBeAstRoot.isSuccess) {
+      // Getting properties for javascript object Rx
+      val actualProps = JsParser.getProperties(mayBeAstRoot.get, "Rx").map(_.toSource).distinct
+      val expectedProps = List("config", "Disposable", "Observable")
+      assert(actualProps.forall(x => expectedProps.contains(x)))
+    }
+  }
+
+  test("Types and their associated properties in a js file") {
+    if (mayBeAstRoot.isSuccess) {
+      val actualTypes = JsParser.getTypes(mayBeAstRoot.get).toSet
+      val expectedTypes = Set(Type("rx", List(HighLighter(4, -1, -1), HighLighter(11, -1, -1),
+        HighLighter(87, -1, -1), HighLighter(173, -1, -1), HighLighter(45, -1, -1),
+        HighLighter(31, -1, -1), HighLighter(70, -1, -1), HighLighter(62, -1, -1),
+        HighLighter(78, -1, -1)), Set(Property("config", List(HighLighter(11, -1, -1))),
+        Property("Observable", List(HighLighter(87, -1, -1), HighLighter(173, -1, -1),
+          HighLighter(45, -1, -1), HighLighter(31, -1, -1), HighLighter(70, -1, -1))),
+        Property("Disposable", List(HighLighter(62, -1, -1), HighLighter(78, -1, -1))))),
+        Type("mongodb.MongoClient", List(HighLighter(10, -1, -1), HighLighter(33, -1, -1)),
+          Set(Property("connect", List(HighLighter(33, -1, -1))))), Type("mongodb",
+          List(HighLighter(7, -1, -1), HighLighter(10, -1, -1)), Set(Property("MongoClient",
+            List(HighLighter(10, -1, -1))))))
+      assert(actualTypes.exists(actualType => expectedTypes.exists(
+        expectedType => actualType.typeName == expectedType.typeName &&
+          actualType.lineNumbers.forall(expectedType.lineNumbers.contains(_)) &&
+          actualType.properties.exists(actualProp => expectedType.properties.exists(
+            expectedProp => actualProp.propertyName == expectedProp.propertyName &&
+              actualProp.lineNumbers.forall(expectedProp.lineNumbers.contains(_)))))))
+    }
+  }
+
+}
+
 class ScalaParserTest extends FunSuite {
 
   val stream: InputStream = Thread.currentThread().getContextClassLoader
@@ -287,16 +333,16 @@ class ScalaParserTest extends FunSuite {
 
   test("Highlighters of usage for a particular param") {
     val actualHighlighters = ScalaParserUtils.getImportsLines(testFunction, "paths", lines)
-    val expectedHighlighters = List(HighLighter(76,36,41),
-      HighLighter(81,52,57), HighLighter(87,35,40))
+    val expectedHighlighters = List(HighLighter(76, 36, 41),
+      HighLighter(81, 52, 57), HighLighter(87, 35, 40))
     assert(actualHighlighters == expectedHighlighters)
   }
 
   test("Highlighters of methodcall for a particular param") {
     val actualCallExprAndLines = ScalaParserUtils.
       getCallExprAndLines(allMethodCallExprs, "paths", lines)
-    val expectedCallExprAndLines = List(MethodAndLines("zip",List(HighLighter(87,41,44))),
-      MethodAndLines("map",List(HighLighter(81,58,61))))
+    val expectedCallExprAndLines = List(MethodAndLines("zip", List(HighLighter(87, 41, 44))),
+      MethodAndLines("map", List(HighLighter(81, 58, 61))))
     assert(actualCallExprAndLines == expectedCallExprAndLines)
   }
 }
