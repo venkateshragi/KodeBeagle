@@ -39,7 +39,7 @@
             <div ng-if="!model.filterNotFound">
               <div ng-if="model.editors && model.editors.length>0" data-step="3" data-intro="Results">
                   <div ng-class="{'file-list-view': !model.toggelSnippet }">
-                      <div ng-repeat="item in model.editors" class="editor-container" ng-class="{'hide':model.expandedItem && model.expandedItem != item }">
+                      <div ng-repeat="item in model.editors track by $index" class="editor-container" ng-class="{'hide':model.expandedItem && model.expandedItem != item }">
                           <div class="panel panel-default editor">
                               <div class="panel-heading"  ng-dblclick="fullExpandView( $event, item, $index )">
                                   <div class="pull-left">

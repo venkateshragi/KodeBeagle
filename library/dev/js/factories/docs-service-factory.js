@@ -336,9 +336,9 @@
           var lastObj = obj[ obj.length -1 ];
           if( lastObj.state ) {
             if( lastObj.end + offset >= l ) {
-              var i2 = nth_occurrence( content, '\n', l + offset );
+              var i2 = getPosition( content, '\n', l + offset );
               if( i2 === -1 ) {
-                i2 = nth_occurrence( content, '\n', l + offset - 1 );
+                i2 = getPosition( content, '\n', l + offset - 1 );
               }
               lastObj.content +=  content.substring( lastObj.endIndex, i2 ) ;
               lastObj.endIndex = i2 ;
@@ -346,7 +346,7 @@
               lastObj.lineNumbers.push( line );
               sanitizeLastChar( lastObj );
             } else {
-                var i1 = nth_occurrence( content, '\n', l - offset -1 );
+                var i1 = getPosition( content, '\n', l - offset -1 );
                 obj.push( {
                   start: lastObj.end - 1,
                   end: l - offset - 1,
@@ -357,9 +357,9 @@
                 } );
                 sanitizeFirstChar( obj[ obj.length -1 ] );
                 sanitizeLastChar( obj[ obj.length -1 ] );
-              var i2 = nth_occurrence( content, '\n', l + offset );
+              var i2 = getPosition( content, '\n', l + offset );
               if( i2 === -1 ) {
-                i2 = nth_occurrence( content, '\n', l + offset - 1 );
+                i2 = getPosition( content, '\n', l + offset - 1 );
               }
                obj.push( {
                 start: l - offset - 1 ,
@@ -377,7 +377,7 @@
 
 
         } else {
-          var i1 = nth_occurrence( content, '\n', l - offset - 1  );
+          var i1 = getPosition( content, '\n', l - offset - 1  );
           if( l !== offset + 1 ) {
               obj.push( {
               start: 0,
@@ -393,9 +393,9 @@
             i1 = 0;
           }
           
-          var i2 = nth_occurrence( content, '\n', l + offset );
+          var i2 = getPosition( content, '\n', l + offset );
           if( i2 === -1 ) {
-            i2 = nth_occurrence( content, '\n', l + offset - 1 );
+            i2 = getPosition( content, '\n', l + offset - 1 );
           }
           var cont = content.substring( i1, i2 ) ;
           if( i1 !== 0) {
@@ -416,6 +416,10 @@
 
 
         }
+      }
+
+      function getPosition(fileContent, splitChar, lineNumber) {
+         return fileContent.split(splitChar, lineNumber).join(splitChar).length;
       }
 
       function nth_occurrence (string, char1, nth) {
