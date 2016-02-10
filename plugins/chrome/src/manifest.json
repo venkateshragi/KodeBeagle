@@ -6,7 +6,15 @@
 	"background":	{
 		"scripts":	["background.js"]
 	},
+	"content_scripts": [
+		{
+			"matches": ["https://github.com/*"],
+			"js": ["lib/jquery-2.2.0.js", "content_script.js"],
+			"run_at" : "document_end"
+		}
+	],
 	"permissions":	[
-		"contextMenus"
+		"contextMenus", "activeTab", "tabs",
+		"http://192.168.2.67:9200/*"
 	]
 }
