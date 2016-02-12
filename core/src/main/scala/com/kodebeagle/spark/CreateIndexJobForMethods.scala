@@ -18,8 +18,8 @@
 package com.kodebeagle.spark
 
 import com.kodebeagle.configuration.KodeBeagleConfig
-import com.kodebeagle.parser._
-import com.kodebeagle.indexer.{ScalaASTBasedIndexer, JavaASTBasedIndexerForMethods, Repository, Statistics}
+import com.kodebeagle.indexer.{JavaASTBasedIndexerForMethods, Repository, ScalaASTBasedIndexer, Statistics}
+import com.kodebeagle.javaparser.JavaASTParser
 import com.kodebeagle.spark.SparkIndexJobHelper._
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
@@ -40,6 +40,8 @@ object CreateIndexJobForMethods {
       Option[Repository], List[String], Statistics)] = makeZipFileExtractedRDD(sc)
 
     val javaASTBasedIndexerForMethods = new JavaASTBasedIndexerForMethods()
+    val parser: JavaASTParser = new JavaASTParser(true)
+    val pars = sc.broadcast(parser)
     // Create indexes for elastic search.
 
     zipFileExtractedRDD.map { f =>
@@ -47,11 +49,14 @@ object CreateIndexJobForMethods {
       (repo, javaASTBasedIndexerForMethods
         .generateTokensWithMethods(javaFiles.toMap, packages, repo),
         ScalaASTBasedIndexer.generateTokensWithFunctionContext(scalaFiles.toMap, packages, repo),
-        mapToSourceFiles(repo, javaFiles ++ scalaFiles), stats)
-    }.flatMap { case (Some(repository), javaIndices, scalaIndices, sourceFiles, stats) =>
+        mapToSourceFiles(repo, javaFiles ++ scalaFiles), stats,
+        CreateFileMetaData.getFilesMetaData(mapToSourceFiles(repo, javaFiles), pars))
+    }.flatMap { case (Some(repository), javaIndices, scalaIndices, sourceFiles,
+    stats, filesMetaData) =>
       Seq(toJson(repository, isToken = false), toJson(javaIndices, isToken = false),
         toLangSpecificJson("importsmethods", "typescala", scalaIndices, isToken = false),
-        toJson(sourceFiles, isToken = false), toJson(stats, isToken = false))
+        toJson(sourceFiles, isToken = false), toJson(stats, isToken = false),
+        toJson(filesMetaData, isToken = false))
     case _ => Seq()
     }.saveAsTextFile(KodeBeagleConfig.sparkIndexOutput)
   }

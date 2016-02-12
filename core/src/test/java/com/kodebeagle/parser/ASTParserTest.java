@@ -154,6 +154,8 @@ public class ASTParserTest extends AbstractParseTest {
     @Test
     public void testOneMethod() {
         System.out.println("filetypes in given file");
+        System.out.println("inheritance " + resolver.getSuperType());
+        System.out.println("interfaces " + resolver.getInterfaces());
         Map<String, String> types = resolver.getClassesInFile();
         for (MethodInvocationResolver.TypeDecl typeDeclaration : resolver.getTypeDeclarations()) {
             System.out.println(types.get(typeDeclaration.getClassName()) + "   "
@@ -161,13 +163,21 @@ public class ASTParserTest extends AbstractParseTest {
         }
 
         Map<ASTNode, String> typesAtPos = resolver.getVariableTypesAtPosition();
-
+        System.out.println("~~~~~~variable Typeaatposition  ");
         for (Entry<ASTNode, String> e : typesAtPos.entrySet()) {
             Integer line = unit.getLineNumber(e.getKey().getStartPosition());
             Integer col = unit.getColumnNumber(e.getKey().getStartPosition());
             System.out.println(line + " , " + col + " , " + e.getKey().getLength() + " : " + e.getValue());
         }
 
+        System.out.println("########  Import name position");
+        for (Entry<ASTNode, String> e : resolver.getImportsDeclarationNode().entrySet()) {
+            Integer line = unit.getLineNumber(e.getKey().getStartPosition());
+            Integer col = unit.getColumnNumber(e.getKey().getStartPosition());
+            System.out.println(line + " , " + col + " , " + e.getKey().getLength() + " : " + e.getValue());
+        }
+
+        System.out.println("--------------Type at positions ");
         for (Entry<ASTNode, String> e : resolver.getTypesAtPosition()
                 .entrySet()) {
             Integer line = unit.getLineNumber(e.getKey().getStartPosition());
