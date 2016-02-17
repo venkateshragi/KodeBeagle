@@ -21,9 +21,8 @@ import java.util.zip.ZipInputStream
 
 import com.kodebeagle.configuration.KodeBeagleConfig
 import com.kodebeagle.crawler.ZipBasicParser
-import com.kodebeagle.indexer.{Statistics, SourceFile, Repository}
+import com.kodebeagle.indexer.{RepoFileNameInfo, Repository, SourceFile}
 import com.kodebeagle.parser.RepoFileNameParser
-
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
 
@@ -42,17 +41,17 @@ object SparkIndexJobHelper {
   def createSparkContext(conf: SparkConf): SparkContext = new SparkContext(conf)
 
   def makeZipFileExtractedRDD(sc: SparkContext): RDD[(List[(String, String)],
-    List[(String, String)], Option[Repository], List[String], Statistics)] = {
+    List[(String, String)], Option[Repository], List[String])] = {
     val zipFileNameRDD = sc.binaryFiles(KodeBeagleConfig.githubDir).map {
       case (zipFile, stream) =>
         (zipFile.stripPrefix("file:").stripPrefix("hdfs:"), stream)
     }
     val zipFileExtractedRDD = zipFileNameRDD.map { case (zipFileName, stream) =>
-      val repo: Option[Repository] = RepoFileNameParser(zipFileName)
-      val (javaFilesMap, scalaFilesMap, packages, stats) =
-        ZipBasicParser.readFilesAndPackages(
-          repo.getOrElse(Repository.invalid).id, new ZipInputStream(stream.open()))
-      (javaFilesMap, scalaFilesMap, repo, packages, stats)
+      val repoInfo: Option[RepoFileNameInfo] = RepoFileNameParser(zipFileName)
+      val (javaFilesMap, scalaFilesMap, packages, repository) =
+        ZipBasicParser.readFilesAndPackages(repoInfo,
+          new ZipInputStream(stream.open()))
+      (javaFilesMap, scalaFilesMap, repository, packages)
     }
     zipFileExtractedRDD
   }
@@ -72,32 +71,33 @@ object SparkIndexJobHelper {
     (for (item <- t) yield toJson(item, addESHeader = true, isToken = isToken)).mkString("\n")
   }
 
-  def toLangSpecificJson[T <: AnyRef <% Product with Serializable](indexName: String,
-                                                                   typeName: String, t: Set[T],
-                                                                   isToken: Boolean): String = {
-    (for (item <- t) yield toLangSpecificJson(indexName, typeName,
-      item, addESHeader = true, isToken = isToken)).mkString("\n")
+  def toIndexTypeJson[T <: AnyRef <% Product with Serializable](indexName: String,
+                                                                typeName: String, t: Set[T],
+                                                                isToken: Boolean): String = {
+    (for (item <- t) yield toIndexTypeJson(indexName, typeName,
+      item, esHeader = true, isToken = isToken)).mkString("\n")
   }
 
-  private def toLangSpecificJson[T <: AnyRef <% Product with Serializable](indexName: String,
-                                                                   typeName: String, t: T,
-                                                                   addESHeader: Boolean = true,
-                                                                   isToken: Boolean = false) = {
+  private def toIndexTypeJson[T <: AnyRef <% Product with Serializable](indexName: String,
+                                                                        typeName: String, t: T,
+                                                                        esHeader: Boolean = true,
+                                                                        isToken: Boolean = false
+                                                                       ) = {
     import org.json4s._
     import org.json4s.jackson.Serialization
     import org.json4s.jackson.Serialization.write
     implicit val formats = Serialization.formats(NoTypeHints)
-    if (addESHeader && isToken) {
+    if (esHeader && isToken) {
       s"""|{ "index" : { "_index" : "$indexName", "_type" : "$typeName" } }
           | """.stripMargin + write(t)
-    } else if (addESHeader) {
+    } else if (esHeader) {
       s"""|{ "index" : { "_index" : "$indexName", "_type" : "$typeName" } }
           |""".stripMargin + write(t)
     } else "" + write(t)
 
   }
 
-   def toJson[T <: AnyRef <% Product with Serializable](t: T, addESHeader: Boolean = true,
+  def toJson[T <: AnyRef <% Product with Serializable](t: T, addESHeader: Boolean = true,
                                                        isToken: Boolean = false): String = {
     import org.json4s._
     import org.json4s.jackson.Serialization

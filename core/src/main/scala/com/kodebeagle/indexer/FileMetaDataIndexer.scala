@@ -15,11 +15,10 @@
  * limitations under the License.
  */
 
-package com.kodebeagle.spark
+package com.kodebeagle.indexer
 
 import java.util
 
-import com.kodebeagle.indexer.SourceFile
 import com.kodebeagle.javaparser.JavaASTParser.ParseType
 import com.kodebeagle.javaparser.{JavaASTParser, MethodInvocationResolver, SingleClassBindingResolver}
 import com.kodebeagle.logging.Logger
@@ -45,10 +44,10 @@ case class FileMetaData(repoId: Long, fileName: String, superTypes: SuperTypes,
                         internalRefList: List[InternalRef])
 
 
-object CreateFileMetaData extends Logger {
+object FileMetaDataIndexer extends Logger {
   import scala.collection.JavaConversions._
 
-    def getFilesMetaData(repoSources: Set[SourceFile], pars: Broadcast[JavaASTParser]):
+    def generateMetaData(repoSources: Set[SourceFile], pars: Broadcast[JavaASTParser]):
     Set[FileMetaData] = {
       val filesMetaData = for (source <- repoSources) yield {
           val cu: ASTNode = pars.value.getAST(source.fileContent, ParseType.COMPILATION_UNIT)

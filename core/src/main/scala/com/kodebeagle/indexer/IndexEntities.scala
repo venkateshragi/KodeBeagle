@@ -19,33 +19,75 @@ package com.kodebeagle.indexer
 
 import scala.collection.immutable
 
-case class MethodToken(importName: String, importExactName: String, lineNumbers: List[HighLighter],
-  methodAndLineNumbers: Set[MethodAndLines])
+trait Line {
+  def lineNumber: Int
+  def startColumn: Int
+  def endColumn: Int
+}
 
-case class MethodAndLines(methodName: String, lineNumbers: List[HighLighter])
+trait Type {
+  type T <: Line
+  def typeName: String
+  def lines: List[T]
+  def properties: Set[Property]
+}
 
-case class IndexEntry(repoId: Int, file: String, tokens: Set[Token], score: Int)
+abstract class TypeReference {
+  type T <: Type
+  def repoId: Int
+  def file: String
+  def types: Set[T]
+  def score: Int
+}
 
-case class ImportsMethods(repoId: Int, file: String,
-                          tokens: Set[MethodToken],
-                          score: Int)
 
-/* Since our tokens are fully qualified import names. */
-case class Token(importName: String, lineNumbers: immutable.Set[Int])
+case class InternalTypeReference(repoId: Int, file: String,
+                                 types: Set[InternalType],
+                                 score: Int) extends TypeReference {
+  type T = InternalType
+}
 
-case class Token2(importName: String, importExactName: String,
-    lineNumbers: immutable.Set[HighLighter])
+case class ExternalTypeReference(repoId: Int, file: String,
+                                 types: Set[ExternalType],
+                                 score: Int) extends TypeReference {
+  type T = ExternalType
+}
 
-case class HighLighter(lineNumber: Int, startColumn: Int, endColumn: Int)
+case class InternalType(typeName: String, lines: List[InternalLine],
+                        properties: Set[Property]) extends Type {
+  type T = InternalLine
+}
+
+case class ExternalType(typeName: String, lines: List[ExternalLine],
+                        properties: Set[Property]) extends Type {
+  type T = ExternalLine
+}
+
+case class InternalLine(line: String, lineNumber: Int,
+                        startColumn: Int, endColumn: Int) extends Line
+
+case class ExternalLine(lineNumber: Int, startColumn: Int, endColumn: Int) extends Line
+
+case class Property(propertyName: String, lines: List[Line])
+
+case class Token(importName: String, importExactName: String,
+                 lineNumbers: immutable.Set[ExternalLine])
+
 
 case class SourceFile(repoId: Int, fileName: String, fileContent: String)
 
-case class Repository(login: String, id: Int, name: String, fork: Boolean, language: String,
-                      defaultBranch: String, stargazersCount: Int)
+case class RepoFileNameInfo(login: String, id: Int, name: String, fork: Boolean, language: String,
+                            defaultBranch: String, stargazersCount: Int)
 
-case class Statistics(repoId: Int, sloc: Int, fileCount: Int, size: Long)
+case class Repository(login: String, id: Int, name: String, fork: Boolean, language: String,
+                      defaultBranch: String, stargazersCount: Int, sloc: Int, fileCount: Int,
+                      size: Long)
+
+case class Statistics(sloc: Int, fileCount: Int, size: Long)
 
 /** For testing */
 object Repository {
-  def invalid: Repository = Repository("n-a", -1, "n-a", fork = false, "Java", "n-a", 0)
+  def invalid: Repository =
+    Repository("n-a", -1, "n-a", fork = false, "Java", "n-a", 0, -1, -1, -1)
 }
+

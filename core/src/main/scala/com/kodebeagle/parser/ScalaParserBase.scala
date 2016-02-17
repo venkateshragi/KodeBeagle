@@ -17,67 +17,28 @@
 
 package com.kodebeagle.parser
 
-import com.kodebeagle.indexer.{MethodAndLines, HighLighter}
-import org.scalastyle.{LineColumn, CheckerUtils, Lines}
-
 import scala.collection.mutable.ListBuffer
 import scala.util.Try
-import scalariform.lexer.{Token, Tokens}
-import scalariform.parser.{AstNode, CallExpr, FullDefOrDcl, FunDefOrDcl, Param, ParamClause, TemplateBody, TmplDef}
+import scalariform.lexer.{Tokens, Token}
+import scalariform.parser.{Param, ParamClause, AstNode, CallExpr, FunDefOrDcl}
+import scalariform.utils.Range
 
-object ScalaParserUtils {
-
-  def getImportsLines(funDefOrDcl: FunDefOrDcl, param: String, lines: Lines): List[HighLighter] = {
-    funDefOrDcl.tokens.filter(_.rawText == param).map(getHighLighter(_, lines))
+class ScalaParserBase(funDefOrDcl: FunDefOrDcl) {
+  def getUsageRanges(param: String): List[Range] = {
+    funDefOrDcl.tokens.filter(_.rawText == param).map(_.range)
   }
 
-  private def getHighLighter(token: Token, lines: Lines) = {
-    val lineColumn = lines.toLineColumn(token.offset) match {
-      case Some(x) => x
-      case None => LineColumn(-1, -1)
-    }
-    HighLighter(lineColumn.line, lineColumn.column, lineColumn.column + token.range.length)
-  }
-
-  def extractFunctions(source: String): List[FunDefOrDcl] = {
-    val buffer = ListBuffer[FunDefOrDcl]()
-    try {
-      new CheckerUtils().parseScalariform(source).foreach(
-        x => x.ast.topStats.immediateChildren.foreach {
-          case fullDefOrDcl: FullDefOrDcl => fullDefOrDcl.defOrDcl match {
-            case tmplDef: TmplDef => tmplDef.templateBodyOption match {
-              case Some(tmplBody: TemplateBody) => tmplBody.statSeq.otherStats.foreach(_._2.foreach
-              (_.immediateChildren.foreach {
-                case funDefOrDecl: FunDefOrDcl => buffer += funDefOrDecl
-                case _ =>
-              }))
-              case _ =>
-            }
-            case _ =>
-          }
-          case _ =>
-        }
-      )
-    } catch {
-      case e: Exception =>
-    }
-    buffer.toList
-  }
-
-  def getCallExprAndLines(callExprs: List[CallExpr], param: String, lines: Lines):
-  Iterable[MethodAndLines] = {
+  def getCallExprAndRanges(callExprs: List[CallExpr],
+                           param: String): Map[String, List[Range]] = {
     val matchedCallExprs = callExprs.filter(callExpr =>
       callExpr.tokens.map(_.rawText).contains(param))
-    val methodsAndOffset = matchedCallExprs.flatMap(callExpr =>
-      getMethodAndOffset(callExpr.tokens.toArray, param))
-    val methodsVsLineColumn = methodsAndOffset.groupBy(_._1).mapValues(_.map(_._2))
-      .mapValues(_.map(lines.toLineColumn).map(_.get))
-    methodsVsLineColumn.map(x => MethodAndLines(x._1, x._2.map(lineCol =>
-      HighLighter(lineCol.line, lineCol.column, lineCol.column + x._1.length))))
-      .filter(_.lineNumbers.nonEmpty)
+    val methodCallTokens = matchedCallExprs.flatMap(callExpr =>
+      getMethodCallTokens(callExpr.tokens.toArray, param))
+    methodCallTokens.map(methodCallToken => (methodCallToken.rawText, methodCallToken))
+      .groupBy(_._1).mapValues(_.map(x => x._2.range)).filter(_._2.nonEmpty)
   }
 
-  def getAllCallExprs(funDefOrDcl: FunDefOrDcl): List[CallExpr] = {
+  def getAllCallExprs: List[CallExpr] = {
     val buff = ListBuffer[CallExpr]()
     def recursiveVisit(children: List[AstNode]): Unit = {
       children.map {
@@ -96,7 +57,7 @@ object ScalaParserUtils {
     buff.toList
   }
 
-  private def getMethodAndOffset(tokens: Array[Token], param: String): Array[(String, Int)] = {
+  def getMethodCallTokens(tokens: Array[Token], param: String): Array[Token] = {
     val optionTupleOfTokens = tokens.zipWithIndex.flatMap(x => x._1.rawText == "." match {
       case true => Some(Try(tokens(x._2 - 1)).toOption, Try(tokens(x._2 + 1)).toOption)
       case false => None
@@ -104,10 +65,10 @@ object ScalaParserUtils {
     val identityToken = Token(Tokens.VARID, "", -1, "")
     val tupleOfTokens = optionTupleOfTokens.map(x => (x._1.getOrElse(identityToken),
       x._2.getOrElse(identityToken)))
-    tupleOfTokens.filter(_._1.rawText == param).map(x => (x._2.rawText, x._2.offset))
+    tupleOfTokens.filter(_._1.rawText == param).map(_._2)
   }
 
-  def getParams(funDefOrDcl: FunDefOrDcl): List[(String, String)] = {
+  def getListOfParamVsType: List[(String, String)] = {
     def getAllParams(paramClause: ParamClause) = {
       val mutableList = ListBuffer[Param]()
       paramClause.firstParamOption match {

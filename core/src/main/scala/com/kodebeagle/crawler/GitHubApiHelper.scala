@@ -23,7 +23,7 @@ import java.util.Calendar
 
 import com.kodebeagle.configuration.KodeBeagleConfig
 import com.kodebeagle.crawler.GitHubRepoDownloader._
-import com.kodebeagle.indexer.Repository
+import com.kodebeagle.indexer.RepoFileNameInfo
 import com.kodebeagle.logging.Logger
 import org.apache.commons.httpclient.HttpClient
 import org.apache.commons.httpclient.methods.GetMethod
@@ -47,6 +47,7 @@ object GitHubApiHelper extends Logger {
   /**
    * Access Github's
    * [[https://developer.github.com/v3/repos/#list-all-public-repositories List all repositories]]
+ *
    * @param since Specify id of repo to start the listing from. (Pagination)
    */
   def getAllGitHubRepos(since: Int): (List[Map[String, String]], Int) = {
@@ -73,7 +74,7 @@ object GitHubApiHelper extends Logger {
    * Access Github's
    * [[https://developer.github.com/v3/repos/#list-organization-repositories]]
    */
-  def getAllGitHubReposForOrg(orgs: String, page: Int): List[Repository] = {
+  def getAllGitHubReposForOrg(orgs: String, page: Int): List[RepoFileNameInfo] = {
     val method = executeMethod(s"https://api.github.com/orgs/$orgs/repos?page=$page", token)
     val json = httpGetJson(method).toList
     for (j <- json; c <- j.children) yield extractRepoInfo(c)
@@ -82,15 +83,15 @@ object GitHubApiHelper extends Logger {
   /**
    * Parallel fetch is not worth trying since github limits per user limit of 5000 Req/hr.
    */
-  def fetchDetails(repoMap: Map[String, String]): Option[Repository] = {
+  def fetchDetails(repoMap: Map[String, String]): Option[RepoFileNameInfo] = {
     for {
       repo <-
       httpGetJson(executeMethod("https://api.github.com/repos/" + repoMap("full_name"), token))
     } yield extractRepoInfo(repo)
   }
 
-  def extractRepoInfo(repo: JValue): Repository = {
-    Repository((repo \ "owner" \ "login").extract[String],
+  def extractRepoInfo(repo: JValue): RepoFileNameInfo = {
+    RepoFileNameInfo((repo \ "owner" \ "login").extract[String],
       (repo \ "id").extract[Int], (repo \ "name").extract[String], (repo \ "fork").extract[Boolean],
       (repo \ "language").extract[String], (repo \ "default_branch").extract[String],
       (repo \ "stargazers_count").extract[Int])
@@ -140,7 +141,7 @@ object GitHubApiHelper extends Logger {
     githubdir
   }
 
-  def downloadRepository(r: Repository, targetDir: String, retry: Int = 0): Option[File] = {
+  def downloadRepository(r: RepoFileNameInfo, targetDir: String, retry: Int = 0): Option[File] = {
     if (retry < 3) {
       val githubdir: String = createDirectoryWithDate(targetDir)
       try {
@@ -172,7 +173,7 @@ object GitHubApiHelper extends Logger {
     }
   }
 
-  def cloneRepository(r: Repository, url: String, targetDir: String): Unit = {
+  def cloneRepository(r: RepoFileNameInfo, url: String, targetDir: String): Unit = {
     val githubdir = createDirectoryWithDate(targetDir);
     val filePath =  githubdir +
       s"/repo~${r.login}~${r.name}~${r.id}~${r.fork}~${r.language}~${r.defaultBranch}" +

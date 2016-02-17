@@ -19,11 +19,10 @@ package com.kodebeagle.parser
 
 import java.io.{FileReader, InputStream, StringWriter}
 
-import com.kodebeagle.indexer.{HighLighter, MethodAndLines, Repository}
+import com.kodebeagle.indexer.{Repository, ExternalLine, ExternalType, JavaExternalTypeRefIndexer, Property, RepoFileNameInfo}
 import org.apache.commons.io.IOUtils
 import org.mozilla.javascript.ast.ErrorCollector
 import org.mozilla.javascript.{CompilerEnvirons, IRFactory}
-import org.scalastyle.Lines
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 
 import scala.util.Try
@@ -32,19 +31,19 @@ class ParserSuite extends FunSuite with BeforeAndAfterAll {
 
   test("Simple repo") {
     val r = RepoFileNameParser("repo~apache~zookeeper~160999~false~Java~trunk~789.zip")
-    assert(r.get == Repository("apache", 160999, "zookeeper", false, "Java", "trunk", 789))
+    assert(r.get == RepoFileNameInfo("apache", 160999, "zookeeper", false, "Java", "trunk", 789))
   }
 
   test("Names with special character") {
     val r = RepoFileNameParser("/home/dir~temp/repo~apache~zookeeper-lost~160999~false~Java" +
       "~=+-trunk/2.1~789.zip")
-    assert(r.get == Repository("apache", 160999, "zookeeper-lost", false, "Java", "=+-trunk/2.1",
-      789))
+    assert(r.get == RepoFileNameInfo("apache", 160999, "zookeeper-lost", false,
+      "Java", "=+-trunk/2.1", 789))
   }
 
   test("Branch name with version number only") {
     val r = RepoFileNameParser("repo~apache~zookeeper~160999~false~Java~2.1~789.zip")
-    assert(r.get == Repository("apache", 160999, "zookeeper", false, "Java", "2.1", 789))
+    assert(r.get == RepoFileNameInfo("apache", 160999, "zookeeper", false, "Java", "2.1", 789))
   }
 
 
@@ -55,13 +54,13 @@ class ParserSuite extends FunSuite with BeforeAndAfterAll {
 
   test("Branch name absent.") {
     val r = RepoFileNameParser("repo~apache~zookeeper~160999~false~Java~789.zip")
-    assert(r.get == Repository("apache", 160999, "zookeeper", false, "Java", "master", 789))
+    assert(r.get == RepoFileNameInfo("apache", 160999, "zookeeper", false, "Java", "master", 789))
   }
 
   test("Hdfs url.") {
     val r = RepoFileNameParser(
       "/172.16.13.179:9000/user/data/github3/repo~apache~zookeeper~160999~false~Java~789.zip")
-    assert(r.get == Repository("apache", 160999, "zookeeper", false, "Java", "master", 789))
+    assert(r.get == RepoFileNameInfo("apache", 160999, "zookeeper", false, "Java", "master", 789))
   }
 
   test("Multiple valid repo names.") {
@@ -106,56 +105,58 @@ class MethodVisitorSuite extends FunSuite with BeforeAndAfterAll {
 
     val testMap = List(Map("io.netty.channel.Channel" -> Map(),
       "com.google.common.base.Preconditions" -> Map("checkNotNull" ->
-        List(HighLighter(74, 20, 54), HighLighter(75, 20, 54)))),
+        List(ExternalLine(74, 20, 54), ExternalLine(75, 20, 54)))),
 
-      Map("io.netty.channel.Channel" -> Map("isOpen" -> List(HighLighter(79, 12, 27)),
-        "isActive" -> List(HighLighter(79, 32, 49))),
+      Map("io.netty.channel.Channel" -> Map("isOpen" -> List(ExternalLine(79, 12, 27)),
+        "isActive" -> List(ExternalLine(79, 32, 49))),
         "javax.xml.bind.annotation.XmlAnyAttribute" -> Map()),
 
-      Map("org.slf4j.Logger" -> Map("trace" -> List(HighLighter(114, 13, 24)),
-        "debug" -> List(HighLighter(103, 5, 80)),
-        "error" -> List(HighLighter(119, 13, 50), HighLighter(125, 15, 85))),
+      Map("org.slf4j.Logger" -> Map("trace" -> List(ExternalLine(114, 13, 24)),
+        "debug" -> List(ExternalLine(103, 5, 80)),
+        "error" -> List(ExternalLine(119, 13, 50), ExternalLine(125, 15, 85))),
         "org.apache.spark.network.protocol.ChunkFetchRequest" -> Map(),
         "io.netty.channel.ChannelFutureListener" -> Map(), "java.io.IOException" -> Map(),
         "org.apache.spark.network.util.NettyUtils" -> Map("getRemoteAddress" ->
-          List(HighLighter(101, 31, 66))), "io.netty.channel.ChannelFuture" ->
-          Map("cause" -> List(HighLighter(118, 27, 40), HighLighter(119, 36, 49),
-            HighLighter(123, 72, 85)), "isSuccess" -> List(HighLighter(112, 15, 32))),
-        "io.netty.channel.Channel" -> Map("close" -> List(HighLighter(121, 13, 27)),
-          "writeAndFlush" -> List(HighLighter(108, 5, 63))),
+          List(ExternalLine(101, 31, 66))), "io.netty.channel.ChannelFuture" ->
+          Map("cause" -> List(ExternalLine(118, 27, 40), ExternalLine(119, 36, 49),
+            ExternalLine(123, 72, 85)), "isSuccess" -> List(ExternalLine(112, 15, 32))),
+        "io.netty.channel.Channel" -> Map("close" -> List(ExternalLine(121, 13, 27)),
+          "writeAndFlush" -> List(ExternalLine(108, 5, 63))),
         "org.apache.spark.network.protocol.StreamChunkId" -> Map()),
 
-      Map("org.slf4j.Logger" -> Map("trace" -> List(HighLighter(139, 5, 49),
-        HighLighter(150, 13, 97)),
-        "error" -> List(HighLighter(154, 13, 50), HighLighter(160, 15, 85))),
+      Map("org.slf4j.Logger" -> Map("trace" -> List(ExternalLine(139, 5, 49),
+        ExternalLine(150, 13, 97)),
+        "error" -> List(ExternalLine(154, 13, 50), ExternalLine(160, 15, 85))),
         "io.netty.channel.ChannelFutureListener" -> Map(),
         "java.io.IOException" -> Map(), "java.util.UUID" ->
-          Map("randomUUID" -> List(HighLighter(141, 37, 53))),
+          Map("randomUUID" -> List(ExternalLine(141, 37, 53))),
         "org.apache.spark.network.util.NettyUtils" ->
-          Map("getRemoteAddress" -> List(HighLighter(137, 31, 66))),
-        "io.netty.channel.ChannelFuture" -> Map("cause" -> List(HighLighter(153, 27, 40),
-          HighLighter(154, 36, 49), HighLighter(158, 60, 73)), "isSuccess" ->
-          List(HighLighter(148, 15, 32))), "io.netty.channel.Channel" -> Map("close" ->
-          List(HighLighter(156, 13, 27)), "writeAndFlush" -> List(HighLighter(144, 5, 61))),
+          Map("getRemoteAddress" -> List(ExternalLine(137, 31, 66))),
+        "io.netty.channel.ChannelFuture" -> Map("cause" -> List(ExternalLine(153, 27, 40),
+          ExternalLine(154, 36, 49), ExternalLine(158, 60, 73)), "isSuccess" ->
+          List(ExternalLine(148, 15, 32))), "io.netty.channel.Channel" -> Map("close" ->
+          List(ExternalLine(156, 13, 27)), "writeAndFlush" -> List(ExternalLine(144, 5, 61))),
         "org.apache.spark.network.protocol.RpcRequest" -> Map()),
 
       Map("java.util.concurrent.TimeUnit" -> Map(), "java.util.concurrent.ExecutionException" ->
-        Map("getCause" -> List(HighLighter(189, 34, 45))), "com.google.common.base.Throwables" ->
-        Map("propagate" -> List(HighLighter(189, 13, 46), HighLighter(191, 13, 35))),
+        Map("getCause" -> List(ExternalLine(189, 34, 45))), "com.google.common.base.Throwables" ->
+        Map("propagate" -> List(ExternalLine(189, 13, 46), ExternalLine(191, 13, 35))),
         "com.google.common.util.concurrent.SettableFuture" -> Map("set" ->
-          List(HighLighter(177, 9, 28)), "get" -> List(HighLighter(187, 14, 57)),
-          "create" -> List(HighLighter(172, 43, 65)),
-          "setException" -> List(HighLighter(182, 9, 30)))),
+          List(ExternalLine(177, 9, 28)), "get" -> List(ExternalLine(187, 14, 57)),
+          "create" -> List(ExternalLine(172, 43, 65)),
+          "setException" -> List(ExternalLine(182, 9, 30)))),
 
       Map("java.util.concurrent.TimeUnit" -> Map(), "io.netty.channel.Channel" ->
-        Map("close" -> List(HighLighter(198, 5, 19)))),
+        Map("close" -> List(ExternalLine(198, 5, 19)))),
 
-      Map("io.netty.channel.Channel" -> Map("remoteAddress" -> List(HighLighter(204, 28, 50))),
-        "com.google.common.base.Objects" -> Map("toStringHelper" -> List(HighLighter(203, 12, 39))))
+      Map("io.netty.channel.Channel" -> Map("remoteAddress" -> List(ExternalLine(204, 28, 50))),
+        "com.google.common.base.Objects" ->
+          Map("toStringHelper" -> List(ExternalLine(203, 12, 39))))
     )
-
-    val imports = getImports(parser, Set()).map(importName => importName._1 + "." + importName._2)
-    val tokenMap: List[Map[String, List[HighLighter]]] = getTokenMap(parser, imports)
+    val javaASTBasedIndexer = new JavaExternalTypeRefIndexer()
+    val imports = javaASTBasedIndexer.getImports(parser, Set())
+      .map(importName => importName._1 + "." + importName._2)
+    val tokenMap: List[Map[String, List[ExternalLine]]] = getTokenMap(parser, imports)
     val resultTokens = getImportsWithMethodAndLineNumbers(parser, tokenMap).map(_._1)
 
     for (i <- resultTokens.indices) {
@@ -173,76 +174,6 @@ class MethodVisitorSuite extends FunSuite with BeforeAndAfterAll {
 
   override def afterAll() {
     stream.close()
-  }
-}
-
-class GenericParserTest extends FunSuite {
-
-
-  test("With dummy scala file") {
-    val parsed: Option[List[String]] = GenericBraceMatchingParser(
-      """
-        |import abc.xyz
-        |import abc.xyz;
-        |
-        |object Test {
-        |  val g = 1
-        |  def fun = {
-        |   // some content.
-        |   val i = 10
-        |   }
-        |}
-        |class A {
-        | val a = 1000
-        |}
-        |
-      """.stripMargin)
-    assert(parsed.isDefined)
-    assert(parsed.get.exists(_.contains("val i = 10")))
-    assert(parsed.get.exists(_.contains("val a = 1000")))
-  }
-
-  test("Should fail for unmatched curly brackets.") {
-    val parsed: Option[List[String]] = GenericBraceMatchingParser(
-      """
-        |import abc.xyz
-        |import abc.xyz;
-        |
-        |object Test {
-        |  val g = 1
-        |  def fun = {
-        |   // some content.
-        |   val i = 10
-        |
-        |}
-        |class A {
-        | val a = 1000
-        |}
-        |
-      """.stripMargin)
-    assert(parsed.isEmpty)
-  }
-
-  test("With real java file") {
-    val stream: InputStream =
-      Thread.currentThread.getContextClassLoader.getResourceAsStream("TransportClient.java")
-
-    import scala.collection.JavaConversions._
-
-    val lines: String = IOUtils.readLines(stream).reduce(_ + _)
-    val parsed: Option[List[String]] = GenericBraceMatchingParser(lines)
-    assert(parsed.isDefined)
-  }
-
-  test("With real js file") {
-    val stream: InputStream =
-      Thread.currentThread.getContextClassLoader.getResourceAsStream("background.js")
-
-    import scala.collection.JavaConversions._
-
-    val lines: String = IOUtils.readLines(stream).reduce(_ + _)
-    val parsed: Option[List[String]] = GenericBraceMatchingParser(lines)
-    assert(parsed.isDefined)
   }
 }
 
@@ -268,23 +199,25 @@ class JsParserTest extends FunSuite {
   test("Types and their associated properties in a js file") {
     if (mayBeAstRoot.isSuccess) {
       val actualTypes = JsParser.getTypes(mayBeAstRoot.get).toSet
-      val expectedTypes = Set(Type("rx", List(HighLighter(4, -1, -1), HighLighter(11, -1, -1),
-        HighLighter(87, -1, -1), HighLighter(173, -1, -1), HighLighter(45, -1, -1),
-        HighLighter(31, -1, -1), HighLighter(70, -1, -1), HighLighter(62, -1, -1),
-        HighLighter(78, -1, -1)), Set(Property("config", List(HighLighter(11, -1, -1))),
-        Property("Observable", List(HighLighter(87, -1, -1), HighLighter(173, -1, -1),
-          HighLighter(45, -1, -1), HighLighter(31, -1, -1), HighLighter(70, -1, -1))),
-        Property("Disposable", List(HighLighter(62, -1, -1), HighLighter(78, -1, -1))))),
-        Type("mongodb.MongoClient", List(HighLighter(10, -1, -1), HighLighter(33, -1, -1)),
-          Set(Property("connect", List(HighLighter(33, -1, -1))))), Type("mongodb",
-          List(HighLighter(7, -1, -1), HighLighter(10, -1, -1)), Set(Property("MongoClient",
-            List(HighLighter(10, -1, -1))))))
+      val expectedTypes =
+        Set(ExternalType("rx", List(ExternalLine(4, -1, -1), ExternalLine(11, -1, -1),
+          ExternalLine(87, -1, -1), ExternalLine(173, -1, -1), ExternalLine(45, -1, -1),
+          ExternalLine(31, -1, -1), ExternalLine(70, -1, -1), ExternalLine(62, -1, -1),
+          ExternalLine(78, -1, -1)), Set(Property("config", List(ExternalLine(11, -1, -1))),
+          Property("Observable", List(ExternalLine(87, -1, -1), ExternalLine(173, -1, -1),
+            ExternalLine(45, -1, -1), ExternalLine(31, -1, -1), ExternalLine(70, -1, -1))),
+          Property("Disposable", List(ExternalLine(62, -1, -1), ExternalLine(78, -1, -1))))),
+          ExternalType("mongodb.MongoClient",
+            List(ExternalLine(10, -1, -1), ExternalLine(33, -1, -1)),
+            Set(Property("connect", List(ExternalLine(33, -1, -1))))), ExternalType("mongodb",
+            List(ExternalLine(7, -1, -1), ExternalLine(10, -1, -1)), Set(Property("MongoClient",
+              List(ExternalLine(10, -1, -1))))))
       assert(actualTypes.exists(actualType => expectedTypes.exists(
         expectedType => actualType.typeName == expectedType.typeName &&
-          actualType.lineNumbers.forall(expectedType.lineNumbers.contains(_)) &&
+          actualType.lines.forall(expectedType.lines.contains(_)) &&
           actualType.properties.exists(actualProp => expectedType.properties.exists(
             expectedProp => actualProp.propertyName == expectedProp.propertyName &&
-              actualProp.lineNumbers.forall(expectedProp.lineNumbers.contains(_)))))))
+              actualProp.lines.forall(expectedProp.lines.contains(_)))))))
     }
   }
 
@@ -296,7 +229,7 @@ class ScalaParserTest extends FunSuite {
     .getResourceAsStream("PartioningUtils.scala")
   val source = scala.io.Source.fromInputStream(stream).mkString
   test("extract functions from scala file") {
-    val actualFunctions = ScalaParserUtils.extractFunctions(source).map(_.nameToken.rawText)
+    val actualFunctions = ScalaParser.extractFunctions(source).map(_.nameToken.rawText)
     val expectedFunctions = List("parsePartitions",
       "parsePartition", "parsePartitionColumn", "resolvePartitions",
       "listConflictingPartitionColumns", "inferPartitionColumnValue",
@@ -305,44 +238,41 @@ class ScalaParserTest extends FunSuite {
     assert(actualFunctions == expectedFunctions)
   }
 
-  val testFunction = ScalaParserUtils.extractFunctions(source).head
-
+  val testFunction = ScalaParser.extractFunctions(source).head
+  val scalaFuncHelper = new ScalaParserBase(testFunction)
   test("params for a function") {
-    val actualParams = ScalaParserUtils.getParams(testFunction)
+    val actualParams = scalaFuncHelper.getListOfParamVsType
     val expectedParams = List(("paths", "Seq"), ("defaultPartitionName", "String"),
       ("typeInference", "Boolean"), ("basePaths", "Set"))
     assert(actualParams == expectedParams)
   }
 
-  val allMethodCallExprs = ScalaParserUtils.getAllCallExprs(testFunction)
+  val allMethodCallExprs = scalaFuncHelper.getAllCallExprs
   test("All Method Call Exprs inside a function") {
     val expectedCallExprs = List("unzip", "flatMap", "isEmpty", "emptySpec", "assert",
       "resolvePartitions", "head", "map", "PartitionSpec")
     assert(allMethodCallExprs.map(_.id.rawText).distinct == expectedCallExprs)
   }
 
-  import org.scalastyle.Checker
-
-  private val lines: Lines = Checker.parseLines(source)
   test("Method Call Expr for a particular param") {
-    val actualCallExprs = ScalaParserUtils.getCallExprAndLines(allMethodCallExprs, "paths", lines)
-      .map(_.methodName)
+    val actualCallExprs = scalaFuncHelper.getCallExprAndRanges(allMethodCallExprs, "paths")
+      .keys.toList
     val expectedCallExprs = List("zip", "map")
     assert(actualCallExprs == expectedCallExprs)
   }
 
+  import scalariform.utils.Range
+
   test("Highlighters of usage for a particular param") {
-    val actualHighlighters = ScalaParserUtils.getImportsLines(testFunction, "paths", lines)
-    val expectedHighlighters = List(HighLighter(76, 36, 41),
-      HighLighter(81, 52, 57), HighLighter(87, 35, 40))
+    val actualHighlighters = scalaFuncHelper.getUsageRanges("paths")
+
+    val expectedHighlighters = List(Range(2993, 5), Range(3361, 5), Range(3645, 5))
     assert(actualHighlighters == expectedHighlighters)
   }
 
   test("Highlighters of methodcall for a particular param") {
-    val actualCallExprAndLines = ScalaParserUtils.
-      getCallExprAndLines(allMethodCallExprs, "paths", lines)
-    val expectedCallExprAndLines = List(MethodAndLines("zip", List(HighLighter(87, 41, 44))),
-      MethodAndLines("map", List(HighLighter(81, 58, 61))))
+    val actualCallExprAndLines = scalaFuncHelper.getCallExprAndRanges(allMethodCallExprs, "paths")
+    val expectedCallExprAndLines = Map("zip" -> List(Range(3651, 3)), "map" -> List(Range(3367, 3)))
     assert(actualCallExprAndLines == expectedCallExprAndLines)
   }
 }
@@ -352,12 +282,14 @@ class ZipParserTest extends FunSuite {
   import java.util.zip.ZipInputStream
 
   import com.kodebeagle.crawler.ZipBasicParser._
-  import com.kodebeagle.indexer.Statistics
 
   test("read zip file correctly") {
+    val zipName = "repo~Cascading~cascading-dbmigrate~576623~false~Java~master~65.zip"
     val stream: InputStream = Thread.currentThread.getContextClassLoader.getResourceAsStream(
-      "repo~Cascading~cascading-dbmigrate~576623~false~Java~master~65.zip")
-    val (_, _, _, statistics) = readFilesAndPackages(576623, new ZipInputStream(stream))
-    assert(statistics === Statistics(576623, 843, 8, 33))
+      zipName)
+    val repoFileNameInfo = RepoFileNameParser(zipName)
+    val (_, _, _, repository) = readFilesAndPackages(repoFileNameInfo, new ZipInputStream(stream))
+    assert(repository.get == Repository("Cascading", 576623, "cascading-dbmigrate",
+      false, "Java", "master", 65, 843, 8, 33))
   }
 }
