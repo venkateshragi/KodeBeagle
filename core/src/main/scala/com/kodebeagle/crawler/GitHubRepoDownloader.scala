@@ -17,22 +17,26 @@
 
 package com.kodebeagle.crawler
 
-import akka.actor.Actor
-import akka.actor.Props
-import scala.concurrent.duration.Duration
-import java.util.concurrent.TimeUnit
-import akka.actor.ActorSystem
-import com.kodebeagle.logging.Logger
+
+import akka.actor.{Actor, ActorSystem, Props}
 import com.kodebeagle.configuration.KodeBeagleConfig
+import com.kodebeagle.logging.Logger
 
 class GitHubRepoDownloader extends Actor with Logger {
 
-  import GitHubRepoDownloader._
   import GitHubRepoCrawlerApp._
+  import GitHubRepoDownloader._
 
   def receive: PartialFunction[Any, Unit] = {
 
     case DownloadOrganisationRepos(organisation) => downloadFromOrganization(organisation)
+
+    case DownloadJavaScriptRepos(page) =>
+      val corruptRepo = JavaScriptRepoDownloader.startCrawlingFromSkippedCount(page,"")
+      if (corruptRepo == "") {
+        JavaScriptRepoDownloader.pageNumber = JavaScriptRepoDownloader.pageNumber + 1
+      }
+      self ! DownloadJavaScriptRepos(JavaScriptRepoDownloader.pageNumber)
 
     case DownloadPublicRepos(since, zipOrClone) =>
       try {
@@ -52,6 +56,18 @@ class GitHubRepoDownloader extends Actor with Logger {
         GitHubApiHelper.token = KodeBeagleConfig.nextToken()
         log.info("limit 0,token changed :" + GitHubApiHelper.token)
       }
+
+    case DownloadPublicReposMetadata(since) =>
+      try {
+        val nextSince = GitHubRepoMetadataDownloader.getRepoIdFromRange(since)
+        self ! DownloadPublicReposMetadata(nextSince)
+      } catch {
+        case ex: Exception =>
+          ex.printStackTrace()
+          log.error("Got Exception [" + ex.getMessage + "] Trying to download, " +
+            "waiting for other tokens")
+          self ! DownloadPublicReposMetadata(since)
+      }
   }
 
 }
@@ -62,6 +78,10 @@ object GitHubRepoDownloader {
 
   case class DownloadPublicRepos(since: Int, zipOrClone: String)
 
+  case class DownloadPublicReposMetadata(since: Int)
+
+  case class DownloadJavaScriptRepos(pageNumber: Int)
+
   case class RateLimit(limit: String)
 
   val system = ActorSystem("RepoDownloder")
@@ -69,7 +89,6 @@ object GitHubRepoDownloader {
   val repoDownloader = system.actorOf(Props[GitHubRepoDownloader])
 
   val zipActor = system.actorOf(Props[ZipActor])
-
 }
 
 class ZipActor extends Actor {
@@ -79,4 +98,3 @@ class ZipActor extends Actor {
       Process("rm -fr " + filePath).!!
   }
 }
-

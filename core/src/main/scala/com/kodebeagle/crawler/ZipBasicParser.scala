@@ -28,8 +28,8 @@ import scala.collection.mutable
 import scala.util.Try
 
 /**
- * Extracts java files and packages from the given zip file.
- */
+  * Extracts java files and packages from the given zip file.
+  */
 object ZipBasicParser extends Logger {
 
   private val bufferSize = 1024000 // about 1 mb
@@ -59,9 +59,9 @@ object ZipBasicParser extends Logger {
           size += fileContent.length
           fileCount += 1
           sloc += fileContent.split("\n").size
-          if (ze.getName.endsWith("scala")) {
+          if (ze.getName.endsWith(".scala")) {
             scalaFileList += (fileName -> fileContent)
-          } else if (ze.getName.endsWith("java")) {
+          } else if (ze.getName.endsWith(".java")) {
             javaFileList += (fileName -> fileContent)
           }
         } else if (ze.isDirectory && (ze.getName.toLowerCase.matches(".*src/main/java.*")
@@ -92,6 +92,30 @@ object ZipBasicParser extends Logger {
     val kmlBytes = output.toByteArray
     output.close()
     new String(kmlBytes, "utf-8").trim.replaceAll("\t", "  ")
+
+  }
+
+  def readJSFiles(zipStream: ZipInputStream): (List[(String, String)]) = {
+    val list = mutable.ArrayBuffer[(String, String)]()
+    var ze: Option[ZipEntry] = None
+    try {
+      do {
+        ze = Option(zipStream.getNextEntry)
+        ze.foreach { ze => if (ze.getName.endsWith(".js") && !ze.isDirectory
+          && !ze.getName.contains("node_modules")) {
+          val fileName = ze.getName
+          val fileContent = readContent(zipStream)
+          list += (fileName -> fileContent)
+        }
+        }
+        zipStream.closeEntry()
+      } while (ze.isDefined)
+    } catch {
+      case ex: Exception => log.error("Exception reading next entry {}", ex)
+    } finally {
+      zipStream.close()
+    }
+    list.toList
   }
 
   def listAllFiles(dir: String): Array[File] = new File(dir).listFiles

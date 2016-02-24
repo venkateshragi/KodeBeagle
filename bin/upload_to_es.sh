@@ -174,6 +174,10 @@ curl -XPUT 'http://localhost:9201/importsmethods/' -d '{
                 "repoId": {
                     "type": "long"
                 },
+                "language": {
+                    "type": "string",
+                    "index": "not_analyzed"
+                },
                 "score": {
                     "type": "integer",
                     "index": "not_analyzed"

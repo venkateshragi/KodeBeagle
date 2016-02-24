@@ -51,12 +51,14 @@ class JavaASTBasedIndexerForMethods extends JavaASTBasedIndexer {
           if (isTestFile(imports)) r.stargazersCount / penalizeTestFiles else r.stargazersCount
         for (methodToken <- methodTokens) {
           indexEntries =
-            indexEntries + ImportsMethods(r.id, fullGithubURL, methodToken, score)
+            indexEntries + ImportsMethods(r.id, fullGithubURL, methodToken,
+              score)
         }
       } catch {
         case e: Throwable => log.error(s"Failed for $fullGithubURL", e);
       }
     }
-    indexEntries
+    indexEntries.filter(_.tokens.nonEmpty)
   }
 }
+

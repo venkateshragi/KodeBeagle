@@ -23,7 +23,7 @@ import de.johoop.findbugs4sbt.FindBugs._
 import sbt.Keys._
 import sbt._
 import sbtassembly.AssemblyKeys._
-import sbtassembly.AssemblyPlugin
+import sbtassembly.{AssemblyPlugin, MergeStrategy}
 
 object KodeBeagleBuild extends Build {
 
@@ -38,18 +38,26 @@ object KodeBeagleBuild extends Build {
     includeScala = false, includeDependency = false))
 
   lazy val core = Project("core", file("core"), settings =
-    coreSettings) disablePlugins AssemblyPlugin
+    coreSettings)
 
-  lazy val javaPlugin = Project("javaPlugin", file("plugins/idea/javaPlugin"), settings =
-    pluginSettingsFull ++ findbugsSettings ++
-      codequality.CodeQualityPlugin.Settings ++ excludeDependency) dependsOn common
+  lazy val pluginImpl = Project("pluginImpl", file("plugins/idea/pluginImpl"), settings =
+    pluginSettingsFull ++ findbugsSettings ++ scalaPluginSettings ++
+      codequality.CodeQualityPlugin.Settings ++ excludeDependency).settings(
+    findbugsExcludeFilters := Some(
+      <FindBugsFilter>
+        <Match>
+          <Class name="~.*PsiScalaElementVisitor.*"/>
+        </Match>
+      </FindBugsFilter>
+    )
+  ) dependsOn pluginBase
 
   lazy val pluginTests = Project("pluginTests", file("plugins/idea/pluginTests"), settings =
-    pluginTestSettings) dependsOn javaPlugin disablePlugins AssemblyPlugin
+    pluginTestSettings) dependsOn pluginImpl disablePlugins AssemblyPlugin
 
-  lazy val common = Project("pluginCommon", file("plugins/idea/common"), settings =
+  lazy val pluginBase = Project("pluginBase", file("plugins/idea/pluginBase"), settings =
     pluginSettings ++ findbugsSettings ++
-      codequality.CodeQualityPlugin.Settings) disablePlugins AssemblyPlugin
+      codequality.CodeQualityPlugin.Settings)
 
   val scalacOptionsList = Seq("-encoding", "UTF-8", "-unchecked", "-optimize", "-deprecation",
     "-feature")
@@ -57,16 +65,26 @@ object KodeBeagleBuild extends Build {
   // This is required for plugin devlopment.
   val ideaLib = sys.env.get("IDEA_LIB").orElse(sys.props.get("idea.lib"))
 
+  val scalaPluginJar = sys.env.get("SCALA_PLUGIN").orElse(sys.props.get("scala.plugin"))
+
   def aggregatedProjects: Seq[ProjectReference] = {
-    if (ideaLib.isDefined) {
-      Seq(core, common, javaPlugin, pluginTests)
+    if (ideaLib.isDefined && scalaPluginJar.isDefined) {
+      Seq(core, pluginBase, pluginImpl, pluginTests)
     } else {
       println(
-        """[warn] Plugin project disabled. To enable append -Didea.lib="idea/lib" to JVM
-        params in SBT settings or while invoking sbt (incase it is called from commandline.). """)
+        """[warn] Plugin project disabled. To enable append -Didea.lib="idea/lib"""" ++
+          """ and -Dscala.plugin="path/to/scala-plugin.jar" to JVM params in SBT settings or""" ++
+          """ while invoking sbt (incase it is called from commandline.). """)
       Seq(core)
     }
   }
+
+  def scalaPluginSettings = if (scalaPluginJar.isEmpty) Seq()
+  else Seq(
+    scalaVersion := "2.11.6",
+    unmanagedJars in Compile += file(scalaPluginJar.get),
+    libraryDependencies += "org.scala-lang" % "scala-library" % scalaVersion.value % "provided"
+  )
 
   def pluginSettings = kodebeagleSettings ++ (if (ideaLib.isEmpty) Seq()
   else
@@ -95,7 +113,12 @@ object KodeBeagleBuild extends Build {
     autoScalaLibrary := true,
     scalaVersion := "2.11.6")
 
-  def coreSettings = kodebeagleSettings ++ Seq(libraryDependencies ++= Dependencies.kodebeagle)
+  def coreSettings = kodebeagleSettings ++ Seq(libraryDependencies ++= Dependencies.kodebeagle) ++ Seq(assemblyMergeStrategy in assembly := {
+    case "plugin.properties" | "plugin.xml" | ".api_description" | "META-INF/eclipse.inf" | ".options" => MergeStrategy.first
+    case x =>
+      val oldStrategy = (assemblyMergeStrategy in assembly).value
+      oldStrategy(x)
+  })
 
   def kodebeagleSettings =
     Defaults.coreDefaultSettings ++ Seq(
@@ -114,12 +137,12 @@ object KodeBeagleBuild extends Build {
       javaOptions += "-Xmx6048m",
       javaOptions += "-XX:+HeapDumpOnOutOfMemoryError"
     )
-
 }
 
 object Dependencies {
 
-  val scalastyle = "org.scalastyle" %% "scalastyle" % "0.7.0" // Needed for scala parsing.
+  val scalastyle = "org.scalastyle" %% "scalastyle" % "0.7.0"
+  // Needed for scala parsing.
   val spark = "org.apache.spark" %% "spark-core" % "1.4.1"
   //"org.apache.spark" %% "spark-core" % "1.3.1" // % "provided" Provided makes it not run through sbt run.
   val parserCombinator = "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.3"
@@ -130,10 +153,15 @@ object Dependencies {
   val json4sJackson = "org.json4s" %% "json4s-jackson" % "3.2.10"
   val httpClient = "commons-httpclient" % "commons-httpclient" % "3.1"
   val config = "com.typesafe" % "config" % "1.2.1"
-  val jgit = "org.eclipse.jgit" % "org.eclipse.jgit" % "3.7.0.201502260915-r"
+  val jgit = "org.eclipse.jgit" % "org.eclipse.jgit" % "3.7.0.201502260915-r" intransitive()
   val commonsIO = "commons-io" % "commons-io" % "2.4"
   val esSpark = "org.elasticsearch" % "elasticsearch-spark_2.11" % "2.1.0.Beta4"
+  val guava = "com.google.guava" % "guava" % "18.0"
+  val akka = "com.typesafe.akka" % "akka-actor_2.11" % "2.4.0"
+  val compress = "org.apache.commons" % "commons-compress" % "1.10"
   val graphx = "org.apache.spark" % "spark-graphx_2.11" % "1.4.1"
+  val junit = "junit" % "junit" % "4.12"
+  val rhino = "org.mozilla" % "rhino" % "1.7R4"
 
   //Eclipse dependencies for Tassal libs
   object EclipseDeps {
@@ -151,13 +179,11 @@ object Dependencies {
     val allDeps = Seq(tycho, contentType, coreJobs, coreResources, coreRT, eqCommon, eqPref, eqReg, osgi, text)
   }
 
-
-  val kodebeagle = Seq(scalastyle, spark, parserCombinator, scalaTest, slf4j, javaparser,
-    json4s, config, json4sJackson, jgit, commonsIO, esSpark, graphx) ++ EclipseDeps.allDeps
+  val kodebeagle = Seq(akka, httpClient, scalastyle, spark, parserCombinator, scalaTest, slf4j, javaparser, json4s, config,
+    json4sJackson, jgit, commonsIO, esSpark, graphx, guava, compress, junit, rhino) ++ EclipseDeps.allDeps
 
   val ideaPluginTest = Seq(scalaTest, commonsIO)
   val ideaPlugin = Seq()
-
   // transitively uses
   // commons-compress-1.4.1
 }

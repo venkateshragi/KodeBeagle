@@ -39,7 +39,7 @@ import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings("rawtypes")
-public class MethodVisitor extends VoidVisitorAdapter {
+public class MethodVisitor extends VoidVisitorAdapter<Object> {
 
     private List<ImportDeclaration> imports;
     private Map<String, String> importDeclMap = new HashMap<String, String>();
