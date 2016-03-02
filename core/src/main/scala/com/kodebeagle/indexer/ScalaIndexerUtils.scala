@@ -45,7 +45,7 @@ trait ScalaIndexEntityHelper {
 
 trait ScalaImportExtractor {
 
-  protected def handleInternalImports(arrOfPackageAndImport: Array[(String, String)],
+  protected def handleInternalImports(arrOfPacakgeClass: Array[(String, String)],
                                       packages: Set[String]): Set[(String, String)]
 
   def extractImports(source: String, packages: Set[String]): Set[(String, String)] = {

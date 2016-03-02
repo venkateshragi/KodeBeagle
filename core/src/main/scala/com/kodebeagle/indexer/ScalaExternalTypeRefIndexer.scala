@@ -48,9 +48,9 @@ class ScalaExternalTypeRefIndexer extends ScalaTypeRefIndexer {
     }.filter(_.types.nonEmpty).toSet
   }
 
-  override protected def handleInternalImports(arrPackageImport: Array[(String, String)],
+  override protected def handleInternalImports(arrOfPackageClass: Array[(String, String)],
                                                packages: Set[String]): Set[(String, String)] = {
-    arrPackageImport.filterNot { case (left, right) => packages.contains(left) }.toSet
+    arrOfPackageClass.filterNot { case (left, right) => packages.contains(left) }.toSet
   }
 
   override protected def toType(typeInFunction: TypeInFunction)

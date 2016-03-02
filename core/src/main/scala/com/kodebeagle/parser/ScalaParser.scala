@@ -19,6 +19,7 @@ package com.kodebeagle.parser
 
 import org.scalastyle.CheckerUtils
 
+import scala.collection.immutable.IndexedSeq
 import scala.collection.mutable.ListBuffer
 import scala.util.Try
 import scalariform.parser.{FullDefOrDcl, FunDefOrDcl, TemplateBody, TmplDef}
@@ -26,8 +27,8 @@ import scalariform.utils.Range
 
 case class TypeInFunction(typeName: String, ranges: List[Range], props: Set[(String, List[Range])])
 
-private class ScalaParser(funDefOrDcl: FunDefOrDcl, imports: Set[(String, String)])
-  extends ScalaParserBase(funDefOrDcl) {
+private class ScalaParser(funDefOrDcl: FunDefOrDcl,
+                          imports: Set[(String, String)]) extends ScalaParserBase(funDefOrDcl) {
 
   def parseFunction(): List[TypeInFunction] = {
     val allCallExprs = getAllCallExprs
@@ -42,11 +43,27 @@ private class ScalaParser(funDefOrDcl: FunDefOrDcl, imports: Set[(String, String
 
 
   def getImportName(imports: Set[(String, String)], className: String): String = {
+    val classNameParts = className.split('.')
+
     def tuple2ToImportString(importName: (String, String)): String = {
       importName._1 + "." + importName._2
     }
+    // simplifies prefixed imports and returns non-prefixed imports as it is
+    def simplifyImports(tupleOfPackageClass: (String, String)) = {
+      val length = classNameParts.length
+      length > 1 match {
+        case true => val prefix = classNameParts.head
+          tupleOfPackageClass._2 == prefix match {
+            case true =>
+              Some((tupleOfPackageClass._1 + "." +
+                classNameParts.take(length - 1).mkString("."), classNameParts.last))
+            case false => None
+          }
+        case false => Some(tupleOfPackageClass)
+      }
+    }
 
-    imports.find(_._2 == className) match {
+    imports.flatMap(simplifyImports).find(_._2 == classNameParts.lastOption.getOrElse("")) match {
       case Some(x) => tuple2ToImportString(x)
       case None => ""
     }
@@ -58,7 +75,8 @@ object ScalaParser {
   def parse(source: String, imports: Set[(String, String)]): List[List[TypeInFunction]] = {
     extractFunctions(source).map { funDef =>
       val scalaParser = new ScalaParser(funDef, imports)
-      scalaParser.parseFunction()
+      val typesInFunction = scalaParser.parseFunction()
+      typesInFunction
     }
   }
 
