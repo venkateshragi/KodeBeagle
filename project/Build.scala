@@ -65,24 +65,21 @@ object KodeBeagleBuild extends Build {
   // This is required for plugin devlopment.
   val ideaLib = sys.env.get("IDEA_LIB").orElse(sys.props.get("idea.lib"))
 
-  val scalaPluginJar = sys.env.get("SCALA_PLUGIN").orElse(sys.props.get("scala.plugin"))
 
   def aggregatedProjects: Seq[ProjectReference] = {
-    if (ideaLib.isDefined && scalaPluginJar.isDefined) {
+    if (ideaLib.isDefined) {
       Seq(core, pluginBase, pluginImpl, pluginTests)
     } else {
       println(
         """[warn] Plugin project disabled. To enable append -Didea.lib="idea/lib"""" ++
-          """ and -Dscala.plugin="path/to/scala-plugin.jar" to JVM params in SBT settings or""" ++
+          """ to JVM params in SBT settings or""" ++
           """ while invoking sbt (incase it is called from commandline.). """)
       Seq(core)
     }
   }
 
-  def scalaPluginSettings = if (scalaPluginJar.isEmpty) Seq()
-  else Seq(
+  def scalaPluginSettings =  Seq(
     scalaVersion := "2.11.6",
-    unmanagedJars in Compile += file(scalaPluginJar.get),
     libraryDependencies += "org.scala-lang" % "scala-library" % scalaVersion.value % "provided"
   )
 
@@ -104,7 +101,6 @@ object KodeBeagleBuild extends Build {
         val file = dir / "META-INF" / "plugin.xml"
         IO.write(file, IO.read(file).replaceAll("VERSION_STRING", v))
         Seq(file)
-
       }))
 
   def pluginTestSettings = pluginSettings ++ Seq(
