@@ -1463,8 +1463,12 @@ var prettyPrint;
             for(var i = 0; i < job.heilightLines_obj.length; i++) {
                 if(lineNumber == job.heilightLines_obj[i].lineNumber) {
                     var heighLightWord = source.substring(spanStart, spanEnd).substring(job.heilightLines_obj[i].startColumn, job.heilightLines_obj[i].endColumn);
-                    if(styledText.search(heighLightWord) >= 0) {
-                        span.style.backgroundColor = "lightskyblue";
+                    try {
+                        if(styledText.search(heighLightWord) >= 0) {
+                            span.style.backgroundColor = "lightskyblue";
+                        }
+                    } catch (e) {
+                        console.log("Exception occured while finding highlighted text :" + e);
                     }
                 }
             }

@@ -8,14 +8,14 @@
     '$document',
     function(model, $location, $rootScope, docsService, $document) {
 
-      
+
       docsService.config(model.config);
 
       var backTotop = angular.element( document.getElementById( 'back-to-top' ) )
       var navEle = angular.element( document.getElementById( 'header-nav' ) );
       var bodyEle = angular.element( document.body );
       var prevScrollTop;
-      
+
       $document.bind( 'scroll', function( e ) {
         var topOffset = document.body.scrollTop;
         if( topOffset > 5 ) {
@@ -26,11 +26,11 @@
           navEle[0].style.top = '';
           bodyEle.removeClass( 'stick-to-top' );
           return;
-        }        
-        
+        }
+
         if( prevScrollTop > topOffset ) {
           bodyEle.addClass( 'stick-to-top' );
-          
+
           setTimeout( function  () {
             navEle[0].style.top = '0px';
           }, 10 );
@@ -39,12 +39,12 @@
           navEle[0].style.top = '';
           setTimeout( function  () {
             bodyEle.removeClass( 'stick-to-top' );
-          }, 100 );          
+          }, 100 );
         }
-        
+
 
         prevScrollTop = topOffset;
-      } ); 
+      } );
 
       backTotop.bind( 'click', function( e ) {
         e.preventDefault();
@@ -53,7 +53,7 @@
 
       return {
         controller: ['$scope', '$rootScope', function(scope, $rootScope) {
-          
+
           scope.model = model;
           scope.$watch(function() {
             return $location.search().searchTerms + $location.search().searchType;
@@ -65,7 +65,7 @@
             model.selectedTexts = [];
             $rootScope.editorView = false;
             model.showErrorMsg = false;
-            
+
             if (selectedTexts) {
               model.selectedTexts = selectedTexts.split(',');
               model.searchedData = model.selectedTexts.join( ', ' );
@@ -104,14 +104,40 @@
                     return( ele.methods.length );
                   } );
 
-                  
+                    var matchedImportMethodsCount = {};
+                    _.each(processedData.result, function(value, key){
+                        _.each(value.matchedImportMethodsCount, function(methodsCount, importName){
+                            if( importName !== 'methodCount' ) {
+                                if(!matchedImportMethodsCount[importName]) {
+                                    matchedImportMethodsCount[importName] = {};
+                                }
+                                _.each(methodsCount, function(count, methodName){
+                                    if(!matchedImportMethodsCount[importName][methodName]){
+                                        matchedImportMethodsCount[importName][methodName] = 0;
+                                    }
+                                    matchedImportMethodsCount[importName][methodName] += count;
+                                });
+                            }
+                        })
+                    });
 
                   for (var cName in processedData.classes ) {
                     processedData.classes[cName].methods = _.unique(processedData.classes[cName].methods);
                     //searchCommonUsage(cName, processedData.classes[cName]);
                   }
+
+                  _.each(model.groupedMethods, function(importName, index){
+                      var sortedMethods = _.sortBy(importName.methods, function(methodName){
+                          var count = matchedImportMethodsCount[importName.importName][methodName];
+                          if(count != 0)
+                              return -count;
+                          return 0;
+                      });
+                      importName.methods = sortedMethods;
+                  });
+
                   if (processedData.result.length === 0) {
-          
+
                     model.emptyResponse = true;
                     model.totalFiles = 0;
                     function getCombinations(chars) {
@@ -119,7 +145,7 @@
                       var f = function(prefix, chars) {
                         var r;
                         for (var i = 0; i < chars.length; i++) {
-                          r = prefix ? prefix + ',' + chars[i] : chars[i] ; 
+                          r = prefix ? prefix + ',' + chars[i] : chars[i] ;
                           result.push( r );
                           f( r, chars.slice(i + 1));
                         }
@@ -135,15 +161,15 @@
                         queryString: combinations[ i ],
                         resultSize: 1,
                         callback: function( obj ) {
-                          
+
                           if( obj.result.length ) {
                             model.suggestions.push( obj.query );
-                          }   
+                          }
                         },
 
                       } );
                     }
-                    
+
                     //docsService.updateSuggesions( combinations );
                   } else {
                     KB.updateEditorsList( processedData.result, model.packages, model, docsService );
@@ -168,12 +194,12 @@
               newval = '{}';
               model.packages = false;
             } else {
-              model.packages = JSON.parse(newval);  
+              model.packages = JSON.parse(newval);
             }
             if( newval || oldval ) {
               KB.updateEditorsList( processedData.result, model.packages, model,  docsService );
             }
-            
+
           });
         }]
       };
