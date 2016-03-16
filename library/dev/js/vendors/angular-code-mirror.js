@@ -1458,6 +1458,8 @@ var prettyPrint;
           span.className = decorations[decorationIndex + 1];
           var parentNode = textNode.parentNode;
           parentNode.replaceChild(span, textNode);
+
+          //the following code is to highlight the searched text.
           if(parentNode.classList.contains("active-line") && job.heilightLines_obj) {
             var lineNumber = parentNode.attributes["line_number"].nodeValue;
             for(var i = 0; i < job.heilightLines_obj.length; i++) {
@@ -1473,6 +1475,7 @@ var prettyPrint;
                 }
             }
           }
+
           span.appendChild(textNode);
           if (sourceIndex < spanEnd) {  // Split off a text node.
             spans[spanIndex + 1] = textNode

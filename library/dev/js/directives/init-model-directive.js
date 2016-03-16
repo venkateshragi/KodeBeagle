@@ -104,6 +104,7 @@
                     return( ele.methods.length );
                   } );
 
+                    //to sort methods in import besed on the number of their occurrences
                     var matchedImportMethodsCount = {};
                     _.each(processedData.result, function(value, key){
                         _.each(value.matchedImportMethodsCount, function(methodsCount, importName){
@@ -126,6 +127,7 @@
                     //searchCommonUsage(cName, processedData.classes[cName]);
                   }
 
+                    //to sort methods in import besed on the number of their occurrences
                   _.each(model.groupedMethods, function(importName, index){
                       var sortedMethods = _.sortBy(importName.methods, function(methodName){
                           var count = matchedImportMethodsCount[importName.importName][methodName];

@@ -265,15 +265,19 @@
 
 
           fileMatchingImports.methodCount = 0;
+          //to count the occurrences of each method in the import
           var matchedImportMethodsCount = {};
 
           _.each(fileMatchingImports,function( methods, name ){
+
+            //to count the occurrences of each method in the import
             var methodOccurrences = _.groupBy(methods, function(method) {return method;});
             var methodCounts = {};
             _.each(methodOccurrences, function(occurrences, methodName) {
                 methodCounts[methodName] = occurrences.length;
             });
             matchedImportMethodsCount[name] = methodCounts;
+
             methods = _.unique( methods );
             if( name !== 'methodCount' ) {
               fileMatchingImports.methodCount += methods.length
