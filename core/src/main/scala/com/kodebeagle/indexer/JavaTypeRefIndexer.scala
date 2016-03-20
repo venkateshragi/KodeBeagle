@@ -18,21 +18,8 @@
 package com.kodebeagle.indexer
 
 import com.kodebeagle.logging.Logger
-import com.kodebeagle.parser.TypeInFunction
-import org.scalastyle.Lines
 
-trait ScalaTypeRefIndexer extends ScalaImportExtractor
-  with ScalaIndexEntityHelper with Logger with Serializable {
-
-  protected def generateTypeReferences(files: Map[String, String],
-                                       packages: List[String],
-                                       repo: Option[Repository]): Set[TypeReference]
-
-  protected def toListOfListOfType(listOfListOfTypeInFunction: List[List[TypeInFunction]])
-                                  (implicit lines: Lines) = {
-    listOfListOfTypeInFunction.map(listOfTypeInFunction =>
-      listOfTypeInFunction.map(typeInFunction => toType(typeInFunction)).filter(typeRef =>
-        typeRef.typeName.nonEmpty && typeRef.lines.nonEmpty && typeRef.properties.nonEmpty))
-  }
+trait JavaTypeRefIndexer extends Serializable with Logger {
+  def generateTypeReferences(files: Map[String, String], packages: List[String],
+                             repo: Option[Repository]): Set[TypeReference]
 }
-

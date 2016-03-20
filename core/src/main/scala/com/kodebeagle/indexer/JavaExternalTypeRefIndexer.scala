@@ -24,7 +24,7 @@ import com.kodebeagle.parser.MethodVisitor
 
 import scala.collection.immutable
 
-class JavaExternalTypeRefIndexer extends Logger {
+class JavaExternalTypeRefIndexer extends JavaTypeRefIndexer {
 
   protected def extractTokensASTParser(excludePackages: Set[String],
                                        fileContent: String, fileName: String):
