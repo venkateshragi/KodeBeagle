@@ -20,7 +20,7 @@ package com.kodebeagle.crawler
 import java.io._
 import java.util.zip.{ZipEntry, ZipInputStream, ZipOutputStream}
 
-import com.kodebeagle.indexer.Statistics
+import com.kodebeagle.indexer.{Repository, RepoFileNameInfo, Statistics}
 import com.kodebeagle.logging.Logger
 import org.apache.commons.compress.archivers.zip.{ZipArchiveEntry, ZipArchiveOutputStream}
 
@@ -30,6 +30,7 @@ import scala.util.Try
 /**
   * Extracts java files and packages from the given zip file.
   */
+
 object ZipBasicParser extends Logger {
 
   private val bufferSize = 1024000 // about 1 mb
@@ -40,9 +41,14 @@ object ZipBasicParser extends Logger {
       .stripPrefix("src.main.scala.")
   }
 
-  def readFilesAndPackages(repoId: Int, zipStream: ZipInputStream): (List[(String, String)],
-    List[(String, String)],
-    List[String], Statistics) = {
+  private def toRepository(mayBeFileInfo: Option[RepoFileNameInfo], stats: Statistics) =
+    mayBeFileInfo.map(fileInfo => Repository(fileInfo.login, fileInfo.id, fileInfo.name,
+      fileInfo.fork, fileInfo.language, fileInfo.defaultBranch, fileInfo.stargazersCount,
+      stats.sloc, stats.fileCount, stats.size))
+
+  def readFilesAndPackages(repoFileNameInfo: Option[RepoFileNameInfo],
+                           zipStream: ZipInputStream): (List[(String, String)],
+    List[(String, String)], List[String], Option[Repository]) = {
     val javaFileList = mutable.ArrayBuffer[(String, String)]()
     val scalaFileList = mutable.ArrayBuffer[(String, String)]()
     val allPackages = mutable.ArrayBuffer[String]()
@@ -78,8 +84,9 @@ object ZipBasicParser extends Logger {
     }
     // This is not precise, and might be effected by char-encoding.
     val sizeInKB: Long = size / 1024
+    val statistics = Statistics(sloc, fileCount, sizeInKB)
     (javaFileList.toList, scalaFileList.toList,
-      allPackages.toList, Statistics(repoId, sloc, fileCount, sizeInKB))
+      allPackages.toList, toRepository(repoFileNameInfo, statistics))
   }
 
   def readContent(stream: ZipInputStream): String = {
@@ -95,8 +102,12 @@ object ZipBasicParser extends Logger {
 
   }
 
-  def readJSFiles(zipStream: ZipInputStream): (List[(String, String)]) = {
+  def readJSFiles(repoFileNameInfo: Option[RepoFileNameInfo],
+                  zipStream: ZipInputStream): (List[(String, String)], Option[Repository]) = {
     val list = mutable.ArrayBuffer[(String, String)]()
+    var size = 0
+    var sloc = 0
+    var fileCount = 0
     var ze: Option[ZipEntry] = None
     try {
       do {
@@ -105,6 +116,9 @@ object ZipBasicParser extends Logger {
           && !ze.getName.contains("node_modules")) {
           val fileName = ze.getName
           val fileContent = readContent(zipStream)
+          size += fileContent.length
+          fileCount += 1
+          sloc += fileContent.split("\n").size
           list += (fileName -> fileContent)
         }
         }
@@ -115,7 +129,9 @@ object ZipBasicParser extends Logger {
     } finally {
       zipStream.close()
     }
-    list.toList
+    val sizeInKB = size / 1024
+    val stats = Statistics(sloc, fileCount, size)
+    (list.toList, toRepository(repoFileNameInfo, stats))
   }
 
   def listAllFiles(dir: String): Array[File] = new File(dir).listFiles

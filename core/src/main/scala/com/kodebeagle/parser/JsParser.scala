@@ -17,7 +17,7 @@
 
 package com.kodebeagle.parser
 
-import com.kodebeagle.indexer.{HighLighter, JavaFileIndexerHelper, Repository}
+import com.kodebeagle.indexer.{Repository, ExternalLine, ExternalType, ExternalTypeReference, JavaFileIndexerHelper, Property, RepoFileNameInfo}
 import com.kodebeagle.logging.Logger
 import org.mozilla.javascript.ast.{AstNode, AstRoot, ErrorCollector, FunctionCall, NodeVisitor, PropertyGet, VariableInitializer}
 import org.mozilla.javascript.{CompilerEnvirons, IRFactory}
@@ -26,15 +26,7 @@ import scala.collection.JavaConversions._
 import scala.collection.mutable
 import scala.util.Try
 
-// For convenience, let's consider property is any object property or method
-case class Property(propertyName: String, lineNumbers: List[HighLighter])
-
-// Type is any module that is required or the module's property that is required
-case class Type(typeName: String, lineNumbers: List[HighLighter], properties: Set[Property])
-
 case class RefVariable(refVariableName: String, lineNumber: Int)
-
-case class JsToken(repoId: Int, file: String, types: Set[Type], score: Int)
 
 // Assuming the commonjs module format for any given npm package
 object JsParser extends Logger {
@@ -129,25 +121,26 @@ object JsParser extends Logger {
     set.toList
   }
 
-  private def toHighLighter(lineNumbers: List[Int]) = {
-    lineNumbers.map(HighLighter(_, -1, -1))
+  private def toHighLighter(lineNumbers: List[Int]): List[ExternalLine] = {
+    lineNumbers.map(ExternalLine(_, -1, -1))
   }
 
-  def getTypes(rootNode: AstRoot): Iterable[Type] = {
+  def getTypes(rootNode: AstRoot): Iterable[ExternalType] = {
     val mapOfRefVarAndType = getMapOfRefVarAndType(rootNode)
     mapOfRefVarAndType.map { tupleOfVarLineType =>
       val props = getProperties(rootNode, tupleOfVarLineType._1.refVariableName)
       val propLines = props.map(prop => (prop.toSource(), prop.getLineno)).groupBy(_._1)
         .mapValues(_.map(_._2)).map(propLine => Property(propLine._1, toHighLighter(propLine._2)))
-      Type(tupleOfVarLineType._2, (toHighLighter(List(tupleOfVarLineType._1.lineNumber))
-        ::: propLines.toList.flatMap(_.lineNumbers)).distinct, propLines.toSet)
+      ExternalType(tupleOfVarLineType._2, (toHighLighter(List(tupleOfVarLineType._1.lineNumber))
+        ::: propLines.toList.flatMap(_.lines).asInstanceOf[List[ExternalLine]]).distinct,
+        propLines.toSet)
     }.filter(_.properties.nonEmpty)
   }
 
   /* Generates a token for each file by considering the
    whole file as a single block of context */
-  def generateTokens(fileNamesVsContent: Map[String, String],
-                     repository: Option[Repository]): Set[JsToken] = {
+  def generateTypeReferences(fileNamesVsContent: Map[String, String],
+                             repository: Option[Repository]): Set[ExternalTypeReference] = {
 
     val repo = repository.getOrElse(Repository.invalid)
     fileNamesVsContent.map { tupleOfNameContent =>
@@ -158,9 +151,9 @@ object JsParser extends Logger {
       if (mayBeAstRoot.isSuccess) {
         val types = getTypes(mayBeAstRoot.get).toSet
         val gitFileName = JavaFileIndexerHelper.fileNameToURL(repo, tupleOfNameContent._1)
-        JsToken(repo.id, gitFileName, types, repo.stargazersCount)
+        ExternalTypeReference(repo.id, gitFileName, types, repo.stargazersCount)
       } else {
-        JsToken(-1, "", Set[Type](), -1)
+        ExternalTypeReference(-1, "", Set[ExternalType](), -1)
       }
     }.filter(x => x.types.nonEmpty).toSet
   }

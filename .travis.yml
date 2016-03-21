@@ -4,7 +4,7 @@ scala:
 jdk:
   - oraclejdk8
 install:
-  - IDEA_VERSION=15.0.2
+  - IDEA_VERSION=15.0.4
   - IDEA_TAR=ideaIC-${IDEA_VERSION}.tar.gz
   - SCALA_PLUGIN_VERSION=2.0.4
   - SCALA_PLUGIN_FULL=scala-intellij-bin-${SCALA_PLUGIN_VERSION}.zip
@@ -39,6 +39,7 @@ install:
   - tar zxf $IDEA_TAR
   - rm -rf $IDEA_TAR
   - mv idea-IC-* idea-IC
+  - mv "scala-plugin.jar" "idea-IC/lib"
   - echo "$(pwd)/idea-IC"
 services:
  
@@ -47,7 +48,7 @@ env:
   - PR_VALIDATE=0
 
 script:
-  - IDEA_LIB="$(pwd)/idea-IC/lib" SCALA_PLUGIN="$(pwd)/scala-plugin.jar" bin/run_tests.sh
+  - IDEA_LIB="$(pwd)/idea-IC/lib" bin/run_tests.sh
 
 notifications:
   email: true

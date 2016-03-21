@@ -15,32 +15,11 @@
  * limitations under the License.
  */
 
-package com.kodebeagle.parser
+package com.kodebeagle.indexer
 
-import com.kodebeagle.indexer.RepoFileNameInfo
 import com.kodebeagle.logging.Logger
 
-import scala.util.Try
-import scala.util.parsing.combinator._
-
-object RepoFileNameParser extends RegexParsers with Logger {
-
-  def apply(input: String): Option[RepoFileNameInfo] = Try(parseAll(repo, input)).toOption.flatMap {
-    case Success(result, _) => Some(result)
-    case failure: NoSuccess => log.error(failure.msg)
-      None
-  }
-
-  def repo: Parser[RepoFileNameInfo] = {
-    "(|.*/)repo".r ~> rep(tilde ~> name) ^^ {
-      x => val y = x.toArray
-        val branch = if (y.size == 7) y(5) else "master"
-        RepoFileNameInfo(y(0), y(2).toInt, y(1), false, y(4), branch,
-          x.last.trim.stripSuffix(".zip").toInt)
-    }
-  }
-
-  def name: Parser[String] = """[^~]+""".r
-
-  def tilde: Parser[String] = """~""".r
+trait JavaTypeRefIndexer extends Serializable with Logger {
+  def generateTypeReferences(files: Map[String, String], packages: List[String],
+                             repo: Option[Repository]): Set[TypeReference]
 }

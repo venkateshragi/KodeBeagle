@@ -15,32 +15,24 @@
  * limitations under the License.
  */
 
-package com.kodebeagle.parser
+package com.kodebeagle.indexer
 
-import com.kodebeagle.indexer.RepoFileNameInfo
 import com.kodebeagle.logging.Logger
+import com.kodebeagle.parser.TypeInFunction
+import org.scalastyle.Lines
 
-import scala.util.Try
-import scala.util.parsing.combinator._
+trait ScalaTypeRefIndexer extends ScalaImportExtractor
+  with ScalaIndexEntityHelper with Logger with Serializable {
 
-object RepoFileNameParser extends RegexParsers with Logger {
+  protected def generateTypeReferences(files: Map[String, String],
+                                       packages: List[String],
+                                       repo: Option[Repository]): Set[TypeReference]
 
-  def apply(input: String): Option[RepoFileNameInfo] = Try(parseAll(repo, input)).toOption.flatMap {
-    case Success(result, _) => Some(result)
-    case failure: NoSuccess => log.error(failure.msg)
-      None
+  protected def toListOfListOfType(listOfListOfTypeInFunction: List[List[TypeInFunction]])
+                                  (implicit lines: Lines) = {
+    listOfListOfTypeInFunction.map(listOfTypeInFunction =>
+      listOfTypeInFunction.map(typeInFunction => toType(typeInFunction)).filter(typeRef =>
+        typeRef.typeName.nonEmpty && typeRef.lines.nonEmpty && typeRef.properties.nonEmpty))
   }
-
-  def repo: Parser[RepoFileNameInfo] = {
-    "(|.*/)repo".r ~> rep(tilde ~> name) ^^ {
-      x => val y = x.toArray
-        val branch = if (y.size == 7) y(5) else "master"
-        RepoFileNameInfo(y(0), y(2).toInt, y(1), false, y(4), branch,
-          x.last.trim.stripSuffix(".zip").toInt)
-    }
-  }
-
-  def name: Parser[String] = """[^~]+""".r
-
-  def tilde: Parser[String] = """~""".r
 }
+

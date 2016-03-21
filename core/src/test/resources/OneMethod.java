@@ -28,6 +28,7 @@ package x.y.z;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
+import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.TimeUnit;
@@ -83,7 +84,6 @@ import org.apache.http.impl.client.RequestWrapper;
 import org.apache.http.impl.client.RoutedRequest;
 import org.apache.http.impl.conn.ConnectionShutdownException;
 import org.apache.http.message.BasicHttpRequest;
-import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.ExecutionContext;
@@ -93,9 +93,9 @@ import org.apache.http.protocol.HttpRequestExecutor;
 import org.apache.http.util.Args;
 import org.apache.http.util.EntityUtils;
 
-public class DefaultRequestDirector implements RequestDirector {
+public class DefaultRequestDirector<ABC> extends ABCD<XYZ,TYZ> implements RequestDirector<JKL>, Serializable<T> {
 	class DEF{
-		class GHI{}
+		class GHI<bnm>{}
 	}
 	private final Log log;
 
@@ -164,10 +164,10 @@ public class DefaultRequestDirector implements RequestDirector {
 
     private HttpHost virtualHost;
 
-    
+
 	/**
 	 * Analyzes a response to check need for a followup.
-	 * 
+	 *
 	 * @param roureq
 	 *            the request and route.
 	 * @param response
@@ -184,15 +184,20 @@ public class DefaultRequestDirector implements RequestDirector {
 	public DefaultRequestDirector(){
 
 	}
+void test() {}
 	protected RoutedRequest handleResponse(final RoutedRequest roureq,
 			final HttpResponse response, final HttpContext context)
 			throws HttpException, IOException {
+		   test();
 		String something = new String();
 		String somethingElse = "";
 		List<Something> somethingList = null;
+		test(something);
 		final HttpRoute route = roureq.getRoute();
 		final RequestWrapper request = roureq.getRequest();
 		final HttpParams params = request.getParams();
+		int i = org.apache.http.params.HttpConnectionParams.getConnectionTimeout(parmas);
+		javax.rmi.CORBA obj;
 		if (HttpClientParams.isAuthenticating(params)) {
 			HttpHost target = (HttpHost) context
 					.getAttribute(ExecutionContext.HTTP_TARGET_HOST);

@@ -19,27 +19,40 @@
 package com.kodebeagle.indexer
 
 import com.kodebeagle.indexer.JavaFileIndexerHelper._
+import com.kodebeagle.logging.Logger
 import com.kodebeagle.parser.MethodVisitor
 
 import scala.collection.immutable
 
-class JavaASTBasedIndexerForMethods extends JavaASTBasedIndexer {
+class JavaExternalTypeRefIndexer extends JavaTypeRefIndexer {
 
-  private def extractTokensASTParser(excludePackages: Set[String],
-                                     fileContent: String, fileName: String):
-  (Set[(String, String)], List[Set[MethodToken]]) = {
+  protected def extractTokensASTParser(excludePackages: Set[String],
+                                       fileContent: String, fileName: String):
+  (Set[(String, String)], List[Set[ExternalType]]) = {
     val parser = new MethodVisitor()
     parser.parse(fileContent, fileName)
-    import com.kodebeagle.parser.MethodVisitorHelper._
-    val imports: Set[(String, String)] = getImports(parser,excludePackages)
+    val imports: Set[(String, String)] = getImports(parser, excludePackages)
     val importsSet = imports.map(tuple2ToImportString)
-    val tokensMap: List[Map[String, List[HighLighter]]] = getTokenMap(parser, importsSet)
+    import com.kodebeagle.parser.MethodVisitorHelper._
+    val tokensMap: List[Map[String, List[ExternalLine]]] = getTokenMap(parser, importsSet)
     (imports, createMethodIndexEntries(parser, tokensMap))
   }
 
-  def generateTokensWithMethods(files: Map[String, String], excludePackages: List[String],
-                                repo: Option[Repository]): Set[ImportsMethods] = {
-    var indexEntries = immutable.HashSet[ImportsMethods]()
+  def getImports(parser: MethodVisitor, excludePackages: Set[String]): Set[(String, String)] = {
+    import scala.collection.JavaConversions._
+    val iterOfPackageAndImport = parser.getImportDeclMap.toIterator
+      .map(x => (x._2.stripSuffix(s".${x._1}"), x._1))
+    handleInternalImport(iterOfPackageAndImport, excludePackages)
+  }
+
+  protected def handleInternalImport(iterOfPackageAndImport: Iterator[(String, String)],
+                                     packages: Set[String]): Set[(String, String)] = {
+    iterOfPackageAndImport.filterNot { case (left, right) => packages.contains(left) }.toSet
+  }
+
+  def generateTypeReferences(files: Map[String, String], excludePackages: List[String],
+                             repo: Option[Repository]): Set[TypeReference] = {
+    var indexEntries = immutable.HashSet[ExternalTypeReference]()
     val r = repo.getOrElse(Repository.invalid)
     for (file <- files) {
       val (fileName, fileContent) = file
@@ -51,14 +64,14 @@ class JavaASTBasedIndexerForMethods extends JavaASTBasedIndexer {
           if (isTestFile(imports)) r.stargazersCount / penalizeTestFiles else r.stargazersCount
         for (methodToken <- methodTokens) {
           indexEntries =
-            indexEntries + ImportsMethods(r.id, fullGithubURL, methodToken,
+            indexEntries + ExternalTypeReference(r.id, fullGithubURL, methodToken,
               score)
         }
       } catch {
         case e: Throwable => log.error(s"Failed for $fullGithubURL", e);
       }
     }
-    indexEntries.filter(_.tokens.nonEmpty)
+    indexEntries.filter(_.types.nonEmpty).toSet
   }
 }
 

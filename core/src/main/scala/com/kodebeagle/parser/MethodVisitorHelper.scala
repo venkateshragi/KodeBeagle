@@ -25,8 +25,8 @@ import com.kodebeagle.indexer._
 object MethodVisitorHelper {
 
   def getImportsWithMethodAndLineNumbers(parser: MethodVisitor, tokens: List[Map[String,
-    List[HighLighter]]]): List[(Map[String, Map[String, List[HighLighter]]],
-    Map[String, List[HighLighter]])] = {
+    List[ExternalLine]]]): List[(Map[String, Map[String, List[ExternalLine]]],
+    Map[String, List[ExternalLine]])] = {
     import scala.collection.JavaConversions._
     val zippedMethodsWithTokens = parser.importsMethodsAndLineColumnNumbersList.toList zip tokens
     zippedMethodsWithTokens.map { methodsAndTokens => val (methods, tokens) = methodsAndTokens
@@ -35,24 +35,19 @@ object MethodVisitorHelper {
         if (methods.containsKey(importName)) {
           importName -> javaToScalaMap(methods)(importName)
         }
-        else importName -> Map[String, List[HighLighter]]()
+        else importName -> Map[String, List[ExternalLine]]()
       }, tokens)
     }
   }
 
-  def getImports(parser: MethodVisitor, excludePackages: Set[String]): Set[(String, String)] = {
-    import scala.collection.JavaConversions._
-    parser.getImportDeclMap.toIterator.map(x => (x._2.stripSuffix(s".${x._1}"),
-      x._1)).filterNot { case (left, right) => excludePackages.contains(left) }.toSet
-  }
-
   def getTokenMap(parser: MethodVisitor, importsSet: Set[String]):
-  List[Map[String, List[HighLighter]]] = {
+  List[Map[String, List[ExternalLine]]] = {
     import scala.collection.JavaConversions._
+
     parser.lineAndColumnsNumbers.map { x =>
       x.map(y =>
-        Token2(y._1.toLowerCase, y._1, y._2.map(a =>
-          HighLighter(a._1.toInt, a._2.toInt, a._3.toInt)).toSet)).filter
+        Token(y._1.toLowerCase, y._1, y._2.map(a =>
+          ExternalLine(a._1.toInt, a._2.toInt, a._3.toInt)).toSet)).filter
         { x => importsSet.contains(x.importExactName) }.toSet
     }.toList.map { a =>
       a.map { a => a.importExactName -> a.lineNumbers.toList }.toMap
@@ -62,28 +57,28 @@ object MethodVisitorHelper {
   def javaToScalaMap(
     javaHashMap:
     HashMap[String, HashMap[String, ArrayList[(Integer,Integer,Integer)]]]):
-  Map[String, Map[String, List[HighLighter]]] = {
+  Map[String, Map[String, List[ExternalLine]]] = {
     import scala.collection.JavaConversions._
     (javaHashMap map { case (k, v) =>
       k -> v.toMap.map {
-        case (k, v) => k -> v.toList.map(a => HighLighter(a._1, a._2, a._3))
+        case (k, v) => k -> v.toList.map(a => ExternalLine(a._1, a._2, a._3))
       }
     }).toMap
   }
 
   def createMethodIndexEntries(parser: MethodVisitor,
-    tokens: List[Map[String, List[HighLighter]]]): List[Set[MethodToken]] =
+    tokens: List[Map[String, List[ExternalLine]]]): List[Set[ExternalType]] =
     getImportsWithMethodAndLineNumbers(parser, tokens).map { methodTokens =>
       val (method, tokens) = methodTokens
       createMethodIndexEntry(method, tokens)
     }
 
-  def createMethodIndexEntry(importWithMethods: Map[String, Map[String, List[HighLighter]]],
-                             tokens: Map[String, List[HighLighter]]): Set[MethodToken] = {
+  def createMethodIndexEntry(importWithMethods: Map[String, Map[String, List[ExternalLine]]],
+                             tokens: Map[String, List[ExternalLine]]): Set[ExternalType] = {
     importWithMethods.map { case (importName, methodAndLineNumbers) =>
-      MethodToken(importName.toLowerCase, importName, tokens(importName),
+      ExternalType(importName, tokens(importName),
         methodAndLineNumbers.map {
-          case (k, v) => MethodAndLines(k, v)
+          case (k, v) => Property(k, v)
         }.toSet
       )
     }

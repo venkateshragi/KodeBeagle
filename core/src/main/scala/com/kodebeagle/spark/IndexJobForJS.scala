@@ -20,13 +20,13 @@ import java.util.zip.ZipInputStream
 
 import com.kodebeagle.configuration.KodeBeagleConfig
 import com.kodebeagle.crawler.ZipBasicParser
-import com.kodebeagle.indexer.{MethodToken, Repository}
+import com.kodebeagle.indexer.Repository
 import com.kodebeagle.parser.{JsParser, RepoFileNameParser}
 import com.kodebeagle.spark.SparkIndexJobHelper._
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
 
-object CreateJsIndexJob {
+object IndexJobForJS {
 
   private def makeZipFileExtractedRDD(sc: SparkContext):
   RDD[(List[(String, String)], Option[Repository])] = {
@@ -35,8 +35,9 @@ object CreateJsIndexJob {
     }
 
     val zipFileExtractedRDD = zipFileNameRDD.map { case (zipFileName, stream) =>
-      val repo: Option[Repository] = RepoFileNameParser(zipFileName)
-      val filesMap = ZipBasicParser.readJSFiles(new ZipInputStream(stream.open()))
+      val repofileNameInfo = RepoFileNameParser(zipFileName)
+      val (filesMap, repo) =
+        ZipBasicParser.readJSFiles(repofileNameInfo, new ZipInputStream(stream.open()))
       (filesMap, repo)
     }
     zipFileExtractedRDD
@@ -45,7 +46,7 @@ object CreateJsIndexJob {
   def main(args: Array[String]): Unit = {
     val conf = new SparkConf()
       .setMaster(KodeBeagleConfig.sparkMaster)
-      .setAppName("CreateJsIndexJob")
+      .setAppName("IndexJobForJS")
 
     val sc: SparkContext = createSparkContext(conf)
 
@@ -54,11 +55,10 @@ object CreateJsIndexJob {
 
     zipFileExtractedRDD.map { entry =>
       val (jsFiles, repo) = entry
-      (repo, JsParser.generateTokens(jsFiles.toMap, repo),
-        mapToSourceFiles(repo, jsFiles))
+      (repo, JsParser.generateTypeReferences(jsFiles.toMap, repo), mapToSourceFiles(repo, jsFiles))
     }.flatMap {
       case (Some(repository), jsIndices, sourceFiles) =>
-        Seq(toJson(jsIndices, isToken = false),
+        Seq(toIndexTypeJson("typereference", "jsexternal", jsIndices, isToken = false),
           toJson(repository, isToken = false), toJson(sourceFiles, isToken = false))
       case _ => Seq()
     }.saveAsTextFile(KodeBeagleConfig.sparkIndexOutput)
