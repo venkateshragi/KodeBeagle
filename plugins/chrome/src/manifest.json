@@ -16,5 +16,6 @@
 	"permissions":	[
 		"contextMenus", "activeTab", "tabs",
 		"http://192.168.2.67:9200/*"
-	]
+	],
+	"web_accessible_resources": ["lib/spinner.gif"]
 }
